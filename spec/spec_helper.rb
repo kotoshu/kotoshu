@@ -38,4 +38,7 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
     mocks.verify_doubled_constant_names = true
   end
+
+  # Skip network tests by default (they depend on external resources)
+  config.filter_run_excluding :network unless ENV.fetch("NETWORK_TESTS", nil)
 end

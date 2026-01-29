@@ -55,6 +55,15 @@ module Kotoshu
       def lookup(word)
         raise NotImplementedError, "#{self.class} must implement #lookup"
       end
+
+      # Check if a word exists in the dictionary (alias for lookup).
+      #
+      # @param word [String] The word to look up
+      # @return [Boolean] True if the word exists
+      def lookup?(word)
+        lookup(word)
+      end
+
       alias has_word? lookup
       alias include? lookup
       alias contains? lookup

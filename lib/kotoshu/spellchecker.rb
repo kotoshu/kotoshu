@@ -51,7 +51,7 @@ module Kotoshu
         @config = config
       else
         settings = kwargs.dup
-        settings[:dictionary_path] = dictionary.path if dictionary
+        settings[:dictionary_path] = dictionary.path if dictionary && dictionary.respond_to?(:path)
         @config = Configuration.new(settings)
       end
 

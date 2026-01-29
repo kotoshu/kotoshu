@@ -3,6 +3,7 @@
 require_relative "base"
 require_relative "../core/exceptions"
 require_relative "../core/models/affix_rule"
+require "open-uri"
 
 module Kotoshu
   module Dictionary
@@ -40,16 +41,16 @@ module Kotoshu
 
       # Create a new Hunspell dictionary.
       #
-      # @param dic_path [String] Path to the .dic file
-      # @param aff_path [String] Path to the .aff file
+      # @param dic_path [String] Path or URL to the .dic file
+      # @param aff_path [String] Path or URL to the .aff file
       # @param language_code [String] The language code
       # @param locale [String, nil] The locale (optional)
       # @param metadata [Hash] Additional metadata (optional)
       def initialize(dic_path:, aff_path:, language_code:, locale: nil, metadata: {})
         super(language_code, locale: locale, metadata: metadata)
 
-        @dic_path = File.expand_path(dic_path)
-        @aff_path = File.expand_path(aff_path)
+        @dic_path = resolve_path(dic_path)
+        @aff_path = resolve_path(aff_path)
 
         raise DictionaryNotFoundError, @aff_path unless File.exist?(@aff_path)
         raise DictionaryNotFoundError, @dic_path unless File.exist?(@dic_path)
@@ -61,6 +62,45 @@ module Kotoshu
         # Register this dictionary type
         self.class.register_type(:hunspell) unless Dictionary.registry.key?(:hunspell)
       end
+
+      private
+
+      # Check if path is a URL
+      # @param path [String] Path to check
+      # @return [Boolean] True if path is a URL
+      def url?(path)
+        path.start_with?("http://", "https://")
+      end
+
+      # Resolve path to local file path (downloading if URL)
+      # @param path [String] Path or URL
+      # @return [String] Local file path
+      def resolve_path(path)
+        return File.expand_path(path) unless url?(path)
+        download_to_temp(path)
+      end
+
+      # Download URL to temporary file
+      # @param url [String] URL to download
+      # @return [String] Temporary file path
+      def download_to_temp(url)
+        require "tempfile"
+
+        uri = URI.parse(url)
+        filename = File.basename(uri.path)
+
+        temp = Tempfile.new([filename, ""], encoding: "UTF-8")
+        temp.binmode
+
+        URI.open(uri, "rb") do |remote_file|
+          IO.copy_stream(remote_file, temp)
+        end
+
+        temp.close
+        temp.path
+      end
+
+      public
 
       # Check if a word exists in the dictionary.
       #

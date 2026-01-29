@@ -27,6 +27,7 @@ require_relative "kotoshu/dictionary/custom"
 require_relative "kotoshu/dictionary/hunspell"
 require_relative "kotoshu/dictionary/cspell"
 require_relative "kotoshu/dictionary/repository"
+require_relative "kotoshu/dictionaries/catalog"
 require_relative "kotoshu/configuration"
 require_relative "kotoshu/spellchecker"
 

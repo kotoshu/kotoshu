@@ -15,7 +15,7 @@ RSpec.describe Kotoshu::Dictionary::PlainText, "# Walking Skeleton - PlainText D
       expect(dictionary.language_code).to eq("en-US")
     end
 
-    it "loads words from URL (Webster's dictionary)" do
+    it "loads words from URL (Webster's dictionary)", :network do
       dictionary = Kotoshu::Dictionary::PlainText.new(
         "https://raw.githubusercontent.com/kotoshu/dictionaries/main/unix-words/web2.txt",
         language_code: "en-US"
@@ -26,7 +26,7 @@ RSpec.describe Kotoshu::Dictionary::PlainText, "# Walking Skeleton - PlainText D
       expect(dictionary.size).to be > 200000  # Webster's has 235,976 words
     end
 
-    it "loads words with affix flags (web2a)" do
+    it "loads words with affix flags (web2a)", :network do
       dictionary = Kotoshu::Dictionary::PlainText.new(
         "https://raw.githubusercontent.com/kotoshu/dictionaries/main/unix-words/web2a.txt",
         language_code: "en-US"
