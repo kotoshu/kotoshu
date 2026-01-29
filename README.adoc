@@ -1,0 +1,582 @@
+= Kotoshu: a Ruby spellchecker
+
+image:https://img.shields.io/gem/v/kotoshu.svg[RubyGems Version]
+image:https://img.shields.io/github/license/kotoshu/kotoshu.svg[License]
+image:https://github.com/kotoshu/kotoshu/actions/workflows/rake.yml/badge.svg["Build", link="https://github.com/kotoshu/kotoshu/actions/workflows/rake.yml"]
+image:https://github.com/kotoshu/kotoshu/actions/workflows/dependent-tests.yml/badge.svg["Dependent tests", link="https://github.com/kotoshu/kotoshu/actions/workflows/dependent-tests.yml"]
+
+== Purpose
+
+Kotoshu 「言修」 (a word play on 言語修正, "language correction") is a
+spellchecker library for Ruby.
+
+It is designed to be simple to use and easy to integrate into Ruby applications.
+Kotoshu provides a clean, object-oriented API for spell checking with support
+for multiple dictionary formats and suggestion algorithms.
+
+== Features
+
+Kotoshu supports the following features:
+
+* <<multi-language-support, Multi-language support>>
+* <<spell-checking, Spell checking>>
+* <<suggestions, Suggest corrections for misspelled words>>
+* <<dictionary-backends, Pluggable dictionary backends>>
+* <<custom-dictionaries, Load custom dictionaries>>
+* <<cli-interface, Command-line interface>>
+
+== Architecture
+
+Kotoshu is built around a modular architecture that allows for easy extension
+and customization.
+
+.Architecture overview
+[source]
+----
+╔═══════════════════════════════════════════════════════════════════╗
+║                      Kotoshu Architecture                          ║
+╠═══════════════════════════════════════════════════════════════════╣
+║                                                                   ║
+║  ┌─────────────────────────────────────────────────────────────┐  ║
+║  │                     Interface Layer                          │  ║
+║  │  ┌─────────────────────┐  ┌─────────────────────────────┐   │  ║
+║  │  │   CLI (Thor)        │  │      Ruby API               │   │  ║
+║  │  │   lib/kotoshu/cli/  │  │   Kotoshu module methods    │   │  ║
+║  │  └──────────┬──────────┘  └───────────┬─────────────────┘   │  ║
+║  │             │                          │                     │  ║
+║  └─────────────┼──────────────────────────┼─────────────────────┘  ║
+║                │                          │                        ║
+║                ▼                          ▼                        ║
+║  ┌─────────────────────────────────────────────────────────────┐  ║
+║  │                   Application Layer                          │  ║
+║  │  ┌──────────────┐  ┌─────────────────┐  ┌───────────────┐   │  ║
+║  │  │ Spellchecker │  │ Configuration   │  │   Registry    │   │  ║
+║  │  └──────┬───────┘  └────────┬────────┘  └───────┬───────┘   │  ║
+║  └─────────┼───────────────────┼───────────────────┼───────────┘  ║
+║            │                   │                   │               ║
+║            ▼                   ▼                   ▼               ║
+║  ┌─────────────────────────────────────────────────────────────┐  ║
+║  │                      Domain Layer                            │  ║
+║  │  ┌──────────────┐  ┌─────────────────────────────────────┐  │  ║
+║  │  │ Dictionary   │  │ Suggestion Algorithms               │  │  ║
+║  │  │ Backends     │  │ • Edit Distance (Levenshtein)       │  │  ║
+║  │  │ • Hunspell   │  │ • Phonetic (Soundex)                │  │  ║
+║  │  │ • CSpell     │  │ • Trie Walk                         │  │  ║
+║  │  │ • UnixWords  │  │ • N-gram                            │  │  ║
+║  │  │ • PlainText  │  │ • Keyboard Proximity                │  │  ║
+║  │  │ • Custom     │  └─────────────────────────────────────┘  │  ║
+║  │  └──────────────┘                                            │  ║
+║  └─────────────────────────────────────────────────────────────┘  ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+----
+
+The core components include:
+
+* `Kotoshu::Spellchecker`: The main class responsible for spellchecking
+  operations.
+
+* `Kotoshu::Dictionary::Base`: An abstract class representing a dictionary backend.
+  Subclasses implement specific dictionary formats.
+
+* `Kotoshu::Dictionary::Hunspell`: Dictionary backend for Hunspell format
+  (.dic and .aff files).
+
+* `Kotoshu::Dictionary::CSpell`: Dictionary backend for CSpell format
+  (.txt and .trie files).
+
+* `Kotoshu::Dictionary::UnixWords`: Dictionary backend for Unix system
+  dictionaries at `/usr/share/dict/words`.
+
+* `Kotoshu::Dictionary::PlainText`: Dictionary backend for plain text
+  word lists.
+
+* `Kotoshu::Dictionary::Custom`: In-memory dictionary for custom word sets.
+
+* `Kotoshu::Registry`: A module for registering custom dictionary backends
+  and dynamically loading them through the official Kotoshu register.
+
+* `Kotoshu::Suggestions`: A module for generating suggestions for
+  misspelled words using various algorithms.
+
+=== Dictionary Backend Comparison
+
+[cols="2,1,1,1,1"]
+|===
+| Feature | Hunspell | CSpell | UnixWords | PlainText
+
+| Approach
+| Morphological rules
+| Dictionary-based (trie)
+| System word list
+| Simple word list
+
+| File Format
+| .dic + .aff
+| .txt, .trie
+| /usr/share/dict/words*
+| .txt
+
+| Best For
+| Natural language inflection
+| Code/technical terms
+| Unix spell integration
+| Custom word lists
+
+| Performance
+| Hash + affix processing
+| Trie (very fast)
+| Hash lookup
+| Hash lookup
+
+| Memory Usage
+| Medium
+| Low (compressed trie)
+| Medium (~2.4MB)
+| Low
+|===
+
+* UnixWords typically uses symlinks to dictionary files like `web2`
+  (Webster's Second International, ~236K words) or language-specific variants.
+
+[[multi-language-support]]
+=== Multi-language Support
+
+Kotoshu supports multiple languages through different dictionary backends.
+Each dictionary backend accepts a `language_code` parameter to identify the
+language of the dictionary.
+
+.Supported languages by dictionary backend:
+
+* Hunspell: Any language with available Hunspell dictionaries
+* CSpell: Any language with available CSpell dictionaries
+* UnixWords: System-dependent (typically English)
+* PlainText: Any language in UTF-8 encoding
+* Custom: Any language supported by Ruby strings
+
+[[spell-checking]]
+=== Spell Checking
+
+Kotoshu provides comprehensive spell checking capabilities through the
+`Kotoshu::Spellchecker` class.
+
+.Spell checking features:
+
+* Single word validation with `correct?` method
+* Text document checking with `check` method
+* File checking with `check_file` method
+* Directory checking with `check_directory` method
+* Case-sensitive and case-insensitive modes
+* Custom word flag support
+
+[[suggestions]]
+=== Suggestion Algorithms
+
+Kotoshu generates spelling suggestions using multiple algorithms:
+
+* *Edit Distance (Levenshtein)*: Calculates the number of single-character
+  edits required to change one word into another.
+
+* *Phonetic (Soundex)*: Groups words that sound similar, useful for catching
+  phonetic misspellings.
+
+* *Trie Walk*: Generates suggestions by traversing the dictionary trie,
+  useful for finding words with similar prefixes.
+
+* *N-gram*: Compares word n-grams (sequences of characters) to find
+  similar words.
+
+* *Keyboard Proximity*: Detects typos caused by nearby keyboard keys.
+
+.Suggestion generation
+[example]
+====
+[source,ruby]
+----
+require 'kotoshu'
+
+# Configure with multiple suggestion algorithms
+Kotoshu.configure do |config|
+  config.dictionary_path = "/usr/share/dict/words"
+  config.dictionary_type = :unix_words
+  config.max_suggestions = 10
+end
+
+# Get suggestions for a misspelled word
+word = "helo"
+suggestions = Kotoshu.suggest(word)
+
+puts "Did you mean: #{suggestions.join(', ')}?"
+# Output: Did you mean: help, hello, helm, hero, hold, hole, hell, heal, helm, hero...?
+----
+====
+
+[[dictionary-backends]]
+=== Dictionary Backends
+
+Kotoshu supports multiple dictionary formats through pluggable backends.
+Each backend implements the `Kotoshu::Dictionary::Base` interface.
+
+.Supported dictionary formats:
+
+* <<hunspell-dictionary, Hunspell (.dic/.aff)>>
+* <<cspell-dictionary, CSpell (.txt/.trie)>>
+* <<unixwords-dictionary, UnixWords (/usr/share/dict/words)>>
+* <<plaintext-dictionary, PlainText (.txt)>>
+* <<custom-dictionary, Custom (in-memory)>>
+
+[[hunspell-dictionary]]
+==== Hunspell Dictionary
+
+The Hunspell dictionary backend reads Hunspell format dictionaries consisting
+of a `.dic` file (word list) and `.aff` file (affix rules).
+
+[source]
+----
+# Example Hunspell dictionary structure
+/usr/share/hunspell/
+├── en_US.dic       # Word list with optional flags
+├── en_US.aff       # Affix rules (prefixes, suffixes, compound rules)
+├── de_DE.dic
+├── de_DE.aff
+└── ...
+----
+
+.Loading a Hunspell dictionary
+[example]
+====
+[source,ruby]
+----
+require 'kotoshu'
+
+dictionary = Kotoshu::Dictionary::Hunspell.new(
+  "/usr/share/hunspell/en_US.dic",
+  language_code: "en-US"
+)
+
+spellchecker = Kotoshu::Spellchecker.new(dictionary: dictionary)
+puts spellchecker.correct?("hello")  # => true
+puts spellchecker.correct?("helo")   # => false
+----
+====
+
+[[cspell-dictionary]]
+==== CSpell Dictionary
+
+The CSpell dictionary backend reads CSpell format dictionaries, supporting
+both plain text (`.txt`) and compressed trie (`.trie`) formats.
+
+[source]
+----
+# Example CSpell dictionary structure
+~/.cspell/
+├── dictionaries/
+│   ├── en_US.txt
+│   ├── en_US.trie
+│   └── technical-terms.txt
+└── cspell.config
+----
+
+.Loading a CSpell dictionary
+[example]
+====
+[source,ruby]
+----
+require 'kotoshu'
+
+# Load from plain text file
+dictionary = Kotoshu::Dictionary::CSpell.new(
+  "/path/to/dictionary.txt",
+  language_code: "en-US"
+)
+
+# Load from trie file
+dictionary = Kotoshu::Dictionary::CSpell.new(
+  "/path/to/dictionary.trie",
+  language_code: "en-US"
+)
+----
+====
+
+[[unixwords-dictionary]]
+==== UnixWords Dictionary
+
+The UnixWords dictionary backend reads Unix system dictionaries, typically
+located at `/usr/share/dict/words`.
+
+[NOTE]
+====
+UnixWords dictionaries follow the Unix "spell" command format:
+
+* Simple line-separated format (one word per line)
+* Case-sensitive variants (both "A" and "a" exist)
+* Typically symlinked to dictionary files like `web2` (Webster's Second International)
+* File size: ~2.4MB for ~236K words (web2)
+====
+
+.Loading a UnixWords dictionary
+[example]
+====
+[source,ruby]
+----
+require 'kotoshu'
+
+# Auto-detect system dictionary
+dictionary = Kotoshu::Dictionary::UnixWords.new(
+  nil,  # Auto-detect path
+  language_code: "en"
+)
+
+# Specify path explicitly
+dictionary = Kotoshu::Dictionary::UnixWords.new(
+  "/usr/share/dict/words",
+  language_code: "en"
+)
+----
+====
+
+[[plaintext-dictionary]]
+==== PlainText Dictionary
+
+The PlainText dictionary backend reads simple text files containing words,
+one per line. Comments are supported with `#` prefix.
+
+[source]
+----
+# Example plain text dictionary
+# This is a comment
+hello
+world
+programming
+ruby
+spellcheck
+----
+
+.Loading a PlainText dictionary
+[example]
+====
+[source,ruby]
+----
+require 'kotoshu'
+
+dictionary = Kotoshu::Dictionary::PlainText.new(
+  "/path/to/custom_words.txt",
+  language_code: "en-US"
+)
+----
+====
+
+[[custom-dictionary]]
+==== Custom Dictionary
+
+The Custom dictionary backend provides an in-memory dictionary for runtime
+custom word sets.
+
+.Loading a custom dictionary
+[example]
+====
+[source,ruby]
+----
+require 'kotoshu'
+
+dictionary = Kotoshu::Dictionary::Custom.new(
+  words: ["Kotoshu", "GitHub", "Ruby", "spellcheck"],
+  language_code: "en-US"
+)
+
+spellchecker = Kotoshu::Spellchecker.new(dictionary: dictionary)
+puts spellchecker.correct?("Kotoshu")  # => true
+puts spellchecker.correct?("Ruby")     # => true
+puts spellchecker.correct?("Python")   # => false
+----
+====
+
+[[custom-dictionaries]]
+=== Custom Dictionaries
+
+In addition to built-in dictionary backends, Kotoshu supports creating custom
+dictionaries at runtime.
+
+.Adding and removing words from a custom dictionary
+[example]
+====
+[source,ruby]
+----
+require 'kotoshu'
+
+# Create a custom dictionary
+dictionary = Kotoshu::Dictionary::Custom.new(
+  words: ["apple", "banana"],
+  language_code: "en"
+)
+
+# Add a word
+dictionary.add_word("cherry")
+
+# Remove a word
+dictionary.remove_word("banana")
+
+spellchecker = Kotoshu::Spellchecker.new(dictionary: dictionary)
+puts spellchecker.correct?("cherry")  # => true
+puts spellchecker.correct?("banana")  # => false
+----
+====
+
+[[cli-interface]]
+=== CLI Interface
+
+Kotoshu provides a command-line interface through the `kotoshu` executable.
+
+.CLI usage
+[source,bash]
+----
+# Check a single word
+kotoshu check "hello"
+
+# Check a file
+kotoshu check README.md
+
+# Check with verbose output
+kotoshu check --verbose README.md
+
+# Use specific dictionary
+kotoshu check --dictionary=/usr/share/dict/words file.txt
+
+# Output as JSON
+kotoshu check --output=json file.txt
+----
+
+.CLI options:
+
+`--verbose, -v`:: Enable verbose output
+`--dictionary, -d`:: Dictionary path or type
+`--language, -l`:: Language code
+`--output, -o`:: Output format (text, json)
+
+== Installation
+
+Add this line to your application's Gemfile:
+
+[source,ruby]
+----
+gem 'kotoshu'
+----
+
+And then execute:
+
+[source,bash]
+----
+$ bundle install
+----
+
+Or install it yourself as:
+
+[source,bash]
+----
+$ gem install kotoshu
+----
+
+== Usage
+
+Here is a simple example of how to use Kotoshu:
+
+[source,ruby]
+----
+require 'kotoshu'
+
+# Configure Kotoshu
+Kotoshu.configure do |config|
+  config.dictionary_path = "/usr/share/dict/words"
+  config.dictionary_type = :unix_words
+  config.language = "en"
+  config.max_suggestions = 10
+end
+
+# Check a word
+word = 'exampel'
+if Kotoshu.correct?(word)
+  puts "#{word} is spelled correctly."
+else
+  suggestions = Kotoshu.suggest(word)
+  puts "#{word} is misspelled. Did you mean: #{suggestions.join(', ')}?"
+end
+----
+
+.Checking a file
+[example]
+====
+[source,ruby]
+----
+require 'kotoshu'
+
+# Check a file and get results
+result = Kotoshu.check_file("document.txt")
+
+puts "File: #{result.file}"
+puts "Word count: #{result.word_count}"
+puts "Errors found: #{result.errors.count}"
+
+result.errors.each do |error|
+  puts "  Line #{error.line}: #{error.word}"
+  puts "    Suggestions: #{error.suggestions.join(', ')}" if error.suggestions.any?
+end
+----
+====
+
+== Configuration
+
+Kotoshu can be configured using a configuration block or through environment
+variables.
+
+.Configuration options:
+
+`dictionary_path`:: Path to dictionary files
+`dictionary_type`:: Type of dictionary (hunspell, cspell, unix_words, plain_text, custom)
+`language`:: Language code (e.g., "en-US", "de-DE")
+`max_suggestions`:: Maximum number of suggestions to return (default: 15)
+`case_sensitive`:: Case-sensitive matching (default: false)
+`verbose`:: Enable verbose output (default: false)
+
+.Configuration using environment variables:
+
+[source,bash]
+----
+export KOTOSHU_DICTIONARY_PATH="/usr/share/dict/words"
+export KOTOSHU_DICTIONARY_TYPE="unix_words"
+export KOTOSHU_LANGUAGE="en"
+export KOTOSHU_MAX_SUGGESTIONS="10"
+----
+
+== Contributing
+
+Bug reports and pull requests are welcome on GitHub at
+https://github.com/kotoshu/kotoshu
+
+=== Development
+
+To contribute to Kotoshu:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/my-feature`)
+3. Make your changes following Ribose Ruby coding standards
+4. Run tests (`bundle exec rake`)
+5. Run linter (`bundle exec rubocop`)
+6. Submit a pull request
+
+=== Code Style
+
+Kotoshu follows Ribose Ruby gem coding standards:
+
+* 2 spaces for indentation
+* 80-character line limit
+* Double quotes for strings
+* `frozen_string_literal: true` in all files
+* Model-driven OOP architecture
+* MECE (Mutually Exclusive, Collectively Exhaustive) design
+
+== Copyright and license
+
+Copyright Ribose.
+
+The library is available as open source under the terms of the Ribose 2-Clause
+License. See the LICENSE file for details.

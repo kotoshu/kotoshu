@@ -1,0 +1,11 @@
+# Test CSpell dictionary
+# Comments start with #
+
+hello
+world
+help
+held
+heap
+test
+example
+New York

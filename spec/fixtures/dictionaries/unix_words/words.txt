@@ -1,0 +1,10 @@
+# Test Unix-style dictionary
+# Comments start with #
+
+hello
+world
+help
+held
+heap
+test
+example
