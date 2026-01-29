@@ -12,3 +12,21 @@
 
 # Dictionary files (for testing/development)
 /dictionaries/
+
+# Built gem files
+*.gem
+kotoshu-*.gem
+
+# Gem file lock (optional - can be committed)
+# Gemfile.lock
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
