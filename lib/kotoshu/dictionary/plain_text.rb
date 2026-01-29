@@ -2,6 +2,7 @@
 
 require_relative "base"
 require_relative "../core/exceptions"
+require "open-uri"
 
 module Kotoshu
   module Dictionary
@@ -20,6 +21,10 @@ module Kotoshu
     #   dict = PlainText.new("words.txt", language_code: "en-US")
     #   dict.lookup?("hello")  # => true
     #
+    # @example Creating from a URL
+    #   dict = PlainText.new("https://raw.githubusercontent.com/kotoshu/dictionaries/main/en_US/words.txt",
+    #                        language_code: "en-US")
+    #
     # @example Creating from an array
     #   dict = PlainText.from_words(%w[hello world test], language_code: "en")
     class PlainText < Base
@@ -34,7 +39,7 @@ module Kotoshu
 
       # Create a new PlainText dictionary.
       #
-      # @param path [String] Path to the dictionary file
+      # @param path [String] Path to the dictionary file or URL
       # @param language_code [String] The language code
       # @param locale [String, nil] The locale (optional)
       # @param case_sensitive [Boolean] Whether lookups are case-sensitive
@@ -44,7 +49,8 @@ module Kotoshu
                      word_pattern: nil, metadata: {})
         super(language_code, locale: locale, metadata: metadata)
 
-        @path = File.expand_path(path)
+        @original_path = path
+        @path = resolve_path(path)
         @case_sensitive = case_sensitive
         @word_pattern = word_pattern
         @words = load_words(@path)
@@ -182,6 +188,46 @@ module Kotoshu
       end
 
       private
+
+      # Resolve path - handles URLs by downloading to temp location.
+      #
+      # @param path [String] File path or URL
+      # @return [String] Local file path
+      def resolve_path(path)
+        return File.expand_path(path) unless url?(path)
+
+        # Download URL to temp file
+        download_to_temp(path)
+      end
+
+      # Check if path is a URL.
+      #
+      # @param path [String] Path to check
+      # @return [Boolean] True if URL
+      def url?(path)
+        path.start_with?("http://", "https://")
+      end
+
+      # Download URL to temporary file.
+      #
+      # @param url [String] URL to download
+      # @return [String] Path to downloaded file
+      def download_to_temp(url)
+        require "tempfile"
+
+        uri = URI.parse(url)
+        filename = File.basename(uri.path)
+
+        temp = Tempfile.new([filename, ".txt"], encoding: "UTF-8")
+        temp.binmode
+
+        URI.open(uri, "rb") do |remote_file|
+          IO.copy_stream(remote_file, temp)
+        end
+
+        temp.close
+        temp.path
+      end
 
       # Load words from dictionary file.
       #

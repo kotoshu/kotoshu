@@ -15,16 +15,15 @@ RSpec.describe Kotoshu::Dictionary::PlainText, "# Walking Skeleton - PlainText D
       expect(dictionary.language_code).to eq("en-US")
     end
 
-    it "loads words from file system path", :skip_if_file_not_exists do
-      next unless File.exist?("/usr/share/dict/words")
-
+    it "loads words from URL" do
       dictionary = Kotoshu::Dictionary::PlainText.new(
-        "/usr/share/dict/words",
+        "https://raw.githubusercontent.com/kotoshu/dictionaries/main/en_US/words.txt",
         language_code: "en-US"
       )
 
-      # Will fail if file doesn't exist, but structure is correct
+      # Should successfully load from the dictionaries repository
       expect(dictionary.class).to eq(Kotoshu::Dictionary::PlainText)
+      expect(dictionary.size).to be > 100000  # Real dictionary has 235K+ words
     end
   end
 
