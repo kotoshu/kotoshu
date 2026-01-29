@@ -17,8 +17,8 @@
 *.gem
 kotoshu-*.gem
 
-# Gem file lock (optional - can be committed)
-# Gemfile.lock
+# Gem file lock (libraries typically don't commit this)
+Gemfile.lock
 
 # IDEs
 .idea/
