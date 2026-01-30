@@ -7,23 +7,7 @@ SimpleCov.start do
   # minimum_coverage 80 # TODO: Re-enable when coverage increases
 end
 
-require "webmock/rspec"
-require "vcr"
-
 require "kotoshu"
-
-# Configure VCR for recording and replaying HTTP requests
-VCR.configure do |c|
-  c.cassette_library_dir = "spec/fixtures/vcr_cassettes"
-  c.hook_into :webmock
-  c.configure_rspec_metadata!
-  c.default_cassette_options = {
-    record: :once,  # Record once, then replay
-    match_requests_on: [:method, :host, :path]
-  }
-  # Allow recording new cassettes when VCR_RECORD=true
-  c.allow_http_connections_when_no_cassette = ENV.fetch("VCR_RECORD", nil) ? true : false
-end
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -55,10 +39,7 @@ RSpec.configure do |config|
     mocks.verify_doubled_constant_names = true
   end
 
-  # Skip network tests by default (they depend on external resources)
+  # Skip network tests by default (they download dictionaries)
   # Run with: NETWORK_TESTS=1 bundle exec rspec
   config.filter_run_excluding :network unless ENV.fetch("NETWORK_TESTS", nil)
-
-  # For VCR tests, allow them to run by default (they use recorded cassettes)
-  # Only skip if explicitly excluding :vcr
 end
