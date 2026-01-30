@@ -231,6 +231,11 @@ module Kotoshu
 
           parts = line.split("/")
           word = parts[0]
+
+          # Skip if word is nil or empty after stripping
+          next if word.nil? || word.strip.empty?
+
+          word = word.strip
           flags = parts[1] ? parts[1].split("") : []
 
           index[word.downcase] = flags
