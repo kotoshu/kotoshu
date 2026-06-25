@@ -133,7 +133,7 @@ RSpec.describe Kotoshu::Dictionary::Repository, "# Walking Skeleton - Dictionary
 
       repo.register(:en_US, dict)
 
-      expect(repo.has_key?(:en_US)).to be true
+      expect(repo.key?(:en_US)).to be true
     end
 
     it "has alias key?" do

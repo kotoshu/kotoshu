@@ -68,7 +68,7 @@ RSpec.describe "Walking Skeleton Integration", "# Walking Skeleton - End-to-End 
       repo.register(:empty, dict2)
 
       keys = []
-      repo.each { |key, _| keys << key }
+      repo.each_key { |key| keys << key }
       expect(keys).to contain_exactly(:main, :empty)
     end
 
@@ -117,7 +117,7 @@ RSpec.describe "Walking Skeleton Integration", "# Walking Skeleton - End-to-End 
       word = Kotoshu::Models::Word.from_dic_line("hello/NV")
 
       expect(word.text).to eq("hello")
-      expect(word.flags).to eq(["N", "V"])
+      expect(word.flags).to eq(%w[N V])
     end
 
     it "creates SuggestionSet from words" do
@@ -141,7 +141,7 @@ RSpec.describe "Walking Skeleton Integration", "# Walking Skeleton - End-to-End 
       tokens = spellchecker.tokenize("Hello, world!")
 
       expect(tokens.size).to eq(2)
-      expect(tokens.map(&:first)).to eq(["Hello", "world"])
+      expect(tokens.map(&:first)).to eq(%w[Hello world])
     end
 
     it "reloads dictionary" do
@@ -224,15 +224,15 @@ RSpec.describe "Walking Skeleton Integration", "# Walking Skeleton - End-to-End 
     end
 
     it "raises error for non-existent file" do
-      expect {
+      expect do
         spellchecker.check_file("non-existent.txt")
-      }.to raise_error(Kotoshu::DictionaryNotFoundError)
+      end.to raise_error(Kotoshu::DictionaryNotFoundError)
     end
 
     it "raises error for non-existent directory" do
-      expect {
+      expect do
         spellchecker.check_directory("non-existent-dir")
-      }.to raise_error(Kotoshu::DictionaryNotFoundError)
+      end.to raise_error(Kotoshu::DictionaryNotFoundError)
     end
   end
 
@@ -268,13 +268,13 @@ RSpec.describe "Walking Skeleton Integration", "# Walking Skeleton - End-to-End 
       hash = result.to_h
 
       expect(hash).to eq({
-        word: "hello",
-        correct: true,
-        position: nil,
-        suggestion_count: 0,
-        suggestions: [],
-        metadata: {}
-      })
+                           word: "hello",
+                           correct: true,
+                           position: nil,
+                           suggestion_count: 0,
+                           suggestions: [],
+                           metadata: {}
+                         })
     end
 
     it "supports value equality" do

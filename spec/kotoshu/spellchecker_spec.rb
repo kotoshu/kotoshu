@@ -280,9 +280,9 @@ RSpec.describe Kotoshu::Spellchecker, "# Walking Skeleton - Spellchecker Service
     end
 
     it "raises error for non-existent file" do
-      expect {
+      expect do
         spellchecker.check_file("non-existent.txt")
-      }.to raise_error(Kotoshu::DictionaryNotFoundError, /non-existent\.txt/)
+      end.to raise_error(Kotoshu::DictionaryNotFoundError, /non-existent\.txt/)
     end
   end
 
@@ -304,15 +304,15 @@ RSpec.describe Kotoshu::Spellchecker, "# Walking Skeleton - Spellchecker Service
     end
 
     it "raises error for non-existent directory" do
-      expect {
+      expect do
         spellchecker.check_directory("non-existent-dir")
-      }.to raise_error(Kotoshu::DictionaryNotFoundError, /non-existent-dir/)
+      end.to raise_error(Kotoshu::DictionaryNotFoundError, /non-existent-dir/)
     end
 
     it "raises error for non-directory path" do
-      expect {
+      expect do
         spellchecker.check_directory("spec/fixtures/words.txt")
-      }.to raise_error(Kotoshu::DictionaryNotFoundError)
+      end.to raise_error(Kotoshu::DictionaryNotFoundError)
     end
 
     it "respects file pattern" do

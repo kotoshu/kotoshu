@@ -11,21 +11,21 @@ RSpec.describe Kotoshu::Models::Word, "# Walking Skeleton - Word VALUE Object" d
     end
 
     it "raises error when text is nil" do
-      expect {
+      expect do
         Kotoshu::Models::Word.new(nil)
-      }.to raise_error(ArgumentError, "Text cannot be empty")
+      end.to raise_error(ArgumentError, "Text cannot be empty")
     end
 
     it "raises error when text is empty" do
-      expect {
+      expect do
         Kotoshu::Models::Word.new("")
-      }.to raise_error(ArgumentError, "Text cannot be empty")
+      end.to raise_error(ArgumentError, "Text cannot be empty")
     end
 
     it "creates word with flags" do
-      word = Kotoshu::Models::Word.new("hello", flags: ["noun", "verb"])
+      word = Kotoshu::Models::Word.new("hello", flags: %w[noun verb])
 
-      expect(word.flags).to eq(["noun", "verb"])
+      expect(word.flags).to eq(%w[noun verb])
     end
 
     it "creates word with morphological data" do
@@ -128,7 +128,7 @@ RSpec.describe Kotoshu::Models::Word, "# Walking Skeleton - Word VALUE Object" d
 
     describe "#has_flag?" do
       it "returns true when word has the flag" do
-        word = Kotoshu::Models::Word.new("hello", flags: ["noun", "verb"])
+        word = Kotoshu::Models::Word.new("hello", flags: %w[noun verb])
 
         expect(word.has_flag?("noun")).to be true
         expect(word.has_flag?("verb")).to be true
@@ -193,10 +193,10 @@ RSpec.describe Kotoshu::Models::Word, "# Walking Skeleton - Word VALUE Object" d
       hash = word.to_h
 
       expect(hash).to eq({
-        text: "hello",
-        flags: ["noun"],
-        morphological_data: { root: "hell" }
-      })
+                           text: "hello",
+                           flags: ["noun"],
+                           morphological_data: { root: "hell" }
+                         })
     end
   end
 
@@ -229,7 +229,7 @@ RSpec.describe Kotoshu::Models::Word, "# Walking Skeleton - Word VALUE Object" d
       word = Kotoshu::Models::Word.from_dic_line("hello/NV")
 
       expect(word.text).to eq("hello")
-      expect(word.flags).to eq(["N", "V"])
+      expect(word.flags).to eq(%w[N V])
     end
 
     it "parses word with single flag" do
