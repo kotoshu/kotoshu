@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 
 RSpec.describe Kotoshu::Dictionary::PlainText, "# Walking Skeleton - PlainText Dictionary" do
@@ -23,7 +25,7 @@ RSpec.describe Kotoshu::Dictionary::PlainText, "# Walking Skeleton - PlainText D
 
       # Should successfully load from the dictionaries repository
       expect(dictionary.class).to eq(Kotoshu::Dictionary::PlainText)
-      expect(dictionary.size).to be > 200000  # Webster's has 235,976 words
+      expect(dictionary.size).to be > 200_000 # Webster's has 235,976 words
     end
 
     it "loads words with affix flags (web2a)", :network do
@@ -34,7 +36,7 @@ RSpec.describe Kotoshu::Dictionary::PlainText, "# Walking Skeleton - PlainText D
 
       # Should successfully load web2a with affix flags
       expect(dictionary.class).to eq(Kotoshu::Dictionary::PlainText)
-      expect(dictionary.size).to be > 40000  # web2a has ~50,000 words
+      expect(dictionary.size).to be > 40_000 # web2a has ~50,000 words
     end
   end
 

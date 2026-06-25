@@ -8,8 +8,16 @@ SimpleCov.start do
 end
 
 require "kotoshu"
+require_relative "spylls_test_helper"
+
+# Load shared examples for foundation components
+require_relative "support/shared_examples" if File.exist?(File.expand_path("../support/shared_examples.rb", __FILE__))
+require_relative "support/language_fixtures" if File.exist?(File.expand_path("../support/language_fixtures.rb", __FILE__))
 
 RSpec.configure do |config|
+  # Include SpyllsTestHelper so its methods are available in all tests
+  config.include SpyllsTestHelper
+
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = ".rspec_status"
 
@@ -42,4 +50,8 @@ RSpec.configure do |config|
   # Skip network tests by default (they download dictionaries)
   # Run with: NETWORK_TESTS=1 bundle exec rspec
   config.filter_run_excluding :network unless ENV.fetch("NETWORK_TESTS", nil)
+
+  # Skip slow tests by default (full-dictionary suggestion sweeps, etc.)
+  # Run with: SLOW_TESTS=1 bundle exec rspec
+  config.filter_run_excluding :slow unless ENV.fetch("SLOW_TESTS", nil)
 end

@@ -1,0 +1,41 @@
+SET UTF-8
+
+KEY qwertyuiopå|asdfghjklæø|zxcvbnm
+TRY abfsd
+NOSUGGEST X
+
+MAXCPDSUGS 0
+
+COMPOUNDMIN 1
+
+REP 5
+REP ^Ca$ Ça
+REP ^l l'
+REP ^d d'
+REP ^n n'
+REP ^s s'
+
+MAP 6
+MAP aàâäAÀÂÄ
+MAP eéèêëEÉÈÊË
+MAP iîïyIÎÏY
+MAP oôöOÔÖ
+MAP uùûüUÙÛÜ
+MAP cçCÇ
+
+SFX H N 2
+SFX H   y     ieth       y
+SFX H   0     th         [^y]
+
+PFX F Y 1
+PFX F   0     con         .
+
+AF 4
+AF AB
+AF BC
+AF CD
+AF DE
+
+CIRCUMFIX f
+NEEDAFFIX *
+FORBIDDENWORD -

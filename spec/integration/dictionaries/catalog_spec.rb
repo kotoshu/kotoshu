@@ -144,7 +144,7 @@ RSpec.describe Kotoshu::Dictionaries::Catalog, "# Integration - Dictionary Catal
       entries = described_class.plain_text
 
       expect(entries).to be_an(Array)
-      expect(entries.size).to eq(4)  # web2, web2a, connectives, propernames
+      expect(entries.size).to eq(4) # web2, web2a, connectives, propernames
       expect(entries.all?(&:plain_text?)).to be true
     end
   end
@@ -180,7 +180,7 @@ RSpec.describe Kotoshu::Dictionaries::Catalog, "# Integration - Dictionary Catal
 
       expect(languages).to be_an(Array)
       expect(languages).to include("en", "de", "es", "fr", "ru")
-      expect(languages.uniq).to eq(languages)  # All unique
+      expect(languages.uniq).to eq(languages) # All unique
     end
   end
 
