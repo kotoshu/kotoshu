@@ -1,40 +1,79 @@
-= Kotoshu: a Ruby spellchecker
+= Kotoshu: Semantic Spell Checking for Ruby
 
 image:https://img.shields.io/gem/v/kotoshu.svg[RubyGems Version]
 image:https://img.shields.io/github/license/kotoshu/kotoshu.svg[License]
 image:https://github.com/kotoshu/kotoshu/actions/workflows/rake.yml/badge.svg["Build", link="https://github.com/kotoshu/kotoshu/actions/workflows/rake.yml"]
-image:https://github.com/kotoshu/kotoshu/actions/workflows/dependent-tests.yml/badge.svg["Dependent tests", link="https://github.com/kotoshu/kotoshu/actions/workflows/dependent-tests.yml"]
+
+== Status
+
+Kotoshu is **v0.3.0** — building on the 0.2 cut, this release adds
+integrity verification, a `fetch` pre-warm CLI, SARIF output, an
+`--interactive` review loop, and strict-mode resource resolution.
+
+=== What works in 0.3
+
+* `Kotoshu.correct?("hello")` / `Kotoshu.suggest("helo")` — auto-downloads en_US Hunspell on first call
+* `Kotoshu.check(text, language: "en", offline: false)` — full document check
+* `Kotoshu.spellchecker_for(lang, strict: true)` — re-raise on optional-resource failures
+* `kotoshu check FILE` CLI with these flags:
+  ** `--language en|de|es|fr|pt|ru|auto` (default: `auto`)
+  ** `--format text|json|sarif`
+  ** `--offline` — use only cached resources, never download
+  ** `--strict` — exit 3 if any optional resource (frequency, model) can't load
+  ** `--interactive` — review each error after the check
+  ** `--verbose`
+* `kotoshu fetch LANGUAGE [LANGUAGE ...]` — pre-warm spelling + frequency caches for offline use
+* Exit codes: `0` clean, `1` errors found, `2` usage error, `3` resource fetch failed
+* SHA-256 integrity verification (manifest-based, with graceful degradation when manifest is absent)
+* Offline mode via `KOTOSHU_OFFLINE=1` or `--offline`
+
+=== Planned for 0.4+
+
+* `--output` (file output redirection)
+* ONNX semantic reranking as default path
+* ≥30 language modules wired
+* Grammar rule packs
+* CJK and RTL language support
+
+See link:TODO.impl/00-cut-0.2.md[the 0.2 cut plan], the 0.3 tasks under
+`TODO.impl/`, and link:TODO.impl/00-vision.md[the vision] for the path to 1.0.
 
 == Purpose
 
-Kotoshu 「言修」 (a word play on 言語修正, "language correction") is a
-spellchecker library for Ruby.
+Kotoshu 「言修」 is a pure-Ruby spell checker that aims to work for every
+language by dynamically downloading the right combination of dictionary,
+frequency data, and embedding model on demand.
 
-It is designed to be simple to use and easy to integrate into Ruby applications.
-Kotoshu provides a clean, object-oriented API for spell checking with support
-for multiple dictionary formats and suggestion algorithms.
+The current release pairs a Ruby port of the Hunspell algorithm
+(traditional morphological lookup + affix rules) with optional FastText
+word embeddings converted to ONNX for context-aware reranking.
+
+NOTE: The semantic (ONNX) path is gated behind the `KOTOSHU_REQUIRE_ONNX=1`
+environment variable in this release. Without it, only the traditional
+Hunspell path runs.
 
 == Features
 
-Kotoshu supports the following features:
+NOTE: The list below describes the design vision. See <<status>> for
+exactly what works in 0.2 and what is planned for 0.3+.
 
-* <<multi-language-support, Multi-language support>>
-* <<spell-checking, Spell checking>>
-* <<suggestions, Suggest corrections for misspelled words>>
-* <<dictionary-backends, Pluggable dictionary backends>>
-* <<custom-dictionaries, Load custom dictionaries>>
-* <<cli-interface, Command-line interface>>
+* <<multi-language, Multi-language support with automatic detection>>
+* <<semantic-analysis, Semantic error detection using word embeddings>> (opt-in via Ruby API in 0.2)
+* <<interactive-mode, Interactive review mode with full navigation>> (planned for 0.3)
+* <<batch-processing, Batch processing for CI/CD>> (JSON in 0.2; SARIF planned for 0.3)
+* <<onnx-models, Fast ONNX inference via ONNX Runtime>>
+* <<document-formats, Support for Markdown, AsciiDoc, and plain text>>
+* <<multiple-models, Multiple analysis models (Hunspell, FastText, Hybrid)>> (Hunspell path only in 0.2)
 
 == Architecture
 
-Kotoshu is built around a modular architecture that allows for easy extension
-and customization.
+Kotoshu is built on a modern, semantic architecture:
 
 .Architecture overview
 [source]
 ----
 ╔═══════════════════════════════════════════════════════════════════╗
-║                      Kotoshu Architecture                          ║
+║                    Kotoshu Semantic Architecture                ║
 ╠═══════════════════════════════════════════════════════════════════╣
 ║                                                                   ║
 ║  ┌─────────────────────────────────────────────────────────────┐  ║
@@ -43,415 +82,278 @@ and customization.
 ║  │  │   CLI (Thor)        │  │      Ruby API               │   │  ║
 ║  │  │   lib/kotoshu/cli/  │  │   Kotoshu module methods    │   │  ║
 ║  │  └──────────┬──────────┘  └───────────┬─────────────────┘   │  ║
-║  │             │                          │                     │  ║
+║  │             │  Auto Language Detect   │                     │  ║
 ║  └─────────────┼──────────────────────────┼─────────────────────┘  ║
 ║                │                          │                        ║
 ║                ▼                          ▼                        ║
 ║  ┌─────────────────────────────────────────────────────────────┐  ║
-║  │                   Application Layer                          │  ║
-║  │  ┌──────────────┐  ┌─────────────────┐  ┌───────────────┐   │  ║
-║  │  │ Spellchecker │  │ Configuration   │  │   Registry    │   │  ║
-║  │  └──────┬───────┘  └────────┬────────┘  └───────┬───────┘   │  ║
-║  └─────────┼───────────────────┼───────────────────┼───────────┘  ║
-║            │                   │                   │               ║
-║            ▼                   ▼                   ▼               ║
-║  ┌─────────────────────────────────────────────────────────────┐  ║
-║  │                      Domain Layer                            │  ║
-║  │  ┌──────────────┐  ┌─────────────────────────────────────┐  │  ║
-║  │  │ Dictionary   │  │ Suggestion Algorithms               │  │  ║
-║  │  │ Backends     │  │ • Edit Distance (Levenshtein)       │  │  ║
-║  │  │ • Hunspell   │  │ • Phonetic (Soundex)                │  │  ║
-║  │  │ • CSpell     │  │ • Trie Walk                         │  │  ║
-║  │  │ • UnixWords  │  │ • N-gram                            │  │  ║
-║  │  │ • PlainText  │  │ • Keyboard Proximity                │  │  ║
-║  │  │ • Custom     │  └─────────────────────────────────────┘  │  ║
-║  │  └──────────────┘                                            │  ║
+║  │                   Analysis Layer                             │  ║
+║  │  ┌──────────────┐  ┌─────────────┐  ┌───────────────────┐  │  ║
+║  │  │    Hunspell  │  │  FastText   │  │  Hybrid (Best!)   │  │  ║
+║  │  │  Dictionary  │  │  Embeddings │  │  Combined         │  │  ║
+║  │  │  (Traditional)│  │  (ONNX)    │  │  Approach         │  │  ║
+║  │  └──────────────┘  └─────────────┘  └───────────────────┘  │  ║
+║  └───────────────────────────┬─────────────────────────────────┘  ║
+║                              │                                    ║
+║  ┌───────────────────────────▼─────────────────────────────────┐  ║
+║  │                  Model Layer (ONNX)                          │  ║
+║  │  ┌──────────────────────────────────────────────────────┐  │  ║
+║  │  │  ONNX Runtime → Fast Embedding Lookup                 │  │  ║
+║  │  │  Semantic Similarity → Context-Aware Suggestions      │  │  ║
+║  │  │  Nearest Neighbor Search → Smart Corrections          │  │  ║
+║  │  └──────────────────────────────────────────────────────┘  │  ║
 ║  └─────────────────────────────────────────────────────────────┘  ║
 ║                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════╝
 ----
 
-The core components include:
+=== Key Components
 
-* `Kotoshu::Spellchecker`: The main class responsible for spellchecking
-  operations.
+* `Kotoshu::Models::OnnxModel`: ONNX-based word embedding model for fast
+  semantic similarity and nearest neighbor search.
 
-* `Kotoshu::Dictionary::Base`: An abstract class representing a dictionary backend.
-  Subclasses implement specific dictionary formats.
+* `Kotoshu::Analyzers::SemanticAnalyzer`: Unified semantic error detection
+  using word embeddings (no artificial spelling/grammar split).
 
-* `Kotoshu::Dictionary::Hunspell`: Dictionary backend for Hunspell format
-  (.dic and .aff files).
+* `Kotoshu::Language::LanguageIdentifier`: Automatic language detection
+  using FastText LID model (127 languages).
 
-* `Kotoshu::Dictionary::CSpell`: Dictionary backend for CSpell format
-  (.txt and .trie files).
+* `Kotoshu::Cli::InteractiveReviewer`: Interactive CLI for error review
+  with full navigation (forward, backward, jump, skip, accept).
 
-* `Kotoshu::Dictionary::UnixWords`: Dictionary backend for Unix system
-  dictionaries at `/usr/share/dict/words`.
+* `Kotoshu::Dictionary::Hunspell`: Traditional Hunspell dictionary backend
+  for morphological analysis and affix rules.
 
-* `Kotoshu::Dictionary::PlainText`: Dictionary backend for plain text
-  word lists.
+== Why ONNX?
 
-* `Kotoshu::Dictionary::Custom`: In-memory dictionary for custom word sets.
+ONNX Runtime provides:
 
-* `Kotoshu::Registry`: A module for registering custom dictionary backends
-  and dynamically loading them through the official Kotoshu register.
+* **Performance**: C++ implementation, 10-100x faster than pure Ruby
+* **Portability**: Works on CPU, GPU, TPU, mobile devices
+* **Optimization**: Automatic graph optimization and quantization
+* **Interoperability**: Models can be trained in Python, deployed in Ruby
 
-* `Kotoshu::Suggestions`: A module for generating suggestions for
-  misspelled words using various algorithms.
+Kotoshu uses FastText models converted to ONNX format for semantic spell checking.
 
-=== Dictionary Backend Comparison
+[[semantic-analysis]]
+== Semantic Analysis
 
-[cols="2,1,1,1,1"]
-|===
-| Feature | Hunspell | CSpell | UnixWords | PlainText
+Unlike traditional spell checkers that only check dictionary membership and
+edit distance, Kotoshu uses semantic similarity to:
 
-| Approach
-| Morphological rules
-| Dictionary-based (trie)
-| System word list
-| Simple word list
+* Detect contextually appropriate corrections ("desert" vs "dessert")
+* Handle out-of-vocabulary words via subword embeddings
+* Provide ranked suggestions based on semantic similarity
+* Support compound words and morphological variations
 
-| File Format
-| .dic + .aff
-| .txt, .trie
-| /usr/share/dict/words*
-| .txt
-
-| Best For
-| Natural language inflection
-| Code/technical terms
-| Unix spell integration
-| Custom word lists
-
-| Performance
-| Hash + affix processing
-| Trie (very fast)
-| Hash lookup
-| Hash lookup
-
-| Memory Usage
-| Medium
-| Low (compressed trie)
-| Medium (~2.4MB)
-| Low
-|===
-
-* UnixWords typically uses symlinks to dictionary files like `web2`
-  (Webster's Second International, ~236K words) or language-specific variants.
-
-[[multi-language-support]]
-=== Multi-language Support
-
-Kotoshu supports multiple languages through different dictionary backends.
-Each dictionary backend accepts a `language_code` parameter to identify the
-language of the dictionary.
-
-.Supported languages by dictionary backend:
-
-* Hunspell: Any language with available Hunspell dictionaries
-* CSpell: Any language with available CSpell dictionaries
-* UnixWords: System-dependent (typically English)
-* PlainText: Any language in UTF-8 encoding
-* Custom: Any language supported by Ruby strings
-
-[[spell-checking]]
-=== Spell Checking
-
-Kotoshu provides comprehensive spell checking capabilities through the
-`Kotoshu::Spellchecker` class.
-
-.Spell checking features:
-
-* Single word validation with `correct?` method
-* Text document checking with `check` method
-* File checking with `check_file` method
-* Directory checking with `check_directory` method
-* Case-sensitive and case-insensitive modes
-* Custom word flag support
-
-[[suggestions]]
-=== Suggestion Algorithms
-
-Kotoshu generates spelling suggestions using multiple algorithms:
-
-* *Edit Distance (Levenshtein)*: Calculates the number of single-character
-  edits required to change one word into another.
-
-* *Phonetic (Soundex)*: Groups words that sound similar, useful for catching
-  phonetic misspellings.
-
-* *Trie Walk*: Generates suggestions by traversing the dictionary trie,
-  useful for finding words with similar prefixes.
-
-* *N-gram*: Compares word n-grams (sequences of characters) to find
-  similar words.
-
-* *Keyboard Proximity*: Detects typos caused by nearby keyboard keys.
-
-.Suggestion generation
+.Usage example
 [example]
 ====
 [source,ruby]
 ----
-require 'kotoshu'
+# Traditional: Only knows "helo" is wrong
+Kotoshu.suggest("helo")
+# => ["hello", "help", "held", "hell", "hole"]
 
-# Configure with multiple suggestion algorithms
-Kotoshu.configure do |config|
-  config.dictionary_path = "/usr/share/dict/words"
-  config.dictionary_type = :unix_words
-  config.max_suggestions = 10
-end
-
-# Get suggestions for a misspelled word
-word = "helo"
-suggestions = Kotoshu.suggest(word)
-
-puts "Did you mean: #{suggestions.join(', ')}?"
-# Output: Did you mean: help, hello, helm, hero, hold, hole, hell, heal, helm, hero...?
+# Semantic: Knows context matters
+analyzer = Kotoshu::Analyzers::SemanticAnalyzer.new(model)
+analyzer.suggest_corrections("helo", context: "I said helo to the world")
+# => [hello] # "hello" makes more sense in greeting context
 ----
 ====
 
-[[dictionary-backends]]
-=== Dictionary Backends
+[[multi-language]]
+== Multi-Language Support
 
-Kotoshu supports multiple dictionary formats through pluggable backends.
-Each backend implements the `Kotoshu::Dictionary::Base` interface.
+Kotoshu supports 6 languages with full semantic analysis:
 
-.Supported dictionary formats:
+* *de* - German (Deutsch)
+* *en* - English
+* *es* - Spanish (Español)
+* *fr* - French (Français)
+* *pt* - Portuguese (Português)
+* *ru* - Russian (Русский)
 
-* <<hunspell-dictionary, Hunspell (.dic/.aff)>>
-* <<cspell-dictionary, CSpell (.txt/.trie)>>
-* <<unixwords-dictionary, UnixWords (/usr/share/dict/words)>>
-* <<plaintext-dictionary, PlainText (.txt)>>
-* <<custom-dictionary, Custom (in-memory)>>
+Automatic language detection is enabled by default:
 
-[[hunspell-dictionary]]
-==== Hunspell Dictionary
-
-The Hunspell dictionary backend reads Hunspell format dictionaries consisting
-of a `.dic` file (word list) and `.aff` file (affix rules).
-
-[source]
-----
-# Example Hunspell dictionary structure
-/usr/share/hunspell/
-├── en_US.dic       # Word list with optional flags
-├── en_US.aff       # Affix rules (prefixes, suffixes, compound rules)
-├── de_DE.dic
-├── de_DE.aff
-└── ...
-----
-
-.Loading a Hunspell dictionary
+.Usage example
 [example]
 ====
-[source,ruby]
-----
-require 'kotoshu'
-
-dictionary = Kotoshu::Dictionary::Hunspell.new(
-  "/usr/share/hunspell/en_US.dic",
-  language_code: "en-US"
-)
-
-spellchecker = Kotoshu::Spellchecker.new(dictionary: dictionary)
-puts spellchecker.correct?("hello")  # => true
-puts spellchecker.correct?("helo")   # => false
-----
-====
-
-[[cspell-dictionary]]
-==== CSpell Dictionary
-
-The CSpell dictionary backend reads CSpell format dictionaries, supporting
-both plain text (`.txt`) and compressed trie (`.trie`) formats.
-
-[source]
-----
-# Example CSpell dictionary structure
-~/.cspell/
-├── dictionaries/
-│   ├── en_US.txt
-│   ├── en_US.trie
-│   └── technical-terms.txt
-└── cspell.config
-----
-
-.Loading a CSpell dictionary
-[example]
-====
-[source,ruby]
-----
-require 'kotoshu'
-
-# Load from plain text file
-dictionary = Kotoshu::Dictionary::CSpell.new(
-  "/path/to/dictionary.txt",
-  language_code: "en-US"
-)
-
-# Load from trie file
-dictionary = Kotoshu::Dictionary::CSpell.new(
-  "/path/to/dictionary.trie",
-  language_code: "en-US"
-)
-----
-====
-
-[[unixwords-dictionary]]
-==== UnixWords Dictionary
-
-The UnixWords dictionary backend reads Unix system dictionaries, typically
-located at `/usr/share/dict/words`.
-
-[NOTE]
-====
-UnixWords dictionaries follow the Unix "spell" command format:
-
-* Simple line-separated format (one word per line)
-* Case-sensitive variants (both "A" and "a" exist)
-* Typically symlinked to dictionary files like `web2` (Webster's Second International)
-* File size: ~2.4MB for ~236K words (web2)
-====
-
-.Loading a UnixWords dictionary
-[example]
-====
-[source,ruby]
-----
-require 'kotoshu'
-
-# Auto-detect system dictionary
-dictionary = Kotoshu::Dictionary::UnixWords.new(
-  nil,  # Auto-detect path
-  language_code: "en"
-)
-
-# Specify path explicitly
-dictionary = Kotoshu::Dictionary::UnixWords.new(
-  "/usr/share/dict/words",
-  language_code: "en"
-)
-----
-====
-
-[[plaintext-dictionary]]
-==== PlainText Dictionary
-
-The PlainText dictionary backend reads simple text files containing words,
-one per line. Comments are supported with `#` prefix.
-
-[source]
-----
-# Example plain text dictionary
-# This is a comment
-hello
-world
-programming
-ruby
-spellcheck
-----
-
-.Loading a PlainText dictionary
-[example]
-====
-[source,ruby]
-----
-require 'kotoshu'
-
-dictionary = Kotoshu::Dictionary::PlainText.new(
-  "/path/to/custom_words.txt",
-  language_code: "en-US"
-)
-----
-====
-
-[[custom-dictionary]]
-==== Custom Dictionary
-
-The Custom dictionary backend provides an in-memory dictionary for runtime
-custom word sets.
-
-.Loading a custom dictionary
-[example]
-====
-[source,ruby]
-----
-require 'kotoshu'
-
-dictionary = Kotoshu::Dictionary::Custom.new(
-  words: ["Kotoshu", "GitHub", "Ruby", "spellcheck"],
-  language_code: "en-US"
-)
-
-spellchecker = Kotoshu::Spellchecker.new(dictionary: dictionary)
-puts spellchecker.correct?("Kotoshu")  # => true
-puts spellchecker.correct?("Ruby")     # => true
-puts spellchecker.correct?("Python")   # => false
-----
-====
-
-[[custom-dictionaries]]
-=== Custom Dictionaries
-
-In addition to built-in dictionary backends, Kotoshu supports creating custom
-dictionaries at runtime.
-
-.Adding and removing words from a custom dictionary
-[example]
-====
-[source,ruby]
-----
-require 'kotoshu'
-
-# Create a custom dictionary
-dictionary = Kotoshu::Dictionary::Custom.new(
-  words: ["apple", "banana"],
-  language_code: "en"
-)
-
-# Add a word
-dictionary.add_word("cherry")
-
-# Remove a word
-dictionary.remove_word("banana")
-
-spellchecker = Kotoshu::Spellchecker.new(dictionary: dictionary)
-puts spellchecker.correct?("cherry")  # => true
-puts spellchecker.correct?("banana")  # => false
-----
-====
-
-[[cli-interface]]
-=== CLI Interface
-
-Kotoshu provides a command-line interface through the `kotoshu` executable.
-
-.CLI usage
 [source,bash]
 ----
-# Check a single word
-kotoshu check "hello"
+# Language auto-detected from document content
+kotoshu check document.txt
+# Detected: en (95% confidence)
+# Analyzing document.txt (language: en)...
 
-# Check a file
-kotoshu check README.md
+# Explicit language specification
+kotoshu check document.txt --language de
+----
+====
 
-# Check with verbose output
-kotoshu check --verbose README.md
+[[onnx-models]]
+== ONNX Models
 
-# Use specific dictionary
-kotoshu check --dictionary=/usr/share/dict/words file.txt
+Kotoshu uses FastText crawl vectors converted to ONNX format:
 
-# Output as JSON
-kotoshu check --output=json file.txt
+* Source: https://fasttext.cc/docs/en/crawl-vectors.html[FastText Crawl Vectors]
+* Format: ONNX with optimized runtime
+* Vocabulary: 2 million words per language (full coverage)
+* Dimension: 300-dimensional word vectors
+* Size: ~2.4GB per language
+
+=== FastText File Formats
+
+FastText provides two file formats. Kotoshu uses the `.vec` format for ONNX conversion.
+
+[cols="1,1,2"]
+|===
+|Aspect |`.vec` (Text) |`.bin` (Binary)
+
+|Content
+|Word vectors only (pre-computed embeddings)
+|Full FastText model (trained model)
+
+|Structure
+|Text: one word + 300 floats per line
+|Binary: complete model with matrices
+
+|File Size
+|~1.3GB compressed (~2.4GB uncompressed)
+|~1.8GB compressed (~4.8GB uncompressed)
+
+|Train New Words
+|✗ No (static lookup only)
+|✓ Yes (can train/OOV with subword info)
+
+|Subword Embeddings
+|✗ No
+|✓ Yes (n-gram character embeddings)
+
+|ONNX Converter
+|✓ Supported (what we use)
+|✗ Not supported
+
+|Use Case
+|Simple word vector lookup for spell checking
+|Full FastText functionality (training, OOV)
+|===
+
+Kotoshu uses `.vec` files because:
+
+* Simpler extraction: Just word → vector mapping
+* No subword complexity needed: Dictionary-based spell checking doesn't require OOV generation
+* Smaller ONNX models: ~2.4GB vs ~4.8GB
+* Faster conversion: Direct serialization to ONNX
+
+.Model management
+[example]
+====
+[source,bash]
+----
+# Download ONNX model for a language
+kotoshu model download en --type onnx
+
+# List available models
+kotoshu model list
+
+# Validate ONNX model
+kotoshu model validate fasttext.en.onnx
+
+# Convert FastText .vec to ONNX
+kotoshu model convert cc.en.300.vec fasttext.en.onnx -l en
+----
+====
+
+[[interactive-mode]]
+[[interactive-mode]]
+== Interactive Mode
+
+NOTE: Interactive mode shipped in 0.3.0. It is navigation-only — the
+session records which suggestions the user accepted but does not rewrite
+the source file yet.
+
+[source,bash]
+----
+kotoshu check README.md --interactive
 ----
 
-.CLI options:
+Features in 0.3:
 
-`--verbose, -v`:: Enable verbose output
-`--dictionary, -d`:: Dictionary path or type
-`--language, -l`:: Language code
-`--output, -o`:: Output format (text, json)
+* **Navigate**: [n] / Enter next, [p] previous, [l] list
+* **Accept**: [1-9] record suggestion N for the current error
+* **Skip**: [s] skip the current error
+* **Quit**: [q] exit the review loop
+
+[[batch-processing]]
+== Batch Processing
+
+For CI/CD and automation, Kotoshu supports JSON and SARIF output in 0.3;
+`--output` file redirection is planned for 0.4+.
+
+.JSON output for CI/CD
+[example]
+====
+[source,bash]
+----
+# JSON output to stdout (supported in 0.3)
+kotoshu check README.md --format json
+
+# SARIF 2.1.0 output (supported in 0.3)
+kotoshu check README.md --format sarif
+
+# Exit code for CI
+kotoshu check README.md
+echo $?  # 0 if no errors, 1 if errors found
+----
+====
+
+[[document-formats]]
+== Document Formats
+
+Kotoshu supports structured documents with AST parsing:
+
+* *Plain text*: Line-based error detection
+* *Markdown*: AST-based using Kramdown parser
+* *AsciiDoc*: AST-based using Asciidoctor parser
+
+Structured documents preserve node paths for precise error location.
+
+[[multiple-models]]
+== Analysis Models
+
+NOTE: In 0.2, the CLI runs the Hunspell traditional path only.
+The `--model` flag and FastText/Hybrid paths are planned for 0.3+.
+The Ruby API can opt into the semantic path today via
+`Kotoshu::Models::OnnxModel` (requires `KOTOSHU_REQUIRE_ONNX=1`).
+
+Kotoshu is designed to support three analysis models:
+
+.Dictionary backend comparison
+[cols="2,2,2"]
+|===
+| Model | Description | Best For
+
+| *hunspell* | Traditional dictionary-based with morphological rules | Fast checking, compound words, languages with complex morphology
+
+| *fasttext* | Pure semantic embeddings via ONNX | Context awareness, out-of-vocabulary words, semantic similarity
+
+| *hybrid* | Hunspell candidates + FastText reranking (recommended) | Maximum accuracy, best of both worlds
+|===
+
+.Intended usage (0.3+)
+[example]
+====
+[source,bash]
+----
+# Fast dictionary-based checking (default in 0.2)
+kotoshu check document.txt                # 0.2: Hunspell path
+
+# Semantic / hybrid paths: planned for 0.3
+# kotoshu check document.txt --model fasttext
+# kotoshu check document.txt --model hybrid
+----
+====
 
 == Installation
 
@@ -464,119 +366,552 @@ gem 'kotoshu'
 
 And then execute:
 
-[source,bash]
+[source,sh]
 ----
-$ bundle install
+bundle install
 ----
 
 Or install it yourself as:
 
+[source,sh]
+----
+gem install kotoshu
+----
+
+Install ONNX Runtime dependency:
+
+[source,sh]
+----
+gem install onnxruntime
+----
+
+== Quick Start
+
+.Command-line usage
 [source,bash]
 ----
-$ gem install kotoshu
+# Auto-detect language and check file (dictionary downloads on first use)
+kotoshu check README.md
+
+# Explicit language
+kotoshu check README.md --language en
+
+# JSON output for programmatic use
+kotoshu check README.md --format json
+
+# Offline mode — use only cached dictionaries, never download
+kotoshu check README.md --offline
+
+# Check stdin
+echo "helo wrld" | kotoshu check
 ----
 
-== Usage
+Exit codes: `0` (no errors), `1` (errors found), `2` (usage error),
+`3` (dictionary fetch failed — typically offline mode with no cache).
 
-Here is a simple example of how to use Kotoshu:
-
+.Ruby API usage
 [source,ruby]
 ----
 require 'kotoshu'
-
-# Configure Kotoshu
-Kotoshu.configure do |config|
-  config.dictionary_path = "/usr/share/dict/words"
-  config.dictionary_type = :unix_words
-  config.language = "en"
-  config.max_suggestions = 10
-end
 
 # Check a word
-word = 'exampel'
-if Kotoshu.correct?(word)
-  puts "#{word} is spelled correctly."
-else
-  suggestions = Kotoshu.suggest(word)
-  puts "#{word} is misspelled. Did you mean: #{suggestions.join(', ')}?"
+Kotoshu.correct?("hello")  # => true
+Kotoshu.correct?("helo")   # => false
+
+# Get suggestions
+Kotoshu.suggest("helo")     # => ["hello", "help", "held", ...]
+
+# Check text
+result = Kotoshu.check("Hello wrold")
+result.errors.map(&:word)  # => ["wrold"]
+
+# Check file
+result = Kotoshu.check_file("README.md")
+result.errors.each do |error|
+  puts "#{error.word} at line #{error.line}: #{error.suggestions.first}"
 end
+
+# Semantic analysis with ONNX
+model = Kotoshu::Models::OnnxModel.from_github('en')
+analyzer = Kotoshu::Analyzers::SemanticAnalyzer.new(model)
+errors = analyzer.analyze(document)
 ----
 
-.Checking a file
-[example]
-====
+== Requirements
+
+* Ruby 3.1+
+* ONNX Runtime gem (for semantic spell checking)
+* Python 3 + fasttext (optional, for model conversion)
+
+== Resource Caching and Language Support
+
+Kotoshu uses a sophisticated multi-layer caching system to manage dictionaries,
+frequency lists, and embedding models. All resources are automatically downloaded
+from GitHub repositories and cached locally in `~/.kotoshu/`.
+
+=== Cache Architecture
+
+.Cache System Class Diagram
+[source]
+----
+┌────────────────────────────────────────────────────────────────────────────┐
+│                              BaseCache (Abstract)                        │
+│  ┌────────────────────────────────────────────────────────────────────┐   │
+│  │ Common: download, metadata, validation, stats, TTL management     │   │
+│  └────────────────────────────────────────────────────────────────────┘   │
+└────────────────────┬───────────────────┬────────────────────┬──────────────┘
+                     │                   │                    │
+        ┌────────────▼────────┐  ┌──────▼──────┐  ┌───────▼─────────┐
+        │   LanguageCache     │  │ModelCache   │  │ FrequencyCache  │
+        │  (Dictionaries)     │  │ (Embeddings)│  │  (Kelly Lists)  │
+        └─────────────────────┘  └─────────────┘  └─────────────────┘
+                     │                   │                    │
+        ┌────────────▼────────┐  ┌──────▼──────┐  ┌───────▼─────────┐
+        │ ~/.kotoshu/        │  │~/.kotoshu/  │  │ ~/.kotoshu/      │
+        │   languages/       │  │  models/    │  │frequency-lists/ │
+        └─────────────────────┘  └─────────────┘  └─────────────────┘
+----
+
+=== Cache Types
+
+==== LanguageCache (Dictionaries)
+
+Manages Hunspell dictionaries and grammar rules for spell checking.
+
+* **Cache Path**: `~/.kotoshu/languages/{code}/`
+* **TTL**: 7 days (604,800 seconds)
+* **Source**: https://github.com/kotoshu/dictionaries[kotoshu/dictionaries]
+* **Resources per language**:
+  ** `spelling/`**: Hunspell dictionary (`index.dic`, `index.aff`)
+  ** `grammar/`**: Grammar rules (`rules.yaml`) - *future*
+  ** `frequency/`**: Frequency data - *deprecated, use FrequencyCache*
+
+.Usage
 [source,ruby]
 ----
-require 'kotoshu'
+# Access via cache
+cache = Kotoshu::Cache::LanguageCache.new
+dict = cache.get_spelling('en')
 
-# Check a file and get results
-result = Kotoshu.check_file("document.txt")
-
-puts "File: #{result.file}"
-puts "Word count: #{result.word_count}"
-puts "Errors found: #{result.errors.count}"
-
-result.errors.each do |error|
-  puts "  Line #{error.line}: #{error.word}"
-  puts "    Suggestions: #{error.suggestions.join(', ')}" if error.suggestions.any?
-end
+# Result:
+# {
+#   aff_path: "~/.kotoshu/languages/en/spelling/index.aff",
+#   dic_path: "~/.kotoshu/languages/en/spelling/index.dic",
+#   cached: true,
+#   metadata: { ... }
+# }
 ----
-====
 
-== Configuration
+==== FrequencyCache (Kelly Project)
 
-Kotoshu can be configured using a configuration block or through environment
-variables.
+Manages Kelly Project frequency lists for intelligent suggestion ranking.
 
-.Configuration options:
+* **Cache Path**: `~/.kotoshu/frequency-lists/{code}/`
+* **TTL**: 7 days (604,800 seconds)
+* **Source**: https://github.com/kotoshu/frequency-list-kelly[kotoshu/frequency-list-kelly]
+* **Format**: JSON with tiered word frequency data
 
-`dictionary_path`:: Path to dictionary files
-`dictionary_type`:: Type of dictionary (hunspell, cspell, unix_words, plain_text, custom)
-`language`:: Language code (e.g., "en-US", "de-DE")
-`max_suggestions`:: Maximum number of suggestions to return (default: 15)
-`case_sensitive`:: Case-sensitive matching (default: false)
-`verbose`:: Enable verbose output (default: false)
+.Kelly Frequency Data Structure
+[source,json]
+----
+{
+  "metadata": {
+    "language": "en",
+    "source": "Kelly Project (University of Leeds)",
+    "total_words_analyzed": 1500000
+  },
+  "tiers": {
+    "top_50": {
+      "words": ["the", "be", "to", "of", "and", ...],
+      "info": "Most common 50 words"
+    },
+    "top_200": {
+      "words": ["will", "my", "one", "all", ...],
+      "info": "Most common 200 words"
+    },
+    "top_1000": {
+      "words": ["however", "although", ...],
+      "info": "Most common 1000 words"
+    }
+  }
+}
+----
 
-.Configuration using environment variables:
+.Usage
+[source,ruby]
+----
+# Access via cache
+cache = Kotoshu::Cache::FrequencyCache.new
+freq_data = cache.get('en', force_download: true)
+
+# Result:
+# {
+#   frequency_path: "~/.kotoshu/frequency-lists/en/frequency.json",
+#   tiers: {
+#     top_50: Set<...>,
+#     top_200: Set<...>,
+#     top_1000: Set<...>
+#   },
+#   metadata: { ... }
+# }
+
+# Integrated into EditDistanceStrategy
+strategy = Kotoshu::Suggestions::Strategies::EditDistanceStrategy.new(
+  language_code: 'en'
+)
+strategy.frequency_bonus('the')   # => 200 (top 50)
+strategy.frequency_bonus('hello') # => 100 (top 200)
+strategy.frequency_bonus('xyz')   # => 0 (not in lists)
+----
+
+==== ModelCache (Embedding Models)
+
+Manages FastText and ONNX embedding models for semantic spell checking.
+
+* **Cache Path**: `~/.kotoshu/models/{code}/models/{type}/`
+* **TTL**: 30 days (2,592,000 seconds)
+* **Sources**:
+  ** FastText (.vec): Facebook CDN (https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/[dl.fbaipublicfiles.com])
+  ** ONNX (.onnx): Converted locally from FastText models
+* **Supported Types**:
+  ** `fasttext`: FastText word vectors (.vec files, 300D) - Downloaded from Facebook CDN
+  ** `onnx`: ONNX-converted models (.onnx files) - Auto-converted from FastText
+
+NOTE: ONNX models are automatically converted from FastText models on first use.
+The conversion uses `lib/kotoshu/scripts/fasttext_to_onnx.py` and requires Python 3 with
+`numpy` and `onnx` packages installed.
+
+.Model Files by Language
+[width="100%",cols="3,m"]
+|=========================================
+| Language | FastText File | ONNX File      |
+|=========================================
+| de (German)       | cc.de.300.vec  | fasttext.de.onnx |
+| en (English)      | cc.en.300.vec  | fasttext.en.onnx |
+| es (Spanish)      | cc.es.300.vec  | fasttext.es.onnx |
+| fr (French)       | cc.fr.300.vec  | fasttext.fr.onnx |
+| pt (Portuguese)   | cc.pt.300.vec  | fasttext.pt.onnx |
+| ru (Russian)      | cc.ru.300.vec  | fasttext.ru.onnx |
+|=========================================|
+
+=== CLI Cache Management
+
+Kotoshu provides CLI commands for managing cached resources:
 
 [source,bash]
 ----
-export KOTOSHU_DICTIONARY_PATH="/usr/share/dict/words"
-export KOTOSHU_DICTIONARY_TYPE="unix_words"
-export KOTOSHU_LANGUAGE="en"
-export KOTOSHU_MAX_SUGGESTIONS="10"
+# List all cached resources
+kotoshu cache list
+
+# List specific cache type
+kotoshu cache list language
+kotoshu cache list model
+kotoshu cache list frequency
+
+# Show cache statistics
+kotoshu cache status
+
+# Show detailed status (verbose)
+kotoshu cache status --verbose
+
+# Download a resource
+kotoshu cache download language en
+kotoshu cache download model en:fasttext
+kotoshu cache download frequency en
+
+# Get information about a resource
+kotoshu cache info language en
+kotoshu cache info model en:fasttext
+kotoshu cache info frequency en
+
+# Purge cached data
+kotoshu cache purge all
+kotoshu cache purge language en
+kotoshu cache purge frequency
+
+# Clean expired entries
+kotoshu cache clean
 ----
+
+=== Cache Statistics
+
+Each cache type tracks statistics:
+
+* **Hits**: Number of cache hits (resource found locally)
+* **Misses**: Number of cache misses (had to download)
+* **Hit Rate**: Percentage of cache hits
+* **Size**: Total disk space used
+* **Cached Resources**: Number of resources cached
+
+[source,bash]
+----
+$ kotoshu cache status
+======================================================================
+Kotoshu Cache Status
+======================================================================
+
+Language Cache:
+  Directory: /Users/username/.kotoshu/languages
+  Resources cached: 2
+  Size: 2.45 MB
+  Hits: 15, Misses: 2
+  Hit rate: 88.2%
+
+Frequency Cache:
+  Directory: /Users/username/.kotoshu/frequency-lists
+  Resources cached: 1
+  Size: 815.84 KB
+  Hits: 42, Misses: 1
+  Hit rate: 97.7%
+
+Model Cache:
+  Directory: /Users/username/.kotoshu/models
+  Resources cached: 0
+  Size: 0 B
+  Hits: 0, Misses: 0
+  Hit rate: 0.0%
+
+Total:
+  Total size: 3.26 MB
+  Overall hit rate: 93.5%
+======================================================================
+----
+
+=== Language Support Matrix
+
+Kotoshu provides multi-language support with varying feature availability.
+
+.Complete Language Support Matrix
+[width="100%",cols="^1,^1,^1,^1,^1,^1,^1",options="header"]
+|=========================================
+| Language | Dictionary | Hunspell Affix Rules | Kelly Frequency | FastText Model | ONNX Model | Notes                          |
+|=========================================
+| de (German)       | ✓ (75,873 words) | ✓ | ✗ | ✓ (2.5 GB) | ✓ (~230 MB) | QWERTZ keyboard support         |
+| en (English)      | ✓ (49,568 words) | ✓ | ✓ (815 KB) | ✓ (4.3 GB) | ✓ (~460 MB) | QWERTY keyboard support         |
+| es (Spanish)      | ✓ (57,344 words) | ✓ | ✗ | ✓ (2.5 GB) | ✓ (~230 MB) | QWERTY keyboard support         |
+| fr (French)       | ✓ (84,310 words) ✓ | ✗ | ✓ (2.5 GB) | ✓ (~230 MB) | AZERTY keyboard support         |
+| pt (Portuguese)   | ✓ (312,368 words) | ✓ | ✗ | ✓ (2.5 GB) | ✓ (~230 MB) | QWERTY keyboard support         |
+| ru (Russian)      | ✓ (146,269 words) | ✓ | ✓ (780 KB) | ✓ (2.5 GB) | ✓ (~230 MB) | JCUKEN keyboard support         |
+| ar (Arabic)       | ✗ | ✗ | ✓ | ✗ | ✗ | Kelly frequency only            |
+| zh (Chinese)      | ✗ | ✗ | ✓ | ✗ | ✗ | Kelly frequency only            |
+| el (Greek)        | ✗ | ✗ | ✓ | ✗ | ✗ | Kelly frequency only            |
+| it (Italian)      | ✗ | ✗ | ✓ | ✗ | ✗ | Kelly frequency only            |
+| no (Norwegian)     | ✗ | ✗ | ✓ | ✗ | ✗ | Kelly frequency only            |
+| sv (Swedish)      | ✗ | ✗ | ✓ | ✗ | ✗ | Kelly frequency only            |
+|=========================================]
+
+.Dictionary Sources
+[width="100%",cols="^1,^1,^1,^1",options="header"]
+|=========================================
+| Language | Word Count | License | Source                     |
+|=========================================
+| de (German)       | 75,873 | GPL | igerman98                 |
+| en (English)      | 49,568 | LGPL/MPL/GPL | SCOWL                  |
+| es (Spanish)      | 57,344 | GPL | LibreOffice               |
+| fr (French)       | 84,310 | MPL 2.0 | Grammalecte              |
+| pt (Portuguese)   | 312,368 | LGPLv3 + MPL | VERO                   |
+| ru (Russian)      | 146,269 | BSD-style | Alexander Lebedev       |
+|=========================================+
+
+.Kelly Frequency Lists
+[width="100%",cols="^1,^1,^1",options="header"]
+|=========================================
+| Language | Size | Coverage        |
+|=========================================
+| ar (Arabic)       | ~750 KB | Top 1000 words |
+| zh (Chinese)      | ~800 KB | Top 1000 words |
+| en (English)      | 815 KB | Top 1000 words |
+| el (Greek)        | ~780 KB | Top 1000 words |
+| it (Italian)      | ~790 KB | Top 1000 words |
+| no (Norwegian)     | ~770 KB | Top 1000 words |
+| ru (Russian)      | 780 KB | Top 1000 words |
+| sv (Swedish)      | ~775 KB | Top 1000 words |
+|=========================================+
+
+NOTE: Kelly frequency lists provide the top 1000 most common words from
+the Kelly Project (University of Leeds & University of Gothenburg).
+Languages not listed here require external frequency data sources.
+
+=== Programmatic Usage
+
+==== Using Language Cache
+
+[source,ruby]
+----
+require 'kotoshu/cache/language_cache'
+
+cache = Kotoshu::Cache::LanguageCache.new
+
+# Get spelling dictionary
+dict = cache.get_spelling('en')
+puts "Dictionary: #{dict[:dic_path]}"
+puts "Words: #{File.readlines(dict[:dic_path]).count}"
+
+# Get available languages
+cache.available_languages  # => ["de", "en", "es", "fr", "pt", "ru"]
+
+# Check if resource is cached
+cache.available?('en:spelling')  # => true
+
+# Get language info
+info = cache.language_info('en')
+puts "Language: #{info[:name]}"
+puts "Words: #{info[:word_count]}"
+puts "License: #{info[:license]}"
+----
+
+==== Using Frequency Cache
+
+[source,ruby]
+----
+require 'kotoshu/cache/frequency_cache'
+
+cache = Kotoshu::Cache::FrequencyCache.new
+
+# Get frequency data
+freq_data = cache.get('en')
+
+# Access frequency tiers
+top_50 = freq_data[:tiers][:top_50]
+top_50.include?('the')  # => true
+top_50.include?('hello')  # => true (in top 200)
+
+# Get available languages
+cache.available_languages  # => ["ar", "zh", "en", "el", "it", "no", "ru", "sv"]
+----
+
+==== Integration with Suggestion Strategies
+
+[source,ruby]
+----
+require 'kotoshu/suggestions/strategies/edit_distance_strategy'
+
+# Frequency bonuses automatically applied
+strategy = Kotoshu::Suggestions::Strategies::EditDistanceStrategy.new(
+  language_code: 'en'
+)
+
+# Suggestions are ranked by frequency
+suggestions = strategy.suggest('helo', max_results: 5)
+# => [
+#   { word: "hello", score: 1200 },  # High frequency word
+#   { word: "help", score: 1150 },   # Medium frequency word
+#   ...
+# ]
+----
+
+=== Cache TTL and Expiration
+
+All cached resources have a Time-To-Live (TTL) and automatically expire:
+
+* **LanguageCache**: 7 days (dictionaries change infrequently)
+* **FrequencyCache**: 7 days (frequency lists are stable)
+* **ModelCache**: 30 days (models are large and change rarely)
+
+Expired resources are automatically re-downloaded on next access.
+
+[source,ruby]
+----
+cache = Kotoshu::Cache::FrequencyCache.new
+
+# Force re-download (ignores cache)
+freq_data = cache.get('en', force_download: true)
+
+# Clean expired entries manually
+cache.clean
+----
+
+=== Manual Cache Management
+
+[source,ruby]
+----
+cache = Kotoshu::Cache::LanguageCache.new
+
+# Clear specific resource
+cache.clear('en:spelling')
+
+# Clear all resources
+cache.clear_all
+
+# Check if resource exists
+cache.available?('en:spelling')  # => true after download
+
+# Get statistics
+stats = cache.stats
+puts "Hit rate: #{stats[:hit_rate] * 100}%"
+puts "Size: #{stats[:size_bytes]} bytes"
+----
+
+=== GitHub Repository Structure
+
+The kotoshu/dictionaries repository follows this structure:
+
+[source]
+----
+kotoshu/dictionaries/
+├── en/
+│   ├── spelling/
+│   │   ├── index.dic          # Hunspell dictionary
+│   │   ├── index.aff          # Hunspell affix rules
+│   │   └── metadata.json      # Version info
+│   ├── grammar/
+│   │   └── rules.yaml         # Grammar rules (future)
+│   └── models/
+│       ├── fasttext/
+│       │   └── cc.en.300.vec  # FastText vectors
+│       └── onnx/
+│           └── fasttext.en.onnx # ONNX model
+├── de/
+│   └── ... (same structure)
+└── README.md
+
+kotoshu/frequency-list-kelly/
+├── data/
+│   ├── en.json               # Kelly frequency data
+│   ├── ru.json
+│   └── ...
+└── README.md
+----
+
+=== Adding New Languages
+
+To add support for a new language:
+
+1. **Dictionary**: Add Hunspell dictionary to `kotoshu/dictionaries/{code}/spelling/`
+2. **Frequency**: Add Kelly frequency data to `kotoshu/frequency-list-kelly/data/{code}.json`
+3. **Register**: Add to `AVAILABLE_LANGUAGES` in `LanguageCache`
+4. **Test**: Run integration tests to verify
+
+See CONTRIBUTING.adoc for detailed guidelines.
+
+== Model Repository
+
+ONNX models are hosted at: https://github.com/kotoshu/dictionaries[kotoshu/dictionaries]
+
+Download and setup:
+
+[source,bash]
+----
+# Clone models repository
+git clone https://github.com/kotoshu/dictionaries.git ~/.kotoshu/models
+
+# Or use built-in download
+kotoshu model download en --type onnx
+----
+
+== License
+
+BSD 2-Clause — see the link:LICENSE[LICENSE] file for details.
+
+Bundled dictionaries and frequency lists carry their own licenses; see the
+per-language `license` files in https://github.com/kotoshu/dictionaries[kotoshu/dictionaries].
 
 == Contributing
 
-Bug reports and pull requests are welcome on GitHub at
-https://github.com/kotoshu/kotoshu
+Contributions are welcome! Please see CONTRIBUTING.adoc for guidelines.
 
-=== Development
+== Acknowledgments
 
-To contribute to Kotoshu:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/my-feature`)
-3. Make your changes following Ribose Ruby coding standards
-4. Run tests (`bundle exec rake`)
-5. Run linter (`bundle exec rubocop`)
-6. Submit a pull request
-
-=== Code Style
-
-Kotoshu follows Ribose Ruby gem coding standards:
-
-* 2 spaces for indentation
-* 80-character line limit
-* Double quotes for strings
-* `frozen_string_literal: true` in all files
-* Model-driven OOP architecture
-* MECE (Mutually Exclusive, Collectively Exhaustive) design
-
-== Copyright and license
-
-Copyright Ribose.
-
-The library is available as open source under the terms of the Ribose 2-Clause
-License. See the LICENSE file for details.
+* FastText: https://fasttext.cc/[Facebook Research]
+* ONNX Runtime: https://onnxruntime.ai/[Microsoft]
+* Hunspell: https://hunspell.github.io/[László Németh]
