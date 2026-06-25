@@ -5,15 +5,19 @@ source "https://rubygems.org"
 # Specify your gem's dependencies in kotoshu.gemspec
 gemspec
 
+gem "rubyzip", "~> 2.3"
 gem "irb"
 gem "rake", "~> 13.0"
 gem "thor", "~> 1.0"
 
 group :development, :test do
+  gem "asciidoctor", "~> 2.0"
+  gem "benchmark-ips", "~> 2.12"
   gem "rspec", "~> 3.12"
   gem "rspec-mocks", "~> 3.12"
-  gem "simplecov", "~> 0.22"
+  gem "rspec-parameterized", "~> 1.0"
   gem "rubocop", "~> 1.21"
   gem "rubocop-rspec", "~> 2.20"
-  gem "benchmark-ips", "~> 2.12"
+  gem "simplecov", "~> 0.22"
+  gem "yard", "~> 0.9"
 end

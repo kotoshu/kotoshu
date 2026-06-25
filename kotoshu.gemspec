@@ -5,13 +5,14 @@ require_relative "lib/kotoshu/version"
 Gem::Specification.new do |spec|
   spec.name = "kotoshu"
   spec.version = Kotoshu::VERSION
-  spec.authors = ["Ronald Tse"]
-  spec.email = ["ronald.tse@ribose.com"]
+  spec.authors = ["Ribose Inc."]
+  spec.email = ["open.source@ribose.com"]
 
-  spec.summary = "A Ruby spellchecker library with multiple dictionary backends"
-  spec.description = "Kotoshu is a spellchecker library for Ruby supporting multiple " \
-                    "dictionary formats (Hunspell, CSpell, UnixWords, PlainText) and " \
-                    "suggestion algorithms (Edit Distance, Phonetic, Trie Walk)."
+  spec.summary = "Semantic spell checker for Ruby using ONNX word embeddings"
+  spec.description = "Kotoshu is a semantic spell checker for Ruby that uses " \
+                    "FastText word embeddings (via ONNX) for context-aware spelling " \
+                    "and grammar suggestions. Supports multiple languages with " \
+                    "automatic detection, interactive review, and CI/CD integration."
   spec.homepage = "https://github.com/kotoshu/kotoshu"
   spec.required_ruby_version = ">= 3.1.0"
   spec.license = "BSD-2-Clause"
@@ -21,6 +22,7 @@ Gem::Specification.new do |spec|
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/kotoshu/kotoshu/tree/main"
   spec.metadata["changelog_uri"] = "https://github.com/kotoshu/kotoshu/blob/main/CHANGELOG.md"
+  spec.metadata["rubygems_mfa_required"] = "true"
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
@@ -37,6 +39,9 @@ Gem::Specification.new do |spec|
 
   # Runtime dependencies
   spec.add_dependency "thor", "~> 1.0"
+  spec.add_dependency "suika", "~> 0.3"
+  spec.add_dependency "rubyzip", "~> 2.3"
+  spec.add_dependency "onnxruntime", "~> 0.10"  # ONNX inference for semantic spell checking
 
   # Development dependencies are specified in Gemfile
 
