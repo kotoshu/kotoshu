@@ -96,6 +96,16 @@ module Kotoshu
         @dictionaries.keys
       end
 
+      # Iterate over registered keys.
+      #
+      # @yield [key] Block to execute for each key
+      # @return [Enumerator] Enumerator if no block given
+      def each_key(&block)
+        return enum_for(:each_key) unless block_given?
+
+        @dictionaries.each_key(&block)
+      end
+
       # Get all dictionaries.
       #
       # @return [Array<Base>] All dictionaries
@@ -125,6 +135,7 @@ module Kotoshu
       # @return [Enumerator] Enumerator if no block given
       def each(&block)
         return enum_for(:each) unless block_given?
+
         @dictionaries.each(&block)
       end
 

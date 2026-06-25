@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "node"
-
 module Kotoshu
   module Core
     module Trie
@@ -60,6 +58,7 @@ module Kotoshu
           node = @root
           word.each_char do |char|
             return nil unless node.has_child?(char)
+
             node = node.child(char)
           end
           node
@@ -219,9 +218,7 @@ module Kotoshu
         # @param prefix [String] The current prefix
         # @param words [Array] Array to collect words into
         def collect_words(node, prefix, words)
-          if node.terminal?
-            words << prefix
-          end
+          words << prefix if node.terminal?
 
           node.all_children.each do |char, child|
             collect_words(child, prefix + char, words)
@@ -237,9 +234,7 @@ module Kotoshu
         def collect_words_limited(node, prefix, words, limit)
           return if words.size >= limit
 
-          if node.terminal?
-            words << prefix
-          end
+          words << prefix if node.terminal?
 
           return if words.size >= limit
 

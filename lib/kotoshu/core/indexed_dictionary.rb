@@ -53,10 +53,8 @@ module Kotoshu
           prefix = word[0...i]
           @indexes[:prefix][prefix] ||= []
           @indexes[:prefix][prefix] << word
-        end
 
-        # Update suffix indexes (for suffix searching)
-        (1...word.length).each do |i|
+          # Update suffix indexes (for suffix searching)
           suffix = word[i..]
           @indexes[:suffix][suffix] ||= []
           @indexes[:suffix][suffix] << word
@@ -193,6 +191,7 @@ module Kotoshu
         result = Hash.new(0)
         all_words.each do |word|
           next if word.empty?
+
           letter = word[0].upcase
           result[letter] += 1
         end
@@ -221,6 +220,7 @@ module Kotoshu
       # @return [Enumerator] Enumerator if no block given
       def each_word
         return enum_for(:each_word) unless block_given?
+
         @words.each { |entry| yield entry[:word] }
       end
 
@@ -230,6 +230,7 @@ module Kotoshu
       # @return [Enumerator] Enumerator if no block given
       def each_with_index
         return enum_for(:each_with_index) unless block_given?
+
         @words.each { |entry| yield entry[:word], entry[:index] }
       end
 

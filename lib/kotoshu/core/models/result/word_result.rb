@@ -135,6 +135,7 @@ module Kotoshu
         # @return [Boolean] True if equal
         def ==(other)
           return false unless other.is_a?(WordResult)
+
           @word == other.word && @correct == other.correct
         end
         alias eql? ==
@@ -153,7 +154,7 @@ module Kotoshu
           if @correct
             @word
           elsif has_suggestions?
-            "#{@word} (did you mean #{top_suggestions(3).join(', ')}?)"
+            "#{@word} (did you mean #{top_suggestions(3).join(", ")}?)"
           else
             "#{@word} (no suggestions)"
           end
@@ -187,12 +188,12 @@ module Kotoshu
         #   WordResult.incorrect("helo", suggestions: %w[hello help])
         def self.incorrect(word, suggestions: nil, position: nil)
           suggestions_set = if suggestions.is_a?(Suggestions::SuggestionSet)
-                             suggestions
-                           elsif suggestions.is_a?(Array)
-                             Suggestions::SuggestionSet.from_words(suggestions, source: :default)
-                           else
-                             Suggestions::SuggestionSet.empty
-                           end
+                              suggestions
+                            elsif suggestions.is_a?(Array)
+                              Suggestions::SuggestionSet.from_words(suggestions, source: :default)
+                            else
+                              Suggestions::SuggestionSet.empty
+                            end
 
           new(word, correct: false, suggestions: suggestions_set, position: position)
         end

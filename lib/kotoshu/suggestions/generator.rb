@@ -8,6 +8,7 @@ require_relative "strategies/edit_distance_strategy"
 require_relative "strategies/phonetic_strategy"
 require_relative "strategies/keyboard_proximity_strategy"
 require_relative "strategies/ngram_strategy"
+require_relative "strategies/semantic_strategy"
 
 module Kotoshu
   module Suggestions
@@ -73,6 +74,17 @@ module Kotoshu
         @strategy.generate(context)
       end
 
+      # Alias for generate for API consistency.
+      #
+      # @param word [String] The misspelled word
+      # @param max_suggestions [Integer] Maximum suggestions (optional)
+      # @return [SuggestionSet] Generated suggestions
+      #
+      # @example
+      #   generator.suggest("helo")
+      #   # => #<Kotoshu::Suggestions::SuggestionSet ...>
+      alias suggest generate
+
       # Check if a word is correct.
       #
       # @param word [String] The word to check
@@ -112,8 +124,8 @@ module Kotoshu
       #
       # @example
       #   Generator.default_algorithms = [MyCustomStrategy]
-      def self.default_algorithms=(algorithms)
-        @default_algorithms = algorithms
+      class << self
+        attr_writer :default_algorithms
       end
 
       private

@@ -1,0 +1,1015 @@
+# French common words by frequency
+# Source: French Wikipedia Corpus, FrWiktionary
+# Last updated: 2025-01-15
+
+metadata:
+  language: fr
+  source: French Wikipedia Corpus, FrWiktionary
+  source_url: https://en.wiktionary.org/wiki/Wiktionary:Frequency_lists/French
+  total_words: 84310
+  last_updated: 2025-01-15
+  license: CC-BY-SA 4.0
+
+tiers:
+  top_50:
+    - de
+    - le
+    - la
+    - les
+    - à
+    - et
+    - en
+    - un
+    - être
+    - avoir
+    - il
+    - ne
+    - je
+    - son
+    - que
+    - se
+    - qui
+    - dans
+    - ce
+    - pour
+    - pas
+    - plus
+    - par
+    - sur
+    - on
+    - faire
+    - avec
+    - tout
+    - comme
+    - mais
+    - nous
+    - vous
+    - ou
+    - si
+    - leur
+    - y
+    - dire
+    - elle
+    - au
+    - des
+    - du
+    - on
+    - ce
+    - cet
+    - cette
+    - ces
+    - mes
+    - tes
+    - ses
+    - nos
+    - vos
+    - leurs
+    - mon
+    - ton
+    - ma
+    - ta
+    - sa
+    - mes
+    - tes
+    - ses
+    - notre
+    - votre
+    - leur
+
+  top_200:
+    - où
+    - le
+    - la
+    - les
+    - un
+    - une
+    - des
+    - du
+    - de la
+    - aux
+    - à la
+    - au
+    - je
+    - tu
+    - il
+    - elle
+    - nous
+    - vous
+    - ils
+    - elles
+    - on
+    - ce
+    - ceci
+    - cela
+    - ça
+    - c'est
+    - il est
+    - elle est
+    - ils sont
+    - elles sont
+    - j'ai
+    - tu as
+    - il a
+    - elle a
+    - nous avons
+    - vous avez
+    - ils ont
+    - elles ont
+    - je suis
+    - tu es
+    - il est
+    - elle est
+    - nous sommes
+    - vous êtes
+    - ils sont
+    - elles sont
+    - j'étais
+    - tu étais
+    - il était
+    - elle était
+    - nous étions
+    - vous étiez
+    - ils étaient
+    - elles étaient
+    - je fus
+    - tu fus
+    - il fut
+    - elle fut
+    - nous fûmes
+    - vous fûtes
+    - ils furent
+    - elles furent
+    - je serai
+    - tu seras
+    - il sera
+    - elle sera
+    - nous serons
+    - vous serez
+    - ils seront
+    - elles seront
+    - je serais
+    - tu serais
+    - il serait
+    - elle serait
+    - nous serions
+    - vous seriez
+    - ils seraient
+    - elles seraient
+    - soit
+    - sois
+    - soit
+    - soyons
+    - soyez
+    - soient
+    - fusse
+    - fusses
+    - fût
+    - fussions
+    - fussiez
+    - fussent
+    - étant
+    - été
+    - avoir
+    - eu
+    - eue
+    - eus
+    - eues
+    - ayant
+    - j'ai
+    - tu as
+    - il a
+    - elle a
+    - nous avons
+    - vous avez
+    - ils ont
+    - elles ont
+    - j'eus
+    - tu eus
+    - il eut
+    - elle eut
+    - nous eûmes
+    - vous eûtes
+    - ils eurent
+    - elles eurent
+    - j'aurai
+    - tu auras
+    - il aura
+    - elle aura
+    - nous aurons
+    - vous aurez
+    - ils auront
+    - elles auront
+    - j'aurais
+    - tu aurais
+    - il aurait
+    - elle aurait
+    - nous aurions
+    - vous auriez
+    - ils auraient
+    - elles auraient
+    - aie
+    - aies
+    - ait
+    - ayons
+    - ayez
+    - aient
+    - eusse
+    - eusses
+    - eût
+    - eussions
+    - eussiez
+    - eussent
+
+  top_1000:
+    - très
+    - plus
+    - moins
+    - trop
+    - assez
+    - tellement
+    - tellement
+    - aussi
+    - comme
+    - tel
+    - telle
+    - tels
+    - telles
+    - même
+    - mieux
+    - pire
+    - meilleur
+    - moindre
+    - bon
+    - mauvais
+    - bien
+    - mal
+    - vite
+    - lentement
+    - vite
+    - rapidement
+    - doucement
+    - facilement
+    - difficilement
+    - probablement
+    - possible
+    - impossible
+    - certain
+    - probable
+    - peut-être
+    - sans doute
+    - certainement
+    - sûrement
+    - évidemment
+    - naturellement
+    - bien sûr
+    - of course
+    - en effet
+    - effectivement
+    - en réalité
+    - en fait
+    - par contre
+    - au contraire
+    - par ailleurs
+    - d'ailleurs
+    - en outre
+    - de plus
+    - en plus
+    - aussi
+    - également
+    - pareillement
+    - de même
+    - non seulement
+    - mais aussi
+    - et aussi
+    - ni
+    - soit
+    - ou
+    - soit
+    - c'est-à-dire
+    - autrement dit
+    - en d'autres termes
+    - par exemple
+    - notamment
+    - en particulier
+    - surtout
+    - principalement
+    - essentiellement
+    - fondamentalement
+    - avant tout
+    - d'abord
+    - premièrement
+    - ensuite
+    - puis
+    - après
+    - après
+    - avant
+    - pendant
+    - pendant
+    - durant
+    - depuis
+    - dès
+    - jusqu'à
+    - jusqu'à ce que
+    - maintenant
+    - à présent
+    - aujourd'hui
+    - demain
+    - hier
+    - bientôt
+    - tôt
+    - tard
+    - jamais
+    - toujours
+    - souvent
+    - rarement
+    - parfois
+    - quelquefois
+    - de temps en temps
+    - de temps en temps
+    - en ce moment
+    - à ce moment-là
+    - à l'époque
+    - autrefois
+    - jadis
+    - naguère
+    - soudain
+    - soudainement
+    - brusquement
+    - progressivement
+    - lentement
+    - graduellement
+    - rapidement
+    - vite
+    - immédiatement
+    - tout de suite
+    - directement
+    - indirectement
+    - personnellement
+    - individuellement
+    - collectivement
+    - ensemble
+    - séparément
+    - ensemble
+    - seul
+    - seulement
+    - uniquement
+    - juste
+    - simplement
+    - purement
+    - entièrement
+    - complètement
+    - totalement
+    - absolument
+    - vraiment
+    - réellement
+    - effectivement
+    - effectivement
+    - vraiment
+    - certainement
+    - probablement
+    - évidemment
+    - malheureusement
+    - heureusement
+    - opportunity
+    - hasard
+    - par hasard
+    - accidentellement
+    - intentionnellement
+    - exprès
+    - délibérément
+    - consciemment
+    - inconsciemment
+    - volontairement
+    - involontairement
+    - librement
+    - forcément
+    - obligatoirement
+    - nécessairement
+    - éventuellement
+    - potentiellement
+    - théoriquement
+    - pratiquement
+    - techniquement
+    - logiquement
+    - raisonnablement
+    - sensément
+    - intelligemment
+    - sagement
+    - follement
+    - courageusement
+    - lâchement
+    - honnêtement
+    - franchement
+    - sincèrement
+    - véritablement
+    - faussement
+    - mensongèrement
+    - innocent
+    - coupable
+    - fautif
+    - responsable
+    - raison
+    - cause
+    - but
+    - but
+    - objective
+    - but
+    - fin
+    - dessein
+    - projet
+    - plan
+    - programme
+    - schedule
+    - calendrier
+    - horaire
+    - timing
+    - moment
+    - opportunity
+    - occasion
+    - chance
+    - opportunity
+    - risque
+    - danger
+    - menace
+    - hazard
+    - peril
+    - sécurité
+    - sûreté
+    - protection
+    - defense
+    - garde
+    - sauvegarde
+    - abri
+    - refuge
+    - shelter
+    - asylum
+    - refuge
+    - sanctuary
+    - sanctuaire
+    - haven
+    - port
+    - home
+    - maison
+    - household
+    - ménage
+    - family
+    - famille
+    - house
+    - maison
+    - building
+    - bâtiment
+    - room
+    - chambre
+    - space
+    - espace
+    - place
+    - lieu
+    - location
+    - emplacement
+    - position
+    - position
+    - situation
+    - situation
+    - environment
+    - environnement
+    - surroundings
+    - environs
+    - contexte
+    - context
+    - contexte
+    - circumstances
+    - circonstances
+    - conditions
+    - conditions
+    - state
+    - état
+    - status
+    - statut
+    - mode
+    - mode
+    - way
+    - façon
+    - manner
+    - manière
+    - method
+    - méthode
+    - technique
+    - technique
+    - strategy
+    - stratégie
+    - approach
+    - approche
+    - solution
+    - solution
+    - answer
+    - réponse
+    - result
+    - résultat
+    - outcome
+    - issue
+    - consequence
+    - conséquence
+    - effect
+    - effet
+    - impact
+    - impact
+    - influence
+    - influence
+    - change
+    - changement
+    - difference
+    - différence
+    - similarity
+    - similitude
+    - resemblance
+    - ressemblance
+    - analogy
+    - analogie
+    - comparison
+    - comparaison
+    - contrast
+    - contraste
+    - opposition
+    - opposition
+    - conflict
+    - conflit
+    - disagreement
+    - désaccord
+    - dispute
+    - dispute
+    - argument
+    - argument
+    - debate
+    - débat
+    - discussion
+    - discussion
+    - negotiation
+    - négociation
+    - settlement
+    - règlement
+    - resolution
+    - résolution
+    - agreement
+    - accord
+    - contract
+    - contrat
+    - deal
+    - affaire
+    - promise
+    - promesse
+    - commitment
+    - engagement
+    - obligation
+    - obligation
+    - duty
+    - devoir
+    - responsibility
+    - responsabilité
+    - blame
+    - faute
+    - fault
+    - défaut
+    - mistake
+    - erreur
+    - error
+    - erreur
+    - success
+    - succès
+    - failure
+    - échec
+    - victory
+    - victoire
+    - defeat
+    - défaite
+    - gain
+    - gain
+    - loss
+    - perte
+    - profit
+    - profit
+    - advantage
+    - avantage
+    - benefit
+    - avantage
+    - disadvantage
+    - désavantage
+    - drawback
+    - inconvénient
+    - pro
+    - pro
+    - con
+    - contre
+    - plus
+    - plus
+    - minus
+    - moins
+    - positive
+    - positif
+    - negative
+    - négatif
+    - good
+    - bon
+    - bad
+    - mauvais
+    - better
+    - meilleur
+    - worse
+    - pire
+    - best
+    - meilleur
+    - worst
+    - pire
+    - true
+    - vrai
+    - false
+    - faux
+    - real
+    - réel
+    - unreal
+    - irréel
+    - genuine
+    - authentique
+    - fake
+    - faux
+    - artificial
+    - artificiel
+    - natural
+    - naturel
+    - normal
+    - normal
+    - abnormal
+    - anormal
+    - standard
+    - standard
+    - exceptional
+    - exceptionnel
+    - ordinary
+    - ordinaire
+    - extraordinary
+    - extraordinaire
+    - common
+    - commun
+    - uncommon
+    - rare
+    - typical
+    - typique
+    - atypical
+    - atypique
+    - regular
+    - régulier
+    - irregular
+    - irrégulier
+    - usual
+    - habituel
+    - unusual
+    - inhabituel
+    - expected
+    - attendu
+    - unexpected
+    - inattendu
+    - predictable
+    - prévisible
+    - unpredictable
+    - imprévisible
+    - certain
+    - certain
+    - uncertain
+    - incertain
+    - definite
+    - défini
+    - indefinite
+    - indéfini
+    - clear
+    - clair
+    - unclear
+    - obscur
+    - obvious
+    - évident
+    - hidden
+    - caché
+    - visible
+    - visible
+    - invisible
+    - invisible
+    - transparent
+    - transparent
+    - opaque
+    - opaque
+    - open
+    - ouvert
+    - closed
+    - fermé
+    - public
+    - public
+    - private
+    - privé
+    - general
+    - général
+    - specific
+    - spécifique
+    - broad
+    - large
+    - narrow
+    - étroit
+    - wide
+    - large
+    - deep
+    - profond
+    - shallow
+    - peu profond
+    - high
+    - haut
+    - low
+    - bas
+    - big
+    - grand
+    - small
+    - petit
+    - large
+    - grand
+    - little
+    - petit
+    - huge
+    - énorme
+    - tiny
+    - minuscule
+    - fast
+    - rapide
+    - slow
+    - lent
+    - quick
+    - rapide
+    - swift
+    - rapide
+    - rapid
+    - rapide
+    - speedy
+    - rapide
+    - hasty
+    - hâtif
+    - gradual
+    - graduel
+    - steady
+    - stable
+    - constant
+    - constant
+    - variable
+    - variable
+    - flexible
+    - flexible
+    - rigid
+    - rigide
+    - strong
+    - fort
+    - weak
+    - faible
+    - powerful
+    - puissant
+    - powerless
+    - sans pouvoir
+    - heavy
+    - lourd
+    - light
+    - léger
+    - dark
+    - sombre
+    - bright
+    - brillant
+    - early
+    - tôt
+    - late
+    - tard
+    - timely
+    - ponctuel
+    - sudden
+    - soudain
+    - abrupt
+    - brusque
+    - gradual
+    - progressif
+    - smooth
+    - doux
+    - rough
+    - rugueux
+    - soft
+    - doux
+    - hard
+    - dur
+    - wet
+    - mouillé
+    - dry
+    - sec
+    - hot
+    - chaud
+    - cold
+    - froid
+    - warm
+    - chaud
+    - cool
+    - frais
+    - full
+    - plein
+    - empty
+    - vide
+    - complete
+    - complet
+    - incomplete
+    - incomplet
+    - whole
+    - entier
+    - partial
+    - partiel
+    - total
+    - total
+    - new
+    - nouveau
+    - old
+    - vieux
+    - young
+    - jeune
+    - fresh
+    - frais
+    - stale
+    - rassis
+    - clean
+    - propre
+    - dirty
+    - sale
+    - pure
+    - pur
+    - impure
+    - impur
+    - beautiful
+    - beau
+    - ugly
+    - laid
+    - pretty
+    - joli
+    - handsome
+    - beau
+    - attractive
+    - attirant
+    - repulsive
+    - répulsif
+    - good-looking
+    - beau
+    - plain
+    - ordinaire
+    - rich
+    - riche
+    - poor
+    - pauvre
+    - expensive
+    - cher
+    - cheap
+    - bon marché
+    - valuable
+    - précieux
+    - worthless
+    - sans valeur
+    - important
+    - important
+    - unimportant
+    - sans importance
+    - significant
+    - significatif
+    - insignificant
+    - insignifiant
+    - relevant
+    - pertinent
+    - irrelevant
+    - non pertinent
+    - essential
+    - essentiel
+    - non-essential
+    - non essentiel
+    - necessary
+    - nécessaire
+    - unnecessary
+    - inutile
+    - useful
+    - utile
+    - useless
+    - inutile
+    - helpful
+    - utile
+    - harmful
+    - nuisible
+    - beneficial
+    - bénéfique
+    - damaging
+    - endommageable
+    - positive
+    - positif
+    - negative
+    - négatif
+    - favorable
+    - favorable
+    - unfavorable
+    - défavorable
+    - fortunate
+    - chanceux
+    - unfortunate
+    - malchanceux
+    - lucky
+    - chanceux
+    - unlucky
+    - malchanceux
+    - happy
+    - heureux
+    - unhappy
+    - malheureux
+    - sad
+    - triste
+    - glad
+    - content
+    - sorry
+    - désolé
+    - angry
+    - en colère
+    - calm
+    - calme
+    - excited
+    - excité
+    - bored
+    - ennuyé
+    - interested
+    - intéressé
+    - uninterested
+    - désintéressé
+    - curious
+    - curieux
+    - indifferent
+    - indifférent
+    - amazed
+    - étonné
+    - surprised
+    - surpris
+    - shocked
+    - choqué
+    - frightened
+    - effrayé
+    - scared
+    - effrayé
+    - terrified
+    - terrifié
+    - brave
+    - courageux
+    - cowardly
+    - lâche
+    - confident
+    - confiant
+    - insecure
+    - incertain
+    - proud
+    - fier
+    - ashamed
+    - honteux
+    - jealous
+    - jaloux
+    - envious
+    - envieux
+    - generous
+    - généreux
+    - stingy
+    - avare
+    - kind
+    - gentil
+    - cruel
+    - cruel
+    - gentle
+    - doux
+    - rough
+    - brutal
+    - polite
+    - poli
+    - rude
+    - grossier
+    - friendly
+    - amical
+    - hostile
+    - hostile
+    - loyal
+    - loyal
+    - disloyal
+    - déloyal
+    - faithful
+    - fidèle
+    - unfaithful
+    - infidèle
+    - honest
+    - honnête
+    - dishonest
+    - malhonnête
+    - sincere
+    - sincère
+    - insincere
+    - insincère
+    - modest
+    - modeste
+    - arrogant
+    - arrogant
+    - humble
+    - humble
+    - proud
+    - fier

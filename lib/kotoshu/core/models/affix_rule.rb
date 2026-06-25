@@ -99,15 +99,13 @@ module Kotoshu
       def apply(word)
         return nil unless applies_to?(word)
 
-        result = if prefix?
-                   # Strip from beginning, add prefix
-                   word.start_with?(@strip) ? @add + word[@strip.length..] : nil
-                 else
-                   # Strip from end, add suffix
-                   word.end_with?(@strip) ? word[0...-@strip.length] + @add : nil
-                 end
-
-        result
+        if prefix?
+          # Strip from beginning, add prefix
+          word.start_with?(@strip) ? @add + word[@strip.length..] : nil
+        else
+          # Strip from end, add suffix
+          word.end_with?(@strip) ? word[0...-@strip.length] + @add : nil
+        end
       end
 
       # Remove this affix from a word (reverse operation).
@@ -117,15 +115,13 @@ module Kotoshu
       def remove(word)
         return nil unless applies_to?(word)
 
-        result = if prefix?
-                   # Remove prefix if it matches
-                   word.start_with?(@add) ? @strip + word[@add.length..] : nil
-                 else
-                   # Remove suffix if it matches
-                   word.end_with?(@add) ? word[0...-@add.length] + @strip : nil
-                 end
-
-        result
+        if prefix?
+          # Remove prefix if it matches
+          word.start_with?(@add) ? @strip + word[@add.length..] : nil
+        else
+          # Remove suffix if it matches
+          word.end_with?(@add) ? word[0...-@add.length] + @strip : nil
+        end
       end
 
       # Get the Hunspell representation.
@@ -134,7 +130,7 @@ module Kotoshu
       def to_hunspell
         type_code = TYPES[@type]
         cross = @cross_product ? "Y" : "N"
-        "#{type_code} #{@flag} #{cross} #{@strip.length == 0 ? "0" : @strip} " \
+        "#{type_code} #{@flag} #{cross} #{@strip.empty? ? "0" : @strip} " \
         "#{@add} #{@condition.is_a?(Regexp) ? condition_to_s : @condition}"
       end
 
@@ -158,6 +154,7 @@ module Kotoshu
       # @return [Boolean] True if equal
       def ==(other)
         return false unless other.is_a?(AffixRule)
+
         @type == other.type &&
           @flag == other.flag &&
           @strip == other.strip &&
@@ -180,6 +177,7 @@ module Kotoshu
       # @return [Integer] Comparison result
       def <=>(other)
         return nil unless other.is_a?(AffixRule)
+
         @flag <=> other.flag
       end
 
@@ -224,9 +222,7 @@ module Kotoshu
         source = source.gsub("\\(\\?\\!([^)]+)\\)\\.", "^\\1")
 
         # Convert non-capturing groups back
-        source = source.gsub("\\(\\?:", "[").gsub("\\)", "]")
-
-        source
+        source.gsub("\\(\\?:", "[").gsub("\\)", "]")
       end
 
       # Create an affix rule from a Hunspell affix line.

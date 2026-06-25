@@ -106,21 +106,20 @@ module Kotoshu
         #
         # @yield [error] Each error
         # @return [Enumerator] Enumerator if no block given
-        def each_error
+        def each_error(&block)
           return enum_for(:each_error) unless block_given?
-          @errors.each { |error| yield error }
+
+          @errors.each(&block)
         end
 
         # Iterate over unique error words.
         #
         # @yield [word, errors] Each unique word and its errors
         # @return [Enumerator] Enumerator if no block given
-        def each_unique_error
+        def each_unique_error(&block)
           return enum_for(:each_unique_error) unless block_given?
 
-          @errors.group_by(&:word).each do |word, errs|
-            yield word, errs
-          end
+          @errors.group_by(&:word).each(&block)
         end
 
         # Get the first N errors.
@@ -180,6 +179,7 @@ module Kotoshu
         # @return [Boolean] True if equal
         def ==(other)
           return false unless other.is_a?(DocumentResult)
+
           @file == other.file && @errors == other.errors
         end
         alias eql? ==
@@ -252,7 +252,7 @@ module Kotoshu
           total_words = results.sum(&:word_count)
 
           new(
-            file: nil,  # Merged results don't have a single file
+            file: nil, # Merged results don't have a single file
             errors: all_errors,
             word_count: total_words
           )

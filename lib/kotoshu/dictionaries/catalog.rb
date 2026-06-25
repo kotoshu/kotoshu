@@ -32,8 +32,7 @@ module Kotoshu
                     :source, :license, :word_count, :dic_url, :aff_url,
                     :metadata
 
-        def initialize(code:, name:, language:, region: nil, format:,
-                       source:, license:, word_count:, dic_url:, aff_url: nil,
+        def initialize(code:, name:, language:, format:, source:, license:, word_count:, dic_url:, region: nil, aff_url: nil,
                        metadata: {})
           @code = code
           @name = name
@@ -55,6 +54,7 @@ module Kotoshu
           case @format
           when :hunspell
             raise ArgumentError, "Missing aff_url for Hunspell dictionary" unless @aff_url
+
             Kotoshu::Dictionary::Hunspell.new(
               dic_path: @dic_url,
               aff_path: @aff_url,
@@ -90,7 +90,7 @@ module Kotoshu
       end
 
       # Base URL for kotoshu/dictionaries repository
-      BASE_URL = "https://raw.githubusercontent.com/kotoshu/dictionaries/main".freeze
+      BASE_URL = "https://raw.githubusercontent.com/kotoshu/dictionaries/main"
 
       # All available dictionaries
       ALL_DICTIONARIES = [
@@ -731,7 +731,7 @@ module Kotoshu
           word_count: 350_000,
           dic_url: "#{BASE_URL}/es-VE/index.dic",
           aff_url: "#{BASE_URL}/es-VE/index.aff",
-          metadata: { source: "wooorm/dictionaries" } },
+          metadata: { source: "wooorm/dictionaries" } }
       ].freeze
 
       # Create catalog entries from data

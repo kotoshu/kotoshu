@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "base"
-require_relative "../core/exceptions"
-require_relative "../core/models/affix_rule"
 require "open-uri"
+require_relative "base"
+require_relative "../readers/lookup_builder"
+require_relative "../readers/aff_reader"
+require_relative "../readers/dic_reader"
 
 module Kotoshu
   module Dictionary
@@ -25,6 +26,10 @@ module Kotoshu
     #   )
     #   dict.lookup?("hello")  # => true
     #
+    # @example Creating from GitHub cache
+    #   dict = Hunspell.from_github("de")
+    #   dict.lookup?("über")  # => true
+    #
     # @see https://hunspell.github.io/ Hunspell documentation
     class Hunspell < Base
       # @return [String] Path to the .dic file
@@ -38,6 +43,96 @@ module Kotoshu
 
       # @return [Hash] Configuration options from affix file
       attr_reader :aff_config
+
+      # @return [Hash] Raw aff data from AffReader (cached for Lookuper)
+      attr_reader :aff_data
+
+      # @return [Array] Raw words from DicReader (cached for Lookuper)
+      attr_reader :dic_words
+
+      # @return [Algorithms::Lookup::Lookuper] The lookup algorithm instance
+      def lookuper
+        @lookuper ||= Readers::LookupBuilder.from_data(@aff_data, @dic_words).build
+      end
+
+      class << self
+        # Load Hunspell dictionary from GitHub cache, downloading if necessary.
+        #
+        # This class method provides automatic dictionary management by:
+        # 1. Checking the local cache for existing dictionaries
+        # 2. Downloading from GitHub if not cached or expired
+        # 3. Managing cache metadata and TTL
+        #
+        # @example Load English dictionary
+        #   dict = Hunspell.from_github("en")
+        #   dict.lookup?("hello")  # => true
+        #
+        # @example Load German dictionary
+        #   dict = Hunspell.from_github("de")
+        #   dict.lookup?("über")  # => true
+        #
+        # @example Force re-download
+        #   dict = Hunspell.from_github("fr", force_download: true)
+        #
+        # @param language_code [String] ISO 639-1 language code (e.g., 'en', 'de', 'fr')
+        # @param cache [Cache::LanguageCache, nil] Custom cache instance (optional)
+        # @param force_download [Boolean] Force re-download even if cached
+        # @return [Hunspell] Configured Hunspell dictionary instance
+        # @raise [ArgumentError] If language_code is not supported
+        def from_github(language_code, cache: nil, force_download: false)
+          require_relative '../cache/language_cache'
+
+          cache ||= Cache::LanguageCache.new
+          cached = cache.get_dictionary(language_code, force_download: force_download)
+
+          new(
+            dic_path: cached[:dic_path],
+            aff_path: cached[:aff_path],
+            language_code: language_code,
+            metadata: {
+              source: 'github',
+              github_url: cached[:metadata]['url'],
+              checksum: cached[:metadata]['checksum'],
+              downloaded_at: cached[:metadata]['downloaded_at']
+            }
+          )
+        end
+
+        # Check if a language is available on GitHub.
+        #
+        # @param language_code [String] ISO 639-1 language code
+        # @param cache [Cache::LanguageCache, nil] Custom cache instance (optional)
+        # @return [Boolean] True if language is supported
+        def available_on_github?(language_code, cache: nil)
+          require_relative '../cache/language_cache'
+
+          cache ||= Cache::LanguageCache.new
+          cache.available_languages.include?(language_code)
+        end
+
+        # Get list of available languages on GitHub.
+        #
+        # @param cache [Cache::LanguageCache, nil] Custom cache instance (optional)
+        # @return [Array<String>] List of supported language codes
+        def available_github_languages(cache: nil)
+          require_relative '../cache/language_cache'
+
+          cache ||= Cache::LanguageCache.new
+          cache.available_languages
+        end
+
+        # Get information about a language from GitHub.
+        #
+        # @param language_code [String] ISO 639-1 language code
+        # @param cache [Cache::LanguageCache, nil] Custom cache instance (optional)
+        # @return [Hash] Language information
+        def language_info(language_code, cache: nil)
+          require_relative '../cache/language_cache'
+
+          cache ||= Cache::LanguageCache.new
+          cache.get_language_info(language_code)
+        end
+      end
 
       # Create a new Hunspell dictionary.
       #
@@ -55,15 +150,90 @@ module Kotoshu
         raise DictionaryNotFoundError, @aff_path unless File.exist?(@aff_path)
         raise DictionaryNotFoundError, @dic_path unless File.exist?(@dic_path)
 
-        @aff_config = load_aff_file(@aff_path)
-        @word_index = load_dic_file(@dic_path)
+        # Read aff file using AffReader and cache the data
+        aff_reader = Readers::AffReader.new(@aff_path)
+        @aff_data = aff_reader.read
+        @aff_config = @aff_data  # For backward compatibility
+
+        # Read dic file using DicReader with the same encoding as the aff file
+        dic_reader = Readers::DicReader.new(@dic_path,
+                                             encoding: aff_reader.encoding,
+                                             flag_format: @aff_data['FLAG'] || 'short',
+                                             flag_synonyms: @aff_data['AF'] || {})
+        @dic_words = dic_reader.read
+
+        # Build legacy structures for backward compatibility
+        @word_index = build_word_index(@dic_words)
         @affix_rules = parse_affix_rules(@aff_config)
+
+        # Lazy initialization of Lookuper (only created when needed)
+        @lookuper = nil
 
         # Register this dictionary type
         self.class.register_type(:hunspell) unless Dictionary.registry.key?(:hunspell)
       end
 
       private
+
+      # Build word index from DicReader words.
+      #
+      # @param words [Array<Readers::Word>] Words from DicReader
+      # @return [Hash] Word index (word => flags)
+      def build_word_index(words)
+        index = {}
+        words.each do |word|
+          index[word.stem.downcase] = word.flags.to_a
+        end
+        index
+      end
+
+      # Parse affix rules from AffReader data.
+      #
+      # @param aff_data [Hash] Aff data from AffReader
+      # @return [Hash] Affix rules by type
+      def parse_affix_rules(aff_data)
+        rules = {
+          prefix: Hash.new { |h, k| h[k] = [] },
+          suffix: Hash.new { |h, k| h[k] = [] }
+        }
+
+        # Convert AffReader's SFX/PFX data to legacy format
+        # AffReader returns: 'SFX' => { flag => [Affix, ...] }
+        # We need to convert each Affix to Models::AffixRule
+
+        aff_data['SFX']&.each do |flag, affix_list|
+          rules[:suffix][flag] = affix_list.map do |affix|
+            convert_to_affix_rule(affix, :suffix)
+          end
+        end
+
+        aff_data['PFX']&.each do |flag, affix_list|
+          rules[:prefix][flag] = affix_list.map do |affix|
+            convert_to_affix_rule(affix, :prefix)
+          end
+        end
+
+        rules
+      end
+
+      # Convert AffReader Affix to Models::AffixRule.
+      #
+      # @param affix [Readers::Affix] The affix to convert
+      # @param type [Symbol] :prefix or :suffix
+      # @return [Models::AffixRule] The converted rule
+      def convert_to_affix_rule(affix, type)
+        # Create a simple string representation for from_hunspell
+        # Format: PFX/SFX FLAG crossproduct strip add condition
+        cross_str = affix.crossproduct ? 'Y' : 'N'
+        strip_str = affix.strip.empty? ? '0' : affix.strip
+        add_str = affix.add.empty? ? '0' : affix.add
+        condition_str = affix.condition || '.'
+
+        type_str = type == :prefix ? 'PFX' : 'SFX'
+        rule_line = "#{type_str} #{affix.flag} #{cross_str} #{strip_str} #{add_str} #{condition_str}"
+
+        Models::AffixRule.from_hunspell(rule_line, type)
+      end
 
       # Check if path is a URL
       # @param path [String] Path to check
@@ -77,6 +247,7 @@ module Kotoshu
       # @return [String] Local file path
       def resolve_path(path)
         return File.expand_path(path) unless url?(path)
+
         download_to_temp(path)
       end
 
@@ -104,16 +275,15 @@ module Kotoshu
 
       # Check if a word exists in the dictionary.
       #
+      # Uses the Lookup::Lookuper algorithm for full affix and compound support.
+      #
       # @param word [String] The word to look up
       # @return [Boolean] True if the word exists
       def lookup(word)
         return false if word.nil? || word.empty?
 
-        # Direct lookup
-        return true if direct_lookup?(word)
-
-        # Check affix variants
-        word_variants(word).any? { |variant| direct_lookup?(variant) }
+        # Use the Lookuper for full Hunspell algorithm support
+        lookuper.call(word)
       end
 
       # Generate spelling suggestions.
@@ -133,15 +303,13 @@ module Kotoshu
         candidates = all_words.select { |w| w.downcase.start_with?(prefix) }
 
         # Calculate edit distances
-        results = candidates.map do |dict_word|
+        candidates.map do |dict_word|
           dist = edit_distance(lookup_word, dict_word.downcase)
           [dict_word, dist]
-        end.select { |_, dist| dist > 0 && dist <= 2 }
-         .sort_by { |_, dist| dist }
-         .first(max_suggestions)
-         .map(&:first)
-
-        results
+        end.select { |_, dist| dist.positive? && dist <= 2 }
+                  .sort_by { |_, dist| dist }
+                  .first(max_suggestions)
+                  .map(&:first)
       end
 
       # Add a word to the dictionary.
@@ -166,7 +334,7 @@ module Kotoshu
         return false if word.nil? || word.empty?
 
         word_key = word.downcase
-        @word_index.delete(word_key) != nil
+        !@word_index.delete(word_key).nil?
       end
 
       # Get all words in the dictionary.
@@ -252,7 +420,7 @@ module Kotoshu
         config = {
           set: "UTF-8",
           try: "",
-          flag: "char",  # or "long" or "num"
+          flag: "char", # or "long" or "num"
           affix_rules: []
         }
 
@@ -281,48 +449,6 @@ module Kotoshu
         end
 
         config
-      end
-
-      # Parse affix rules from configuration.
-      #
-      # @param config [Hash] Affix configuration
-      # @return [Hash] Affix rules by type
-      def parse_affix_rules(config)
-        rules = {
-          prefix: Hash.new { |h, k| h[k] = [] },
-          suffix: Hash.new { |h, k| h[k] = [] }
-        }
-
-        rule_buffer = {}
-
-        config[:affix_rules].each do |rule_line|
-          parts = rule_line.split
-          next if parts.length < 3
-
-          type = parts[0]
-          flag = parts[1]
-          cross_product = parts[2] == "Y"
-          rule_count = parts[3].to_i
-
-          if rule_count.zero?
-            # Header line - clear buffer for this flag
-            type_sym = type == "PFX" ? :prefix : :suffix
-            rule_buffer[flag] = { type: type_sym, cross_product: cross_product, rules: [] }
-          else
-            # Rule line
-            next unless rule_buffer[flag]
-
-            affix_rule = Models::AffixRule.from_hunspell(rule_line, rule_buffer[flag][:type])
-            rule_buffer[flag][:rules] << affix_rule
-          end
-        end
-
-        # Organize rules by type and flag
-        rule_buffer.each do |flag, data|
-          rules[data[:type]][flag] = data[:rules]
-        end
-
-        rules
       end
 
       # Direct lookup without affix processing.
@@ -375,9 +501,7 @@ module Kotoshu
         return str1.length if str2.empty?
 
         # Use smaller string for inner loop
-        if str1.length > str2.length
-          str1, str2 = str2, str1
-        end
+        str1, str2 = str2, str1 if str1.length > str2.length
 
         previous = (0..str1.length).to_a
 

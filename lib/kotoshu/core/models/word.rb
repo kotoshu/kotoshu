@@ -98,6 +98,7 @@ module Kotoshu
       # @return [Boolean] True if equal
       def ==(other)
         return false unless other.is_a?(Word)
+
         @text == other.text
       end
       alias eql? ==
@@ -115,6 +116,7 @@ module Kotoshu
       # @return [Integer] Comparison result
       def <=>(other)
         return nil unless other.is_a?(Word)
+
         @text <=> other.text
       end
 

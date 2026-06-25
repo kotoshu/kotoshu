@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "trie"
-
 module Kotoshu
   module Core
     module Trie
@@ -57,6 +55,7 @@ module Kotoshu
         def from_file(path)
           File.foreach(path, chomp: true) do |line|
             next if line.empty? || line.start_with?("#")
+
             add_word(line)
           end
           self
@@ -70,6 +69,7 @@ module Kotoshu
           text.each_line do |line|
             word = line.strip
             next if word.empty? || word.start_with?("#")
+
             add_word(word)
           end
           self

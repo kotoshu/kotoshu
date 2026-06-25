@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "base_strategy"
-
 module Kotoshu
   module Suggestions
     module Strategies
@@ -33,6 +31,7 @@ module Kotoshu
           word = context.word
           n = get_config(:n, 3)
           min_sim = get_config(:min_similarity, 0.3)
+          min_typo_similarity = get_config(:min_typo_similarity, 0.70)  # Filter by typo correction similarity
 
           return create_suggestion_set([]) if word.length < n
 
@@ -50,6 +49,10 @@ module Kotoshu
             similarity = ngram_similarity(word_ngrams, dict_word, n)
             next if similarity < min_sim
 
+            # Also check typo correction similarity for filtering
+            typo_sim = calculate_ngram_similarity(word, dict_word)
+            next if typo_sim < min_typo_similarity
+
             # Convert similarity to distance (higher similarity = lower distance)
             dist = ((1 - similarity) * 10).to_i
             next if dist.zero?
@@ -60,7 +63,7 @@ module Kotoshu
 
           # Convert to suggestions sorted by similarity
           sorted_words = results.sort_by { |_, dist| dist }.map(&:first)
-          create_suggestion_set(sorted_words)
+          create_suggestion_set(sorted_words, distances: results, original_word: word)
         end
 
         # Check if this strategy should handle the context.
@@ -69,6 +72,7 @@ module Kotoshu
         # @return [Boolean] True if the word needs correction
         def handles?(context)
           return false unless enabled?
+
           !dictionary_lookup(context, context.word)
         end
 
