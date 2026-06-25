@@ -1,7 +1,13 @@
 # frozen_string_literal: true
 
 require 'rubygems'
-require 'zip'
+
+begin
+  require 'zip'
+rescue LoadError
+  # rubyzip is optional — only needed for ZipReader (.oxt dictionaries).
+  # The plain FileReader and StreamReader work without it.
+end
 
 module Kotoshu
   module Readers
