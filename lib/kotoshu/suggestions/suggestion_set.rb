@@ -144,6 +144,7 @@ module Kotoshu
       # @return [Enumerator] Enumerator if no block given
       def each(&block)
         return enum_for(:each) unless block_given?
+
         @suggestions.each(&block)
       end
 
@@ -200,7 +201,7 @@ module Kotoshu
         if @suggestions.empty?
           to_s
         else
-          "#{to_s} [#{@suggestions.map(&:word).join(', ')}]"
+          "#{self} [#{@suggestions.map(&:word).join(", ")}]"
         end
       end
 

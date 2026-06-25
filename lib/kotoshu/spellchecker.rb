@@ -28,14 +28,23 @@ module Kotoshu
     # @return [Configuration] The configuration
     attr_reader :config
 
+    # @return [ResourceBundle, nil] The resource bundle if provided
+    attr_reader :resource_bundle
+
     # Create a new spellchecker.
     #
     # @param dictionary [Dictionary::Base, nil] The dictionary (optional)
     # @param config [Configuration, Hash] Configuration or settings
+    # @param resource_bundle [ResourceBundle, nil] Pre-resolved resource bundle
     # @param kwargs [Hash] Additional configuration options
     #
     # @example With dictionary
     #   spellchecker = Spellchecker.new(dictionary: dict)
+    #
+    # @example With resource bundle (0.2+)
+    #   bundle = Kotoshu::ResourceManager.resolve(language: "en")
+    #   spellchecker = Spellchecker.new(resource_bundle: bundle)
+    #   spellchecker.correct?("hello")  # => true
     #
     # @example With configuration hash
     #   spellchecker = Spellchecker.new(
@@ -46,19 +55,23 @@ module Kotoshu
     # @example With Configuration object
     #   config = Configuration.new(dictionary_path: "words.txt")
     #   spellchecker = Spellchecker.new(config: config)
-    def initialize(dictionary: nil, config: nil, **kwargs)
+    def initialize(dictionary: nil, config: nil, resource_bundle: nil, **kwargs)
+      @resource_bundle = resource_bundle
+
+      if resource_bundle
+        dictionary ||= resource_bundle.dictionary
+        kwargs[:language] = resource_bundle.language unless kwargs.key?(:language)
+      end
+
       if config.is_a?(Configuration)
         @config = config
       else
         settings = kwargs.dup
-        settings[:dictionary_path] = dictionary.path if dictionary && dictionary.respond_to?(:path)
+        settings[:dictionary_path] = dictionary.path if dictionary.respond_to?(:path)
         @config = Configuration.new(settings)
       end
 
-      # If dictionary was provided directly, use it
-      if dictionary
-        @config.dictionary = dictionary
-      end
+      @config.dictionary = dictionary if dictionary
 
       dict = @config.dictionary
       max_suggestions = @config.max_suggestions
@@ -121,7 +134,10 @@ module Kotoshu
     #   result.correct?         # => false
     #   result.suggestions      # => SuggestionSet with suggestions
     def check_word(word)
-      return Models::Result::WordResult.new("", correct: false, suggestions: Suggestions::SuggestionSet.empty) if word.nil? || word.empty?
+      if word.nil? || word.empty?
+        return Models::Result::WordResult.new("", correct: false,
+                                                  suggestions: Suggestions::SuggestionSet.empty)
+      end
 
       if correct?(word)
         Models::Result::WordResult.correct(word)
@@ -229,16 +245,14 @@ module Kotoshu
           word_buffer << char
           word_start = i if word_buffer.length == 1
           position = i
-        else
-          if !word_buffer.empty?
-            words << [word_buffer.dup.freeze, word_start]
-            word_buffer.clear
-          end
+        elsif !word_buffer.empty?
+          words << [word_buffer.dup.freeze, word_start]
+          word_buffer.clear
         end
       end
 
       # Don't forget the last word
-      words << [word_buffer.dup.freeze, word_start] if !word_buffer.empty?
+      words << [word_buffer.dup.freeze, word_start] unless word_buffer.empty?
 
       words
     end

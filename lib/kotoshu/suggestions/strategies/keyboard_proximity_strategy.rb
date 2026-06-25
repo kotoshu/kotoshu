@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "base_strategy"
-
 module Kotoshu
   module Suggestions
     module Strategies
@@ -18,54 +16,54 @@ module Kotoshu
         #
         # Each key maps to its adjacent keys.
         KEYBOARD_LAYOUT = {
-          "`" => ["1", "tab"],
+          "`" => %w[1 tab],
           "1" => ["`", "2", "q"],
-          "2" => ["1", "3", "w", "q"],
-          "3" => ["2", "4", "e", "w"],
-          "4" => ["3", "5", "r", "e"],
-          "5" => ["4", "6", "t", "r"],
-          "6" => ["5", "7", "y", "t"],
-          "7" => ["6", "8", "u", "y"],
-          "8" => ["7", "9", "i", "u"],
-          "9" => ["8", "0", "o", "i"],
-          "0" => ["9", "p", "o"],
+          "2" => %w[1 3 w q],
+          "3" => %w[2 4 e w],
+          "4" => %w[3 5 r e],
+          "5" => %w[4 6 t r],
+          "6" => %w[5 7 y t],
+          "7" => %w[6 8 u y],
+          "8" => %w[7 9 i u],
+          "9" => %w[8 0 o i],
+          "0" => %w[9 p o],
           "-" => ["0", "="],
           "=" => ["-"],
-          "q" => ["tab", "w", "a", "1"],
-          "w" => ["q", "e", "a", "s", "2"],
-          "e" => ["w", "r", "s", "d", "3"],
-          "r" => ["e", "t", "d", "f", "4"],
-          "t" => ["r", "y", "f", "g", "5"],
-          "y" => ["t", "u", "g", "h", "6"],
-          "u" => ["y", "i", "h", "j", "7"],
-          "i" => ["u", "o", "j", "k", "8"],
-          "o" => ["i", "p", "k", "l", "9"],
+          "q" => %w[tab w a 1],
+          "w" => %w[q e a s 2],
+          "e" => %w[w r s d 3],
+          "r" => %w[e t d f 4],
+          "t" => %w[r y f g 5],
+          "y" => %w[t u g h 6],
+          "u" => %w[y i h j 7],
+          "i" => %w[u o j k 8],
+          "o" => %w[i p k l 9],
           "p" => ["o", "l", ";", "0"],
           "[" => ["p", "'"],
           "]" => ["enter", "\\"],
-          "\\" => ["enter"],  # Backslash neighbors
-          "a" => ["caps", "s", "z", "q"],
-          "s" => ["a", "d", "z", "x", "w"],
-          "d" => ["s", "f", "x", "c", "e"],
-          "f" => ["d", "g", "c", "v", "r"],
-          "g" => ["f", "h", "v", "b", "t"],
-          "h" => ["g", "j", "b", "n", "y"],
-          "j" => ["h", "k", "n", "m", "u"],
+          "\\" => ["enter"], # Backslash neighbors
+          "a" => %w[caps s z q],
+          "s" => %w[a d z x w],
+          "d" => %w[s f x c e],
+          "f" => %w[d g c v r],
+          "g" => %w[f h v b t],
+          "h" => %w[g j b n y],
+          "j" => %w[h k n m u],
           "k" => ["j", "l", "m", ",", "i"],
           "l" => ["k", ";", ",", ".", "o"],
           ";" => ["l", "'", ".", "p"],
           "'" => [";"],
-          "z" => ["shift", "s", "x", "a"],
-          "x" => ["z", "c", "s", "d"],
-          "c" => ["x", "v", "d", "f"],
-          "v" => ["c", "b", "f", "g"],
-          "b" => ["v", "n", "g", "h"],
-          "n" => ["b", "m", "h", "j"],
+          "z" => %w[shift s x a],
+          "x" => %w[z c s d],
+          "c" => %w[x v d f],
+          "v" => %w[c b f g],
+          "b" => %w[v n g h],
+          "n" => %w[b m h j],
           "m" => ["n", ",", "j", "k"],
           "," => ["m", ".", "k", "l"],
           "." => [",", "/", "l", ";"],
           "/" => [".", "shift"],
-          " " => []  # Space has no neighbors
+          " " => [] # Space has no neighbors
         }.freeze
 
         # Create a new keyboard proximity strategy.
@@ -85,19 +83,35 @@ module Kotoshu
         def generate(context)
           word = context.word
           max_dist = get_config(:max_distance, 2)
+          min_similarity = get_config(:min_similarity, 0.70)  # Filter low-similarity suggestions
 
           all_words = dictionary_words(context)
 
           # Generate keyboard variants
           variants = keyboard_variants(word, max_dist)
 
-          # Find matching dictionary words
-          results = variants.select do |variant|
+          # Find matching dictionary words with their edit distances and similarity
+          results_with_distances = {}
+          variants.each do |variant|
             dict_word = find_word(all_words, variant)
-            dict_word && dict_word != word
-          end.uniq
+            next unless dict_word && dict_word != word
 
-          create_suggestion_set(results)
+            # Calculate edit distance from original word
+            dist = edit_distance(word, dict_word)
+            next if dist > max_dist
+
+            # Calculate typo correction similarity
+            similarity = calculate_ngram_similarity(word, dict_word)
+            next if similarity < min_similarity  # Filter by similarity threshold
+
+            # Keep the minimum distance for each word
+            results_with_distances[dict_word] ||= dist
+            results_with_distances[dict_word] = dist if dist < results_with_distances[dict_word]
+          end
+
+          # Sort by distance and create suggestions
+          sorted_words = results_with_distances.sort_by { |_, dist| dist }.map(&:first)
+          create_suggestion_set(sorted_words, distances: results_with_distances, original_word: word)
         end
 
         # Check if this strategy should handle the context.
@@ -106,10 +120,47 @@ module Kotoshu
         # @return [Boolean] True if the word needs correction
         def handles?(context)
           return false unless enabled?
+
           !dictionary_lookup(context, context.word)
         end
 
         private
+
+        # Calculate edit distance between two strings.
+        # Uses Levenshtein distance (substitution, insertion, deletion).
+        #
+        # @param str1 [String] First string
+        # @param str2 [String] Second string
+        # @return [Integer] Edit distance
+        def edit_distance(str1, str2)
+          return str2.length if str1.empty?
+          return str1.length if str2.empty?
+
+          len1 = str1.length
+          len2 = str2.length
+
+          # Create a 2D array for dynamic programming
+          d = Array.new(len1 + 1) { Array.new(len2 + 1, 0) }
+
+          # Initialize the first row and column
+          (0..len1).each { |i| d[i][0] = i }
+          (0..len2).each { |j| d[0][j] = j }
+
+          # Fill the matrix
+          (1..len1).each do |i|
+            (1..len2).each do |j|
+              cost = (str1[i - 1] == str2[j - 1]) ? 0 : 1
+
+              d[i][j] = [
+                d[i - 1][j] + 1,      # deletion
+                d[i][j - 1] + 1,      # insertion
+                d[i - 1][j - 1] + cost  # substitution
+              ].min
+            end
+          end
+
+          d[len1][len2]
+        end
 
         # Get neighbors for a key.
         #
@@ -141,8 +192,8 @@ module Kotoshu
                   new_variants.add(new_word)
 
                   # Also try insertions and deletions
-                  new_variants.add(variant[0...i] + variant[(i + 1)..])  # Delete
-                  new_variants.add(variant[0...i] + neighbor + variant[i..])  # Insert
+                  new_variants.add(variant[0...i] + variant[(i + 1)..]) # Delete
+                  new_variants.add(variant[0...i] + neighbor + variant[i..]) # Insert
                 end
               end
             end

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "base_strategy"
-
 module Kotoshu
   module Suggestions
     module Strategies
@@ -66,6 +64,7 @@ module Kotoshu
         # @return [Boolean] True if the word needs correction
         def handles?(context)
           return false unless enabled?
+
           !dictionary_lookup(context, context.word)
         end
 
@@ -120,9 +119,7 @@ module Kotoshu
             encoded = soundex_encode(char)
 
             # Add code if different from previous (ignore h and w)
-            if encoded != "0" && encoded != prev_code
-              code += encoded
-            end
+            code += encoded if encoded != "0" && encoded != prev_code
 
             prev_code = encoded if encoded != "0"
             i += 1
@@ -196,7 +193,7 @@ module Kotoshu
                 # "CIA" => "X"
                 code += "X"
                 i += 2
-              elsif next_char == "S" || next_char == "G"
+              elsif %w[S G].include?(next_char)
                 # "CS", "CG" => "X"
                 code += "X"
                 i += 1
@@ -236,7 +233,7 @@ module Kotoshu
               code += "J"
             when "K"
               code += "K"
-              i += 1 if next_char == "N"  # "KN" => "N"
+              i += 1 if next_char == "N" # "KN" => "N"
             when "L"
               code += "L"
             when "M"
@@ -268,7 +265,7 @@ module Kotoshu
                 code += "S"
               end
             when "T"
-              if next_char == "I" && i + 2 < length && (word[i + 2] == "O" || word[i + 2] == "A")
+              if next_char == "I" && i + 2 < length && %w[O A].include?(word[i + 2])
                 # "TIO" or "TIA" => "X"
                 code += "X"
                 i += 2
@@ -293,7 +290,7 @@ module Kotoshu
             i += 1
           end
 
-          code[0...4]  # Max 4 characters
+          code[0...4] # Max 4 characters
         end
 
         # Calculate Levenshtein edit distance.
@@ -306,9 +303,7 @@ module Kotoshu
           return str1.length if str2.empty?
 
           # Use smaller string for inner loop
-          if str1.length > str2.length
-            str1, str2 = str2, str1
-          end
+          str1, str2 = str2, str1 if str1.length > str2.length
 
           previous = (0..str1.length).to_a
 

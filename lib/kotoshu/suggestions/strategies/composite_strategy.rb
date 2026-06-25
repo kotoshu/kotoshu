@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "base_strategy"
-
 module Kotoshu
   module Suggestions
     module Strategies
@@ -109,6 +107,7 @@ module Kotoshu
         # @return [Enumerator] Enumerator if no block given
         def each_strategy(&block)
           return enum_for(:each_strategy) unless block_given?
+
           @strategies.each(&block)
         end
 
@@ -124,7 +123,7 @@ module Kotoshu
         #
         # @return [String] String representation
         def to_s
-          "#{self.class.name}(name: #{@name}, strategies: #{@strategies.map(&:name).join(', ')})"
+          "#{self.class.name}(name: #{@name}, strategies: #{@strategies.map(&:name).join(", ")})"
         end
         alias inspect to_s
 

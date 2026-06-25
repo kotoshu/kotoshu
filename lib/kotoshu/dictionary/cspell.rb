@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 require_relative "base"
-require_relative "../core/trie/trie"
-require_relative "../core/trie/builder"
-require_relative "../core/exceptions"
 
 module Kotoshu
   module Dictionary
@@ -48,11 +45,11 @@ module Kotoshu
         raise DictionaryNotFoundError, @path unless File.exist?(@path)
 
         # Load based on file extension
-        if @path.end_with?(".trie")
-          @trie = load_trie_file(@path)
-        else
-          @trie = load_text_file(@path)
-        end
+        @trie = if @path.end_with?(".trie")
+                  load_trie_file(@path)
+                else
+                  load_text_file(@path)
+                end
 
         # Register this dictionary type
         self.class.register_type(:cspell) unless Dictionary.registry.key?(:cspell)
@@ -100,17 +97,19 @@ module Kotoshu
 
         # Otherwise, use edit distance for more suggestions
         all_words = @trie.all_words
-        candidates = all_words.select { |w| w.length >= lookup_word.length - 2 &&
-                                               w.length <= lookup_word.length + 2 }
+        candidates = all_words.select do |w|
+          w.length >= lookup_word.length - 2 &&
+            w.length <= lookup_word.length + 2
+        end
 
         # Calculate edit distances
         results = candidates.map do |dict_word|
           dist = edit_distance(lookup_word, dict_word)
           [dict_word, dist]
-        end.select { |_, dist| dist > 0 && dist <= 2 }
-         .sort_by { |_, dist| dist }
-         .first(max_suggestions - prefix_suggestions.length)
-         .map(&:first)
+        end.select { |_, dist| dist.positive? && dist <= 2 }
+                            .sort_by { |_, dist| dist }
+                            .first(max_suggestions - prefix_suggestions.length)
+                            .map(&:first)
 
         # Combine both sets
         (prefix_suggestions + results).uniq.first(max_suggestions)
@@ -136,7 +135,7 @@ module Kotoshu
       # @param word [String] The word to remove
       # @return [Boolean] True if removed
       # @note CSpell dictionaries are typically immutable after loading
-      def remove_word(word)
+      def remove_word(_word)
         # Trie doesn't support removal easily
         # Would need to rebuild the trie
         false
@@ -175,7 +174,7 @@ module Kotoshu
 
         # Build trie from words
         normalized_words = words.map { |w| case_sensitive ? w : w.downcase }.uniq
-        trie = Core::Trie::Builder.from_array(normalized_words).build
+        trie = Core::Trie::Builder.from_array(normalized_words)
 
         dict.instance_variable_set(:@language_code, language_code.dup.freeze)
         dict.instance_variable_set(:@locale, locale&.dup&.freeze)
@@ -198,12 +197,12 @@ module Kotoshu
       # @return [Core::Trie::Trie] The loaded trie
       def load_text_file(path)
         words = File.foreach(path, chomp: true)
-                      .reject { |line| line.empty? || line.strip.empty? || line.strip.start_with?("#") }
-                      .map(&:strip)
-                      .map { |word| @case_sensitive ? word : word.downcase }
-                      .uniq
+                    .reject { |line| line.empty? || line.strip.empty? || line.strip.start_with?("#") }
+                    .map(&:strip)
+                    .map { |word| @case_sensitive ? word : word.downcase }
+                    .uniq
 
-        Core::Trie::Builder.from_array(words).build
+        Core::Trie::Builder.from_array(words)
       end
 
       # Load a compressed trie file.
@@ -230,9 +229,7 @@ module Kotoshu
         return str1.length if str2.empty?
 
         # Use smaller string for inner loop
-        if str1.length > str2.length
-          str1, str2 = str2, str1
-        end
+        str1, str2 = str2, str1 if str1.length > str2.length
 
         previous = (0..str1.length).to_a
 

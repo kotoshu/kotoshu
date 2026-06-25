@@ -67,6 +67,13 @@ module Kotoshu
 
       # Compare suggestions for sorting (higher combined score first).
       #
+      # Ranking priority (following CSpell/Hunspell approach):
+      # 1. Combined score (higher is better)
+      # 2. Edit distance (lower is better)
+      # 3. Length similarity (prefer similar length to original word)
+      # 4. N-gram similarity (more shared n-grams is better)
+      # 5. Alphabetical (ONLY as final tiebreaker)
+      #
       # @param other [Suggestion] The other suggestion
       # @return [Integer] -1, 0, or 1
       def <=>(other)
@@ -78,7 +85,27 @@ module Kotoshu
         distance_cmp = @distance <=> other.distance
         return distance_cmp unless distance_cmp.zero?
 
-        # Finally by word alphabetically (ascending)
+        # Then by length similarity (like CSpell - prefer words of similar length)
+        # We need access to original word length, which is stored in metadata
+        orig_len = @metadata[:original_length] || @word.length
+        other_orig_len = other.metadata[:original_length] || other.word.length
+
+        # Calculate absolute difference from original length
+        my_len_diff = (@word.length - orig_len).abs
+        other_len_diff = (other.word.length - other_orig_len).abs
+
+        len_cmp = my_len_diff <=> other_len_diff
+        return len_cmp unless len_cmp.zero?
+
+        # Then by n-gram similarity (like Hunspell - more shared n-grams is better)
+        # We use pre-computed n-gram score from metadata if available
+        my_ngram = @metadata[:ngram_score] || 0
+        other_ngram = other.metadata[:ngram_score] || 0
+
+        ngram_cmp = other_ngram <=> my_ngram  # Higher is better
+        return ngram_cmp unless ngram_cmp.zero?
+
+        # Finally by word alphabetically (ascending) - ONLY as final tiebreaker
         @word.downcase <=> other.word.downcase
       end
 
@@ -88,6 +115,7 @@ module Kotoshu
       # @return [Boolean] True if equal
       def ==(other)
         return false unless other.is_a?(Suggestion)
+
         @word.downcase == other.word.downcase
       end
       alias eql? ==
@@ -123,7 +151,7 @@ module Kotoshu
       #
       # @return [String] String representation
       def to_s
-        "Suggestion(word: '#{@word}', distance: #{@distance}, confidence: #{'%.2f' % @confidence}, source: #{@source})"
+        "Suggestion(word: '#{@word}', distance: #{@distance}, confidence: #{format("%.2f", @confidence)}, source: #{@source})"
       end
 
       # Inspect the suggestion.

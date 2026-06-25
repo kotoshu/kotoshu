@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative "base"
-require_relative "../core/exceptions"
 
 module Kotoshu
   module Dictionary
@@ -85,15 +84,13 @@ module Kotoshu
         candidates = @words.select { |w| w.start_with?(prefix) }
 
         # Calculate edit distances
-        results = candidates.map do |dict_word|
+        candidates.map do |dict_word|
           dist = edit_distance(lookup_word, dict_word)
           [dict_word, dist]
-        end.select { |_, dist| dist > 0 && dist <= 2 }  # Only close matches
-         .sort_by { |_, dist| dist }
-         .first(max_suggestions)
-         .map(&:first)
-
-        results
+        end.select { |_, dist| dist.positive? && dist <= 2 } # Only close matches
+                  .sort_by { |_, dist| dist }
+                  .first(max_suggestions)
+                  .map(&:first)
       end
 
       # Add a word to the dictionary.
@@ -162,7 +159,7 @@ module Kotoshu
         return nil unless path
 
         new(path, language_code: language_code, locale: locale,
-            case_sensitive: case_sensitive)
+                  case_sensitive: case_sensitive)
       end
 
       private
@@ -196,9 +193,7 @@ module Kotoshu
         return str1.length if str2.empty?
 
         # Use smaller string for inner loop
-        if str1.length > str2.length
-          str1, str2 = str2, str1
-        end
+        str1, str2 = str2, str1 if str1.length > str2.length
 
         previous = (0..str1.length).to_a
 

@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "base"
-require_relative "../core/exceptions"
 require "open-uri"
+require_relative "base"
 
 module Kotoshu
   module Dictionary
@@ -89,15 +88,13 @@ module Kotoshu
         candidates = @words.select { |w| w.start_with?(prefix) }
 
         # Calculate edit distances
-        results = candidates.map do |dict_word|
+        candidates.map do |dict_word|
           dist = edit_distance(lookup_word, dict_word)
           [dict_word, dist]
-        end.select { |_, dist| dist > 0 && dist <= 2 }
-         .sort_by { |_, dist| dist }
-         .first(max_suggestions)
-         .map(&:first)
-
-        results
+        end.select { |_, dist| dist.positive? && dist <= 2 }
+                  .sort_by { |_, dist| dist }
+                  .first(max_suggestions)
+                  .map(&:first)
       end
 
       # Add a word to the dictionary.
@@ -181,10 +178,10 @@ module Kotoshu
       #   dict = PlainText.from_string(text, language_code: "en")
       def self.from_string(text, language_code:, locale: nil, case_sensitive: false)
         words = text.split("\n").reject { |l| l.empty? || l.strip.start_with?("#") }
-                   .map(&:strip)
+                    .map(&:strip)
 
         from_words(words, language_code: language_code, locale: locale,
-                   case_sensitive: case_sensitive)
+                          case_sensitive: case_sensitive)
       end
 
       private
@@ -260,9 +257,7 @@ module Kotoshu
         return str1.length if str2.empty?
 
         # Use smaller string for inner loop
-        if str1.length > str2.length
-          str1, str2 = str2, str1
-        end
+        str1, str2 = str2, str1 if str1.length > str2.length
 
         previous = (0..str1.length).to_a
 
