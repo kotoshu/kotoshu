@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
+require "fileutils"
+
 module Kotoshu
   # Personal dictionary for user-specific words.
   #
-  # Stores words in ~/.kotoshu/personal.dic in Hunspell format.
+  # Stored in ~/.config/kotoshu/personal.dic (Hunspell format) under the
+  # XDG config directory. Override via KOTOSHU_PERSONAL_DIC.
   class PersonalDictionary
-    PERSONAL_DIR = File.expand_path("~/.kotoshu")
-    PERSONAL_FILE = File.join(PERSONAL_DIR, "personal.dic")
+    PERSONAL_FILE = Kotoshu::Paths.personal_dictionary_path
 
     class << self
       # Add a word to personal dictionary.
@@ -62,9 +64,9 @@ module Kotoshu
 
       private
 
-      # Ensure personal directory exists.
+      # Ensure personal dictionary's parent directory exists.
       def ensure_directory
-        FileUtils.mkdir_p(PERSONAL_DIR) unless Dir.exist?(PERSONAL_DIR)
+        FileUtils.mkdir_p(File.dirname(PERSONAL_FILE))
       end
 
       # Load words from personal dictionary file.

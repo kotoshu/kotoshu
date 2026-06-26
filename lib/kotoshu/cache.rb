@@ -13,8 +13,8 @@ module Kotoshu
   # @example Using the language cache
   #   cache = Kotoshu::Cache::LanguageCache.new
   #   dict = cache.get_spelling('en')
-  #   # => { dic_path: "~/.kotoshu/languages/en/spelling/index.dic",
-  #   #      aff_path: "~/.kotoshu/languages/en/spelling/index.aff",
+  #   # => { dic_path: "~/.cache/kotoshu/languages/en/spelling/index.dic",
+  #   #      aff_path: "~/.cache/kotoshu/languages/en/spelling/index.aff",
   #   #      metadata: { ... } }
   #
   module Cache

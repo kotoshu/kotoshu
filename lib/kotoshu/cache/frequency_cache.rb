@@ -7,7 +7,7 @@ module Kotoshu
     # Frequency cache for Kelly Project frequency lists.
     #
     # Manages Kelly frequency list downloads from the kotoshu/frequency-list-kelly
-    # repository. Resources are cached locally in `~/.kotoshu/frequency-lists/{code}/`
+    # repository. Resources are cached locally in `$XDG_CACHE_HOME/kotoshu/frequency-lists/{code}/`
     # with metadata for versioning and expiration.
     #
     # Extends BaseCache for common download, metadata, and validation logic.
@@ -15,7 +15,7 @@ module Kotoshu
     # @example Getting cached frequency data
     #   cache = FrequencyCache.new
     #   result = cache.get('en')
-    #   # => { frequency_path: "~/.kotoshu/frequency-lists/en/frequency.json",
+    #   # => { frequency_path: "~/.cache/kotoshu/frequency-lists/en/frequency.json",
     #   #      tiers: { top_50: Set<...>, top_200: Set<...>, top_1000: Set<...> },
     #   #      metadata: { ... } }
     #
@@ -199,11 +199,11 @@ module Kotoshu
         @manifest_url || "#{@url_base}/#{GITHUB_REPO}/#{@resource_pin}/manifest.json"
       end
 
-      # Default cache path: ~/.kotoshu/frequency-lists/
+      # Default cache path: $XDG_CACHE_HOME/kotoshu/frequency-lists/
       #
       # @return [String] Default cache directory path
       def default_cache_path
-        File.expand_path("~/.kotoshu/frequency-lists")
+        File.join(Kotoshu::Paths.cache_path, "frequency-lists")
       end
 
       # Default URL base for Kelly frequency lists.

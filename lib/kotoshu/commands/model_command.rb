@@ -66,7 +66,7 @@ module Kotoshu
     option :type, type: :string, enum: %w[fasttext onnx], default: 'fasttext',
              desc: 'Model type to download'
     option :output, type: :string,
-             desc: 'Output path (default: ~/.kotoshu/languages/{code}/models/)'
+             desc: 'Output path (default: $XDG_CACHE_HOME/kotoshu/languages/{code}/models/)'
     option :force, type: :boolean, default: false,
              desc: 'Force re-download even if cached'
     def download(language)

@@ -191,7 +191,7 @@ module Kotoshu
       #
       # @return [String] Default path for lid.176.ftz
       def default_model_path
-        File.expand_path('~/.kotoshu/models/lid.176.ftz')
+        File.join(Kotoshu::Paths.cache_path, 'models', 'lid.176.ftz')
       end
 
       # Ensure model is loaded.

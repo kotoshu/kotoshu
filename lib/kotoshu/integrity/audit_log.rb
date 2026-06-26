@@ -23,10 +23,10 @@ module Kotoshu
     # file handle. Writes are line-buffered and fsync'd so the record
     # survives a crash mid-batch.
     class AuditLog
-      # Default location for the audit log under the Kotoshu home.
+      # Default location: $XDG_DATA_HOME/kotoshu/audit.log
+      # (~/.local/share/kotoshu/audit.log), or $KOTOSHU_AUDIT_LOG.
       def self.default_path
-        ENV.fetch("KOTOSHU_AUDIT_LOG", nil) ||
-          File.join(Dir.home, ".kotoshu", "audit.log")
+        Kotoshu::Paths.audit_log_path
       end
 
       attr_reader :path

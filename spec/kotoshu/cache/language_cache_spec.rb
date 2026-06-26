@@ -16,7 +16,7 @@ RSpec.describe Kotoshu::Cache::LanguageCache do
     it "creates a cache with default values" do
       cache = described_class.new
 
-      expect(cache.cache_path).to end_with(".kotoshu")
+      expect(cache.cache_path).to end_with("kotoshu")
       expect(cache.cache_ttl).to eq(86_400) # 24 hours
       expect(cache.max_cache_size).to eq(1_073_741_824) # 1GB
     end

@@ -7,7 +7,7 @@ module Kotoshu
     # Language cache for dynamic dictionary and grammar rule downloads.
     #
     # Manages per-language dictionary and grammar rule downloads from a remote
-    # repository. Resources are cached locally in `~/.kotoshu/languages/{code}/`
+    # repository. Resources are cached locally in `$XDG_CACHE_HOME/kotoshu/languages/{code}/`
     # with metadata for versioning and expiration.
     #
     # Extends BaseCache for common download, metadata, and validation logic.
@@ -15,8 +15,8 @@ module Kotoshu
     # @example Getting a cached spelling dictionary
     #   cache = LanguageCache.new
     #   result = cache.get('en')
-    #   # => { aff_path: "~/.kotoshu/languages/en/spelling/index.aff",
-    #   #      dic_path: "~/.kotoshu/languages/en/spelling/index.dic",
+    #   # => { aff_path: "~/.cache/kotoshu/languages/en/spelling/index.aff",
+    #   #      dic_path: "~/.cache/kotoshu/languages/en/spelling/index.dic",
     #   #      metadata: { ... } }
     #
     # @example Checking cache statistics

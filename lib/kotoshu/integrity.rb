@@ -7,7 +7,7 @@ module Kotoshu
   #
   # - {Manifest} — parsed view of a content repo's `manifest.json`. Lookup
   #   by relative path yields the expected SHA-256 and size.
-  # - {AuditLog} — append-only JSON log at `~/.kotoshu/audit.log` recording
+  # - {AuditLog} — append-only JSON log at `$XDG_DATA_HOME/kotoshu/audit.log` recording
   #   every download's URL, size, computed SHA-256, manifest hash (when
   #   available), and status.
   #
