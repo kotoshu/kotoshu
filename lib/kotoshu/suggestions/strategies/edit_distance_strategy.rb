@@ -535,7 +535,7 @@ module Kotoshu
         # Try to load frequency data from FrequencyCache (OOP cache pattern).
         #
         # Uses FrequencyCache to download Kelly frequency lists from GitHub
-        # with automatic caching in ~/.kotoshu/frequency-lists/
+        # with automatic caching in $XDG_CACHE_HOME/kotoshu/frequency-lists/
         #
         # @param language_code [String] ISO 639-1 language code
         # @return [Hash, nil] Frequency data or nil if not available
@@ -612,7 +612,7 @@ module Kotoshu
 
         # Try to download Kelly data from GitHub.
         #
-        # Kelly data is cached in ~/.kotoshu/frequency-lists/
+        # Kelly data is cached in $XDG_CACHE_HOME/kotoshu/frequency-lists/
         #
         # @param language_code [String] ISO 639-1 language code
         # @return [Hash, nil] Frequency data or nil if not available
@@ -623,8 +623,8 @@ module Kotoshu
           kelly_languages = %w[ar zh en el it no ru sv]
           return nil unless kelly_languages.include?(language_code)
 
-          # Cache in ~/.kotoshu/frequency-lists/ (same pattern as dictionaries)
-          cache_dir = File.expand_path('~/.kotoshu/frequency-lists')
+          # Cache in $XDG_CACHE_HOME/kotoshu/frequency-lists/ (same pattern as dictionaries)
+          cache_dir = File.join(Kotoshu::Paths.cache_path, 'frequency-lists')
           FileUtils.mkdir_p(cache_dir)
 
           cached_file = File.join(cache_dir, "#{language_code}.json")

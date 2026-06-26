@@ -522,11 +522,11 @@ module Kotoshu
         parts[1]
       end
 
-      # Default cache path.
+      # Default cache path: $XDG_CACHE_HOME/kotoshu
       #
       # @return [String] Default cache path
       def default_cache_path
-        File.expand_path("~/.kotoshu")
+        Kotoshu::Paths.cache_path
       end
 
       # Default URL base.

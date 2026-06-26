@@ -112,6 +112,8 @@ end
 module Kotoshu
   class Error < StandardError; end
 
+  autoload :Paths, "kotoshu/paths"
+
   # Global configuration instance.
   #
   # @return [Configuration] The global configuration

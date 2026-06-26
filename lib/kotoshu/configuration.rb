@@ -51,7 +51,19 @@ module Kotoshu
       cache_path: {
         env: "KOTOSHU_CACHE_PATH",
         default: -> { default_cache_path },
-        description: "Path to cache directory (~/.kotoshu)",
+        description: "Path to cache directory (~/.cache/kotoshu)",
+        type: String
+      },
+      config_path: {
+        env: "KOTOSHU_CONFIG_PATH",
+        default: -> { default_config_path },
+        description: "Path to user config directory (~/.config/kotoshu)",
+        type: String
+      },
+      data_path: {
+        env: "KOTOSHU_DATA_PATH",
+        default: -> { default_data_path },
+        description: "Path to data directory (~/.local/share/kotoshu)",
         type: String
       },
       dictionaries_url: {
@@ -212,6 +224,12 @@ module Kotoshu
     # @return [String, nil] Path to cache directory
     attr_accessor :cache_path
 
+    # @return [String, nil] Path to user config directory
+    attr_accessor :config_path
+
+    # @return [String, nil] Path to data directory (audit log, etc.)
+    attr_accessor :data_path
+
     # @return [String] Base URL for downloading dictionaries
     attr_accessor :dictionaries_url
 
@@ -355,6 +373,8 @@ module Kotoshu
         encoding: @encoding,
         dictionaries_path: @dictionaries_path,
         cache_path: @cache_path,
+        config_path: @config_path,
+        data_path: @data_path,
         dictionaries_url: @dictionaries_url,
         auto_download: @auto_download,
         cache_ttl: @cache_ttl,
@@ -415,6 +435,8 @@ module Kotoshu
 
       # New cache-related defaults
       @cache_path = self.class.default_cache_path
+      @config_path = self.class.default_config_path
+      @data_path = self.class.default_data_path
       @dictionaries_url = SCHEMA[:dictionaries_url][:default]
       @auto_download = SCHEMA[:auto_download][:default]
       @cache_ttl = SCHEMA[:cache_ttl][:default]
@@ -483,7 +505,15 @@ module Kotoshu
     #
     # @return [String] The default cache path
     def self.default_cache_path
-      File.expand_path("~/.kotoshu")
+      Paths.cache_path
+    end
+
+    def self.default_config_path
+      Paths.config_path
+    end
+
+    def self.default_data_path
+      Paths.data_path
     end
 
     # Load UnixWords dictionary.
@@ -529,19 +559,9 @@ module Kotoshu
         end
       end
 
-      resolve_managed_dictionary
+      raise DictionaryNotFoundError,
+            "no unix_words dictionary found; run `kotoshu setup #{@language}`"
     end
-
-    # Resolve a dictionary via ResourceManager (downloads on first use).
-    #
-    # @return [Dictionary::Base] Downloaded dictionary
-    # @raise [ResourceNotCachedError] If offline and not cached
-    # @raise [ResourceResolutionError] If download fails
-    def resolve_managed_dictionary
-      bundle = ResourceManager.resolve(language: @language, offline: @offline)
-      bundle.dictionary
-    end
-
     # Load PlainText dictionary.
     def load_plain_text_dictionary
       path = @dictionary_path

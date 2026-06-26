@@ -631,11 +631,11 @@ module Kotoshu
         args.map { |a| a =~ /\s/ ? "'#{a}'" : a }.join(' ')
       end
 
-      # Default cache path.
+      # Default cache path: $XDG_CACHE_HOME/kotoshu/models
       #
       # @return [String] Default cache path
       def default_cache_path
-        File.expand_path("~/.kotoshu/models")
+        File.join(Kotoshu::Paths.cache_path, "models")
       end
 
       # Default cache TTL (30 days for models).
