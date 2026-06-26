@@ -6,14 +6,15 @@ image:https://github.com/kotoshu/kotoshu/actions/workflows/rake.yml/badge.svg["B
 
 == Status
 
-Kotoshu is **v0.3.0** — building on the 0.2 cut, this release adds
-integrity verification, a `fetch` pre-warm CLI, SARIF output, an
-`--interactive` review loop, and strict-mode resource resolution.
+Kotoshu is **v0.3.0** — building on the 0.2 cut, this release adds a strict
+two-stage resource model (explicit `setup`, cache-only hot path), XDG base
+directory layout, SHA-256 integrity verification, SARIF output, an
+`--interactive` review loop, and ONNX model pipeline wiring.
 
 === What works in 0.3
 
-* `Kotoshu.correct?("hello")` / `Kotoshu.suggest("helo")` — auto-downloads en_US Hunspell on first call
-* `Kotoshu.check(text, language: "en", offline: false)` — full document check
+* Two-stage resource model — `Kotoshu.setup(:en)` then `Kotoshu.correct?("hello")`. The hot path is cache-only and raises `ResourceNotSetupError` on miss; downloads are never implicit.
+* `Kotoshu.check(text, language: "en")` / `Kotoshu.suggest("helo")` — full document check and suggestions
 * `Kotoshu.spellchecker_for(lang, strict: true)` — re-raise on optional-resource failures
 * `kotoshu check FILE` CLI with these flags:
   ** `--language en|de|es|fr|pt|ru|auto` (default: `auto`)
@@ -22,10 +23,12 @@ integrity verification, a `fetch` pre-warm CLI, SARIF output, an
   ** `--strict` — exit 3 if any optional resource (frequency, model) can't load
   ** `--interactive` — review each error after the check
   ** `--verbose`
-* `kotoshu fetch LANGUAGE [LANGUAGE ...]` — pre-warm spelling + frequency caches for offline use
-* Exit codes: `0` clean, `1` errors found, `2` usage error, `3` resource fetch failed
+* `kotoshu setup LANGUAGE [LANGUAGE ...]` — pre-warm spelling + frequency + ONNX caches for offline use (`fetch` is kept as a hidden deprecated alias)
+* Local-source setup: `kotoshu setup en --aff path/to.en.aff --dic path/to.en.dic` or `kotoshu setup en --from /path/to/dict/dir/`
+* Exit codes: `0` clean, `1` errors found, `2` usage error, `3` resource setup failed
 * SHA-256 integrity verification (manifest-based, with graceful degradation when manifest is absent)
 * Offline mode via `KOTOSHU_OFFLINE=1` or `--offline`
+* XDG base directory layout — caches in `$XDG_CACHE_HOME/kotoshu/`, config in `$XDG_CONFIG_HOME/kotoshu/`, data in `$XDG_LOCAL_HOME/kotoshu/` (overridable via `KOTOSHU_CACHE_PATH`, `KOTOSHU_CONFIG_PATH`, `KOTOSHU_DATA_PATH`)
 
 === Planned for 0.4+
 
@@ -446,8 +449,10 @@ errors = analyzer.analyze(document)
 == Resource Caching and Language Support
 
 Kotoshu uses a sophisticated multi-layer caching system to manage dictionaries,
-frequency lists, and embedding models. All resources are automatically downloaded
-from GitHub repositories and cached locally in `~/.kotoshu/`.
+frequency lists, and embedding models. Resources are downloaded explicitly via
+`Kotoshu.setup` (or `kotoshu setup`) and cached under the XDG base directory
+layout (`~/.cache/kotoshu/` by default; override via `KOTOSHU_CACHE_PATH`,
+`KOTOSHU_CONFIG_PATH`, `KOTOSHU_DATA_PATH`, or the `XDG_*_HOME` vars).
 
 === Cache Architecture
 
@@ -467,8 +472,9 @@ from GitHub repositories and cached locally in `~/.kotoshu/`.
         └─────────────────────┘  └─────────────┘  └─────────────────┘
                      │                   │                    │
         ┌────────────▼────────┐  ┌──────▼──────┐  ┌───────▼─────────┐
-        │ ~/.kotoshu/        │  │~/.kotoshu/  │  │ ~/.kotoshu/      │
-        │   languages/       │  │  models/    │  │frequency-lists/ │
+        │ ~/.cache/kotoshu/  │  │~/.cache/    │  │ ~/.cache/kotoshu/│
+        │   languages/       │  │  kotoshu/   │  │frequency-lists/ │
+        │                    │  │  models/    │  │                 │
         └─────────────────────┘  └─────────────┘  └─────────────────┘
 ----
 
@@ -478,7 +484,7 @@ from GitHub repositories and cached locally in `~/.kotoshu/`.
 
 Manages Hunspell dictionaries and grammar rules for spell checking.
 
-* **Cache Path**: `~/.kotoshu/languages/{code}/`
+* **Cache Path**: `~/.cache/kotoshu/languages/{code}/`
 * **TTL**: 7 days (604,800 seconds)
 * **Source**: https://github.com/kotoshu/dictionaries[kotoshu/dictionaries]
 * **Resources per language**:
@@ -495,8 +501,8 @@ dict = cache.get_spelling('en')
 
 # Result:
 # {
-#   aff_path: "~/.kotoshu/languages/en/spelling/index.aff",
-#   dic_path: "~/.kotoshu/languages/en/spelling/index.dic",
+#   aff_path: "~/.cache/kotoshu/languages/en/spelling/index.aff",
+#   dic_path: "~/.cache/kotoshu/languages/en/spelling/index.dic",
 #   cached: true,
 #   metadata: { ... }
 # }
@@ -506,7 +512,7 @@ dict = cache.get_spelling('en')
 
 Manages Kelly Project frequency lists for intelligent suggestion ranking.
 
-* **Cache Path**: `~/.kotoshu/frequency-lists/{code}/`
+* **Cache Path**: `~/.cache/kotoshu/frequency-lists/{code}/`
 * **TTL**: 7 days (604,800 seconds)
 * **Source**: https://github.com/kotoshu/frequency-list-kelly[kotoshu/frequency-list-kelly]
 * **Format**: JSON with tiered word frequency data
@@ -546,7 +552,7 @@ freq_data = cache.get('en', force_download: true)
 
 # Result:
 # {
-#   frequency_path: "~/.kotoshu/frequency-lists/en/frequency.json",
+#   frequency_path: "~/.cache/kotoshu/frequency-lists/en/frequency.json",
 #   tiers: {
 #     top_50: Set<...>,
 #     top_200: Set<...>,
@@ -568,7 +574,7 @@ strategy.frequency_bonus('xyz')   # => 0 (not in lists)
 
 Manages FastText and ONNX embedding models for semantic spell checking.
 
-* **Cache Path**: `~/.kotoshu/models/{code}/models/{type}/`
+* **Cache Path**: `~/.cache/kotoshu/models/{code}/models/{type}/`
 * **TTL**: 30 days (2,592,000 seconds)
 * **Sources**:
   ** FastText (.vec): Facebook CDN (https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/[dl.fbaipublicfiles.com])
@@ -651,21 +657,21 @@ Kotoshu Cache Status
 ======================================================================
 
 Language Cache:
-  Directory: /Users/username/.kotoshu/languages
+  Directory: /Users/username/.cache/kotoshu/languages
   Resources cached: 2
   Size: 2.45 MB
   Hits: 15, Misses: 2
   Hit rate: 88.2%
 
 Frequency Cache:
-  Directory: /Users/username/.kotoshu/frequency-lists
+  Directory: /Users/username/.cache/kotoshu/frequency-lists
   Resources cached: 1
   Size: 815.84 KB
   Hits: 42, Misses: 1
   Hit rate: 97.7%
 
 Model Cache:
-  Directory: /Users/username/.kotoshu/models
+  Directory: /Users/username/.cache/kotoshu/models
   Resources cached: 0
   Size: 0 B
   Hits: 0, Misses: 0
@@ -892,11 +898,11 @@ Download and setup:
 
 [source,bash]
 ----
-# Clone models repository
-git clone https://github.com/kotoshu/dictionaries.git ~/.kotoshu/models
+# Preferred: let kotoshu fetch and verify the model
+kotoshu setup en --want spelling,model
 
-# Or use built-in download
-kotoshu model download en --type onnx
+# Manual clone (advanced; bypasses manifest verification)
+git clone https://github.com/kotoshu/dictionaries.git ~/src/kotoshu/dictionaries
 ----
 
 == License
