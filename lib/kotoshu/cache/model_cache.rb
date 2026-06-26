@@ -429,10 +429,27 @@ module Kotoshu
           "https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/#{filename}"
         when "onnx"
           # Download from models-fasttext-onnx GitHub repository
-          # Files are at: models-fasttext-onnx/main/{lang}/models/{filename}
-          "https://github.com/kotoshu/models-fasttext-onnx/raw/main/#{language}/models/#{filename}"
+          # Files are at: models-fasttext-onnx/{pin}/models/{lang}/{filename}
+          "#{models_url_base}/models/#{language}/#{filename}"
         else
           "#{@url_base}/dictionaries/main/#{language}/models/#{type}/#{filename}"
+        end
+      end
+
+      # URL for the vocab.json sibling file. The conversion script ships
+      # vocabularies alongside the .onnx so OnnxModel.from_file can resolve
+      # word→index without re-parsing the FastText .vec.
+      #
+      # @param language [String] Language code
+      # @return [String]
+      def vocab_url(language)
+        "#{models_url_base}/models/#{language}/fasttext.#{language}.vocab.json"
+      end
+
+      def models_url_base
+        @models_url_base ||= begin
+          cfg = Kotoshu::Configuration.instance
+          "#{cfg.models_url.chomp('/').sub(%r{/main\z}, '')}/#{cfg.models_pin}"
         end
       end
 
@@ -591,6 +608,15 @@ module Kotoshu
           # Verify the downloaded file
           unless File.exist?(onnx_file) && File.size(onnx_file).positive?
             raise "Download failed: empty file"
+          end
+
+          # Pull the matching vocab.json so OnnxModel.from_file can resolve
+          # word→index without re-parsing the source FastText .vec.
+          begin
+            download_file(vocab_url(language),
+                          File.join(dest_path, "fasttext.#{language}.vocab.json"))
+          rescue StandardError => e
+            warn "  vocab.json unavailable for #{language}: #{e.message}" if $VERBOSE
           end
 
           puts "  ✓ Downloaded from GitHub" if $VERBOSE

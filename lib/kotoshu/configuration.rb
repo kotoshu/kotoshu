@@ -72,6 +72,18 @@ module Kotoshu
         description: "Base URL for downloading dictionaries",
         type: String
       },
+      models_url: {
+        env: "KOTOSHU_MODELS_URL",
+        default: "https://github.com/kotoshu/models-fasttext-onnx/raw/main",
+        description: "Base URL for FastText ONNX models",
+        type: String
+      },
+      models_pin: {
+        env: "KOTOSHU_MODELS_PIN",
+        default: "main",
+        description: "Branch/tag/commit pinned for model downloads",
+        type: String
+      },
       auto_download: {
         env: "KOTOSHU_AUTO_DOWNLOAD",
         default: true,
@@ -232,6 +244,12 @@ module Kotoshu
 
     # @return [String] Base URL for downloading dictionaries
     attr_accessor :dictionaries_url
+
+    # @return [String] Base URL for FastText ONNX models
+    attr_accessor :models_url
+
+    # @return [String] Branch/tag/commit pinned for model downloads
+    attr_accessor :models_pin
 
     # @return [Boolean] Whether to automatically download missing dictionaries
     attr_accessor :auto_download
@@ -438,6 +456,8 @@ module Kotoshu
       @config_path = self.class.default_config_path
       @data_path = self.class.default_data_path
       @dictionaries_url = SCHEMA[:dictionaries_url][:default]
+      @models_url = SCHEMA[:models_url][:default]
+      @models_pin = SCHEMA[:models_pin][:default]
       @auto_download = SCHEMA[:auto_download][:default]
       @cache_ttl = SCHEMA[:cache_ttl][:default]
       @max_cache_size = SCHEMA[:max_cache_size][:default]

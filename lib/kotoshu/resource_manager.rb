@@ -3,6 +3,7 @@
 require_relative "resource_bundle"
 require_relative "cache/language_cache"
 require_relative "cache/frequency_cache"
+require_relative "cache/model_cache"
 require_relative "dictionary/hunspell"
 require_relative "core/exceptions"
 
@@ -108,12 +109,13 @@ module Kotoshu
 
       spelling_dict = want.include?(:spelling) ? resolve_spelling_cached(lang) : nil
       frequency_data = want.include?(:frequency) ? resolve_frequency_cached(lang) : nil
+      model = want.include?(:model) ? resolve_model_cached(lang) : nil
 
       ResourceBundle.new(
         language: lang,
         dictionary: spelling_dict,
         frequency: frequency_data,
-        model: nil,
+        model: model,
         rules: nil,
         cached: true,
         source_urls: []
@@ -131,7 +133,7 @@ module Kotoshu
         fc = frequency_cache_for
         fc.respond_to?(:supports_resource?) && fc.supports_resource?(lang) && fc.available?(lang)
       when :model
-        false
+        model_cache_for.available?("#{lang}:onnx")
       else
         false
       end
@@ -169,7 +171,7 @@ module Kotoshu
       end
 
       if want.include?(:model)
-        model_status = :unavailable
+        model_status = setup_model_remote(lang, want: want, force: force, strict: strict, config: config)
       end
 
       SetupResult.new(
@@ -198,6 +200,24 @@ module Kotoshu
       :unavailable
     end
 
+    def setup_model_remote(lang, want:, force:, strict:, config:)
+      return :unavailable unless Cache::ModelCache::AVAILABLE_MODELS[:onnx].key?(lang.to_sym)
+
+      cache = model_cache_for(config: config)
+      resource_id = "#{lang}:onnx"
+      was_cached = cache.available?(resource_id)
+      return :cached if was_cached && !force
+
+      warn "[#{lang}] downloading ONNX model..." unless quiet?
+      cache.get(resource_id, force_download: force)
+      :downloaded
+    rescue StandardError => e
+      raise if strict
+
+      warn "[#{lang}] ONNX model unavailable: #{e.class} (#{e.message})" unless quiet?
+      :unavailable
+    end
+
     def resolve_spelling_cached(lang)
       cache = spelling_cache_for(lang)
       resource_id = "#{lang}:spelling"
@@ -219,6 +239,15 @@ module Kotoshu
       raise ResourceNotSetupError.new(lang, "frequency") unless cache.available?(lang)
 
       cache.get(lang) rescue nil
+    end
+
+    def resolve_model_cached(lang)
+      cache = model_cache_for
+      resource_id = "#{lang}:onnx"
+      return nil unless Cache::ModelCache::AVAILABLE_MODELS[:onnx].key?(lang.to_sym)
+      raise ResourceNotSetupError.new(lang, "model") unless cache.available?(resource_id)
+
+      cache.get(resource_id) rescue nil
     end
 
     def resolve_local_paths(lang, aff:, dic:, from:)
@@ -249,6 +278,13 @@ module Kotoshu
       Cache::FrequencyCache.new(
         cache_path: cfg.cache_path,
         resource_pin: cfg.resource_pin
+      )
+    end
+
+    def model_cache_for(config: nil)
+      cfg = config || Configuration.instance
+      Cache::ModelCache.new(
+        cache_path: cfg.cache_path
       )
     end
 
