@@ -57,11 +57,15 @@ module Kotoshu
   module Cli
     # Command-line interface for Kotoshu spell checker.
     #
+    # Two-stage model:
+    #   Stage 1 (slow, network): `kotoshu setup LANG` downloads/registers resources
+    #   Stage 2 (instant, cache-only): `kotoshu check FILE` uses cached resources
+    #
     # Exit codes:
-    #   0 — no errors found
+    #   0 — no errors found / setup succeeded
     #   1 — spelling errors found
     #   2 — usage error (file not found, bad flags)
-    #   3 — dictionary fetch failure (network down, offline+uncached)
+    #   3 — resource not set up / setup failure (network, integrity)
     #
     # Commands raise Errors::CliError subclasses; the dispatcher in .start
     # catches them and exits with the error's exit_status.
@@ -79,16 +83,6 @@ module Kotoshu
                    desc: "Output format (text, json, sarif)",
                    aliases: ["-f"]
 
-      class_option :offline,
-                   type: :boolean,
-                   default: false,
-                   desc: "Use only cached resources; do not download"
-
-      class_option :strict,
-                   type: :boolean,
-                   default: false,
-                   desc: "Fail (exit 3) if any optional resource cannot be loaded"
-
       class_option :interactive,
                    type: :boolean,
                    default: false,
@@ -102,6 +96,16 @@ module Kotoshu
                    aliases: ["-v"]
 
       desc "check [FILE]", "Check spelling in a file or stdin"
+      long_desc <<~DESC
+        Checks spelling in the given file (or stdin if no file is given).
+        Cache-only — never downloads. Run `kotoshu setup LANG` first.
+
+        Exit codes:
+          0 — no errors
+          1 — spelling errors found
+          2 — usage error (bad flags, file not found)
+          3 — language not set up (run `kotoshu setup LANG`)
+      DESC
       def check(target = nil)
         apply_configuration!
 
@@ -112,45 +116,110 @@ module Kotoshu
         exit 1 if result.failed?
       end
 
-      desc "fetch LANGUAGE [LANGUAGE ...]", "Pre-warm spelling and frequency caches"
+      desc "setup [LANGUAGE] [LANGUAGE ...]", "Set up languages (download or register local files)"
       long_desc <<~DESC
-        Downloads and caches resources for one or more languages so subsequent
-        `kotoshu check` runs work offline.
+        Stage 1 of the two-stage model. Downloads spelling/frequency/model
+        resources for the named language(s), or registers local .aff/.dic
+        files you already have on disk. After setup, `kotoshu check` runs
+        instantly with no network access.
+
+        With no args, lists currently set up languages.
+
+        Sources (one per invocation, applies to all listed languages):
+          --aff FILE --dic FILE   use specific local Hunspell files
+          --from DIR              look for {lang}.aff and {lang}.dic in DIR
+          (neither)               download from kotoshu/dictionaries
+
+        Examples:
+          kotoshu setup en de fr                       # download from GitHub
+          kotoshu setup en --want spelling,frequency   # also fetch Kelly list
+          kotoshu setup en --aff /p/en.aff --dic /p/en.dic
+          kotoshu setup en --from /usr/share/hunspell/
+          kotoshu setup --force en                     # re-download
+          kotoshu setup --list                         # show what's set up
 
         Exit codes:
-          0 — every language resolved successfully
-          3 — at least one language could not be resolved (network down, etc.)
+          0 — every language set up successfully
+          3 — at least one language failed (network down, integrity, etc.)
       DESC
-      def fetch(*languages)
+      method_option :aff, type: :string, desc: "Path to local .aff file"
+      method_option :dic, type: :string, desc: "Path to local .dic file"
+      method_option :from, type: :string, desc: "Directory containing local .aff/.dic"
+      method_option :frequency, type: :string, desc: "Path to local frequency.json"
+      method_option :want,
+                    type: :string,
+                    default: "spelling",
+                    desc: "Comma-separated: spelling,frequency,model"
+      method_option :force,
+                    type: :boolean,
+                    default: false,
+                    desc: "Re-fetch even if already cached"
+      method_option :strict,
+                    type: :boolean,
+                    default: false,
+                    desc: "Re-raise on optional-resource failure during setup"
+      method_option :list,
+                    type: :boolean,
+                    default: false,
+                    desc: "List currently set up languages and exit"
+      def setup(*languages)
         apply_configuration!
 
-        raise Errors::UsageError, "at least one LANGUAGE is required" if languages.empty?
+        if options[:list] || languages.empty?
+          list_setup
+          return
+        end
+
+        want = (options[:want] || "spelling").split(",").map(&:strip).map(&:to_sym)
+        opts = setup_source_options(languages)
+        opts[:want] = want
+        opts[:force] = options[:force]
+        opts[:strict] = options[:strict]
 
         results = languages.map do |lang|
-          print "Fetching #{lang}... "
+          print "Setup #{lang}... "
           begin
-            bundle = Kotoshu::ResourceManager.resolve(
-              language: lang,
-              want: %i[spelling frequency],
-              offline: options[:offline],
-              strict: false
-            )
-            spelling_state = bundle.cached? ? "cached" : "downloaded"
-            frequency_state = bundle.frequency ? "cached/downloaded" : "unavailable"
-            puts "OK (spelling: #{spelling_state}, frequency: #{frequency_state})"
+            result = Kotoshu.setup(lang, **opts)
+            describe_setup_result(result)
             { lang: lang, ok: true }
-          rescue Kotoshu::Error => e
+          rescue Kotoshu::Error, ArgumentError => e
             puts "FAIL: #{e.message}"
             { lang: lang, ok: false }
           end
         end
 
         failed = results.reject { |r| r[:ok] }
-        puts "Fetched #{results.size} language(s)."
-        unless failed.empty?
-          raise Errors::ResourceUnavailable,
-                "failed to fetch: #{failed.map { |r| r[:lang] }.join(', ')}"
-        end
+        puts "Set up #{results.size} language(s)."
+        return if failed.empty?
+
+        raise Errors::ResourceUnavailable,
+              "failed to set up: #{failed.map { |r| r[:lang] }.join(', ')}"
+      end
+
+      # Back-compat alias. New code should use `setup`.
+      desc "fetch LANGUAGE [LANGUAGE ...]", "Alias for `setup` (deprecated)", hide: true
+      method_option :aff, type: :string, desc: "Path to local .aff file"
+      method_option :dic, type: :string, desc: "Path to local .dic file"
+      method_option :from, type: :string, desc: "Directory containing local .aff/.dic"
+      method_option :frequency, type: :string, desc: "Path to local frequency.json"
+      method_option :want,
+                    type: :string,
+                    default: "spelling",
+                    desc: "Comma-separated: spelling,frequency,model"
+      method_option :force,
+                    type: :boolean,
+                    default: false,
+                    desc: "Re-fetch even if already cached"
+      method_option :strict,
+                    type: :boolean,
+                    default: false,
+                    desc: "Re-raise on optional-resource failure during setup"
+      method_option :list,
+                    type: :boolean,
+                    default: false,
+                    desc: "List currently set up languages and exit"
+      def fetch(*languages)
+        setup(*languages)
       end
 
       desc "dict SUBCOMMAND", "Dictionary operations"
@@ -187,17 +256,12 @@ module Kotoshu
 
       private
 
-      # Apply CLI flags to the global Configuration.
       def apply_configuration!
         Kotoshu::Configuration.reset
         cfg = Kotoshu::Configuration.instance
-        cfg.offline = options[:offline] if options[:offline]
+        cfg.default_language = options[:language] if options[:language] && options[:language] != "auto"
       end
 
-      # Read text from a file path, stdin, or treat the target as text.
-      #
-      # @param target [String, nil] File path, text, or nil for stdin
-      # @return [Array(String, String)] (text, source_label)
       def read_target(target)
         if target.nil?
           [$stdin.read, "<stdin>"]
@@ -208,27 +272,16 @@ module Kotoshu
         end
       end
 
-      # Resolve resources and run the spellcheck.
-      #
-      # @param text [String] Text to check
-      # @return [Models::Result::DocumentResult]
       def run_check(text)
         language = resolve_language
-        spellchecker = Kotoshu.spellchecker_for(
-          language,
-          offline: options[:offline],
-          strict: options[:strict]
-        )
+        spellchecker = Kotoshu.spellchecker_for(language)
         spellchecker.check(text)
-      rescue Kotoshu::ResourceNotCachedError,
-             Kotoshu::ResourceResolutionError,
-             Kotoshu::DictionaryNotFoundError => e
+      rescue Kotoshu::ResourceNotSetupError => e
+        raise Errors::ResourceUnavailable, e.message
+      rescue Kotoshu::DictionaryNotFoundError => e
         raise Errors::ResourceUnavailable, e.message
       end
 
-      # Resolve the language from --language flag (auto-detect if "auto").
-      #
-      # @return [String] Language code
       def resolve_language
         lang = options[:language]
         return Kotoshu.configuration.default_language if lang.nil? || lang == "auto"
@@ -236,10 +289,40 @@ module Kotoshu
         lang
       end
 
-      # Display a check result in the requested format.
-      #
-      # @param result [Models::Result::DocumentResult] The result
-      # @param source [String] The source label
+      def setup_source_options(languages)
+        opts = {}
+        if options[:aff] || options[:dic]
+          raise Errors::UsageError, "--aff and --dic require exactly one language" unless languages.size == 1
+
+          raise Errors::UsageError, "--aff and --dic must both be given" unless options[:aff] && options[:dic]
+
+          opts[:aff] = options[:aff]
+          opts[:dic] = options[:dic]
+        elsif options[:from]
+          opts[:from] = options[:from]
+        end
+        opts[:frequency] = options[:frequency] if options[:frequency]
+        opts
+      end
+
+      def describe_setup_result(result)
+        spelling = result.spelling || "skipped"
+        frequency = result.frequency || "skipped"
+        source = result.source
+        puts "OK (spelling: #{spelling}, frequency: #{frequency}, source: #{source})"
+      end
+
+      def list_setup
+        langs = Kotoshu.languages_setup
+        if langs.empty?
+          puts "No languages set up. Run `kotoshu setup LANG` to add one."
+          return
+        end
+
+        puts "Set up languages:"
+        langs.each { |lang| puts "  #{lang}" }
+      end
+
       def display_result(result, source)
         case options[:format]
         when "json"
@@ -251,11 +334,6 @@ module Kotoshu
         end
       end
 
-      # Format result as text.
-      #
-      # @param result [Models::Result::DocumentResult] The result
-      # @param source [String] The source
-      # @return [String] Formatted output
       def format_as_text(result, source)
         if result.success?
           "OK #{source} (#{result.word_count} words, no errors)"
@@ -274,11 +352,6 @@ module Kotoshu
         end
       end
 
-      # Format result as JSON.
-      #
-      # @param result [Models::Result::DocumentResult] The result
-      # @param source [String] The source
-      # @return [String] JSON output
       def format_as_json(result, source)
         require "json"
 
@@ -287,11 +360,6 @@ module Kotoshu
         JSON.pretty_generate(output)
       end
 
-      # Format result as SARIF 2.1.0 (Static Analysis Results Interchange Format).
-      #
-      # @param result [Models::Result::DocumentResult] The result
-      # @param source [String] The source label (file path or "<stdin>")
-      # @return [String] SARIF JSON
       def format_as_sarif(result, source)
         require "json"
 
@@ -346,27 +414,10 @@ module Kotoshu
         JSON.pretty_generate(sarif)
       end
 
-      # SARIF artifactLocation.uri wants a real file path or a clear placeholder.
-      #
-      # @param source [String] Source label
-      # @return [String]
       def source_for_sarif(source)
         source == "<stdin>" ? "stdin" : source
       end
 
-      # Interactive review loop over a failed DocumentResult.
-      #
-      # For 0.3 this is navigation-only — it does not rewrite the source file.
-      # Keybindings:
-      #   [1-9]  accept suggestion N (record only)
-      #   s      skip this error
-      #   n/Enter move to next error
-      #   p      move to previous error
-      #   l      list all errors
-      #   q      quit
-      #
-      # @param result [Models::Result::DocumentResult]
-      # @param source [String]
       def interactive_review(result, source)
         errors = result.errors
         return if errors.empty?

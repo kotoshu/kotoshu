@@ -7,119 +7,249 @@ require_relative "dictionary/hunspell"
 require_relative "core/exceptions"
 
 module Kotoshu
-  # Resolves language resources (dictionaries, frequency data, models,
-  # grammar rules) on demand, using the existing cache layer.
+  # Two-stage resource resolution.
   #
-  # @example Resolve English resources
+  # Stage 1 — setup (slow, network-required, explicit):
+  #   Kotoshu.setup(:en)                            # download from kotoshu/dictionaries
+  #   Kotoshu.setup(:en, want: %i[spelling frequency])
+  #   Kotoshu.setup(:en, aff: "/path/to.en.aff", dic: "/path/to/en.dic")  # local files
+  #   Kotoshu.setup(:en, from: "/path/to/dict/dir/")                       # local directory
+  #
+  # Stage 2 — resolve (instant, cache-only, raises on miss):
   #   bundle = Kotoshu::ResourceManager.resolve(language: "en")
   #   bundle.dictionary  # => #<Dictionary::Hunspell ...>
   #
-  # @example Auto-detect language from text
-  #   bundle = Kotoshu::ResourceManager.resolve(text: "Guten Tag")
-  #   bundle.language  # => "de"
-  #
-  # @example Offline mode (cached resources only)
-  #   bundle = Kotoshu::ResourceManager.resolve(language: "en", offline: true)
-  #   # raises ResourceNotCachedError if not pre-fetched
+  # The hot path (Kotoshu.correct?, .check, .suggest, .spellchecker_for) calls
+  # resolve and lets ResourceNotSetupError propagate. Setup is never implicit.
   class ResourceManager
     DEFAULT_WANT = %i[spelling].freeze
 
-    class << self
-      # Resolve resources for a language or text.
-      #
-      # @param text [String, nil] Text to detect language from
-      # @param language [String, Symbol, nil] Language code or :auto
-      # @param want [Array<Symbol>] Resource types: :spelling, :frequency
-      # @param offline [Boolean, nil] Override offline mode
-      # @param strict [Boolean, nil] Override strict mode (re-raise on optional-resource failure)
-      # @return [ResourceBundle]
-      def resolve(text: nil, language: nil, want: DEFAULT_WANT, offline: nil, strict: nil)
-        new.resolve(text: text, language: language, want: want, offline: offline, strict: strict)
+    SetupResult = Struct.new(
+      :language,
+      :spelling,    # :downloaded | :local | :cached | nil
+      :frequency,   # :downloaded | :local | :cached | :unavailable | nil
+      :model,       # :downloaded | :cached | :unavailable | nil
+      :source,      # :kotoshu | :local
+      keyword_init: true
+    ) do
+      def success?
+        !spelling.nil? || !frequency.nil?
       end
     end
 
-    # Resolve resources (instance method).
-    #
-    # @see .resolve
-    def resolve(text: nil, language: nil, want: DEFAULT_WANT, offline: nil, strict: nil)
-      config = Configuration.instance
-      offline = config.offline if offline.nil?
-      strict = false if strict.nil?
+    class << self
+      def setup(language, want: DEFAULT_WANT, force: false, strict: false, **opts)
+        new.setup(language: language, want: want, force: force, strict: strict, **opts)
+      end
 
-      lang = resolve_language(text, language, config)
+      def setup_from_local(language:, aff:, dic:, frequency: nil, force: false)
+        new.setup_from_local(language: language, aff: aff, dic: dic, frequency: frequency, force: force)
+      end
 
-      spelling_result = want.include?(:spelling) ? resolve_spelling(lang, offline) : nil
-      frequency_result = want.include?(:frequency) ? resolve_frequency(lang, offline, strict) : nil
+      def resolve(language:, want: DEFAULT_WANT)
+        new.resolve(language: language, want: want)
+      end
+
+      def setup?(language, resource: nil)
+        new.setup?(language, resource: resource)
+      end
+
+      def languages_setup
+        new.languages_setup
+      end
+    end
+
+    # ---- Stage 1: setup ----
+
+    def setup(language:, want: DEFAULT_WANT, force: false, strict: false,
+              aff: nil, dic: nil, from: nil, frequency: nil)
+      lang = normalize_language(language)
+
+      if aff || dic || from
+        setup_from_local(language: lang, aff: aff, dic: dic, from: from,
+                         frequency: frequency, force: force)
+      else
+        setup_from_remote(lang, want: want, force: force, strict: strict)
+      end
+    end
+
+    def setup_from_local(language:, aff:, dic:, from: nil, frequency: nil, force: false)
+      lang = normalize_language(language)
+
+      aff_path, dic_path = resolve_local_paths(lang, aff: aff, dic: dic, from: from)
+      raise ArgumentError, "aff file not found: #{aff_path}" unless File.exist?(aff_path)
+      raise ArgumentError, "dic file not found: #{dic_path}" unless File.exist?(dic_path)
+
+      spelling_cache = spelling_cache_for(lang)
+      spelling_cache.install_local(lang, aff: aff_path, dic: dic_path, force: force)
+      spelling_status = :local
+
+      frequency_status = nil
+      if frequency
+        raise ArgumentError, "frequency file not found: #{frequency}" unless File.exist?(frequency)
+        freq_cache = frequency_cache_for
+        freq_cache.install_local(lang, path: frequency, force: force) if freq_cache.respond_to?(:install_local)
+        frequency_status = :local
+      end
+
+      SetupResult.new(
+        language: lang,
+        spelling: spelling_status,
+        frequency: frequency_status,
+        model: nil,
+        source: :local
+      )
+    end
+
+    # ---- Stage 2: resolve (cache-only) ----
+
+    def resolve(language:, want: DEFAULT_WANT)
+      lang = normalize_language(language)
+
+      spelling_dict = want.include?(:spelling) ? resolve_spelling_cached(lang) : nil
+      frequency_data = want.include?(:frequency) ? resolve_frequency_cached(lang) : nil
 
       ResourceBundle.new(
         language: lang,
-        dictionary: spelling_result&.first,
-        frequency: frequency_result,
+        dictionary: spelling_dict,
+        frequency: frequency_data,
         model: nil,
         rules: nil,
-        cached: spelling_result ? spelling_result.last : true,
-        source_urls: [config.dictionaries_url]
+        cached: true,
+        source_urls: []
       )
+    end
+
+    # ---- Predicates ----
+
+    def setup?(language, resource: nil)
+      lang = normalize_language(language)
+      case resource&.to_sym
+      when nil, :spelling
+        spelling_cache_for(lang).available?("#{lang}:spelling")
+      when :frequency
+        fc = frequency_cache_for
+        fc.respond_to?(:supports_resource?) && fc.supports_resource?(lang) && fc.available?(lang)
+      when :model
+        false
+      else
+        false
+      end
+    end
+
+    def languages_setup
+      spelling_cache_for(nil).cached_resources
+        .map { |r| r.to_s.split(":").first }
+        .uniq
+        .sort
     end
 
     private
 
-    def resolve_language(text, language, config)
-      return normalize_language(language) if language && language != :auto
-      return config.default_language if text.nil? || text.strip.empty?
+    def setup_from_remote(lang, want:, force:, strict:)
+      config = Configuration.instance
+      spelling_status = nil
+      frequency_status = nil
+      model_status = nil
 
-      detected = safe_detect(text)
-      detected || config.default_language
+      if want.include?(:spelling)
+        cache = spelling_cache_for(lang, config: config)
+        was_cached = cache.available?("#{lang}:spelling")
+        if was_cached && !force
+          spelling_status = :cached
+        else
+          warn "[#{lang}] downloading spelling dictionary..." unless quiet?
+          cache.get_spelling(lang, force_download: force)
+          spelling_status = :downloaded
+        end
+      end
+
+      if want.include?(:frequency)
+        frequency_status = setup_frequency_remote(lang, force: force, strict: strict, config: config)
+      end
+
+      if want.include?(:model)
+        model_status = :unavailable
+      end
+
+      SetupResult.new(
+        language: lang,
+        spelling: spelling_status,
+        frequency: frequency_status,
+        model: model_status,
+        source: :kotoshu
+      )
     end
 
-    def safe_detect(text)
-      Language.detect(text)
-    rescue StandardError
-      nil
-    end
+    def setup_frequency_remote(lang, force:, strict:, config:)
+      cache = frequency_cache_for(config: config)
+      return :unavailable unless cache.respond_to?(:supports_resource?) && cache.supports_resource?(lang)
 
-    def resolve_spelling(lang, offline)
-      cache = Cache::LanguageCache.new(
-        cache_path: Configuration.instance.cache_path,
-        resource_pin: Configuration.instance.resource_pin
-      )
-      resource_id = "#{lang}:spelling"
-      was_cached = cache.available?(resource_id)
+      was_cached = cache.available?(lang)
+      return :cached if was_cached && !force
 
-      raise ResourceNotCachedError.new(lang, "spelling") if offline && !was_cached
-
-      warn "[#{lang}] downloading dictionary..." unless was_cached || quiet?
-
-      result = cache.get_spelling(lang)
-      dict = Dictionary::Hunspell.new(
-        dic_path: result[:dic_path],
-        aff_path: result[:aff_path],
-        language_code: lang
-      )
-      [dict, result[:cached] != false]
-    end
-
-    def resolve_frequency(lang, offline, strict = false)
-      cache = Cache::FrequencyCache.new(
-        cache_path: Configuration.instance.cache_path,
-        resource_pin: Configuration.instance.resource_pin
-      )
-      return nil unless cache.supports_resource?(lang)
-
-      raise ResourceNotCachedError.new(lang, "frequency") if offline && !cache.available?(lang)
-
-      warn "[#{lang}] downloading frequency data..." unless cache.available?(lang) || quiet?
-
-      cache.get(lang)
+      warn "[#{lang}] downloading frequency data..." unless quiet?
+      cache.get(lang, force_download: force) if cache.respond_to?(:get)
+      :downloaded
     rescue StandardError => e
       raise if strict
 
       warn "[#{lang}] frequency data unavailable: #{e.class} (#{e.message})" unless quiet?
-      nil
+      :unavailable
+    end
+
+    def resolve_spelling_cached(lang)
+      cache = spelling_cache_for(lang)
+      resource_id = "#{lang}:spelling"
+      raise ResourceNotSetupError.new(lang, "spelling") unless cache.available?(resource_id)
+
+      result = cache.get(resource_id) || cache.load_cached(resource_id)
+      raise ResourceNotSetupError.new(lang, "spelling") unless result
+
+      Dictionary::Hunspell.new(
+        dic_path: result[:dic_path] || result["dic_path"],
+        aff_path: result[:aff_path] || result["aff_path"],
+        language_code: lang
+      )
+    end
+
+    def resolve_frequency_cached(lang)
+      cache = frequency_cache_for
+      return nil unless cache.respond_to?(:supports_resource?) && cache.supports_resource?(lang)
+      raise ResourceNotSetupError.new(lang, "frequency") unless cache.available?(lang)
+
+      cache.get(lang) rescue nil
+    end
+
+    def resolve_local_paths(lang, aff:, dic:, from:)
+      if from
+        dir = File.expand_path(from)
+        aff_path = aff || File.join(dir, "#{lang}.aff")
+        dic_path = dic || File.join(dir, "#{lang}.dic")
+        [aff_path, dic_path]
+      else
+        [File.expand_path(aff), File.expand_path(dic)]
+      end
     end
 
     def normalize_language(code)
       code.to_s.split("-").first.split("_").first.downcase
+    end
+
+    def spelling_cache_for(_lang = nil, config: nil)
+      cfg = config || Configuration.instance
+      Cache::LanguageCache.new(
+        cache_path: cfg.cache_path,
+        resource_pin: cfg.resource_pin
+      )
+    end
+
+    def frequency_cache_for(config: nil)
+      cfg = config || Configuration.instance
+      Cache::FrequencyCache.new(
+        cache_path: cfg.cache_path,
+        resource_pin: cfg.resource_pin
+      )
     end
 
     def quiet?

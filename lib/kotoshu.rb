@@ -136,54 +136,118 @@ module Kotoshu
     Configuration.instance
   end
 
-  # Get the global spellchecker instance (lazy loaded).
+  # Default spellchecker (singleton). Uses the configured default language.
+  # Cache-only — raises ResourceNotSetupError if the default language hasn't
+  # been set up via Kotoshu.setup.
   #
-  # @return [Spellchecker] The spellchecker
-  #
-  # @example
-  #   spellchecker = Kotoshu.spellchecker
+  # @return [Spellchecker] The default spellchecker
+  # @raise [ResourceNotSetupError] if no language is set up
   def self.spellchecker
-    @spellchecker ||= Spellchecker.new(config: configuration)
+    return @spellchecker if @spellchecker
+
+    lang = configuration.default_language
+    raise ResourceNotSetupError.new(lang || "default", "spelling") if lang.nil? || lang.to_s.empty?
+
+    @spellchecker = spellchecker_for(lang)
   end
 
-  # Get a spellchecker for a specific language (downloads on first call).
+  # Get a spellchecker for a specific language (cache-only, raises on miss).
   #
   # @param language [String, Symbol] Language code (e.g., "en", "de", "fr")
-  # @param offline [Boolean, nil] Override offline mode
-  # @param strict [Boolean, nil] Re-raise on optional-resource failure (frequency, model)
   # @return [Spellchecker] Spellchecker using a ResourceManager-resolved bundle
+  # @raise [ResourceNotSetupError] if the language hasn't been set up
   #
   # @example
+  #   Kotoshu.setup(:de)
   #   Kotoshu.spellchecker_for("de").correct?("Hallo")  # => true
-  def self.spellchecker_for(language, offline: nil, strict: nil)
-    key = "#{language}:#{offline}:#{strict}"
+  def self.spellchecker_for(language)
+    key = language.to_s
     @spellcheckers ||= {}
     @spellcheckers[key] ||= begin
-      bundle = ResourceManager.resolve(language: language, offline: offline, strict: strict)
+      bundle = ResourceManager.resolve(language: language)
       Spellchecker.new(resource_bundle: bundle, config: configuration)
     end
   end
 
-  # Resolve language resources (dictionary, frequency, model, rules) on demand.
+  # Resolve language resources from the cache (no download).
   #
-  # @param language [String, Symbol, nil] Language code (e.g., "en", "de-DE"), or nil
-  # @param text [String, nil] Text to auto-detect language from
+  # @param language [String, Symbol, nil] Language code; if nil, uses default
   # @param want [Array<Symbol>] Resource types (default: [:spelling])
-  # @param offline [Boolean, nil] Override offline mode
-  # @param strict [Boolean, nil] Re-raise on optional-resource failure
   # @return [ResourceBundle] Resolved bundle
+  # @raise [ResourceNotSetupError] if the language hasn't been set up
   #
-  # @example Resolve by language
+  # @example
+  #   Kotoshu.setup(:en)
   #   bundle = Kotoshu.resolve(language: "en")
   #   bundle.dictionary  # => #<Dictionary::Hunspell ...>
-  #
-  # @example Auto-detect from text
-  #   bundle = Kotoshu.resolve(text: "Guten Tag")
-  #   bundle.language  # => "de"
-  def self.resolve(language: nil, text: nil, want: nil, offline: nil, strict: nil)
+  def self.resolve(language: nil, want: nil)
+    lang = language || configuration.default_language
+    raise ResourceNotSetupError.new(lang || "default", "spelling") if lang.nil?
+
     want_param = want || ResourceManager::DEFAULT_WANT
-    ResourceManager.resolve(text: text, language: language, want: want_param,
-                            offline: offline, strict: strict)
+    ResourceManager.resolve(language: lang, want: want_param)
+  end
+
+  # ---- Stage 1: Setup ----
+
+  # Set up resources for one or more languages (download or register local files).
+  # Idempotent: re-running with the same args is a no-op unless `force: true`.
+  #
+  # @param languages [String, Symbol, Array<String, Symbol>] One or more language codes
+  # @param want [Array<Symbol>] Resource types to fetch (default: [:spelling])
+  # @param force [Boolean] Re-fetch even if already cached
+  # @param strict [Boolean] Re-raise on optional-resource failure
+  # @param aff [String, nil] Path to local .aff file (single-language only)
+  # @param dic [String, nil] Path to local .dic file (single-language only)
+  # @param from [String, nil] Directory containing local .aff/.dic (single-language only)
+  # @param frequency [String, nil] Path to local frequency.json (single-language only)
+  # @return [SetupResult, Array<SetupResult>] Result or results (array if multiple languages)
+  #
+  # @example Download from kotoshu/dictionaries
+  #   Kotoshu.setup(:en)                                 # spelling only
+  #   Kotoshu.setup(:en, want: %i[spelling frequency])   # spelling + frequency
+  #   Kotoshu.setup(:en, :de, :fr)                       # multiple languages
+  #
+  # @example Register local files (user already has hunspell dicts)
+  #   Kotoshu.setup(:en, aff: "/usr/share/hunspell/en_US.aff",
+  #                       dic: "/usr/share/hunspell/en_US.dic")
+  #
+  # @example Register local files from a directory
+  #   Kotoshu.setup(:en, from: "/usr/share/hunspell/")  # looks for en.aff, en.dic
+  def self.setup(*languages, want: nil, **opts)
+    raise ArgumentError, "Kotoshu.setup requires at least one language" if languages.empty?
+
+    want_param = want || ResourceManager::DEFAULT_WANT
+    if languages.size == 1
+      ResourceManager.setup(languages.first, want: want_param, **opts)
+    else
+      languages.map { |lang| ResourceManager.setup(lang, want: want_param, **opts) }
+    end
+  end
+
+  # Check if a language (or a specific resource for that language) is set up.
+  #
+  # @param language [String, Symbol] Language code
+  # @param resource [Symbol, nil] :spelling, :frequency, :model, or nil for any
+  # @return [Boolean] True if the resource is cached and available
+  #
+  # @example
+  #   Kotoshu.setup(:en)
+  #   Kotoshu.setup?(:en)              # => true
+  #   Kotoshu.setup?(:en, :spelling)   # => true
+  #   Kotoshu.setup?(:en, :frequency)  # => false (not set up)
+  def self.setup?(language, resource = nil)
+    ResourceManager.setup?(language, resource: resource)
+  end
+
+  # List languages that have been set up.
+  #
+  # @return [Array<String>] Sorted array of language codes with cached spelling
+  #
+  # @example
+  #   Kotoshu.languages_setup  # => ["de", "en", "fr"]
+  def self.languages_setup
+    ResourceManager.languages_setup
   end
 
   # Reset the spellchecker (force reload).
@@ -196,80 +260,80 @@ module Kotoshu
   end
 
   # Check if a word is spelled correctly.
+  # Hot path — cache-only, raises if language not set up.
   #
   # @param word [String] The word to check
-  # @param language [String, nil] Language code; if provided, uses a per-language spellchecker
-  # @param offline [Boolean, nil] Override offline mode
-  # @param strict [Boolean, nil] Re-raise on optional-resource failure
+  # @param language [String, Symbol, nil] Language code; if nil, uses configured default
   # @return [Boolean] True if the word is correct
+  # @raise [ResourceNotSetupError] if the language hasn't been set up
   #
   # @example
-  #   Kotoshu.correct?("hello")            # => true (default language)
-  #   Kotoshu.correct?("Hallo", language: "de")  # => true
-  def self.correct?(word, language: nil, offline: nil, strict: nil)
-    checker = language ? spellchecker_for(language, offline: offline, strict: strict) : spellchecker
+  #   Kotoshu.setup(:en)
+  #   Kotoshu.correct?("hello")            # => true
+  #   Kotoshu.correct?("Hallo", language: "de")  # requires Kotoshu.setup(:de) first
+  def self.correct?(word, language: nil)
+    checker = language ? spellchecker_for(language) : spellchecker
     checker.correct?(word)
   end
 
-  # Check if a word is misspelled.
+  # Check if a word is misspelled. Hot path.
   #
   # @param word [String] The word to check
-  # @param language [String, nil] Language code; if provided, uses a per-language spellchecker
-  # @param offline [Boolean, nil] Override offline mode
-  # @param strict [Boolean, nil] Re-raise on optional-resource failure
+  # @param language [String, Symbol, nil] Language code
   # @return [Boolean] True if the word is misspelled
-  def self.misspelled?(word, language: nil, offline: nil, strict: nil)
-    !correct?(word, language: language, offline: offline, strict: strict)
+  # @raise [ResourceNotSetupError] if the language hasn't been set up
+  def self.misspelled?(word, language: nil)
+    !correct?(word, language: language)
   end
 
-  # Get spelling suggestions for a word.
+  # Get spelling suggestions for a word. Hot path.
   #
   # @param word [String] The misspelled word
-  # @param language [String, nil] Language code; if provided, uses a per-language spellchecker
-  # @param offline [Boolean, nil] Override offline mode
-  # @param strict [Boolean, nil] Re-raise on optional-resource failure
+  # @param language [String, Symbol, nil] Language code
   # @param options [Hash] Options (max_suggestions, etc.)
   # @return [Suggestions::SuggestionSet] Generated suggestions
+  # @raise [ResourceNotSetupError] if the language hasn't been set up
   #
   # @example
+  #   Kotoshu.setup(:en)
   #   suggestions = Kotoshu.suggest("helo")
   #   suggestions.to_words  # => ["hello", "help", "held", ...]
-  def self.suggest(word, language: nil, offline: nil, strict: nil, **options)
-    checker = language ? spellchecker_for(language, offline: offline, strict: strict) : spellchecker
+  def self.suggest(word, language: nil, **options)
+    checker = language ? spellchecker_for(language) : spellchecker
     checker.suggest(word, **options)
   end
 
-  # Check text for spelling errors.
+  # Check text for spelling errors. Hot path.
   #
   # @param text [String] The text to check
-  # @param language [String, nil] Language code; if provided, uses a per-language spellchecker
-  # @param offline [Boolean, nil] Override offline mode
-  # @param strict [Boolean, nil] Re-raise on optional-resource failure
+  # @param language [String, Symbol, nil] Language code; if nil, uses configured default
   # @param options [Hash] Options
   # @return [Models::Result::DocumentResult] The check result
+  # @raise [ResourceNotSetupError] if the language hasn't been set up
   #
   # @example
+  #   Kotoshu.setup(:en)
   #   result = Kotoshu.check("Hello wrold")
   #   result.errors.map(&:word)  # => ["wrold"]
-  def self.check(text, language: nil, offline: nil, strict: nil, **_options)
-    checker = language ? spellchecker_for(language, offline: offline, strict: strict) : spellchecker
+  def self.check(text, language: nil, **_options)
+    checker = language ? spellchecker_for(language) : spellchecker
     checker.check(text)
   end
 
-  # Check a file for spelling errors.
+  # Check a file for spelling errors. Hot path.
   #
   # @param path [String] The file path
-  # @param language [String, nil] Language code; if provided, uses a per-language spellchecker
-  # @param offline [Boolean, nil] Override offline mode
-  # @param strict [Boolean, nil] Re-raise on optional-resource failure
+  # @param language [String, Symbol, nil] Language code
   # @param options [Hash] Options
   # @return [Models::Result::DocumentResult] The check result
+  # @raise [ResourceNotSetupError] if the language hasn't been set up
   #
   # @example
+  #   Kotoshu.setup(:en)
   #   result = Kotoshu.check_file("README.md")
   #   result.success?  # => false
-  def self.check_file(path, language: nil, offline: nil, strict: nil, **_options)
-    checker = language ? spellchecker_for(language, offline: offline, strict: strict) : spellchecker
+  def self.check_file(path, language: nil, **_options)
+    checker = language ? spellchecker_for(language) : spellchecker
     checker.check_file(path)
   end
 
