@@ -115,6 +115,22 @@ module Kotoshu
     attr_reader :language, :resource_type
   end
 
+  # Error raised by the hot path (Kotoshu.correct?, .suggest, .check,
+  # .check_file, .spellchecker_for) when a language hasn't been set up
+  # via Kotoshu.setup / kotoshu setup. The hot path is cache-only and
+  # never downloads — explicit setup is required.
+  class ResourceNotSetupError < Error
+    def initialize(language, resource_type = "spelling")
+      @language = language
+      @resource_type = resource_type
+      super("Language '#{language}' is not set up (missing #{resource_type}). " \
+            "Run `kotoshu setup #{language}` or " \
+            "`Kotoshu.setup(:#{language})` first.")
+    end
+
+    attr_reader :language, :resource_type
+  end
+
   # Error raised when a resource cannot be resolved for a language
   # (unsupported language, download failure, etc.).
   class ResourceResolutionError < Error

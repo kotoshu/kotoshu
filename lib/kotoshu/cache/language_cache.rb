@@ -40,6 +40,48 @@ module Kotoshu
         result || download_spelling(language)
       end
 
+      # Install a spelling dictionary from local files (no download).
+      # Used by ResourceManager.setup_from_local when the user already
+      # has .aff/.dic files on disk. Symlinks the source files into the
+      # cache directory so subsequent cache lookups find them. Existing
+      # symlinks are replaced when force: true; existing real files
+      # raise ArgumentError unless force: true.
+      #
+      # @param language [String] Language code
+      # @param aff [String] Path to .aff file
+      # @param dic [String] Path to .dic file
+      # @param force [Boolean] Overwrite existing install
+      # @return [Hash] Installed paths
+      def install_local(language, aff:, dic:, force: false)
+        require "fileutils"
+
+        resource_id = "#{language}:spelling"
+        lang_path = resource_dir_for(resource_id)
+        FileUtils.mkdir_p(lang_path)
+
+        target_aff = File.join(lang_path, "index.aff")
+        target_dic = File.join(lang_path, "index.dic")
+
+        if File.exist?(target_aff) || File.symlink?(target_aff)
+          raise ArgumentError, "#{target_aff} already exists (use force: true to overwrite)" unless force
+
+          File.unlink(target_aff)
+        end
+        if File.exist?(target_dic) || File.symlink?(target_dic)
+          raise ArgumentError, "#{target_dic} already exists (use force: true to overwrite)" unless force
+
+          File.unlink(target_dic)
+        end
+
+        File.symlink(File.expand_path(aff), target_aff)
+        File.symlink(File.expand_path(dic), target_dic)
+
+        write_metadata(metadata_path_for(resource_id),
+                       build_metadata(language, "spelling", "local-source"))
+
+        { aff_path: target_aff, dic_path: target_dic, source: :local }
+      end
+
       # Alias for get_spelling for backward compatibility.
       #
       # @param language [String] Language code

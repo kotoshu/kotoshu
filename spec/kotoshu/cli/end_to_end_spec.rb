@@ -6,17 +6,20 @@ require "tmpdir"
 require "fileutils"
 require "json"
 
-# End-to-end CLI spec for the 0.2 release cut.
+# End-to-end CLI spec for the two-stage setup/check model.
 # Drives the actual `exe/kotoshu` binary via Open3 so we exercise the
 # real require chain, exit codes, and stdout/stderr streams — no mocking.
 #
-# Acceptance criteria covered (from TODO.impl/00-cut-0.2.md):
+# Acceptance criteria:
 #   - `kotoshu check FILE` exits 1 when errors are found, with suggestions
 #   - `kotoshu check FILE` exits 0 when the file is clean
 #   - `kotoshu check MISSING` exits 2 (usage error)
-#   - `kotoshu check FILE --language XX --offline` exits 3 when XX is uncached
+#   - `kotoshu check FILE --language XX` exits 3 when XX is not set up
 #   - `--format json` produces parseable JSON with the expected shape
+#   - `--format sarif` produces SARIF 2.1.0
 #   - stdin input works when no FILE argument is given
+#   - `kotoshu setup LANG --aff ... --dic ...` registers local files
+#   - `kotoshu setup --list` shows set up languages
 RSpec.describe "kotoshu CLI end-to-end", :slow do
   EN_AFF_FIXTURE = File.expand_path("../../integrational/fixtures/en_US.aff", __dir__)
   EN_DIC_FIXTURE = File.expand_path("../../integrational/fixtures/en_US.dic", __dir__)
@@ -25,11 +28,8 @@ RSpec.describe "kotoshu CLI end-to-end", :slow do
     skip "en_US fixtures missing" unless File.exist?(EN_AFF_FIXTURE) && File.exist?(EN_DIC_FIXTURE)
   end
 
-  # Per-test sandbox: a fresh KOTOSHU_HOME so cache state never leaks
-  # between examples or into the user's real ~/.kotoshu.
   let(:kotoshu_home) { Dir.mktmpdir("kotoshu-cli-home") }
 
-  # File contents used across examples.
   let(:clean_text) { "hello world\nthis is a test\n" }
   let(:dirty_text) { "helo wrld\nrecieve seperate\n" }
 
@@ -37,7 +37,6 @@ RSpec.describe "kotoshu CLI end-to-end", :slow do
     FileUtils.rm_rf(kotoshu_home) if Dir.exist?(kotoshu_home)
   end
 
-  # Populate the cache so the spec doesn't hit the network.
   def populate_en_cache(home)
     dir = File.join(home, "languages", "en", "spelling")
     FileUtils.mkdir_p(dir)
@@ -47,24 +46,17 @@ RSpec.describe "kotoshu CLI end-to-end", :slow do
       "language" => "en",
       "type" => "spelling",
       "version" => "2026-01-01T00:00:00Z",
-      "cached_at" => "2026-06-25T00:00:00Z",
+      "cached_at" => "2026-06-26T00:00:00Z",
       "source" => "fixture"
     }.to_json)
   end
 
-  # Run the CLI with the sandboxed KOTOSHU_HOME. Returns stdout, stderr, exit.
   def run_cli(*args, stdin: "")
-    env = {
-      "KOTOSHU_HOME" => kotoshu_home,
-      # Defend against inherited KOTOSHU_OFFLINE=1 in the parent env.
-      "KOTOSHU_OFFLINE" => "0"
-    }
-    stdout, stderr, status = Open3.capture3(env, *cli_command, *args,
-                                            stdin_data: stdin)
+    env = { "KOTOSHU_CACHE_PATH" => kotoshu_home }
+    stdout, stderr, status = Open3.capture3(env, *cli_command, *args, stdin_data: stdin)
     [stdout, stderr, status.exitstatus]
   end
 
-  # Path to the actual exe so we go through the same require chain as users.
   def cli_command
     exe = File.expand_path("../../../exe/kotoshu", __dir__)
     ["bundle", "exec", "ruby", exe]
@@ -81,7 +73,7 @@ RSpec.describe "kotoshu CLI end-to-end", :slow do
       it "exits 0 and reports no errors" do
         populate_en_cache(kotoshu_home)
         file = write_tmp_file("clean.txt", clean_text)
-        stdout, _stderr, code = run_cli("check", file, "--offline")
+        stdout, _stderr, code = run_cli("check", file, "--language", "en")
 
         expect(code).to eq(0)
         expect(stdout).to include("OK")
@@ -93,13 +85,12 @@ RSpec.describe "kotoshu CLI end-to-end", :slow do
       it "exits 1 and lists suggestions for each error" do
         populate_en_cache(kotoshu_home)
         file = write_tmp_file("dirty.txt", dirty_text)
-        stdout, _stderr, code = run_cli("check", file, "--offline")
+        stdout, _stderr, code = run_cli("check", file, "--language", "en")
 
         expect(code).to eq(1)
         expect(stdout).to include("FAIL")
         expect(stdout).to include("helo")
         expect(stdout).to include("wrld")
-        # Suggestions appear after the arrow.
         expect(stdout).to match(/helo\s*->\s*\w+/)
       end
     end
@@ -113,17 +104,14 @@ RSpec.describe "kotoshu CLI end-to-end", :slow do
       end
     end
 
-    context "with --offline on an uncached language" do
-      it "exits 3 with a prefetch hint" do
-        # Do NOT populate the cache for this language.
+    context "when the language is not set up" do
+      it "exits 3 with a setup hint" do
         file = write_tmp_file("dirty.txt", dirty_text)
-        _stdout, stderr, code = run_cli(
-          "check", file, "--language", "de", "--offline"
-        )
+        _stdout, stderr, code = run_cli("check", file, "--language", "de")
 
         expect(code).to eq(3)
-        expect(stderr).to match(/not cached/i)
-        expect(stderr).to match(/kotoshu cache download/)
+        expect(stderr).to match(/not set up/i)
+        expect(stderr).to match(/kotoshu setup de/)
       end
     end
 
@@ -131,7 +119,7 @@ RSpec.describe "kotoshu CLI end-to-end", :slow do
       it "emits parseable JSON with the expected shape" do
         populate_en_cache(kotoshu_home)
         file = write_tmp_file("dirty.txt", dirty_text)
-        stdout, _stderr, code = run_cli("check", file, "--offline", "--format", "json")
+        stdout, _stderr, code = run_cli("check", file, "--language", "en", "--format", "json")
 
         expect(code).to eq(1)
         payload = JSON.parse(stdout)
@@ -149,7 +137,7 @@ RSpec.describe "kotoshu CLI end-to-end", :slow do
       it "emits SARIF 2.1.0 with one result per error" do
         populate_en_cache(kotoshu_home)
         file = write_tmp_file("dirty.txt", dirty_text)
-        stdout, _stderr, code = run_cli("check", file, "--offline", "--format", "sarif")
+        stdout, _stderr, code = run_cli("check", file, "--language", "en", "--format", "sarif")
 
         expect(code).to eq(1)
         sarif = JSON.parse(stdout)
@@ -176,8 +164,7 @@ RSpec.describe "kotoshu CLI end-to-end", :slow do
       it "navigates errors and exits on q" do
         populate_en_cache(kotoshu_home)
         file = write_tmp_file("dirty.txt", dirty_text)
-        # Drive the interactive loop: next, accept suggestion 1, quit.
-        stdout, _stderr, code = run_cli("check", file, "--offline", "--interactive",
+        stdout, _stderr, code = run_cli("check", file, "--language", "en", "--interactive",
                                        stdin: "n\n1\nq\n")
 
         expect(code).to eq(1)
@@ -190,7 +177,7 @@ RSpec.describe "kotoshu CLI end-to-end", :slow do
     context "reading from stdin" do
       it "checks piped input and uses <stdin> as the source label" do
         populate_en_cache(kotoshu_home)
-        stdout, _stderr, code = run_cli("check", "--offline", stdin: dirty_text)
+        stdout, _stderr, code = run_cli("check", "--language", "en", stdin: dirty_text)
 
         expect(code).to eq(1)
         expect(stdout).to include("<stdin>")
@@ -208,32 +195,73 @@ RSpec.describe "kotoshu CLI end-to-end", :slow do
     end
   end
 
-  describe "fetch" do
-    it "exits 2 when no languages are given" do
-      _stdout, stderr, code = run_cli("fetch")
-      expect(code).to eq(2)
-      expect(stderr).to match(/at least one LANGUAGE/i)
+  describe "setup" do
+    context "with --list" do
+      it "shows a message when nothing is set up" do
+        stdout, _stderr, code = run_cli("setup", "--list")
+        expect(code).to eq(0)
+        expect(stdout).to match(/No languages set up/i)
+      end
+
+      it "lists set up languages" do
+        populate_en_cache(kotoshu_home)
+        stdout, _stderr, code = run_cli("setup", "--list")
+        expect(code).to eq(0)
+        expect(stdout).to match(/Set up languages:/)
+        expect(stdout).to include("en")
+      end
     end
 
-    it "exits 3 in offline mode when the language is not cached" do
-      _stdout, _stderr, code = run_cli("fetch", "de", "--offline")
-      expect(code).to eq(3)
+    context "with --aff and --dic (local source)" do
+      it "registers local files and exits 0" do
+        stdout, _stderr, code = run_cli(
+          "setup", "en",
+          "--aff", EN_AFF_FIXTURE,
+          "--dic", EN_DIC_FIXTURE
+        )
+        expect(code).to eq(0)
+        expect(stdout).to match(/Setup en\.\.\. OK/)
+        expect(stdout).to include("source: local")
+
+        # Follow-up check should now succeed using the registered files
+        file = write_tmp_file("clean.txt", "hello world\n")
+        stdout2, _stderr2, code2 = run_cli("check", file, "--language", "en")
+        expect(code2).to eq(0)
+      end
+
+      it "fails when only one of --aff/--dic is given" do
+        _stdout, stderr, code = run_cli("setup", "en", "--aff", EN_AFF_FIXTURE)
+        expect(code).to eq(2)
+        expect(stderr).to match(/--aff and --dic must both be given/)
+      end
+
+      it "fails when --aff/--dic used with multiple languages" do
+        _stdout, stderr, code = run_cli(
+          "setup", "en", "de",
+          "--aff", EN_AFF_FIXTURE,
+          "--dic", EN_DIC_FIXTURE
+        )
+        expect(code).to eq(2)
+        expect(stderr).to match(/exactly one language/)
+      end
     end
 
-    it "pre-warms a cached language in offline mode (exit 0)" do
-      populate_en_cache(kotoshu_home)
-      stdout, _stderr, code = run_cli("fetch", "en", "--offline")
+    context "with no args" do
+      it "lists set up languages (same as --list)" do
+        stdout, _stderr, code = run_cli("setup")
+        expect(code).to eq(0)
+        expect(stdout).to match(/No languages set up|Set up languages:/)
+      end
+    end
+  end
+
+  describe "fetch (deprecated alias)" do
+    it "still works as an alias for setup" do
+      stdout, _stderr, code = run_cli("fetch", "en",
+                                      "--aff", EN_AFF_FIXTURE,
+                                      "--dic", EN_DIC_FIXTURE)
       expect(code).to eq(0)
-      expect(stdout).to match(/Fetching en\.\.\. OK/)
-      expect(stdout).to match(/spelling: cached/)
-    end
-
-    it "reports per-language status for multiple languages" do
-      populate_en_cache(kotoshu_home)
-      stdout, _stderr, code = run_cli("fetch", "en", "de", "--offline")
-      expect(code).to eq(3) # de fails
-      expect(stdout).to match(/Fetching en\.\.\. OK/)
-      expect(stdout).to match(/Fetching de\.\.\. FAIL/)
+      expect(stdout).to match(/Setup en\.\.\. OK/)
     end
   end
 end
