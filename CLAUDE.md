@@ -70,7 +70,7 @@ SemanticAnalyzer ─► Models::OnnxModel | Models::FastTextModel
 
 `lib/kotoshu.rb` eagerly `require_relative`s the traditional path (core models, dictionaries, strategies, configuration, spellchecker) and `autoload`s the heavier / optional pieces (ONNX models, documents, interactive CLI, caches, language detection, debug/metrics). When adding a new top-level component, follow the existing split: eager-load only what the facade needs at boot; autoload the rest.
 
-**ONNX is gated.** `Models::OnnxModel` only `require "onnxruntime"` when `ENV['KOTOSHU_REQUIRE_ONNX']` is set. Without it, semantic analysis is unavailable — do not assume the onnxruntime gem is loaded.
+**ONNX is a soft dependency.** `onnxruntime` is NOT in `kotoshu.gemspec` — `gem install kotoshu` succeeds without it. `Models::OnnxModel` soft-requires it at load time and exposes `ONNX_LOADED` (true/false). When false, semantic methods raise `Models::OnnxModel::OnnxUnavailable` with a caller-friendly message. `KOTOSHU_NO_ONNX=1` forces semantic off even when the gem is present. The traditional spell-checking path never touches onnxruntime.
 
 ### Resource lifecycle — two-stage model
 

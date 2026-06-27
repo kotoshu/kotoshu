@@ -10,6 +10,11 @@ gem "irb"
 gem "rake", "~> 13.0"
 gem "thor", "~> 1.0"
 
+# Optional runtime: enables semantic analysis. Declared here so the
+# test suite and local dev exercise both paths; users install it
+# separately (see README). NOT in kotoshu.gemspec.
+gem "onnxruntime", "~> 0.10"
+
 group :development, :test do
   gem "asciidoctor", "~> 2.0"
   gem "benchmark-ips", "~> 2.12"

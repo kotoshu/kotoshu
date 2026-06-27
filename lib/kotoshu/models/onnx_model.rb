@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'embedding_model'
-require_relative 'word_embedding'
-require_relative 'nearest_neighbor'
-
 module Kotoshu
   module Models
     # ONNX embedding model implementation.
@@ -19,7 +15,35 @@ module Kotoshu
     #   model = OnnxModel.from_github('en')
     #   neighbors = model.nearest_neighbors('hello', k: 10)
     class OnnxModel < EmbeddingModel
-      require 'onnxruntime' if ENV['KOTOSHU_REQUIRE_ONNX']
+      # Soft-load onnxruntime. The gem is intentionally NOT a hard runtime
+      # dependency — it fails to build on some platforms and would block
+      # install for users who only want traditional spell-checking. Semantic
+      # features light up automatically when the gem is present.
+      #
+      # KOTOSHU_NO_ONNX=1 forces semantic analysis off even when the gem is
+      # installed (useful for benchmarks / CI determinism).
+      ONNX_LOADED = begin
+        if ENV["KOTOSHU_NO_ONNX"] == "1"
+          false
+        else
+          require "onnxruntime"
+          true
+        end
+      rescue LoadError
+        false
+      end
+
+      # Error raised when semantic features are requested but onnxruntime
+      # is unavailable. Caller-friendly message points at the fix.
+      class OnnxUnavailable < Kotoshu::Error
+        def initialize(detail = nil)
+          message = "onnxruntime gem not loaded"
+          message += " (#{detail})" if detail
+          message += ". Install with: gem install onnxruntime"
+          message += ". Or set KOTOSHU_NO_ONNX=1 to silence this in code paths that opt out."
+          super(message)
+        end
+      end
 
       # Default dimension for FastText models
       DEFAULT_DIMENSION = 300
@@ -286,11 +310,7 @@ module Kotoshu
       def ensure_session_loaded
         return if @loaded
 
-        begin
-          require 'onnxruntime'
-        rescue LoadError
-          raise "onnxruntime gem not available. Add 'onnxruntime' to Gemfile"
-        end
+        raise OnnxUnavailable unless ONNX_LOADED
 
         @session = OnnxRuntime::Session.new(@onnx_path)
         @loaded = true

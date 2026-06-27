@@ -63,17 +63,13 @@ class OnnxRuntimeModel
   #
   # @return [self]
   #
-  # @raise [LoadError] if ONNX Runtime is not available
+  # @raise [Kotoshu::Models::OnnxUnavailable] if onnxruntime gem is missing
   # @raise [ArgumentError] if model file doesn't exist
   #
   def load!
     return self if @loaded
 
-    begin
-      require 'onnxruntime'
-    rescue LoadError
-      raise LoadError, "onnxruntime gem not available. Add 'gem \"onnxruntime\"' to your Gemfile"
-    end
+    raise Kotoshu::Models::OnnxModel::OnnxUnavailable unless Kotoshu::Models::OnnxModel::ONNX_LOADED
 
     raise ArgumentError, "ONNX file not found: #{@onnx_path}" unless File.exist?(@onnx_path)
 
