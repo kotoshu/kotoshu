@@ -347,6 +347,7 @@ module Kotoshu
       # @param path [String] Path to the .aff file
       # @return [String, nil] Encoding name (e.g., "ISO8859-1", "UTF-8") or nil
       def detect_encoding(path)
+        return nil if path.nil? || path.empty?
         return nil unless File.file?(path)
 
         snippet = File.open(path, "rb") { |f| f.read(4096) }

@@ -52,7 +52,13 @@ module Kotoshu
         def initialize(language_code:, cache: nil, preload_embeddings: false,
                        max_context_window: 5, min_semantic_similarity: 0.5,
                        semantic_boost_weight: 0.3, **config)
-          super(name: :semantic, **config)
+          super(
+            name: :semantic,
+            min_semantic_similarity: min_semantic_similarity,
+            semantic_boost_weight: semantic_boost_weight,
+            max_context_window: max_context_window,
+            **config
+          )
           @language_code = language_code
           @max_context_window = max_context_window
           @min_semantic_similarity = min_semantic_similarity
@@ -72,7 +78,6 @@ module Kotoshu
         # @return [SuggestionSet] Generated suggestions
         def generate(context)
           word = context.word
-          max_results = context.max_results || max_results
 
           # Ensure embeddings are loaded
           return SuggestionSet.empty unless @search
@@ -95,7 +100,7 @@ module Kotoshu
         #
         # @param context [Context] The suggestion context
         # @return [Boolean] True if the strategy should handle this context
-        def handles?(context)
+        def handles?(_context)
           return false unless enabled?
           return false unless @search && @vocabulary
 
@@ -154,7 +159,7 @@ module Kotoshu
           @search = Embeddings::SimilaritySearch.from_cache(
             @language_code,
             cache: cache,
-            preload: preload
+            preload: preload,
           )
 
           # Extract vocabulary and model from search
@@ -183,9 +188,9 @@ module Kotoshu
           # that are also close in spelling (handled by edit distance strategy)
           neighbors = @search.find_nearest(
             word,
-            k: max_results * 2,  # Get more candidates for filtering
+            k: max_results * 2, # Get more candidates for filtering
             exclude_self: true,
-            min_similarity: @min_semantic_similarity
+            min_similarity: @min_semantic_similarity,
           )
 
           return SuggestionSet.empty if neighbors.empty?
@@ -204,7 +209,7 @@ module Kotoshu
               neighbor[:word],
               distance: distance,
               confidence: confidence,
-              semantic_similarity: similarity
+              semantic_similarity: similarity,
             )
           end
 
@@ -230,7 +235,7 @@ module Kotoshu
             word,
             k: max_results * 3,
             exclude_self: true,
-            min_similarity: @min_semantic_similarity
+            min_similarity: @min_semantic_similarity,
           )
 
           return SuggestionSet.empty if neighbors.empty?
@@ -254,19 +259,21 @@ module Kotoshu
               distance: distance,
               confidence: confidence,
               semantic_similarity: similarity,
-              context_score: context_score
+              context_score: context_score,
             )
           end
 
           # Sort by combined score and limit
-          SuggestionSet.new(suggestions.sort_by { |s| -s.metadata[:context_score] }, max_size: max_results)
+          SuggestionSet.new(suggestions.sort_by do |s|
+            -s.metadata[:context_score]
+          end, max_size: max_results)
         end
 
         # Get context words for semantic analysis.
         #
         # @param context [Context] The suggestion context
         # @return [Array<String>] Context words
-        def get_context_words(context)
+        def get_context_words(_context)
           # For now, return empty - context analysis would need full text
           # This could be extended in the future
           []
@@ -281,9 +288,9 @@ module Kotoshu
           return 0.5 if context_words.empty?
 
           # Compute average similarity between candidate and context words
-          similarities = context_words.map do |ctx_word|
+          similarities = context_words.filter_map do |ctx_word|
             @search.similarity(candidate, ctx_word)
-          end.compact
+          end
 
           return 0.5 if similarities.empty?
 

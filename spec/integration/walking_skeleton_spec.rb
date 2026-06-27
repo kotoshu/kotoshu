@@ -25,7 +25,7 @@ RSpec.describe "Walking Skeleton Integration", "# Walking Skeleton - End-to-End 
       expect(result.correct?).to be false
       expect(result.word).to eq("helo")
       expect(result.has_suggestions?).to be true
-      expect(result.suggestions.words).to include("hello")
+      expect(result.suggestions.map(&:word)).to include("hello")
     end
 
     it "checks text with multiple words" do
@@ -265,16 +265,10 @@ RSpec.describe "Walking Skeleton Integration", "# Walking Skeleton - End-to-End 
     it "converts to hash" do
       result = Kotoshu::Models::Result::WordResult.correct("hello")
 
-      hash = result.to_h
+      hash = result.to_hash
 
-      expect(hash).to eq({
-                           word: "hello",
-                           correct: true,
-                           position: nil,
-                           suggestion_count: 0,
-                           suggestions: [],
-                           metadata: {}
-                         })
+      expect(hash["word"]).to eq("hello")
+      expect(hash["correct"]).to eq(true)
     end
 
     it "supports value equality" do

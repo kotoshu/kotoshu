@@ -21,6 +21,8 @@ bundle exec rspec -e "matches a word"   # Run examples matching a name
 bundle exec rspec --only-failures       # Rerun just failing examples (uses .rspec_status)
 
 NETWORK_TESTS=1 bundle exec rspec       # Opt INTO tests that download dictionaries
+ONNX_TESTS=1 bundle exec rspec          # Opt INTO tests that need onnxruntime + cached models
+SLOW_TESTS=1 bundle exec rspec          # Opt INTO benchmarks and full-dictionary sweeps
 bundle exec rubocop                     # Lint
 bundle exec rubocop -A                  # Lint with safe auto-fix
 bundle exec rake                        # default task = spec + rubocop
@@ -32,6 +34,8 @@ gem build kotoshu.gemspec && gem install kotoshu-*.gem
 
 Notes that aren't obvious from the Rakefile:
 - `spec/spec_helper.rb` excludes anything tagged `:network` unless `NETWORK_TESTS=1` is set — those specs download dictionaries from GitHub and are slow/flaky.
+- `spec/spec_helper.rb` excludes anything tagged `:onnx` unless `ONNX_TESTS=1` is set — those specs need `onnxruntime` installed **and** the language model cached via `kotoshu setup :en --model`.
+- `spec/spec_helper.rb` excludes anything tagged `:slow` unless `SLOW_TESTS=1` is set — those are timing-sensitive benchmarks and full-dictionary sweeps.
 - SimpleCov runs on every `rspec` invocation (configured in `spec_helper.rb`).
 - `spec/spylls_test_helper.rb` is mixed into every spec. It ports Hunspell's reference test fixtures from [Splylls](https://github.com/neolithos/spylls) (the Python Hunspell port); many specs assert behavior against those fixtures.
 

@@ -71,7 +71,10 @@ class OnnxRuntimeModel
 
     raise Kotoshu::Models::OnnxModel::OnnxUnavailable unless Kotoshu::Models::OnnxModel::ONNX_LOADED
 
-    raise ArgumentError, "ONNX file not found: #{@onnx_path}" unless File.exist?(@onnx_path)
+    unless File.exist?(@onnx_path)
+      raise ArgumentError,
+            "ONNX file not found: #{@onnx_path}"
+    end
 
     @session = OnnxRuntime::InferenceSession.new(@onnx_path)
 
@@ -114,11 +117,14 @@ class OnnxRuntimeModel
   def get_embedding(index)
     ensure_loaded
 
-    raise ArgumentError, "Invalid word index: #{index}" unless valid_index?(index)
+    unless valid_index?(index)
+      raise ArgumentError,
+            "Invalid word index: #{index}"
+    end
 
     output = @session.run(
       [@output_name],
-      { @input_name => [index] }
+      { @input_name => [index] },
     )
 
     @inference_count += 1
@@ -226,7 +232,7 @@ class OnnxRuntimeModel
       dimension: @dimension,
       path: @onnx_path,
       loaded: @loaded,
-      inference_count: @inference_count
+      inference_count: @inference_count,
     }
   end
 
@@ -238,7 +244,10 @@ class OnnxRuntimeModel
   # @return [OnnxRuntimeModel]
   #
   def self.from_file(onnx_path, language_code: nil, dimension: nil)
-    raise ArgumentError, "ONNX file not found: #{onnx_path}" unless File.exist?(onnx_path)
+    unless File.exist?(onnx_path)
+      raise ArgumentError,
+            "ONNX file not found: #{onnx_path}"
+    end
 
     language_code ||= detect_language_from_path(onnx_path)
     dimension ||= DEFAULT_DIMENSION
@@ -246,7 +255,7 @@ class OnnxRuntimeModel
     new(
       language_code: language_code,
       onnx_path: onnx_path,
-      dimension: dimension
+      dimension: dimension,
     )
   end
 
@@ -256,10 +265,10 @@ class OnnxRuntimeModel
   # @param cache [Cache::ModelCache] Cache instance
   # @return [OnnxRuntimeModel, nil]
   #
-  def self.from_cache(language_code, cache = nil)
+  def self.from_cache(language_code, cache: nil)
     require_relative '../cache/model_cache'
 
-    cache ||= Cache::ModelCache.new
+    cache ||= Kotoshu::Cache::ModelCache.new
 
     onnx_path = cache.get_onnx_model(language_code)
     return nil unless onnx_path
@@ -301,7 +310,7 @@ class OnnxRuntimeModel
 
     output = @session.run(
       [@output_name],
-      { @input_name => input_data }
+      { @input_name => input_data },
     )
 
     @inference_count += 1
@@ -312,7 +321,7 @@ class OnnxRuntimeModel
       result
     else
       # Handle OrtValue or other wrappers
-      indices.length.times.map { |i| extract_single_embedding(result, i) }
+      Array.new(indices.length) { |i| extract_single_embedding(result, i) }
     end
   end
 

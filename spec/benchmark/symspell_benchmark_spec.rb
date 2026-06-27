@@ -3,7 +3,7 @@
 require "kotoshu"
 require "benchmark"
 
-RSpec.describe "SymSpell Benchmark" do
+RSpec.describe "SymSpell Benchmark", :slow do
   # Create a dictionary for benchmarking
   let(:dictionary) do
     words = begin

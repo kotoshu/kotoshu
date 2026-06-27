@@ -354,7 +354,7 @@ RSpec.describe Kotoshu::Suggestions::Strategies::EditDistanceStrategy do
   # Performance Tests
   # ==========================================================================
 
-  describe 'performance' do
+  describe 'performance', :slow do
     let(:large_dictionary) do
       words = begin
         File.readlines('/usr/share/dict/words', chomp: true)
@@ -440,7 +440,7 @@ RSpec.describe Kotoshu::Suggestions::Strategies::EditDistanceStrategy do
       result = strategy.generate(context)
 
       result.suggestions.each do |suggestion|
-        expect(suggestion.source).to eq(:edit_distance)
+        expect(suggestion).to be_from_source(:edit_distance)
       end
     end
   end
