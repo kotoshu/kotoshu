@@ -154,16 +154,22 @@ edit distance, Kotoshu uses semantic similarity to:
 ====
 [source,ruby]
 ----
-# Traditional: Only knows "helo" is wrong
-Kotoshu.suggest("helo")
+Kotoshu.setup(:en, want: %i[spelling model])  # one-time per language
+
+# Traditional: knows "helo" is wrong and lists edit-distance candidates
+Kotoshu.suggest("helo").to_words
 # => ["hello", "help", "held", "hell", "hole"]
 
-# Semantic: Knows context matters
+# Semantic: reranks candidates by context similarity
+model = Kotoshu::Models::OnnxModel.from_github("en")
 analyzer = Kotoshu::Analyzers::SemanticAnalyzer.new(model)
-analyzer.suggest_corrections("helo", context: "I said helo to the world")
-# => [hello] # "hello" makes more sense in greeting context
+analyzer.suggest_corrections("helo", context: "I said helo to the world").map(&:word)
+# => ["hello"]  # "hello" makes more sense in greeting context
 ----
 ====
+
+NOTE: The semantic path requires the optional `onnxruntime` gem. See
+<<_requirements,Requirements>>.
 
 [[multi-language]]
 == Multi-Language Support
@@ -254,19 +260,21 @@ Kotoshu uses `.vec` files because:
 ====
 [source,bash]
 ----
-# Download ONNX model for a language
-kotoshu model download en --type onnx
+# Set up a language with spelling + ONNX semantic model
+kotoshu setup en --want spelling,model
 
-# List available models
-kotoshu model list
+# List what's set up in the cache
+kotoshu setup --list
 
-# Validate ONNX model
-kotoshu model validate fasttext.en.onnx
-
-# Convert FastText .vec to ONNX
-kotoshu model convert cc.en.300.vec fasttext.en.onnx -l en
+# Re-validate cached resources
+kotoshu cache validate
 ----
 ====
+
+NOTE: FastText `.vec` → ONNX conversion is done upstream in the
+https://github.com/kotoshu/models-fasttext-onnx[`kotoshu/models-fasttext-onnx']
+repo. The CLI downloads pre-converted artifacts; users do not run
+conversion locally.
 
 [[interactive-mode]]
 [[interactive-mode]]
@@ -381,19 +389,30 @@ Or install it yourself as:
 gem install kotoshu
 ----
 
-Install ONNX Runtime dependency:
+NOTE: `onnxruntime` is an optional dependency. Install it separately
+(`gem install onnxruntime`) to enable semantic analysis; the
+traditional Hunspell path works without it.
+
+== Quick Start
 
 [source,sh]
 ----
-gem install onnxruntime
+# One-time per language: download spelling dictionary from
+# github.com/kotoshu/dictionaries (idempotent, ~5 MB)
+kotoshu setup en
+
+# Then check files instantly, cache-only
+kotoshu check README.md
 ----
 
-== Quick Start
+Or skip the explicit setup — the CLI will prompt interactively the
+first time you check a file in a non-cached language (TTY only; in
+non-TTY or `KOTOSHU_OFFLINE=1` mode it exits with code 3).
 
 .Command-line usage
 [source,bash]
 ----
-# Auto-detect language and check file (dictionary downloads on first use)
+# Check a file (uses --language, or auto-detects from content)
 kotoshu check README.md
 
 # Explicit language
@@ -410,41 +429,54 @@ echo "helo wrld" | kotoshu check
 ----
 
 Exit codes: `0` (no errors), `1` (errors found), `2` (usage error),
-`3` (dictionary fetch failed — typically offline mode with no cache).
+`3` (language not set up — run `kotoshu setup LANG`, or run `kotoshu check`
+in a TTY to be prompted).
 
 .Ruby API usage
 [source,ruby]
 ----
 require 'kotoshu'
 
-# Check a word
+# Stage 1: set up the language once (downloads from github.com/kotoshu/dictionaries)
+Kotoshu.setup(:en)
+
+# Stage 2: hot-path checks are cache-only and never touch the network
 Kotoshu.correct?("hello")  # => true
 Kotoshu.correct?("helo")   # => false
 
-# Get suggestions
-Kotoshu.suggest("helo")     # => ["hello", "help", "held", ...]
+# Suggestions return a SuggestionSet; call #to_words for an Array
+Kotoshu.suggest("helo").to_words  # => ["hello", "help", "held", ...]
 
-# Check text
+# Check a document
 result = Kotoshu.check("Hello wrold")
 result.errors.map(&:word)  # => ["wrold"]
 
-# Check file
+# Each error carries position + suggestions
 result = Kotoshu.check_file("README.md")
 result.errors.each do |error|
-  puts "#{error.word} at line #{error.line}: #{error.suggestions.first}"
+  puts "#{error.word} at offset #{error.position}: #{error.top_suggestions(3).join(', ')}"
 end
 
-# Semantic analysis with ONNX
-model = Kotoshu::Models::OnnxModel.from_github('en')
-analyzer = Kotoshu::Analyzers::SemanticAnalyzer.new(model)
-errors = analyzer.analyze(document)
+# Semantic analysis is optional — requires the onnxruntime gem
+# (gem install onnxruntime). Skip this block if you only want Hunspell.
+if Kotoshu::Models::OnnxModel::ONNX_LOADED
+  Kotoshu.setup(:en, want: %i[spelling model])
+  model = Kotoshu::Models::OnnxModel.from_github('en')
+  analyzer = Kotoshu::Analyzers::SemanticAnalyzer.new(model)
+  analyzer.analyze(Kotoshu.check("Hello wrold"))
+end
 ----
+
+NOTE: The library API is strict: calls like `Kotoshu.correct?` raise
+`Kotoshu::ResourceNotSetupError` until you've run `Kotoshu.setup`. This
+prevents surprise downloads on metered networks. The CLI (`kotoshu check`)
+intercepts the error and prompts to download interactively.
 
 == Requirements
 
 * Ruby 3.1+
-* ONNX Runtime gem (for semantic spell checking)
-* Python 3 + fasttext (optional, for model conversion)
+* `onnxruntime` gem (optional — enables semantic spell checking; install separately with `gem install onnxruntime`)
+* Python 3 + fasttext (optional, only if you want to convert `.vec` → `.onnx` upstream)
 
 == Resource Caching and Language Support
 
