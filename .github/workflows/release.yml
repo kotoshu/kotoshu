@@ -1,0 +1,113 @@
+name: Release
+
+# Triggered manually from the Actions tab on the main branch.
+# The workflow verifies the input version against lib/kotoshu/version.rb,
+# builds the gem, publishes to RubyGems, pushes a `vX.Y.Z` tag, and
+# creates a GitHub Release with the gem attached.
+#
+# Required repo secrets:
+#   RUBYGEMS_API_KEY  — rubygems.org API key with push scope
+#
+# Per the project's release rules, this is the only sanctioned path to a
+# published release: no human pushes tags directly, and no commit lands on
+# main outside of a merged pull request.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 0.3.0 — no leading v)'
+        required: true
+        type: string
+      skip_publish:
+        description: 'Build and tag without pushing to RubyGems (dry run)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release v${{ github.event.inputs.version }}
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - name: Verify input matches lib/kotoshu/version.rb
+        id: verify
+        run: |
+          INPUT_VERSION="${{ github.event.inputs.version }}"
+          DECLARED=$(ruby -r./lib/kotoshu/version -e 'puts Kotoshu::VERSION')
+          if [ "$DECLARED" != "$INPUT_VERSION" ]; then
+            echo "::error::Version mismatch — lib/kotoshu/version.rb has '$DECLARED', input was '$INPUT_VERSION'"
+            exit 1
+          fi
+          echo "version=$INPUT_VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$INPUT_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Refuse if tag already exists
+        run: |
+          if git ls-remote --tags origin "refs/tags/${{ steps.verify.outputs.tag }}" | grep -q "${{ steps.verify.outputs.tag }}"; then
+            echo "::error::Tag ${{ steps.verify.outputs.tag }} already exists on origin"
+            exit 1
+          fi
+
+      - name: Build gem
+        run: gem build kotoshu.gemspec
+
+      - name: Configure RubyGems credentials
+        if: ${{ github.event.inputs.skip_publish != 'true' }}
+        env:
+          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+        run: |
+          mkdir -p ~/.gem
+          printf -- "---\n:rubygems_api_key: %s\n" "$RUBYGEMS_API_KEY" > ~/.gem/credentials
+          chmod 0600 ~/.gem/credentials
+
+      - name: Publish to RubyGems
+        if: ${{ github.event.inputs.skip_publish != 'true' }}
+        run: gem push "kotoshu-${{ steps.verify.outputs.version }}.gem"
+
+      - name: Create and push tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "${{ steps.verify.outputs.tag }}" -m "Release ${{ steps.verify.outputs.tag }}"
+          git push origin "${{ steps.verify.outputs.tag }}"
+
+      - name: Extract changelog section
+        id: notes
+        run: |
+          VERSION="${{ steps.verify.outputs.version }}"
+          SECTION=$(awk -v v="$VERSION" '
+            /^## \[/ { in_section = ($0 ~ "\\[v?" v"\\]") }
+            in_section { print }
+          ' CHANGELOG.md)
+          {
+            echo "notes<<EOF"
+            echo "$SECTION"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.verify.outputs.tag }}" \
+            --title "${{ steps.verify.outputs.tag }}" \
+            --notes "${{ steps.notes.outputs.notes }}" \
+            "kotoshu-${{ steps.verify.outputs.version }}.gem"
