@@ -278,6 +278,12 @@ module Kotoshu
     # @return [String] Branch/tag/commit pinned for model downloads
     attr_accessor :models_pin
 
+    # @return [#start,#update,#maybe_report_periodic,#finish,nil]
+    #   Optional progress reporter for downloads. Typically set by the
+    #   CLI (Cli::ProgressReporter) for human-facing setup runs; nil
+    #   (silent) for programmatic API usage.
+    attr_accessor :download_reporter
+
     # @return [Boolean] Whether to automatically download missing dictionaries
     attr_accessor :auto_download
 
@@ -508,6 +514,7 @@ module Kotoshu
       @dictionaries_pin = SCHEMA[:dictionaries_pin][:default]
       @frequency_pin = SCHEMA[:frequency_pin][:default]
       @models_pin = SCHEMA[:models_pin][:default]
+      @download_reporter = nil
       @auto_download = SCHEMA[:auto_download][:default]
       @cache_ttl = SCHEMA[:cache_ttl][:default]
       @max_cache_size = SCHEMA[:max_cache_size][:default]
