@@ -69,19 +69,37 @@ module Kotoshu
       dictionaries_url: {
         env: "KOTOSHU_DICTIONARIES_URL",
         default: "https://raw.githubusercontent.com/kotoshu/dictionaries/main",
-        description: "Base URL for downloading dictionaries",
+        description: "Deprecated: use repos_base_url + dictionaries_pin via SourceRegistry",
         type: String
       },
       models_url: {
         env: "KOTOSHU_MODELS_URL",
         default: "https://github.com/kotoshu/models-fasttext-onnx/raw/main",
-        description: "Base URL for FastText ONNX models",
+        description: "Deprecated: use repos_base_url + models_pin via SourceRegistry",
+        type: String
+      },
+      repos_base_url: {
+        env: "KOTOSHU_REPOS_BASE_URL",
+        default: -> { Kotoshu::SourceRegistry::DEFAULT_BASE_URL },
+        description: "GitHub raw root for all kotoshu content repos",
+        type: String
+      },
+      dictionaries_pin: {
+        env: "KOTOSHU_DICTIONARIES_PIN",
+        default: "v1",
+        description: "Branch/tag/commit pinned for kotoshu/dictionaries",
+        type: String
+      },
+      frequency_pin: {
+        env: "KOTOSHU_FREQUENCY_PIN",
+        default: "main",
+        description: "Branch/tag/commit pinned for kotoshu/frequency-list-kelly",
         type: String
       },
       models_pin: {
         env: "KOTOSHU_MODELS_PIN",
         default: "main",
-        description: "Branch/tag/commit pinned for model downloads",
+        description: "Branch/tag/commit pinned for kotoshu/models-fasttext-onnx",
         type: String
       },
       auto_download: {
@@ -242,11 +260,20 @@ module Kotoshu
     # @return [String, nil] Path to data directory (audit log, etc.)
     attr_accessor :data_path
 
-    # @return [String] Base URL for downloading dictionaries
+    # @return [String] Base URL for downloading dictionaries (deprecated)
     attr_accessor :dictionaries_url
 
-    # @return [String] Base URL for FastText ONNX models
+    # @return [String] Base URL for FastText ONNX models (deprecated)
     attr_accessor :models_url
+
+    # @return [String] GitHub raw root for all kotoshu content repos
+    attr_accessor :repos_base_url
+
+    # @return [String] Pin for kotoshu/dictionaries
+    attr_accessor :dictionaries_pin
+
+    # @return [String] Pin for kotoshu/frequency-list-kelly
+    attr_accessor :frequency_pin
 
     # @return [String] Branch/tag/commit pinned for model downloads
     attr_accessor :models_pin
@@ -394,10 +421,29 @@ module Kotoshu
         config_path: @config_path,
         data_path: @data_path,
         dictionaries_url: @dictionaries_url,
+        repos_base_url: @repos_base_url,
+        dictionaries_pin: @dictionaries_pin,
+        frequency_pin: @frequency_pin,
+        models_pin: @models_pin,
         auto_download: @auto_download,
         cache_ttl: @cache_ttl,
         max_cache_size: @max_cache_size
       }
+    end
+
+    # Build a SourceRegistry honoring this configuration's base URL and
+    # per-repo pins. Single source of truth for all resource URLs.
+    #
+    # @return [Kotoshu::SourceRegistry]
+    def source_registry
+      Kotoshu::SourceRegistry.new(
+        base_url: @repos_base_url,
+        pins: {
+          "dictionaries" => @dictionaries_pin,
+          "frequency-list-kelly" => @frequency_pin,
+          "models-fasttext-onnx" => @models_pin
+        }
+      )
     end
 
     # Clone the configuration.
@@ -457,6 +503,10 @@ module Kotoshu
       @data_path = self.class.default_data_path
       @dictionaries_url = SCHEMA[:dictionaries_url][:default]
       @models_url = SCHEMA[:models_url][:default]
+      default = SCHEMA[:repos_base_url][:default]
+      @repos_base_url = default.is_a?(Proc) ? default.call : default
+      @dictionaries_pin = SCHEMA[:dictionaries_pin][:default]
+      @frequency_pin = SCHEMA[:frequency_pin][:default]
       @models_pin = SCHEMA[:models_pin][:default]
       @auto_download = SCHEMA[:auto_download][:default]
       @cache_ttl = SCHEMA[:cache_ttl][:default]

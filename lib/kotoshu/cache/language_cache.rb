@@ -178,7 +178,7 @@ module Kotoshu
         resource_id = "#{language}:spelling"
 
         # Download index.aff
-        aff_url = "#{@url_base}/dictionaries/#{@resource_pin}/#{language}/spelling/index.aff"
+        aff_url = @source_registry.url_for(:spelling, lang: language, ext: "aff")
         aff_content = download_url(aff_url)
         verify_and_audit(url: aff_url,
                          relative_path: "#{language}/spelling/index.aff",
@@ -187,7 +187,7 @@ module Kotoshu
         File.write(File.join(lang_path, "index.aff"), aff_content)
 
         # Download index.dic
-        dic_url = "#{@url_base}/dictionaries/#{@resource_pin}/#{language}/spelling/index.dic"
+        dic_url = @source_registry.url_for(:spelling, lang: language, ext: "dic")
         dic_content = download_url(dic_url)
         verify_and_audit(url: dic_url,
                          relative_path: "#{language}/spelling/index.dic",
@@ -216,7 +216,7 @@ module Kotoshu
         resource_id = "#{language}:grammar"
 
         # Download rules.yaml
-        rules_url = "#{@url_base}/dictionaries/#{@resource_pin}/#{language}/grammar/rules.yaml"
+        rules_url = @source_registry.url_for(:grammar, lang: language)
         rules_content = download_url(rules_url)
         verify_and_audit(url: rules_url,
                          relative_path: "#{language}/grammar/rules.yaml",
@@ -244,7 +244,7 @@ module Kotoshu
         resource_id = "#{language}:frequency"
 
         # Download frequency.json from Kelly repository
-        freq_url = "#{@url_base}/frequency-list-kelly/#{@resource_pin}/data/#{language}.json"
+        freq_url = @source_registry.url_for(:frequency, lang: language)
         freq_content = download_url(freq_url)
         verify_and_audit(url: freq_url,
                          relative_path: "data/#{language}.json",
@@ -278,7 +278,7 @@ module Kotoshu
       # surface users see. Kelly's manifest can be added when that repo
       # ships one.
       def manifest_url
-        @manifest_url || "#{@url_base}/dictionaries/#{@resource_pin}/manifest.json"
+        @manifest_url || @source_registry.url_for(:dict_manifest)
       end
 
       # Download a specific resource (implements abstract method).

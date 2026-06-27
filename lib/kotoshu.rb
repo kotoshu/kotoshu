@@ -55,6 +55,17 @@ require_relative "kotoshu/configuration"
 require_relative "kotoshu/spellchecker"
 
 module Kotoshu
+  # The Kotoshu::Models namespace is opened eagerly by core/models/*.rb.
+  # Semantic/embedding model autoloads live there.
+  Models.autoload :Context, "kotoshu/models/context"
+  Models.autoload :EmbeddingModel, "kotoshu/models/embedding_model"
+  Models.autoload :FastTextModel, "kotoshu/models/fasttext_model"
+  Models.autoload :NearestNeighbor, "kotoshu/models/nearest_neighbor"
+  Models.autoload :OnnxModel, "kotoshu/models/onnx_model"
+  Models.autoload :SemanticError, "kotoshu/models/semantic_error"
+  Models.autoload :Suggestion, "kotoshu/models/suggestion"
+  Models.autoload :WordEmbedding, "kotoshu/models/word_embedding"
+
   # LAZY: Trie components (autoload)
   autoload :TrieNode, "kotoshu/core/trie/node"
   autoload :Trie, "kotoshu/core/trie/trie"
@@ -67,19 +78,12 @@ module Kotoshu
   autoload :FluentChecker, "kotoshu/fluent_checker"
   autoload :ResourceManager, "kotoshu/resource_manager"
   autoload :ResourceBundle, "kotoshu/resource_bundle"
+  autoload :SourceRegistry, "kotoshu/source_registry"
 
   # LAZY: Integrity verification (autoload)
   autoload :Integrity, "kotoshu/integrity"
 
   # LAZY: FastText integration (autoload)
-  autoload :WordEmbedding, "kotoshu/models/word_embedding"
-  autoload :NearestNeighbor, "kotoshu/models/nearest_neighbor"
-  autoload :SemanticError, "kotoshu/models/semantic_error"
-  autoload :Context, "kotoshu/models/context"
-  autoload :Suggestion, "kotoshu/models/suggestion"
-  autoload :EmbeddingModel, "kotoshu/models/embedding_model"
-  autoload :FastTextModel, "kotoshu/models/fasttext_model"
-  autoload :OnnxModel, "kotoshu/models/onnx_model"
   autoload :SemanticAnalyzer, "kotoshu/analyzers/semantic_analyzer"
 
   # LAZY: Document abstraction (autoload)
@@ -88,12 +92,6 @@ module Kotoshu
   autoload :PlainTextDocument, "kotoshu/documents/plain_text_document"
   autoload :MarkdownDocument, "kotoshu/documents/markdown_document"
   autoload :AsciidocDocument, "kotoshu/documents/asciidoc_document"
-
-  # LAZY: CLI components (autoload)
-  autoload :NavigationManager, "kotoshu/cli/navigation_manager"
-  autoload :DisplayFormatter, "kotoshu/cli/display_formatter"
-  autoload :InteractiveReviewer, "kotoshu/cli/interactive_reviewer"
-  autoload :BatchReporter, "kotoshu/cli/batch_reporter"
 
   # LAZY: Cache management (autoload)
   autoload :LanguageCache, "kotoshu/cache/language_cache"

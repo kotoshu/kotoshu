@@ -35,22 +35,30 @@ module Kotoshu
       # @return [String] GitHub repository URL
       attr_reader :github_url
 
+      # @return [Kotoshu::SourceRegistry] Single source of truth for
+      #   per-repo URLs and pins. Subclasses MUST build URLs through
+      #   this registry rather than constructing URL strings inline.
+      attr_reader :source_registry
+
       # Create a new cache.
       #
       # @param cache_path [String] Path to cache directory
-      # @param url_base [String] Base URL for downloads
+      # @param url_base [String] Base URL for downloads (deprecated; pass source_registry instead)
       # @param cache_ttl [Integer] Cache TTL in seconds
       # @param github_url [String] GitHub repository URL
-      # @param resource_pin [String] Branch/tag/commit for URL templates
+      # @param resource_pin [String] Branch/tag/commit for URL templates (deprecated; use source_registry)
       # @param manifest_url [String, nil] Override manifest.json URL
       # @param audit_log [Integrity::AuditLog, nil] Override audit log
+      # @param source_registry [Kotoshu::SourceRegistry, nil] Single source of truth for URLs/pins
       def initialize(cache_path: nil, url_base: nil, cache_ttl: nil, github_url: nil,
-                     resource_pin: nil, manifest_url: nil, audit_log: nil)
+                     resource_pin: nil, manifest_url: nil, audit_log: nil,
+                     source_registry: nil)
         @cache_path = cache_path || default_cache_path
-        @url_base = url_base || default_url_base
+        @source_registry = source_registry || default_source_registry
+        @url_base = url_base || @source_registry.base_url
         @cache_ttl = cache_ttl || default_cache_ttl
         @github_url = github_url || default_github_url
-        @resource_pin = resource_pin || "main"
+        @resource_pin = resource_pin || @source_registry.pin_for_source(:spelling)
         @manifest_url = manifest_url
         @audit_log = audit_log || Kotoshu::Integrity::AuditLog.new
         @manifest = nil
@@ -533,7 +541,16 @@ module Kotoshu
       #
       # @return [String] Default URL base
       def default_url_base
-        "https://raw.githubusercontent.com/kotoshu"
+        Kotoshu::SourceRegistry::DEFAULT_BASE_URL
+      end
+
+      # Default source registry — pulls from global Configuration so
+      # ENV (KOTOSHU_REPOS_BASE_URL, KOTOSHU_DICTIONARIES_PIN, etc.)
+      # and programmatic config reach the cache layer automatically.
+      #
+      # @return [Kotoshu::SourceRegistry]
+      def default_source_registry
+        Kotoshu::Configuration.instance.source_registry
       end
 
       # Default GitHub URL.

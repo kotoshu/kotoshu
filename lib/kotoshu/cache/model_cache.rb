@@ -272,9 +272,10 @@ module Kotoshu
           # https://fasttext.cc/docs/en/english-vectors.html
           "https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/#{filename}"
         when "onnx"
-          # Download from models-fasttext-onnx GitHub repository
-          # Files are at: models-fasttext-onnx/{pin}/models/{lang}/{filename}
-          "#{models_url_base}/models/#{language}/#{filename}"
+          # Download from models-fasttext-onnx GitHub repository.
+          # SourceRegistry owns the per-repo pin so we never accidentally
+          # fall back to the dictionaries pin.
+          @source_registry.url_for(:model, lang: language)
         else
           "#{@url_base}/dictionaries/main/#{language}/models/#{type}/#{filename}"
         end
@@ -287,14 +288,7 @@ module Kotoshu
       # @param language [String] Language code
       # @return [String]
       def vocab_url(language)
-        "#{models_url_base}/models/#{language}/fasttext.#{language}.vocab.json"
-      end
-
-      def models_url_base
-        @models_url_base ||= begin
-          cfg = Kotoshu::Configuration.instance
-          "#{cfg.models_url.chomp('/').sub(%r{/main\z}, '')}/#{cfg.models_pin}"
-        end
+        @source_registry.url_for(:model_vocab, lang: language)
       end
 
       # Download and decompress gzip file.
