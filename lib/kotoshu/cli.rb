@@ -62,6 +62,7 @@ module Kotoshu
     autoload :BatchReporter, "kotoshu/cli/batch_reporter"
     autoload :AutoSetup, "kotoshu/cli/auto_setup"
     autoload :StatusReport, "kotoshu/cli/status_report"
+    autoload :LanguageResolver, "kotoshu/cli/language_resolver"
 
     # Command-line interface for Kotoshu spell checker.
     #
@@ -389,18 +390,21 @@ module Kotoshu
       end
 
       def run_check(text)
-        language = resolve_language
+        language = resolve_language(text)
         spellchecker = Kotoshu.spellchecker_for(language)
         spellchecker.check(text)
       rescue Kotoshu::DictionaryNotFoundError => e
         raise Errors::ResourceUnavailable, e.message
       end
 
-      def resolve_language
-        lang = options[:language]
-        return Kotoshu.configuration.default_language if lang.nil? || lang == "auto"
+      def resolve_language(text)
+        result = LanguageResolver.new(
+          flag_value: options[:language],
+          default_language: Kotoshu.configuration.default_language
+        ).resolve(text: text)
 
-        lang
+        $stderr.puts "# #{result.note}" if result.note
+        result.language
       end
 
       def setup_source_options(languages)
