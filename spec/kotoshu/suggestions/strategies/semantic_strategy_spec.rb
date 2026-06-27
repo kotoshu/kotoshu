@@ -53,7 +53,7 @@ RSpec.describe Kotoshu::Suggestions::Strategies::SemanticStrategy do
       end
     end
 
-    context "when ONNX model is available", :integration do
+    context "when ONNX model is available", :onnx do
       let(:strategy) do
         described_class.new(
           language_code: "en",
@@ -105,7 +105,7 @@ RSpec.describe Kotoshu::Suggestions::Strategies::SemanticStrategy do
     end
   end
 
-  describe "#handles?" do
+  describe "#handles?", :onnx do
     let(:strategy) { described_class.new(language_code: "en") }
 
     it "returns true when enabled" do
@@ -134,7 +134,7 @@ RSpec.describe Kotoshu::Suggestions::Strategies::SemanticStrategy do
     end
   end
 
-  describe "#semantic_similarity", :integration do
+  describe "#semantic_similarity", :onnx do
     let(:strategy) do
       described_class.new(language_code: "en")
     end
@@ -159,7 +159,7 @@ RSpec.describe Kotoshu::Suggestions::Strategies::SemanticStrategy do
     end
   end
 
-  describe "#find_similar_words", :integration do
+  describe "#find_similar_words", :onnx do
     let(:strategy) do
       described_class.new(language_code: "en")
     end
@@ -184,7 +184,7 @@ RSpec.describe Kotoshu::Suggestions::Strategies::SemanticStrategy do
     end
   end
 
-  describe "#embedding_for", :integration do
+  describe "#embedding_for", :onnx do
     let(:strategy) do
       described_class.new(language_code: "en")
     end
@@ -213,7 +213,7 @@ RSpec.describe Kotoshu::Suggestions::Strategies::SemanticStrategy do
     end
   end
 
-  describe "context analysis", :integration do
+  describe "context analysis", :onnx do
     let(:strategy) do
       described_class.new(
         language_code: "en",

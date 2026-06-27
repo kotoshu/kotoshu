@@ -1,14 +1,13 @@
 # frozen_string_literal: true
 
 RSpec.describe 'Unit: Hunspell read_aff' do
-  describe '#directives' do
-    def read_aff_string(content)
-      reader = Kotoshu::Readers::AffReader.new('')
-      source = Kotoshu::Readers::StringReader.new(content)
-      allow(reader).to receive(:path).and_return('')
-      reader.read
-    end
+  def read_aff_string(content)
+    reader = Kotoshu::Readers::AffReader.new(nil)
+    source = Kotoshu::Readers::StringReader.new(content)
+    reader.read(source)
+  end
 
+  describe '#directives' do
     it 'parses REP directive' do
       aff_content = <<~AFF
         REP 5
@@ -97,7 +96,8 @@ RSpec.describe 'Unit: Hunspell read_aff' do
       result = read_aff_string(aff_content)
       expect(result['FLAG']).to eq('num')
       expect(result['SFX']['999'][0].flag).to eq('999')
-      expect(result['SFX']['999'][0].flags).to contain_exactly('214', '216', '54321')
+      expect(result['SFX']['999'][0].flags).to contain_exactly('214', '216',
+                                                               '54321')
       expect(result['NOSUGGEST']).to eq('348')
     end
   end

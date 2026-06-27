@@ -1,8 +1,18 @@
+inherit_from:
+  - https://raw.githubusercontent.com/riboseinc/oss-guides/main/ci/rubocop.yml
+  - .rubocop_todo.yml
+
+require:
+- rubocop-performance
+- rubocop-rake
+- rubocop-rspec
+
 AllCops:
   TargetRubyVersion: 3.1
-
-Style/StringLiterals:
-  EnforcedStyle: double_quotes
-
-Style/StringLiteralsInInterpolation:
-  EnforcedStyle: double_quotes
+  NewCops: enable
+  SuggestExtensions: false
+  Exclude:
+    - 'debug_*.rb'
+    - 'test_*.rb'
+    - 'vendor/**/*'
+    - 'tmp/**/*'

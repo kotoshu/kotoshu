@@ -93,7 +93,7 @@ RSpec.describe Kotoshu::Suggestions::Strategies::SymSpellStrategy do
     end
   end
 
-  describe "performance" do
+  describe "performance", :slow do
     # Create a larger dictionary for performance testing
     let(:large_dictionary) do
       words = begin

@@ -6,6 +6,7 @@ require_relative 'embeddings/lru_cache'
 require_relative 'embeddings/vocabulary'
 require_relative 'embeddings/onnx_runtime_model'
 require_relative 'embeddings/similarity_engine'
+require_relative 'embeddings/similarity_search'
 require_relative 'embeddings/search'
 require_relative 'embeddings/embedding_pipeline'
 require_relative 'embeddings/registry'
@@ -54,7 +55,8 @@ module Kotoshu
     # @return [EmbeddingPipeline]
     #
     def self.from_cache(language:, preload: false, index: :exact)
-      EmbeddingPipeline.from_cache(language: language, preload: preload, index: index)
+      EmbeddingPipeline.from_cache(language: language, preload: preload,
+                                   index: index)
     end
 
     # Check if a language is supported
@@ -85,12 +87,13 @@ module Kotoshu
     # @param preload [Boolean] Preload embeddings
     # @return [EmbeddingPipeline]
     #
-    def self.create_pipeline(vocabulary:, model:, preload: false, pre_normalize: false)
+    def self.create_pipeline(vocabulary:, model:, preload: false,
+pre_normalize: false)
       EmbeddingPipeline.new(
         vocabulary: vocabulary,
         model: model,
         preload: preload,
-        pre_normalize: pre_normalize
+        pre_normalize: pre_normalize,
       )
     end
   end

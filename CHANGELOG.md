@@ -7,6 +7,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] — 2026-06-28
+
+Bug-fix release. Closes the regressions introduced by the 0.3.0
+lutaml-model migration and tightens up spec gating so the default suite
+is green on the non-network, non-ONNX subset.
+
+### Fixed
+
+- `WordResult#suggestions` is `Array<Suggestion>` after the lutaml
+  migration; the integration spec now reads it as
+  `suggestions.map(&:word)` instead of the removed `SuggestionSet#words`.
+- `WordResult#to_h` was removed by lutaml; the integration spec now uses
+  the framework-supplied `to_hash`.
+- `Readers::AffReader#detect_encoding` now handles a nil path so the
+  reader can be constructed from an in-memory `StringReader` (used by
+  the unit tests and by programmatic callers that build affix data
+  without a file on disk).
+- `Embeddings::SimilaritySearch` is now eagerly loaded alongside the
+  rest of the embeddings namespace; previously the constant was
+  uninitialized when `SemanticStrategy` tried to use it.
+- `Embeddings::Vocabulary.from_cache` is implemented (was missing). It
+  resolves the `vocab.json` sibling of the cached ONNX model and
+  returns nil when the model or vocab is unavailable, so callers can
+  degrade gracefully.
+- `Embeddings::OnnxRuntimeModel.from_cache` now accepts the `cache:`
+  keyword (matching `Vocabulary.from_cache` and
+  `SimilaritySearch.from_cache`); the previous positional signature
+  silently swallowed the cache as a Hash.
+- `Suggestions::Strategies::SemanticStrategy` now surfaces its named
+  constructor kwargs (`min_semantic_similarity`,
+  `semantic_boost_weight`, `max_context_window`) through `get_config`,
+  so the strategy's configurable knobs are queryable the same way as
+  the base strategy's `**config` bag.
+
+### Changed
+
+- `spec/spec_helper.rb` excludes `:onnx`-tagged examples unless
+  `ONNX_TESTS=1` is set, mirroring the existing `:network` and `:slow`
+  opt-in pattern. `spec/kotoshu/suggestions/strategies/semantic_strategy_spec.rb`
+  is the sole consumer; its `:integration` tags are now `:onnx`.
+- The SymSpell benchmark spec and the edit-distance / symspell
+  performance describe blocks are tagged `:slow`, removing
+  environment-dependent timing flakes from the default run.
+- Arabic language detection is marked `pending` with a pointer to
+  `TODO.impl/30-language-auto-detection.md` (FastText LID missing the
+  Arabic vector).
+- `edit_distance_strategy_spec` now uses the `from_source?` predicate
+  instead of asserting `source == :edit_distance`, matching the
+  lutaml-era contract that `Suggestion#source` is a string.
+
+### Internal
+
+- Added `TODO.impl/36-cleanup-regressions-0.3.1.md` (this release),
+  `TODO.impl/37-hunspell-correctness-tier2.md`,
+  `TODO.impl/38-onnx-semantic-gating.md`, and
+  `TODO.impl/39-tier3-and-beyond.md` as the tiered execution plan.
+
 ## [0.3.0] — 2026-06-27
 
 The two-stage release. Resources are now downloaded explicitly via

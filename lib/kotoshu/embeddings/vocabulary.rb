@@ -37,7 +37,10 @@ class Vocabulary
   # @raise [ArgumentError] If word_to_index is empty
   #
   def initialize(language_code:, word_to_index:)
-    raise ArgumentError, 'word_to_index cannot be empty' if word_to_index.nil? || word_to_index.empty?
+    if word_to_index.nil? || word_to_index.empty?
+      raise ArgumentError,
+            'word_to_index cannot be empty'
+    end
 
     @language_code = language_code
     @word_to_index = word_to_index.dup.freeze
@@ -147,7 +150,7 @@ class Vocabulary
       end
       word_to_index.freeze
     else
-      raise ArgumentError, "Invalid vocabulary format: expected Hash or Array"
+      raise ArgumentError, 'Invalid vocabulary format: expected Hash or Array'
     end
 
     new(language_code: language_code, word_to_index: word_to_index)
@@ -211,7 +214,7 @@ class Vocabulary
   # @return [Vocabulary] New vocabulary with subset of words
   #
   def sub_vocabulary(words)
-    filtered = @word_to_index.select { |w, _| words.include?(w) }
+    filtered = @word_to_index.slice(*words)
     self.class.new(language_code: @language_code, word_to_index: filtered)
   end
 
@@ -234,8 +237,6 @@ class Vocabulary
   end
   alias inspect to_s
 
-  private_class_method
-
   # Detect language code from file path
   #
   # @param path [String] File path
@@ -253,5 +254,28 @@ class Vocabulary
     end
 
     'unknown'
+  end
+
+  # Load vocabulary for a language from the model cache.
+  #
+  # Resolves the vocab.json sibling of the cached ONNX model. Returns nil
+  # when either the cache or the vocab file is unavailable so callers can
+  # degrade gracefully.
+  #
+  # @param language_code [String] ISO 639-1 language code
+  # @param cache [Kotoshu::Cache::ModelCache, nil] Optional cache instance
+  # @return [Vocabulary, nil]
+  def self.from_cache(language_code, cache: nil)
+    require_relative '../cache/model_cache'
+
+    cache ||= Kotoshu::Cache::ModelCache.new
+    onnx_path = cache.get_onnx_model(language_code)
+    return nil unless onnx_path
+
+    vocab_path = File.join(File.dirname(onnx_path),
+                           "fasttext.#{language_code}.vocab.json")
+    return nil unless File.file?(vocab_path)
+
+    from_file(vocab_path, language_code: language_code)
   end
 end
