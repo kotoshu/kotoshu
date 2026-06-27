@@ -61,6 +61,7 @@ module Kotoshu
     autoload :InteractiveReviewer, "kotoshu/cli/interactive_reviewer"
     autoload :BatchReporter, "kotoshu/cli/batch_reporter"
     autoload :AutoSetup, "kotoshu/cli/auto_setup"
+    autoload :StatusReport, "kotoshu/cli/status_report"
 
     # Command-line interface for Kotoshu spell checker.
     #
@@ -235,6 +236,27 @@ module Kotoshu
       desc "cache SUBCOMMAND", "Cache management"
       subcommand "cache", CacheCommand
 
+      desc "status", "Show setup, cache, and runtime status"
+      long_desc <<~DESC
+        Prints a snapshot of the kotoshu installation: which languages are
+        set up (with per-resource status), cache disk usage, audit log path,
+        default language, offline flag, and whether onnxruntime is loaded.
+
+        With --json, emits the same report as a JSON object for tooling.
+      DESC
+      method_option :json,
+                    type: :boolean,
+                    default: false,
+                    desc: "Emit the report as JSON"
+      def status
+        report = StatusReport.build(version: Kotoshu::VERSION)
+        if options[:json]
+          puts status_json(report)
+        else
+          puts status_text(report)
+        end
+      end
+
       desc "version", "Show version information"
       def version
         puts "Kotoshu version #{Kotoshu::VERSION}"
@@ -276,6 +298,84 @@ module Kotoshu
         Kotoshu::Configuration.reset
         cfg = Kotoshu::Configuration.instance
         cfg.default_language = options[:language] if options[:language] && options[:language] != "auto"
+      end
+
+      def status_text(report)
+        lines = []
+        lines << "Kotoshu #{report.version}"
+        lines << ""
+
+        lines << "Setup:"
+        if report.resources.empty?
+          lines << "  (no languages set up — run `kotoshu setup LANG`)"
+        else
+          report.resources.each do |r|
+            mark = r.available ? "✓" : "✗"
+            size = r.available ? StatusReport.format_bytes(r.size_bytes) : "—"
+            when_str = r.cached_at ? "cached #{r.cached_at.strftime('%Y-%m-%d')}" : ""
+            lines << format("  %-4s %-10s %s  %s%s",
+                            r.language, r.resource, mark, size,
+                            when_str.empty? ? "" : ", #{when_str}")
+          end
+        end
+        lines << ""
+
+        lines << "Cache:"
+        lines << "  Path           #{report.cache_path}"
+        lines << "  Size           #{StatusReport.format_bytes(report.cache_size_bytes)}"
+        lines << "  Languages      #{report.languages_setup.size}"
+        lines << ""
+
+        lines << "Semantic:"
+        onnx_state = report.onnx_loaded ? "loaded" : "not loaded (gem install onnxruntime to enable)"
+        lines << "  onnxruntime    #{onnx_state}"
+        active_models = report.languages_with_model
+        models_str = active_models.empty? ? "0" : "#{active_models.size} (#{active_models.join(', ')})"
+        lines << "  Active models  #{models_str}"
+        lines << ""
+
+        lines << "Other:"
+        if report.audit_log_path
+          lines << "  Audit log      #{report.audit_log_path} (#{StatusReport.format_bytes(report.audit_log_size_bytes)})"
+        else
+          lines << "  Audit log      (none yet — created on first audited operation)"
+        end
+        lines << "  Default lang   #{report.default_language || '(none)'}"
+        lines << "  Offline mode   #{report.offline ? 'yes' : 'no'}"
+        lines.join("\n")
+      end
+
+      def status_json(report)
+        require "json"
+
+        payload = {
+          version: report.version,
+          setup: report.resources.map do |r|
+            {
+              language: r.language,
+              resource: r.resource.to_s,
+              available: r.available,
+              size_bytes: r.size_bytes,
+              cached_at: r.cached_at&.iso8601
+            }
+          end,
+          cache: {
+            path: report.cache_path,
+            size_bytes: report.cache_size_bytes,
+            languages: report.languages_setup.size
+          },
+          semantic: {
+            onnxruntime_loaded: report.onnx_loaded,
+            active_models: report.languages_with_model
+          },
+          audit_log: report.audit_log_path && {
+            path: report.audit_log_path,
+            size_bytes: report.audit_log_size_bytes
+          },
+          default_language: report.default_language,
+          offline: report.offline
+        }
+        JSON.pretty_generate(payload)
       end
 
       def read_target(target)
