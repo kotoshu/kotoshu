@@ -63,6 +63,7 @@ module Kotoshu
     autoload :AutoSetup, "kotoshu/cli/auto_setup"
     autoload :StatusReport, "kotoshu/cli/status_report"
     autoload :LanguageResolver, "kotoshu/cli/language_resolver"
+    autoload :ProgressReporter, "kotoshu/cli/progress_reporter"
 
     # Command-line interface for Kotoshu spell checker.
     #
@@ -188,7 +189,9 @@ module Kotoshu
         results = languages.map do |lang|
           print "Setup #{lang}... "
           begin
-            result = Kotoshu.setup(lang, **opts)
+            result = with_progress_reporter(label: lang) do
+              Kotoshu.setup(lang, **opts)
+            end
             describe_setup_result(result)
             { lang: lang, ok: true }
           rescue Kotoshu::Error, ArgumentError => e
@@ -299,6 +302,21 @@ module Kotoshu
         Kotoshu::Configuration.reset
         cfg = Kotoshu::Configuration.instance
         cfg.default_language = options[:language] if options[:language] && options[:language] != "auto"
+      end
+
+      # Install a ProgressReporter on Configuration.download_reporter
+      # for the duration of the block, then restore the prior value.
+      # The reporter writes to $stderr; in non-TTY contexts it still
+      # emits periodic line messages so CI logs show progress.
+      def with_progress_reporter(label:)
+        prior = Kotoshu.configuration.download_reporter
+        Kotoshu.configuration.download_reporter = ProgressReporter.new(
+          output: $stderr,
+          label: label
+        )
+        yield
+      ensure
+        Kotoshu.configuration.download_reporter = prior
       end
 
       def status_text(report)

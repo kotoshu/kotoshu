@@ -273,11 +273,16 @@ module Kotoshu
         response.body
       end
 
-      # Download a file to disk.
+      # Download a file to disk, streaming in chunks.
       #
       # @param url [String] Source URL
       # @param dest_path [String] Destination file path
-      def download_file(url, dest_path)
+      # @param reporter [#start,#update,#maybe_report_periodic,#finish,nil]
+      #   Optional progress reporter. Defaults to
+      #   Kotoshu.configuration.download_reporter (typically nil for
+      #   programmatic use, set by the CLI during setup).
+      def download_file(url, dest_path, reporter: nil)
+        reporter ||= Kotoshu.configuration.download_reporter
         uri = URI.parse(url)
 
         http = Net::HTTP.new(uri.host, uri.port)
@@ -290,18 +295,38 @@ module Kotoshu
         http.request(request) do |response|
           case response
           when Net::HTTPSuccess
+            content_length = content_length_from(response)
             FileUtils.mkdir_p(File.dirname(dest_path))
+            received = 0
+            reporter&.start(content_length)
             File.open(dest_path, "wb") do |file|
               response.read_body do |chunk|
                 file.write(chunk)
+                received += chunk.bytesize
+                reporter&.update(received)
+                reporter&.maybe_report_periodic
               end
             end
+            reporter&.finish
           when Net::HTTPRedirection
-            download_file(response["location"], dest_path)
+            download_file(response["location"], dest_path, reporter: reporter)
           else
             raise "Failed to download #{url}: #{response.code} #{response.message}"
           end
         end
+      end
+
+      # Extract Content-Length safely. Some servers omit it (chunked
+      # transfer encoding); caller treats nil as "size unknown".
+      # @param response [Net::HTTPResponse]
+      # @return [Integer, nil]
+      def content_length_from(response)
+        raw = response["Content-Length"]
+        return nil if raw.nil? || raw.strip.empty?
+
+        Integer(raw)
+      rescue ArgumentError
+        nil
       end
 
       # Write metadata to file.
