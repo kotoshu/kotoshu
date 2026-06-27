@@ -250,13 +250,17 @@ module Kotoshu
     ResourceManager.languages_setup
   end
 
-  # Reset the spellchecker (force reload).
+  # Reset the spellchecker cache. The next call to `spellchecker` or
+  # `spellchecker_for` re-resolves from the current configuration.
   #
-  # @return [Spellchecker] The reset spellchecker
+  # Does NOT eagerly reload — clearing the cache is enough. This makes
+  # the method safe to call between tests even when no language is set
+  # up yet (the next call will raise ResourceNotSetupError per the
+  # strict two-stage contract).
   def self.reset_spellchecker
     @spellchecker = nil
     @spellcheckers = nil
-    spellchecker
+    nil
   end
 
   # Check if a word is spelled correctly.
