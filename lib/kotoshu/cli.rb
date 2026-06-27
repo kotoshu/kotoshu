@@ -55,6 +55,13 @@ end
 
 module Kotoshu
   module Cli
+    # LAZY: CLI helper components (autoloaded on first reference)
+    autoload :NavigationManager, "kotoshu/cli/navigation_manager"
+    autoload :DisplayFormatter, "kotoshu/cli/display_formatter"
+    autoload :InteractiveReviewer, "kotoshu/cli/interactive_reviewer"
+    autoload :BatchReporter, "kotoshu/cli/batch_reporter"
+    autoload :AutoSetup, "kotoshu/cli/auto_setup"
+
     # Command-line interface for Kotoshu spell checker.
     #
     # Two-stage model:
@@ -239,9 +246,18 @@ module Kotoshu
       # Dispatch entry point — bypasses Thor's start rescue so we can honor
       # exit_status from Errors::CliError subclasses. Thor::Error still falls
       # back to exit 1 for framework-level errors (bad flags, etc.).
+      #
+      # ResourceNotSetupError from the strict two-stage model is intercepted
+      # here: AutoSetup asks the user once, then we retry the dispatch. In
+      # non-TTY or offline mode AutoSetup re-raises so scripts see stable
+      # behavior.
       def self.start(given_args = ARGV, config = {})
         config[:shell] ||= Thor::Base.shell.new
         dispatch(nil, given_args.dup, nil, config)
+      rescue Kotoshu::ResourceNotSetupError => e
+        raise Errors::ResourceUnavailable, e.message unless AutoSetup.new.call(e)
+
+        retry
       rescue Errors::CliError => e
         warn "Error: #{e.message}"
         exit e.exit_status
@@ -276,8 +292,6 @@ module Kotoshu
         language = resolve_language
         spellchecker = Kotoshu.spellchecker_for(language)
         spellchecker.check(text)
-      rescue Kotoshu::ResourceNotSetupError => e
-        raise Errors::ResourceUnavailable, e.message
       rescue Kotoshu::DictionaryNotFoundError => e
         raise Errors::ResourceUnavailable, e.message
       end
