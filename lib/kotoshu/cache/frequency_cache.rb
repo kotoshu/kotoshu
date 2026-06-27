@@ -189,14 +189,14 @@ module Kotoshu
       # @param language_code [String] ISO 639-1 language code
       # @return [String] Download URL
       def frequency_url(language_code)
-        "#{@url_base}/#{GITHUB_REPO}/#{@resource_pin}/data/#{language_code}.json"
+        @source_registry.url_for(:frequency, lang: language_code)
       end
 
       # Kelly repo manifest URL (used for integrity verification).
       #
       # @return [String]
       def manifest_url
-        @manifest_url || "#{@url_base}/#{GITHUB_REPO}/#{@resource_pin}/manifest.json"
+        @manifest_url || @source_registry.url_for(:freq_manifest)
       end
 
       # Default cache path: $XDG_CACHE_HOME/kotoshu/frequency-lists/
