@@ -41,7 +41,13 @@ Gem::Specification.new do |spec|
   spec.add_dependency "thor", "~> 1.0"
   spec.add_dependency "suika", "~> 0.3"
   spec.add_dependency "rubyzip", "~> 2.3"
-  spec.add_dependency "onnxruntime", "~> 0.10"  # ONNX inference for semantic spell checking
+
+  # Optional: onnxruntime is soft-required for semantic features.
+  # Not declared here so `gem install kotoshu` succeeds on platforms
+  # where onnxruntime fails to build. Users who want semantic analysis
+  # install it separately (`gem install onnxruntime`). The library
+  # auto-detects at load time and raises Models::OnnxUnavailable if
+  # a caller requests semantic features without it.
 
   # Development dependencies are specified in Gemfile
 

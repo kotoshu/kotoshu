@@ -51,9 +51,9 @@ The current release pairs a Ruby port of the Hunspell algorithm
 (traditional morphological lookup + affix rules) with optional FastText
 word embeddings converted to ONNX for context-aware reranking.
 
-NOTE: The semantic (ONNX) path is gated behind the `KOTOSHU_REQUIRE_ONNX=1`
-environment variable in this release. Without it, only the traditional
-Hunspell path runs.
+NOTE: The semantic (ONNX) path is an optional feature. `gem install kotoshu`
+works without `onnxruntime`; install it separately (`gem install onnxruntime`)
+to enable context-aware reranking. Set `KOTOSHU_NO_ONNX=1` to opt back out.
 
 == Features
 
@@ -328,7 +328,7 @@ Structured documents preserve node paths for precise error location.
 NOTE: In 0.2, the CLI runs the Hunspell traditional path only.
 The `--model` flag and FastText/Hybrid paths are planned for 0.3+.
 The Ruby API can opt into the semantic path today via
-`Kotoshu::Models::OnnxModel` (requires `KOTOSHU_REQUIRE_ONNX=1`).
+`Kotoshu::Models::OnnxModel` (auto-available when `onnxruntime` is installed).
 
 Kotoshu is designed to support three analysis models:
 
