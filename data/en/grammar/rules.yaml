@@ -1,0 +1,331 @@
+# English Grammar Rules Configuration
+# All linguistic data in dictionary, not hardcoded
+
+metadata:
+  language: en
+  version: "1.0"
+  last_updated: "2026-02-03"
+
+rules:
+  # ==========================================================================
+  # Article Usage Rule: "a" vs "an"
+  # ==========================================================================
+  - id: EN_A_VS_AN
+    name: "a vs an"
+    category: articles
+    severity: suggestion
+    description: |
+      Use "an" before vowel sounds and "a" before consonant sounds.
+    patterns:
+      - context:
+          antecedent:
+            - token: { regex: "^[aA]$" }
+              pos_tag: ["DET", "ART"]
+            - token: { regex: "^[aA]n$" }
+              pos_tag: ["DET", "ART"]
+          consequent:
+            token: { regex: "." }
+            pos_tag: any
+        conditions:
+          - type: vowel_check
+            description: Check if word starts with vowel sound
+            function: vowel_sound_check
+    exceptions:
+      vowel_sounds: [a, e, i, o, u]
+      consonant_sound_exceptions:
+        - one
+        - once
+        - unicorn
+        - university
+        - european
+      silent_consonant_exceptions:
+        - hour
+        - heir
+        - honest
+        - herb
+    message: 'Use "{expected}" before "{word}"'
+    suggestion: null
+    suggestions:
+      - type: single
+        template: "{expected}"
+
+  # ==========================================================================
+  # There/Their/They're Confusion Rule
+  # ==========================================================================
+  - id: EN_THERE_THEIR
+    name: "there/their/they're"
+    category: confusion
+    severity: warning
+    description: |
+      Use "their" for possession, "there" for location/existence,
+      and "they're" for contraction of "they are".
+    patterns:
+      - context:
+          target_token: "there"
+          position: any
+        conditions:
+          - type: context_check
+            description: Check if "there" should be "their"
+            function: check_possessive_context
+            parameters:
+              location_indicators:
+                verbs:
+                  - is
+                  - was
+                  - are
+                  - be
+                  - been
+                  - being
+                  - goes
+                  - went
+                  - seems
+                  - appears
+                  - looks
+                  - remains
+                  - existed
+                  - stood
+                  - lay
+                  - came
+                  - arrived
+                possessive_nouns:
+                  - social
+                  - standing
+                  - parents
+                  - example
+                  - birth
+                  - own
+                  - home
+                  - house
+                  - family
+                  - life
+                  - work
+                  - job
+                  - business
+                  - money
+                  - time
+                  - way
+                  - place
+                  - spot
+                  - location
+                  - position
+                  - hands
+                  - feet
+                  - eyes
+                  - ears
+                  - head
+                  - face
+                  - mind
+                  - heart
+                  - soul
+                  - spirit
+                  - thoughts
+                  - feelings
+                  - emotions
+                  - beliefs
+                  - opinions
+                  - views
+                  - names
+                  - titles
+                  - status
+                  - role
+                  - rank
+                  - efforts
+                  - actions
+                  - deeds
+                  - behavior
+                  - problems
+                  - troubles
+                  - difficulties
+                  - issues
+                  - goals
+                  - dreams
+                  - hopes
+                  - wishes
+                  - desires
+                  - children
+                  - friends
+                  - colleagues
+                  - teachers
+                  - students
+                  - leaders
+                  - members
+                  - country
+                  - nation
+                  - world
+                  - society
+                  - culture
+                  - history
+                  - past
+                  - future
+                  - present
+                  - moment
+                  - side
+                  - part
+                  - portion
+                  - share
+                  - piece
+                  - bit
+                  - value
+                  - worth
+                  - importance
+                  - significance
+                  - use
+                  - benefit
+                  - purpose
+                  - reason
+                  - cause
+                  - story
+                  - tale
+                  - account
+                  - report
+                  - review
+                  - idea
+                  - concept
+                  - notion
+                  - theory
+                  - approach
+                  - method
+                  - strategy
+                  - plan
+                  - scheme
+                  - attitude
+                  - manner
+                  - style
+                  - nature
+                  - character
+                  - personality
+                  - qualities
+                  - skills
+                  - abilities
+                  - talents
+                  - gifts
+                  - strengths
+                  - habits
+                  - customs
+                  - practices
+                  - traditions
+                  - achievements
+                  - successes
+                  - failures
+                  - mistakes
+                  - experiences
+                  - adventures
+                  - journeys
+                  - travels
+                  - background
+                  - origins
+                  - roots
+                  - sources
+                  - beginnings
+                  - development
+                  - growth
+                  - progress
+                  - changes
+                  - evolution
+                  - perspective
+                  - view
+                  - outlook
+                  - stance
+                  - mindset
+                  - thinking
+                  - feeling
+                  - belief
+                  - relationship
+                  - connection
+                  - bond
+                  - tie
+                  - link
+                  - influence
+                  - impact
+                  - effect
+                  - power
+                  - authority
+                  - control
+                  - command
+                  - charge
+                  - leadership
+                  - responsibility
+                  - duty
+                  - obligation
+                  - task
+                  - care
+                  - attention
+                  - concern
+                  - interest
+                  - focus
+                  - love
+                  - affection
+                  - passion
+                  - devotion
+                  - respect
+                  - admiration
+                  - appreciation
+                  - knowledge
+                  - understanding
+                  - wisdom
+                  - insight
+                  - ability
+                  - capability
+                  - capacity
+                  - potential
+                  - condition
+                  - state
+                  - situation
+                  - quality
+                  - characteristic
+                  - feature
+                  - trait
+                  - problem
+                  - issue
+                  - challenge
+                  - difficulty
+                  - solution
+                  - answer
+                  - remedy
+                  - fix
+                  - result
+                  - outcome
+                  - consequence
+                  - sign
+                  - signal
+                  - indicator
+                  - mark
+                  - evidence
+                  - proof
+                  - indication
+    message: 'Consider using "their" instead of "there" for possession'
+    suggestion: "their"
+
+  # ==========================================================================
+  # Double Negative Rule
+  # ==========================================================================
+  - id: EN_DOUBLE_NEGATIVE
+    name: "Double Negative"
+    category: style
+    severity: style
+    description: |
+      Avoid double negatives in formal English as they can be confusing.
+    patterns:
+      - context:
+          target_tokens:
+            - not
+            - no
+            - neither
+            - nobody
+            - never
+            - nothing
+            - nowhere
+            - hardly
+            - barely
+            - scarcely
+          pattern: multiple_negatives
+        conditions:
+          - type: distance_check
+            max_distance: 15
+            description: Check if another negative word appears within range
+    exceptions:
+      phrases:
+        - not only but also
+        - not...without
+    message: 'Double negative detected - consider rephrasing'
+    suggestion: 'Consider using a single negative'
