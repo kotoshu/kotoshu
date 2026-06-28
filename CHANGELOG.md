@@ -34,6 +34,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and dynamically completes language codes for `setup` / `fetch` by
   shelling out to `kotoshu completions languages`. README documents
   install paths for bash, zsh, and fish.
+- **Load-time model cache integrity** (`Cache::ModelCache`). A cached
+  ONNX model file is re-verified against the SHA-256 recorded in its
+  `metadata.json` every time it is loaded — not just at download time.
+  Tampering, truncation, or partial writes are caught before the file
+  reaches the ONNX runtime, and the resulting `Kotoshu::IntegrityError`
+  includes a `remediation:` hint pointing the user at
+  `kotoshu cache download :LANG --model`. Legacy caches whose metadata
+  predates the checksum field continue to load (graceful degradation).
+- **`IntegrityError#remediation`** — the error now accepts an optional
+  `remediation:` keyword whose text is appended to the message and
+  exposed via a reader, so callers can surface the user-facing fix
+  (e.g. "Run `kotoshu cache download :en --model` to re-download").
+  Existing callers that omit it see no change in the message format.
+
+### Changed
+
+- **`Embeddings::LruCache#fetch`** now yields the *key* to the provided
+  block (matching Ruby's `Hash#fetch` convention) instead of invoking
+  the block with no arguments. Callers that compute the missing value
+  from the key no longer need a closure over an outer variable.
+- **`Embeddings::SimilarityEngine`** exposes a `pre_normalize?`
+  predicate (replacing a dead `attr_reader :pre_normalize` that was
+  silently shadowed by a private method of the same name) and now
+  raises `ArgumentError` with a clear dimension-mismatch message
+  instead of crashing with a `TypeError` from `Array#zip` when given
+  vectors of differing lengths. `nil` and empty inputs still return
+  `0.0` (early-return path).
 
 ## [0.4.0] — 2026-06-29
 
