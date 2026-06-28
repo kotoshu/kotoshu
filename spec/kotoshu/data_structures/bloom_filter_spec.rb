@@ -131,7 +131,7 @@ RSpec.describe Kotoshu::DataStructures::BloomFilter do
     end
   end
 
-  describe "performance characteristics" do
+  describe "performance characteristics", :slow do
     it "has O(1) lookup time" do
       filter = described_class.new(expected_size: 10_000)
 

@@ -133,7 +133,7 @@ RSpec.describe Kotoshu::Spellchecker::ParallelChecker do
     end
   end
 
-  describe "performance" do
+  describe "performance", :slow do
     let(:checker) { described_class.new(spellchecker: spellchecker, worker_count: 4) }
 
     it "is faster than sequential checking for multiple files" do
