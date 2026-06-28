@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "base_cache"
+# base_cache autoloaded via Kotoshu::Cache
 
 module Kotoshu
   module Cache
@@ -388,7 +388,7 @@ module Kotoshu
       # @param metadata [Hash] The resource metadata
       # @return [Hash, nil] Frequency resource data or nil
       def load_cached_frequency(resource_id, metadata)
-        require_relative "../data/common_words_loader"
+        # CommonWordsLoader autoloaded via Kotoshu::Data
         freq_file = File.join(resource_dir_for(resource_id), "frequency.json")
         return nil unless File.exist?(freq_file)
 

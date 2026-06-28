@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
 require "open-uri"
-require_relative "base"
-require_relative "../readers/lookup_builder"
-require_relative "../readers/aff_reader"
-require_relative "../readers/dic_reader"
 
 module Kotoshu
   module Dictionary
@@ -87,8 +83,6 @@ module Kotoshu
         # @return [Hunspell] Configured Hunspell dictionary instance
         # @raise [ArgumentError] If language_code is not supported
         def from_github(language_code, cache: nil, force_download: false)
-          require_relative '../cache/language_cache'
-
           cache ||= Cache::LanguageCache.new
           cached = cache.get_dictionary(language_code, force_download: force_download)
 
@@ -111,8 +105,6 @@ module Kotoshu
         # @param cache [Cache::LanguageCache, nil] Custom cache instance (optional)
         # @return [Boolean] True if language is supported
         def available_on_github?(language_code, cache: nil)
-          require_relative '../cache/language_cache'
-
           cache ||= Cache::LanguageCache.new
           cache.available_languages.include?(language_code)
         end
@@ -122,8 +114,6 @@ module Kotoshu
         # @param cache [Cache::LanguageCache, nil] Custom cache instance (optional)
         # @return [Array<String>] List of supported language codes
         def available_github_languages(cache: nil)
-          require_relative '../cache/language_cache'
-
           cache ||= Cache::LanguageCache.new
           cache.available_languages
         end
@@ -134,8 +124,6 @@ module Kotoshu
         # @param cache [Cache::LanguageCache, nil] Custom cache instance (optional)
         # @return [Hash] Language information
         def language_info(language_code, cache: nil)
-          require_relative '../cache/language_cache'
-
           cache ||= Cache::LanguageCache.new
           cache.get_language_info(language_code)
         end

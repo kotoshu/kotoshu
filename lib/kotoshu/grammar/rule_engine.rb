@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'rule_loader'
-require_relative '../configuration'
-
 module Kotoshu
   module Grammar
     # Engine for loading and executing grammar rules from YAML configuration.

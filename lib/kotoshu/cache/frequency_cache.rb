@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "base_cache"
+# base_cache autoloaded via Kotoshu::Cache
 
 module Kotoshu
   module Cache
@@ -124,7 +124,7 @@ module Kotoshu
         return nil unless metadata
 
         # Load frequency file
-        require_relative "../data/common_words_loader"
+        # CommonWordsLoader autoloaded via Kotoshu::Data
         data = Data::CommonWordsLoader.load_from_frequency_file(frequency_file)
 
         {

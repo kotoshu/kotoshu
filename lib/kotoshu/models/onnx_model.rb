@@ -118,8 +118,6 @@ module Kotoshu
       # @return [OnnxModel] Loaded model
       # @raise [ArgumentError] if language not supported
       def self.from_github(language_code, cache: nil)
-        require_relative '../cache/model_cache'
-
         cache ||= Cache::ModelCache.new
 
         # Get the .onnx file path from cache

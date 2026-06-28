@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require "thor"
-require_relative "../cache/language_cache"
-require_relative "../configuration"
 require "json"
 
 module Kotoshu

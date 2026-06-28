@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'context'
-require_relative 'suggestion'
-
 module Kotoshu
   module Models
     # Unified semantic error (NO artificial spelling/grammar split!).

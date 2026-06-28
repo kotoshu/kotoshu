@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'base_strategy'
-require_relative '../suggestion'
-require_relative '../suggestion_set'
-require_relative '../../embeddings'
-
 module Kotoshu
   module Suggestions
     module Strategies

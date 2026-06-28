@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 require "thor"
-require_relative "../kotoshu"
-require_relative "cli/cache_command"
-require_relative "cli/errors"
 
 # Dictionary command class.
 #
@@ -56,6 +53,8 @@ end
 module Kotoshu
   module Cli
     # LAZY: CLI helper components (autoloaded on first reference)
+    autoload :CacheCommand, "kotoshu/cli/cache_command"
+    autoload :Errors, "kotoshu/cli/errors"
     autoload :NavigationManager, "kotoshu/cli/navigation_manager"
     autoload :DisplayFormatter, "kotoshu/cli/display_formatter"
     autoload :InteractiveReviewer, "kotoshu/cli/interactive_reviewer"

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'tokenizer'
-
 module Kotoshu
   module Components
     # Whitespace-based tokenizer for Latin-script languages.

@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
 require 'json'
-require_relative "../suggestion"
-require_relative "../suggestion_set"
-require_relative "base_strategy"
-require_relative "../../data/common_words_loader"
 
 module Kotoshu
   module Suggestions
@@ -495,8 +491,6 @@ module Kotoshu
         # @param keyboard_layout [Keyboard::Layout, String, nil] Layout override
         # @return [Keyboard::Layout] Resolved layout
         def resolve_keyboard_layout(keyboard_layout)
-          require_relative '../../../kotoshu/keyboard/registry'
-
           if keyboard_layout.is_a?(Keyboard::Layout)
             keyboard_layout
           elsif keyboard_layout.is_a?(String)
@@ -566,8 +560,6 @@ module Kotoshu
         # @param language_code [String] ISO 639-1 language code
         # @return [Hash, nil] Frequency data or nil if not available
         def try_load_from_frequency_cache(language_code)
-          require_relative '../../../kotoshu/cache/frequency_cache'
-
           cache = Cache::FrequencyCache.new
 
           # Check if language is supported by Kelly

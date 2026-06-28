@@ -77,16 +77,12 @@ module Kotoshu
         condition_types = conditions.map { |c| c['type'] }
 
         if condition_types.include?('vowel_check')
-          require_relative 'pattern_matchers/vowel_sound_matcher'
           PatternMatchers::VowelSoundMatcher.new(pattern, exceptions)
         elsif condition_types.include?('context_check')
-          require_relative 'pattern_matchers/possessive_context_matcher'
           PatternMatchers::PossessiveContextMatcher.new(pattern, exceptions)
         elsif condition_types.include?('distance_check')
-          require_relative 'pattern_matchers/double_negative_matcher'
           PatternMatchers::DoubleNegativeMatcher.new(pattern, exceptions)
         else
-          require_relative 'pattern_matchers/base_matcher'
           PatternMatchers::BaseMatcher.new(pattern)
         end
       end

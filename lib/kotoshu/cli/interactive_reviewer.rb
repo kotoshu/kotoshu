@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'navigation_manager'
-require_relative 'display_formatter'
-require_relative '../analyzers/semantic_analyzer'
-
 module Kotoshu
   module Cli
     # Interactive review session for spell/grammar checking.
@@ -86,7 +82,6 @@ module Kotoshu
         end
 
         # Return batch reporter
-        require_relative 'batch_reporter'
         BatchReporter.new(@document, @navigation, @formatter)
       end
 

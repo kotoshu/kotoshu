@@ -238,9 +238,6 @@ module Kotoshu
       #
       # @return [Trie] New trie containing all words
       def to_trie
-        require_relative "trie/trie"
-        require_relative "trie/builder"
-
         Trie::Builder.from_array(all_words)
       end
 

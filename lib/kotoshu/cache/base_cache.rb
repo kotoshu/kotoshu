@@ -7,8 +7,6 @@ require "digest"
 require "uri"
 require "time"
 
-require_relative "../integrity"
-
 module Kotoshu
   module Cache
     # Abstract base class for all cache implementations.

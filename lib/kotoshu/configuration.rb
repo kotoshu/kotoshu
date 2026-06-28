@@ -1,14 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "core/exceptions"
-require_relative "dictionary/base"
-require_relative "dictionary/unix_words"
-require_relative "dictionary/plain_text"
-require_relative "dictionary/custom"
-require_relative "dictionary/hunspell"
-require_relative "dictionary/cspell"
-require_relative "configuration/resolver"
-
 module Kotoshu
   # Configuration for Kotoshu spell checker.
   #
@@ -34,6 +25,9 @@ module Kotoshu
   #   config = Configuration.new
   #   config.language  # => 'de'
   class Configuration
+    autoload :Builder, "kotoshu/configuration/builder"
+    autoload :Resolver, "kotoshu/configuration/resolver"
+
     # Configuration schema with ENV variable mappings.
     #
     # Each key maps to a hash with:

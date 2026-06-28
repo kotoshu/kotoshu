@@ -55,6 +55,8 @@ module Kotoshu
         def get(code)
           return nil unless code
 
+          ensure_languages_loaded
+
           # Try exact match first
           return @languages[code] if @languages.key?(code)
 
@@ -85,6 +87,7 @@ module Kotoshu
         #
         # @return [Array<String>] Sorted list of language codes
         def supported_codes
+          ensure_languages_loaded
           @languages.keys.sort
         end
 
@@ -92,7 +95,23 @@ module Kotoshu
         #
         # @return [Hash] Hash mapping codes to classes
         def all
+          ensure_languages_loaded
           @languages.dup
+        end
+
+        # Trigger load of every per-language implementation in
+        # Kotoshu::Languages. Each language file calls Registry.register
+        # at file-load time, so loading all constants fully populates the
+        # registry. Safe to call multiple times.
+        #
+        # @return [void]
+        def ensure_languages_loaded
+          return if @languages_loaded
+
+          # Reference Kotoshu::Languages to trigger autoload of the
+          # namespace file, which sets up per-language autoloads.
+          Kotoshu::Languages.constants.each { |c| Kotoshu::Languages.const_get(c) }
+          @languages_loaded = true
         end
 
         # Detect language from text.
@@ -118,6 +137,7 @@ module Kotoshu
         def clear
           @languages.clear
           @detectors.clear
+          @languages_loaded = false
         end
 
         # Get language info by code.

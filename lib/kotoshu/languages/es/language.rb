@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../readers/lookup_builder'
-require_relative '../../components/spell_checker'
-require_relative '../../components/pos_tagger'
-require_relative '../../language/normalizer/base'
-
 module Kotoshu
   module Languages
     # Spanish language implementation.

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "suggestion"
-
 module Kotoshu
   module Suggestions
     # A collection of suggestions with rich query methods.

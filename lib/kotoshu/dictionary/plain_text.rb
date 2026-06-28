@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "open-uri"
-require_relative "base"
 
 module Kotoshu
   module Dictionary

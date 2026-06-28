@@ -1,12 +1,6 @@
 # frozen_string_literal: true
 
 require 'zip'
-require_relative 'readers/file_reader'
-require_relative 'readers/aff_reader'
-require_relative 'readers/dic_reader'
-require_relative 'readers/lookup_builder'
-require_relative 'algorithms/lookup'
-require_relative 'algorithms/suggest'
 
 module Kotoshu
   # Unified Dictionary interface matching Spylls API.

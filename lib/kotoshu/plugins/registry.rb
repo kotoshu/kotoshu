@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "plugin"
-
 module Kotoshu
   module Plugins
     # Registry for managing plugins and their dependencies.
