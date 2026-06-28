@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'vocabulary'
-require_relative 'onnx_runtime_model'
-
 module Kotoshu
   module Embeddings
     # Similarity search for embedding-based nearest neighbor lookup.
