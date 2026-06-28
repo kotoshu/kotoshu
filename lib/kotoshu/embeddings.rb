@@ -21,19 +21,19 @@ module Kotoshu
     MAX_VOCABULARY_SIZE = 100_000
     VERSION = '2.0.0'
 
-    autoload :Protocol,              "kotoshu/embeddings/protocol"
-    autoload :ProtocolError,         "kotoshu/embeddings/protocol"
-    autoload :EmbeddingModelProtocol, "kotoshu/embeddings/protocol"
+    autoload :Protocol,                 "kotoshu/embeddings/protocol"
+    autoload :ProtocolError,            "kotoshu/embeddings/protocol"
+    autoload :EmbeddingModelProtocol,   "kotoshu/embeddings/protocol"
     autoload :SimilarityEngineProtocol, "kotoshu/embeddings/protocol"
-    autoload :VocabularyProtocol,    "kotoshu/embeddings/protocol"
-    autoload :LruCache,             "kotoshu/embeddings/lru_cache"
-    autoload :Vocabulary,           "kotoshu/embeddings/vocabulary"
-    autoload :OnnxRuntimeModel,     "kotoshu/embeddings/onnx_runtime_model"
-    autoload :SimilarityEngine,     "kotoshu/embeddings/similarity_engine"
-    autoload :Search,               "kotoshu/embeddings/search"
-    autoload :SimilaritySearch,     "kotoshu/embeddings/similarity_search"
-    autoload :EmbeddingPipeline,    "kotoshu/embeddings/embedding_pipeline"
-    autoload :Registry,             "kotoshu/embeddings/registry"
+    autoload :VocabularyProtocol,       "kotoshu/embeddings/protocol"
+    autoload :LruCache,                 "kotoshu/embeddings/lru_cache"
+    autoload :Vocabulary,               "kotoshu/embeddings/vocabulary"
+    autoload :OnnxRuntimeModel,         "kotoshu/embeddings/onnx_runtime_model"
+    autoload :SimilarityEngine,         "kotoshu/embeddings/similarity_engine"
+    autoload :Search,                   "kotoshu/embeddings/search"
+    autoload :SimilaritySearch,         "kotoshu/embeddings/similarity_search"
+    autoload :EmbeddingPipeline,        "kotoshu/embeddings/embedding_pipeline"
+    autoload :Registry,                 "kotoshu/embeddings/registry"
 
     # Create an EmbeddingPipeline from cache
     #

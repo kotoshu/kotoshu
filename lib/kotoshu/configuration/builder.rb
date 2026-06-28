@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-
 module Kotoshu
   class Configuration
     # Builder for creating immutable Configuration objects.
