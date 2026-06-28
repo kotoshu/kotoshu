@@ -21,14 +21,23 @@ module Kotoshu
       # continue to work; extra kwargs land in the +metadata+ attribute.
       # Source is stored as a string for clean serialization; +from_source?+
       # normalizes Symbol/String comparison so callers can pass either.
-      def initialize(word:, distance: 0, confidence: 1.0, source: "unknown", **metadata)
-        super(
+      #
+      # +word+ defaults to nil purely to accommodate lutaml-model's
+      # deserialization pathway, which allocates a shell via
+      # +new(lutaml_register:)+ before applying attribute values through
+      # the deserialize pipeline. Direct callers must still pass +word:+
+      # — a Suggestion without a word is degenerate and not user-facing.
+      def initialize(word: nil, distance: 0, confidence: 1.0, source: "unknown", **metadata)
+        lutaml_register = metadata.delete(:lutaml_register)
+        kwargs = {
           word: word,
           distance: distance,
           confidence: confidence,
           source: source.to_s,
           metadata: metadata
-        )
+        }
+        kwargs[:lutaml_register] = lutaml_register if lutaml_register
+        super(**kwargs)
       end
 
       # Check if this is a high-confidence suggestion.
