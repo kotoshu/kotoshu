@@ -67,44 +67,32 @@ module Kotoshu
 
       private
 
-      # Get default path to grammar rules for a language.
+      # Resolve the directory holding <language>/grammar/rules.yaml.
       #
-      # @param dictionaries_path [String, nil] Optional custom dictionaries path
-      # @return [String] Path to grammar rules directory
+      # Priority:
+      #   1. Explicit `dictionaries_path:` constructor arg
+      #   2. KOTOSHU_DICTIONARIES_PATH env var
+      #   3. Configuration#dictionaries_path (when set)
+      #   4. Gem-bundled data/grammar (always available)
+      #
+      # @param dictionaries_path [String, nil] Caller-supplied override
+      # @return [String] Path joined with language + "grammar"
       def default_rules_path(dictionaries_path = nil)
-        base_path = dictionaries_path || default_dictionaries_path
-        File.join(base_path, @language, 'grammar')
+        base = dictionaries_path || resolve_dictionaries_base
+        File.join(base, @language, "grammar")
       end
 
-      # Get default dictionaries path.
-      #
-      # Checks in order:
-      # 1. Environment variable KOTOSHU_DICTIONARIES_PATH
-      # 2. Configuration.dictionaries_path
-      # 3. Default: dictionaries/ adjacent to gem root
-      #
-      # @return [String] Path to dictionaries directory
-      def default_dictionaries_path
-        # Check for environment variable first
-        if ENV['KOTOSHU_DICTIONARIES_PATH']
-          return ENV['KOTOSHU_DICTIONARIES_PATH']
-        end
+      def resolve_dictionaries_base
+        ENV["KOTOSHU_DICTIONARIES_PATH"] ||
+          Configuration.instance.dictionaries_path ||
+          gem_bundled_data_path
+      end
 
-        # Check for configuration setting
-        config = Configuration.instance
-        if config.respond_to?(:dictionaries_path) && config.dictionaries_path
-          return config.dictionaries_path
-        end
-
-        # Default: dictionaries/ directory at project root
-        # The kotoshu gem is at src/kotoshu/kotoshu/, so dictionaries is at src/kotoshu/dictionaries
-        # From lib/kotoshu/grammar/:
-        #   - grammar/ -> kotoshu/lib/kotoshu/ (1)
-        #   - kotoshu/lib/kotoshu/ -> lib/kotoshu/ (2)
-        #   - lib/kotoshu/ -> kotoshu/ (3)
-        #   - kotoshu/ -> src/kotoshu/ (4)
-        #   - Then add dictionaries/
-        __dir__ + '/../../../../dictionaries'
+      # Path to the gem's own data/ directory. Always available after
+      # `gem install kotoshu`, so grammar rules work without external
+      # dependencies or sibling repos checked out.
+      def gem_bundled_data_path
+        File.expand_path("../../../data", __dir__)
       end
     end
   end
