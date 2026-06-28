@@ -1,12 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'layout'
-require_relative 'layouts/qwerty'
-require_relative 'layouts/qwertz'
-require_relative 'layouts/azerty'
-require_relative 'layouts/jcuken'
-require_relative 'layouts/dvorak'
-
 module Kotoshu
   module Keyboard
     # Registry for keyboard layouts

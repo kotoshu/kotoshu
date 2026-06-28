@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'cache/cache'
-require_relative 'cache/language_cache'
-require_relative 'cache/model_cache'
-
 module Kotoshu
   # Cache module for Kotoshu
   #
@@ -18,6 +14,14 @@ module Kotoshu
   #   #      metadata: { ... } }
   #
   module Cache
+    autoload :BaseCache, "kotoshu/cache/base_cache"
+    autoload :Cache, "kotoshu/cache/cache"
+    autoload :FrequencyCache, "kotoshu/cache/frequency_cache"
+    autoload :LanguageCache, "kotoshu/cache/language_cache"
+    autoload :LookupCache, "kotoshu/cache/lookup_cache"
+    autoload :ModelCache, "kotoshu/cache/model_cache"
+    autoload :SuggestionCache, "kotoshu/cache/suggestion_cache"
+
     class << self
       # Create a new language cache instance
       #

@@ -1,14 +1,5 @@
 # frozen_string_literal: true
 
-# Load all language-specific modules
-require_relative 'languages/en/language'
-require_relative 'languages/fr/language'
-require_relative 'languages/de/language'
-require_relative 'languages/ja/language'
-require_relative 'languages/pt/language'
-require_relative 'languages/ru/language'
-require_relative 'languages/es/language'
-
 module Kotoshu
   # Languages module for language-specific implementations.
   #
@@ -23,21 +14,18 @@ module Kotoshu
   #
   # @example French components
   #   Kotoshu::Languages::French::Tokenizer
-  #
-  # @example German components
-  #   Kotoshu::Languages::German::Tokenizer
-  #
-  # @example Japanese components
-  #   Kotoshu::Languages::Japanese::Tokenizer
-  #
-  # @example Portuguese components
-  #   Kotoshu::Languages::Portuguese::Tokenizer
-  #
-  # @example Russian components
-  #   Kotoshu::Languages::Russian::Tokenizer
-  #
-  # @example Spanish components
-  #   Kotoshu::Languages::Spanish::Tokenizer
   module Languages
+    autoload :English, "kotoshu/languages/en/language"
+    autoload :French, "kotoshu/languages/fr/language"
+    autoload :German, "kotoshu/languages/de/language"
+    autoload :Japanese, "kotoshu/languages/ja/language"
+    autoload :Portuguese, "kotoshu/languages/pt/language"
+    autoload :Russian, "kotoshu/languages/ru/language"
+    autoload :Spanish, "kotoshu/languages/es/language"
   end
 end
+
+# Eagerly trigger autoloads: each language file calls Registry.register
+# at file-load time, so all languages must be loaded for the registry
+# to be fully populated.
+Kotoshu::Languages.constants.each { |c| Kotoshu::Languages.const_get(c) }

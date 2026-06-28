@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'file_reader'
-
 module Kotoshu
   module Readers
     # Word entry from the dictionary file.

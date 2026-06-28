@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../layout'
-
 module Kotoshu
   module Keyboard
     module Layouts
