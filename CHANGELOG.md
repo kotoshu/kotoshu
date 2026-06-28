@@ -7,6 +7,92 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-06-29
+
+Tier 2 release. Completes the Hunspell correctness work (morphological
+rules, REP/phonet/ngram ranking, compound handling), migrates the entire
+library from `require_relative` to Ruby `autoload`, and tightens the
+cache interface alignment that 0.3.1 sketched.
+
+### Added
+
+- **Hunspell morphological correctness** (T2 Phases 2A–2D):
+  - `FLAG long|num|utf-8` parsing and `AF` alias resolution.
+  - `COMPOUNDRULE`, `CHECKCOMPOUNDPATTERN` (with empty-flag fix),
+    `CIRCUMFIX` handling.
+  - `ICONV`/`OCONV` `ConvTable` with stable sort — preserves Nepali
+    `ZWNJ`/`ZWJ` ordering.
+  - `KEEPCASE` suggestion flag with `CHECKSHARPS` exception, plus the
+    German eszet rule (`ss` ↔ `SS`).
+  - `REP` table, phonet ordering, ngram ranking wired end-to-end.
+  - Edge cases: `IJ` digraph, `i58202` case preservation,
+    `opentaal_forbiddenword2`, `breakdefault` `BREAK` pattern.
+- **Hunspell Suggester** is now wired into the Hunspell dictionary; the
+  default affix directives are honoured when generating suggestions.
+- **`BaseCache#max_cache_size`** attribute (1 GB default) — the
+  forward-looking hook for cache eviction work (see
+  `TODO.impl/34-cache-eviction.md`).
+- **`LanguageCache#language_path(lang, type)`** public helper; resource
+  and metadata path resolution is now DRY'd through it.
+- **`Kotoshu::Language` suika soft-load module** with specs — keeps
+  tokenization lazy and optional.
+- **Multi-language EditDistanceStrategy spec coverage** — pins
+  per-language keyboard selection (QWERTZ/AZERTY/QWERTY/JCUKEN) and
+  verifies German and French typo correction end-to-end. The previous
+  `skip 'Multi-language support not yet implemented'` hook is removed;
+  the strategy has been language-aware via `Keyboard::Registry` +
+  `Cache::FrequencyCache` for several releases.
+
+### Changed
+
+- **Library-wide `autoload` migration.** Every `require_relative` (and
+  in-library `require`) under `lib/kotoshu/` is replaced with a Ruby
+  `autoload` declared in the immediate parent namespace's file. This
+  fixes load-order races, makes the eager/opt-in split explicit, and
+  matches the contributor guidance in `CLAUDE.md`. Behaviour is
+  unchanged for callers who only `require "kotoshu"`, but extenders who
+  reached past the public facade may need to update their load entry
+  points.
+- **`Embeddings` namespace consolidation.** All embedding classes are
+  nested under `Kotoshu::Embeddings` (was scattered with several
+  `require_relative` shims).
+- **Grammar rules bundled in the gem.** English `rules.yaml` ships
+  inside the gem package so a `gem install kotoshu` is self-contained
+  for grammar checking without a separate download.
+- **Plain-text edit distance is now case-insensitive**, matching the
+  Hunspell backend's behaviour for `PlainText` dictionaries.
+
+### Fixed
+
+- **`Cli::CacheCommand` wired to the real `LanguageCache` API.** The
+  previous implementation called nonexistent methods (`cache_status`,
+  `get_frequency_data`, `get_language_info`, `purge_all`); `kotoshu cache`
+  now correctly routes through `available?`, `cached_resources`,
+  `clear_all`, `clean`, `stats`, `get_spelling`, `get_grammar`, and the
+  standalone `Cache::FrequencyCache` for frequency downloads.
+- **`Keyboard::Registry` lazy reload.** `clear` now marks
+  `@languages_loaded = true` to prevent an infinite lazy-reload loop
+  when the registry is reset at runtime.
+- **German common-words YAML.** `data/common_words/de.yml` line 466 had
+  `-ecke` (missing space after dash), a syntax error that prevented the
+  file from loading and silently broke German strategy instantiation.
+- **`Readers::AffReader` Hunspell edge cases** — encoding fallback for
+  Latin-1 fixtures, `REP` table splitting, `MultiWord` dash variants,
+  default affix directives honoured when the `.aff` file omits them.
+- **RuboCop 3.x / plugins migration.** `rubocop-rspec` is bumped to
+  3.x and the config uses the new plugins syntax; safe auto-corrections
+  applied across `lib/` and `spec/` (`Layout/ExtraSpacing`,
+  `Layout/EmptyLine`).
+- **Cross-platform CI.** `bundle` is invoked via `Gem.ruby -S` for
+  Windows compatibility; Ruby 4.0 compatibility fixes applied.
+
+### Internal
+
+- `TODO.impl/` planning documents (00–40) are the tiered execution
+  plan. Tier 2 is complete; Tier 3 (`audit-log-rotation`,
+  `cache-eviction`, `shell-completion`) and content-repo tasks
+  (`onnx-vocab-json-generation`) remain deferred past 0.4.0.
+
 ## [0.3.1] — 2026-06-28
 
 Bug-fix release. Closes the regressions introduced by the 0.3.0
