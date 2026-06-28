@@ -86,8 +86,10 @@ module Kotoshu
       # 5. Alphabetical (ONLY as final tiebreaker)
       #
       # @param other [Suggestion] The other suggestion
-      # @return [Integer] -1, 0, or 1
+      # @return [Integer, nil] -1, 0, or 1; nil if +other+ is not a Suggestion
       def <=>(other)
+        return nil unless other.is_a?(Suggestion)
+
         score_cmp = other.combined_score <=> combined_score
         return score_cmp unless score_cmp.zero?
 
