@@ -463,7 +463,7 @@ tiers:
     - boden
     - decke
     - wand
-    -ecke
+    - ecke
     - seite
     - mitte
     - zentrum
