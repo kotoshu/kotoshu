@@ -226,10 +226,25 @@ module Kotoshu
       class << self
         # Register this language with the registry.
         #
+        # Records +code+ in {registered_codes} so the registry can be
+        # rebuilt after a {Kotoshu::Language::Registry.clear} without
+        # re-loading the per-language file (which Ruby autoload only
+        # runs once). See {Language::Registry.restore_autoload!}.
+        #
         # @param code [String] Language code
         # @return [void]
         def register(code)
+          registered_codes << code
           Kotoshu::Language::Registry.register(code, self)
+        end
+
+        # Per-language class method reader for the codes registered via
+        # {register}. Used by {Language::Registry.restore_autoload!} to
+        # rebuild the registry after a clear.
+        #
+        # @return [Array<String>]
+        def registered_codes
+          @registered_codes ||= []
         end
 
         # Get or create singleton instance.

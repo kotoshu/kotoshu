@@ -29,6 +29,13 @@ RSpec.describe Kotoshu::Language::Registry do
     described_class.clear
   end
 
+  # Same isolation concern as language_spec: the per-test `clear` leaves
+  # the registry permanently empty unless we re-enable autoload.
+  after(:all) do
+    described_class.clear
+    described_class.restore_autoload!
+  end
+
   describe ".register" do
     it "registers a language class" do
       described_class.register("test", test_language_class)

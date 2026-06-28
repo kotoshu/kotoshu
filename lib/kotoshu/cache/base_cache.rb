@@ -30,9 +30,10 @@ module Kotoshu
       # @return [Integer] Cache TTL in seconds
       attr_reader :cache_ttl
 
-      # @return [Integer] Maximum total cache size in bytes. Recorded
-      #   for stats and reporting; future eviction logic
-      #   (TODO.impl/34-cache-eviction.md) will enforce it.
+      # @return [Integer] Maximum total cache size in bytes. Enforced
+      #   by {#evict}; the value is pulled from
+      #   +Kotoshu::Configuration.instance.max_cache_size+ by default
+      #   (env: +KOTOSHU_MAX_CACHE_SIZE+).
       attr_reader :max_cache_size
 
       # @return [String] GitHub repository URL
@@ -174,6 +175,30 @@ module Kotoshu
           expired_entries_removed: expired_count,
           bytes_reclaimed: size_reclaimed
         }
+      end
+
+      # Enforce the cache size cap by evicting the oldest entries
+      # (LRU by +cached_at+). When +dry_run:+ true, returns the plan
+      # without modifying the disk; otherwise removes the evicted
+      # entries via +FileUtils.rm_rf+ and returns the same plan.
+      #
+      # The plan is computed by {Cache::EvictionPolicy} — a pure value
+      # object that performs no IO. This method is the only place that
+      # collects on-disk entries and the only place that mutates the
+      # cache directory based on the plan, keeping the policy testable
+      # in isolation.
+      #
+      # @param dry_run [Boolean] return the plan without writing
+      # @return [Hash] { evict: Array<Hash>, keep: Array<Hash>,
+      #   bytes_reclaimed: Integer } where each entry hash carries
+      #   :path, :size, :cached_at
+      def evict(dry_run: false)
+        policy = EvictionPolicy.new(max_size: @max_cache_size)
+        plan = policy.plan(collect_eviction_entries)
+        return plan if dry_run
+
+        plan[:evict].each { |e| FileUtils.rm_rf(e[:path]) }
+        plan
       end
 
       # List all cached resources.
@@ -525,6 +550,38 @@ module Kotoshu
         0 # Override in subclass if needed
       end
 
+      # Walk the cache directory and build one eviction-entry record
+      # per discovered metadata.json. Each record carries the resource
+      # directory path (what to remove), total size of files under it,
+      # and the +cached_at+ timestamp from metadata. Entries whose
+      # metadata cannot be parsed still appear (with nil +cached_at+)
+      # so they are not stranded forever.
+      #
+      # @return [Array<Hash>] { path:, size:, cached_at: }
+      def collect_eviction_entries
+        Dir.glob(File.join(@cache_path, "**", "metadata.json")).map do |metadata_path|
+          dir = File.dirname(metadata_path)
+          metadata = read_metadata(metadata_path) || {}
+          {
+            path: dir,
+            size: dir_size(dir),
+            cached_at: metadata["cached_at"] || metadata["version"]
+          }
+        end
+      end
+
+      # Sum the size of every regular file under +path+, recursively.
+      #
+      # @param path [String] directory to measure
+      # @return [Integer] total bytes
+      def dir_size(path)
+        total = 0
+        Dir.glob(File.join(path, "**", "*")).each do |p|
+          total += File.size(p) if File.file?(p)
+        end
+        total
+      end
+
       # Parse resource identifier into components.
       #
       # @param resource_id [String] The resource identifier (e.g., "en:spelling" or "en:fasttext")
@@ -595,13 +652,14 @@ module Kotoshu
         604_800
       end
 
-      # Default maximum cache size (1 GB). Future eviction logic
-      # (TODO.impl/34) will enforce this; for now it is reported in
-      # stats so consumers can decide whether to display a warning.
+      # Default maximum cache size — pulled from
+      # +Kotoshu::Configuration.instance.max_cache_size+ so ENV
+      # overrides (+KOTOSHU_MAX_CACHE_SIZE+) and programmatic settings
+      # flow through to {#evict} naturally.
       #
       # @return [Integer] Default max cache size in bytes
       def default_max_cache_size
-        1_073_741_824
+        Kotoshu::Configuration.instance.max_cache_size
       end
 
       # Build a default audit log bound to the configured rotation

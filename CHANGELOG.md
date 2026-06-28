@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Cache eviction** (`Kotoshu::Cache::EvictionPolicy` +
+  `BaseCache#evict` + `kotoshu cache evict`). A pure value object
+  decides which entries to evict (LRU by `cached_at`, oldest first)
+  to fit a configured size cap; `BaseCache#evict` collects on-disk
+  entries (one record per discovered `metadata.json`) and executes
+  the plan. `--dry-run` returns the plan without touching disk. The
+  cap defaults to `max_cache_size` (1 GB, `KOTOSHU_MAX_CACHE_SIZE`)
+  and is now wired through `Configuration` instead of a hardcoded
+  constant. Corrupt metadata (missing `cached_at`) sorts oldest so it
+  is evicted first.
 - **Audit log rotation** (`Kotoshu::Integrity::RotationPolicy`). When the
   current `audit.log` exceeds `audit_max_bytes` (default 10 MB,
   `KOTOSHU_AUDIT_MAX_BYTES`), the log rotates through `audit_rotations`

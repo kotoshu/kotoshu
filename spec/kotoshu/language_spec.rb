@@ -1,6 +1,15 @@
 # frozen_string_literal: true
 
 RSpec.describe Kotoshu::Language do
+  # Per-language specs use Registry.clear to isolate themselves from
+  # autoloaded languages. Without this restore, the registry stays
+  # empty for the rest of the suite and unrelated specs (e.g., shell
+  # completion, which lists supported codes) see no languages.
+  after(:all) do
+    Kotoshu::Language::Registry.clear
+    Kotoshu::Language::Registry.restore_autoload!
+  end
+
   describe ".detect" do
     it "detects English" do
       expect(described_class.detect("Hello world")).to eq("en")
