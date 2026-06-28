@@ -221,17 +221,17 @@ RSpec.describe Kotoshu::Suggestions::Suggestion do
       expect(parsed["source"]).to eq("ngram")
     end
 
-    # The custom initialize signature (word: required kwarg + **metadata
-    # catch-all) does not compose with lutaml-model's from_hash pathway,
-    # which constructs via a positional Hash. Round-tripping a Suggestion
-    # through from_hash raises InvalidFormatError. Tracked for a dedicated
-    # fix; pending here with an explicit reason.
     it "round-trips a Suggestion through from_hash" do
-      skip "blocked on lutaml-model from_hash + custom initialize incompatibility"
       original = described_class.new(word: "hello", distance: 2, confidence: 0.8,
-                                     source: :edit_distance)
+                                     source: :edit_distance,
+                                     original_length: 5, ngram_score: 0.9)
       round_tripped = described_class.from_hash(original.to_hash)
-      expect(round_tripped.word).to eq(original.word)
+      expect(round_tripped.word).to eq("hello")
+      expect(round_tripped.distance).to eq(2)
+      expect(round_tripped.confidence).to eq(0.8)
+      expect(round_tripped.source).to eq("edit_distance")
+      expect(round_tripped.metadata[:original_length]).to eq(5)
+      expect(round_tripped.metadata[:ngram_score]).to eq(0.9)
     end
   end
 end
