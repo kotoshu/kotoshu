@@ -15,13 +15,23 @@ module Kotoshu
       # @param context [Hash] The reading context (for flag parsing)
       # @return [Word] The parsed word
       def self.from_line(line, context = {})
-        parts = line.split('/')
-        stem = parts[0].strip
-        flags_str = parts[1]
+        # Format: stem[/flags][\t<morph_data>]
+        # Split off morphological data first (tab or space separated),
+        # then split stem from flags on the first "/".
+        head = line.split(/[\t]/, 2).first || line
+        head = head.strip
+        slash_idx = head.index('/')
+        if slash_idx
+          stem = head[0...slash_idx]
+          flags_str = head[(slash_idx + 1)..]
+        else
+          stem = head
+          flags_str = nil
+        end
 
-        flags = if flags_str && context[:flag_format]
+        flags = if flags_str && !flags_str.empty? && context[:flag_format]
                   parse_flags(flags_str, context[:flag_format], context[:flag_synonyms])
-                elsif flags_str
+                elsif flags_str && !flags_str.empty?
                   flags_str.chars.to_set
                 else
                   Set.new

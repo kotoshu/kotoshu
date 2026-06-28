@@ -24,6 +24,14 @@ module Kotoshu
     #   builder = LookupBuilder.from_data(aff_data, words)
     #   lookuper = builder.build
     class LookupBuilder
+      # Hunspell upstream defaults for suggester directives. These apply
+      # when the .aff file is silent on the directive. See the Hunspell
+      # documentation at https://hunspell.github.io/ and the spylls
+      # `Aff` defaults for reference.
+      DEFAULT_MAX_NGRAM_SUGS = 4
+      DEFAULT_MAX_CPD_SUGS = 3
+      DEFAULT_MAX_DIFF = 5
+
       attr_reader :aff_path, :dic_path, :encoding, :aff_data, :words, :script
 
       # Create a new LookupBuilder from file paths.
@@ -166,9 +174,24 @@ module Kotoshu
         aff[:BREAK] = build_break_patterns(aff_data['BREAK'])
         aff[:ICONV] = aff_data['ICONV']
         aff[:OCONV] = aff_data['OCONV']
-        aff[:REP] = aff_data['REP'] || []
+        aff[:REP] = build_rep_table(aff_data['REP'])
         aff[:MAP] = aff_data['MAP'] || []
         aff[:CHECKSHARPS] = aff_data['CHECKSHARPS']
+
+        # Suggester directives (Hunspell defaults applied where the .aff
+        # is silent — these defaults come from the upstream Hunspell
+        # manual and match spylls' Aff.objects defaults).
+        aff[:TRY] = aff_data['TRY']
+        aff[:KEY] = aff_data['KEY']
+        aff[:WORDCHARS] = aff_data['WORDCHARS']
+        aff[:PHONE] = aff_data['PHONE']
+        aff[:NOSPLITSUGS] = aff_data['NOSPLITSUGS']
+        aff[:SUGSWITHDOTS] = aff_data['SUGSWITHDOTS']
+        aff[:FULLSTRIP] = aff_data['FULLSTRIP']
+        aff[:MAXNGRAMSUGS] = aff_data['MAXNGRAMSUGS'] || DEFAULT_MAX_NGRAM_SUGS
+        aff[:MAXCPDSUGS] = aff_data['MAXCPDSUGS'] || DEFAULT_MAX_CPD_SUGS
+        aff[:MAXDIFF] = aff_data['MAXDIFF'] || DEFAULT_MAX_DIFF
+        aff[:ONLYMAXDIFF] = aff_data['ONLYMAXDIFF']
 
         aff
       end
@@ -180,16 +203,21 @@ module Kotoshu
       def build_dic_structure(words)
         # Build a hash indexed by word for fast lookup
         word_index = Hash.new { |h, k| h[k] = [] }
+        # Plain list of all word entries (used by Suggester for ngram).
+        word_list = []
 
         words.each do |word|
-          word_index[word.stem] << {
+          entry = {
             stem: word.stem,
             flags: word.flags.to_a
           }
+          word_index[word.stem] << entry
+          word_list << entry
         end
 
         # Build the dic structure with homonyms callable
         {
+          words: word_list,
           homonyms: ->(word) { word_index[word] || [] },
           has_flag: ->(word, flag, for_all: false) {
             entries = word_index[word] || []
@@ -291,6 +319,28 @@ module Kotoshu
           {
             pattern: bp.pattern,
             matcher: bp.matcher
+          }
+        end
+      end
+
+      # Build REP table for the Suggester.
+      #
+      # The Suggester's `replchars` permutation expects each entry as a
+      # Hash with `:regexp` (a Regexp) and `:replacement` (a String).
+      # AffReader returns `Readers::RepPattern` value objects; this
+      # method adapts that representation without poking at the
+      # RepPattern's internals — it uses the public accessors.
+      #
+      # @param rep_patterns [Array<RepPattern>, nil] REP entries
+      # @return [Array<Hash{Symbol=>Object}>] REP table for Suggester
+      def build_rep_table(rep_patterns)
+        return [] if rep_patterns.nil? || rep_patterns.empty?
+
+        rep_patterns.map do |rp|
+          {
+            regexp: rp.matcher,
+            pattern: rp.pattern,
+            replacement: rp.replacement
           }
         end
       end

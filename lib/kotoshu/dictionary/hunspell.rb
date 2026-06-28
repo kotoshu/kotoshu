@@ -55,6 +55,13 @@ module Kotoshu
         @lookuper ||= Readers::LookupBuilder.from_data(@aff_data, @dic_words).build
       end
 
+      # @return [Algorithms::Suggest::Suggester] The suggestion algorithm instance
+      def suggester
+        @suggester ||= Algorithms::Suggest::Suggester.new(
+          lookuper.aff, lookuper.dic, lookuper
+        )
+      end
+
       class << self
         # Load Hunspell dictionary from GitHub cache, downloading if necessary.
         #
@@ -288,28 +295,16 @@ module Kotoshu
 
       # Generate spelling suggestions.
       #
+      # Uses Algorithms::Suggest::Suggester for full Hunspell-compatible
+      # suggestion generation (edits, REP, MAP, KEY, TRY, ngram, phonetic).
+      #
       # @param word [String] The misspelled word
       # @param max_suggestions [Integer] Maximum suggestions
       # @return [Array<String>] List of suggested words
       def suggest(word, max_suggestions: 10)
         return [] if word.nil? || word.empty?
 
-        all_words = @word_index.keys + generate_affix_variants
-        lookup_word = word.downcase
-
-        # Find words with same prefix
-        prefix_len = [lookup_word.length - 1, 2].max
-        prefix = lookup_word[0...prefix_len]
-        candidates = all_words.select { |w| w.downcase.start_with?(prefix) }
-
-        # Calculate edit distances
-        candidates.map do |dict_word|
-          dist = edit_distance(lookup_word, dict_word.downcase)
-          [dict_word, dist]
-        end.select { |_, dist| dist.positive? && dist <= 2 }
-                  .sort_by { |_, dist| dist }
-                  .first(max_suggestions)
-                  .map(&:first)
+        suggester.call(word).first(max_suggestions)
       end
 
       # Add a word to the dictionary.
