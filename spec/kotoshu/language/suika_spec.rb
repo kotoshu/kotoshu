@@ -38,7 +38,8 @@ RSpec.describe Kotoshu::Language::Suika do
     end
 
     it "forces LOADED to false and raises SuikaUnavailable" do
-      output, status = Open3.capture2e("bundle", "exec", "ruby", "-e", script)
+      # Gem.ruby -S bundle handles Windows where bundle is bundle.bat
+      output, status = Open3.capture2e(Gem.ruby, "-S", "bundle", "exec", "ruby", "-e", script)
       skip "Bundle exec unavailable in this environment" unless status.success? || output =~ /LOADED=/
 
       expect(output).to include('LOADED=false')
