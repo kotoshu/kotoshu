@@ -133,11 +133,15 @@ module Kotoshu
 
         # Clear all registrations (mainly for testing).
         #
+        # Marks the registry as loaded so ensure_languages_loaded does
+        # not re-populate from autoloaded language files. Tests rely on
+        # clear producing an actually-empty registry.
+        #
         # @return [void]
         def clear
           @languages.clear
           @detectors.clear
-          @languages_loaded = false
+          @languages_loaded = true
         end
 
         # Get language info by code.
