@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require "tempfile"
-require_relative "../../../lib/kotoshu/embeddings/vocabulary"
+require "kotoshu"
 
-RSpec.describe Vocabulary do
+RSpec.describe Kotoshu::Embeddings::Vocabulary do
   let(:word_to_index) do
     {
       "hello" => 0,

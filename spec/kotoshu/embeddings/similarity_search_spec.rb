@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../../lib/kotoshu/embeddings/similarity_search"
-require_relative "../../../lib/kotoshu/embeddings/vocabulary"
-require_relative "../../../lib/kotoshu/embeddings/onnx_runtime_model"
+require "kotoshu"
 
 # Test model that returns simple embeddings without ONNX Runtime
 class TestOnnxRuntimeModel
