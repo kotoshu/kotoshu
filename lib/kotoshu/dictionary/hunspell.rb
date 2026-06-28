@@ -160,13 +160,13 @@ module Kotoshu
         # Read aff file using AffReader and cache the data
         aff_reader = Readers::AffReader.new(@aff_path)
         @aff_data = aff_reader.read
-        @aff_config = @aff_data  # For backward compatibility
+        @aff_config = @aff_data # For backward compatibility
 
         # Read dic file using DicReader with the same encoding as the aff file
         dic_reader = Readers::DicReader.new(@dic_path,
-                                             encoding: aff_reader.encoding,
-                                             flag_format: @aff_data['FLAG'] || 'short',
-                                             flag_synonyms: @aff_data['AF'] || {})
+                                            encoding: aff_reader.encoding,
+                                            flag_format: @aff_data['FLAG'] || 'short',
+                                            flag_synonyms: @aff_data['AF'] || {})
         @dic_words = dic_reader.read
 
         # Build legacy structures for backward compatibility

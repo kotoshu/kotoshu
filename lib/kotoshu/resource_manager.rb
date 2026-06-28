@@ -88,6 +88,7 @@ module Kotoshu
       frequency_status = nil
       if frequency
         raise ArgumentError, "frequency file not found: #{frequency}" unless File.exist?(frequency)
+
         freq_cache = frequency_cache_for
         freq_cache.install_local(lang, path: frequency, force: force) if freq_cache.respond_to?(:install_local)
         frequency_status = :local
@@ -238,7 +239,11 @@ module Kotoshu
       return nil unless cache.respond_to?(:supports_resource?) && cache.supports_resource?(lang)
       raise ResourceNotSetupError.new(lang, "frequency") unless cache.available?(lang)
 
-      cache.get(lang) rescue nil
+      begin
+        cache.get(lang)
+      rescue StandardError
+        nil
+      end
     end
 
     def resolve_model_cached(lang)
@@ -247,7 +252,11 @@ module Kotoshu
       return nil unless Cache::ModelCache::AVAILABLE_MODELS[:onnx].key?(lang.to_sym)
       raise ResourceNotSetupError.new(lang, "model") unless cache.available?(resource_id)
 
-      cache.get(resource_id) rescue nil
+      begin
+        cache.get(resource_id)
+      rescue StandardError
+        nil
+      end
     end
 
     def resolve_local_paths(lang, aff:, dic:, from:)

@@ -17,7 +17,7 @@ RSpec.describe Kotoshu::Cli::ProgressReporter do
       line = output.string.lines.last(2).join
       expect(line).to include("en model")
       expect(line).to include("50%")
-      expect(line).to match(%r{50 B/100 B})
+      expect(line).to include('50 B/100 B')
     end
 
     it "renders an indeterminate bar when Content-Length is missing" do

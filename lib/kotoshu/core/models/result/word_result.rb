@@ -85,7 +85,7 @@ module Kotoshu
           if correct
             word
           elsif has_suggestions?
-            "#{word} (did you mean #{top_suggestions(3).join(", ")}?)"
+            "#{word} (did you mean #{top_suggestions(3).join(', ')}?)"
           else
             "#{word} (no suggestions)"
           end

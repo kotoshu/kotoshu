@@ -35,7 +35,7 @@ module Kotoshu
       attr_reader :line_no
 
       # BOM (byte-order mark) for UTF-8
-      UTF8_BOM = "\xEF\xBB\xBF".freeze
+      UTF8_BOM = "\xEF\xBB\xBF"
 
       # Create a new file reader.
       #
@@ -64,10 +64,10 @@ module Kotoshu
       #
       # @yield [Integer, String] Line number and line content
       # @return [Enumerator] If no block given
-      def each
+      def each(&)
         return enum_for(:each) unless block_given?
 
-        @iterator.each { |line_no, line| yield(line_no, line) }
+        @iterator.each(&)
       end
 
       # Get all lines as an array.
@@ -84,7 +84,7 @@ module Kotoshu
         peek
         true
       rescue StopIteration
-      false
+        false
       end
 
       # Peek at next line without consuming it.
@@ -251,7 +251,7 @@ module Kotoshu
       attr_reader :line_no
 
       # BOM (byte-order mark) for UTF-8
-      UTF8_BOM = "\xEF\xBB\xBF".freeze
+      UTF8_BOM = "\xEF\xBB\xBF"
 
       # Create a new zip reader.
       #
@@ -282,10 +282,10 @@ module Kotoshu
       #
       # @yield [Integer, String] Line number and line content
       # @return [Enumerator] If no block given
-      def each
+      def each(&)
         return enum_for(:each) unless block_given?
 
-        @iterator.each { |line_no, line| yield(line_no, line) }
+        @iterator.each(&)
       end
 
       # Get all lines as an array.

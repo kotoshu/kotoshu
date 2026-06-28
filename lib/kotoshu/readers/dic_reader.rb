@@ -135,6 +135,7 @@ module Kotoshu
         while i < str.length
           c = str[i]
           return i if c == '/' && (i.zero? || str[i - 1] != '\\')
+
           i += 1
         end
         nil

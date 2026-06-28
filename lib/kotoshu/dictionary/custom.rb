@@ -72,9 +72,9 @@ module Kotoshu
           dist = edit_distance(lookup_word, dict_word)
           [dict_word, dist]
         end.select { |_, dist| dist.positive? && dist <= 2 }
-                  .sort_by { |_, dist| dist }
-                  .first(max_suggestions)
-                  .map(&:first)
+          .sort_by { |_, dist| dist }
+          .first(max_suggestions)
+          .map(&:first)
       end
 
       # Add a word to the dictionary.

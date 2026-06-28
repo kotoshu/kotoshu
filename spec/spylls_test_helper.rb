@@ -21,6 +21,7 @@ module SpyllsTestHelper
       line = line.strip
       next if line.empty?
       next if ignoredot && line.end_with?('.')
+
       line
     end
   end

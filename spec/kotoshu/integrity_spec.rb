@@ -86,9 +86,11 @@ RSpec.describe Kotoshu::Integrity do
             @responses ||= {}
             @responses[url] = body
           end
+
           def self.clear
             @responses&.clear
           end
+
           def self.get(url, **)
             @responses ||= {}
             @responses.fetch(url) { raise Kotoshu::Integrity::NetHTTP::HttpError, "not stubbed" }

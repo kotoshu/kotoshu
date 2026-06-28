@@ -15,9 +15,9 @@ RSpec.describe Kotoshu::Language::Tokenizer::Base do
 
   describe "#tokenize" do
     it "raises NotImplementedError" do
-      expect {
+      expect do
         test_tokenizer.tokenize("test")
-      }.to raise_error(NotImplementedError)
+      end.to raise_error(NotImplementedError)
     end
   end
 

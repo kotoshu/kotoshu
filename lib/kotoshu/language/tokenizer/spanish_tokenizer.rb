@@ -17,7 +17,7 @@ module Kotoshu
       class SpanishTokenizer < Base
         # Spanish word separators - most punctuation and whitespace
         # Note: We need to handle decimals specially, so we protect them first
-        WORD_SEPARATORS = /[\s"()\[\]{}<>,.;:!?\\\/|`~@#$%^&*·]/.freeze
+        WORD_SEPARATORS = /[\s"()\[\]{}<>,.;:!?\\\/|`~@#$%^&*·]/
 
         # Decimal point between digits: 3.14
         DECIMAL_POINT = /(\d)\.(\d)/

@@ -56,7 +56,7 @@ RSpec.describe Kotoshu::Configuration::Resolver do
 
       it "returns ENV value when CLI not set" do
         # Set ENV for this test
-        old_env = ENV["KOTOSHU_LANGUAGE"]
+        old_env = ENV.fetch("KOTOSHU_LANGUAGE", nil)
         ENV["KOTOSHU_LANGUAGE"] = "de"
 
         begin
@@ -79,7 +79,7 @@ RSpec.describe Kotoshu::Configuration::Resolver do
 
       it "returns programmatic value when CLI and ENV not set" do
         # Clear ENV for this test
-        old_env = ENV["KOTOSHU_LANGUAGE"]
+        old_env = ENV.fetch("KOTOSHU_LANGUAGE", nil)
         ENV.delete("KOTOSHU_LANGUAGE") if ENV.key?("KOTOSHU_LANGUAGE")
 
         begin
@@ -102,7 +102,7 @@ RSpec.describe Kotoshu::Configuration::Resolver do
 
       it "returns default value when nothing else set" do
         # Clear ENV for this test
-        old_env = ENV["KOTOSHU_LANGUAGE"]
+        old_env = ENV.fetch("KOTOSHU_LANGUAGE", nil)
         ENV.delete("KOTOSHU_LANGUAGE") if ENV.key?("KOTOSHU_LANGUAGE")
 
         begin
@@ -152,7 +152,7 @@ RSpec.describe Kotoshu::Configuration::Resolver do
     end
 
     it "returns true for keys in ENV" do
-      old_env = ENV["KOTOSHU_VERBOSE"]
+      old_env = ENV.fetch("KOTOSHU_VERBOSE", nil)
       ENV["KOTOSHU_VERBOSE"] = "true"
 
       begin
@@ -176,7 +176,7 @@ RSpec.describe Kotoshu::Configuration::Resolver do
 
   describe "#get_all" do
     let(:resolver) do
-      old_env = ENV["KOTOSHU_LANGUAGE"]
+      ENV.fetch("KOTOSHU_LANGUAGE", nil)
       ENV["KOTOSHU_LANGUAGE"] = "de"
 
       described_class.new(
@@ -195,22 +195,22 @@ RSpec.describe Kotoshu::Configuration::Resolver do
       all = resolver.get_all(:language)
 
       expect(all).to eq({
-        cli: "ja",
-        env: "de",
-        programmatic: "en-US",
-        default: nil
-      })
+                          cli: "ja",
+                          env: "de",
+                          programmatic: "en-US",
+                          default: nil
+                        })
     end
 
     it "returns all priority levels for another key" do
       all = resolver.get_all(:max_suggestions)
 
       expect(all).to eq({
-        cli: nil,
-        env: nil,
-        programmatic: 15,
-        default: 10
-      })
+                          cli: nil,
+                          env: nil,
+                          programmatic: 15,
+                          default: 10
+                        })
     end
   end
 

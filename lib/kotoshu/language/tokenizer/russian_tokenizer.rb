@@ -14,7 +14,7 @@ module Kotoshu
       # - Spaced dots: .. , .
       class RussianTokenizer < Base
         # Russian-specific word separators (exclude apostrophe and dot)
-        WORD_SEPARATORS = /[\s"()\[\]{}<>,;:!?\\\/|`~@#$%^&*+\-·]/.freeze
+        WORD_SEPARATORS = /[\s"()\[\]{}<>,;:!?\\\/|`~@#$%^&*+\-·]/
 
         # Special abbreviations that should not be split
         # Using non-printing characters as placeholders
@@ -73,9 +73,7 @@ module Kotoshu
 
           # Restore spaced dots first, then single dot pattern
           result = result.gsub("\u0001\u0001SP_DDOT_SP\u0001\u0001", " .. ")
-          result = result.gsub("\u0001\u0001SP_DOT_SP\u0001\u0001", " . ")
-
-          result
+          result.gsub("\u0001\u0001SP_DOT_SP\u0001\u0001", " . ")
         end
 
         # Restore abbreviations from placeholders.

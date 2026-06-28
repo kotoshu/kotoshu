@@ -18,7 +18,7 @@ RSpec.describe Kotoshu::Language::Suika do
       tagger1 = described_class.tagger
       tagger2 = described_class.tagger
 
-      expect(tagger1).to be_a(::Suika::Tagger)
+      expect(tagger1).to be_a(Suika::Tagger)
       expect(tagger2).to equal(tagger1)
     end
   end
@@ -41,8 +41,8 @@ RSpec.describe Kotoshu::Language::Suika do
       output, status = Open3.capture2e("bundle", "exec", "ruby", "-e", script)
       skip "Bundle exec unavailable in this environment" unless status.success? || output =~ /LOADED=/
 
-      expect(output).to match(/LOADED=false/)
-      expect(output).to match(/RAISED=yes/)
+      expect(output).to include('LOADED=false')
+      expect(output).to include('RAISED=yes')
       expect(output).to include("suika gem not loaded")
       expect(output).to include("gem install suika")
     end
@@ -51,7 +51,7 @@ end
 
 RSpec.describe Kotoshu::SuikaUnavailable do
   it "is a Kotoshu::Error" do
-      expect(described_class.ancestors).to include(Kotoshu::Error)
+    expect(described_class.ancestors).to include(Kotoshu::Error)
   end
 
   it "explains how to install the gem" do

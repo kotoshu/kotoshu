@@ -13,19 +13,19 @@ module Kotoshu
     namespace :check
 
     class_option :language, aliases: '-l', type: :string, default: 'auto',
-             desc: 'Language code (auto, de, en, es, fr, pt, ru)'
+                            desc: 'Language code (auto, de, en, es, fr, pt, ru)'
     class_option :interactive, aliases: '-i', type: :boolean, default: false,
-             desc: 'Interactive mode for error review'
+                               desc: 'Interactive mode for error review'
     class_option :output, aliases: '-o', type: :string,
-             desc: 'Output file path (for batch mode)'
+                          desc: 'Output file path (for batch mode)'
     class_option :format, type: :string, enum: %w[text json yaml csv sarif], default: 'text',
-             desc: 'Output format (text, json, yaml, csv, sarif)'
+                          desc: 'Output format (text, json, yaml, csv, sarif)'
     class_option :model, type: :string, enum: %w[fasttext hunspell], default: 'hunspell',
-             desc: 'Analysis model (fasttext, hunspell)'
+                         desc: 'Analysis model (fasttext, hunspell)'
     class_option :download, type: :boolean, default: true,
-             desc: 'Automatically download models if missing'
+                            desc: 'Automatically download models if missing'
     class_option :verbose, aliases: '-v', type: :boolean, default: false,
-             desc: 'Verbose output'
+                           desc: 'Verbose output'
 
     desc 'check FILE', 'Check spelling/grammar in a file'
     def check(file)
@@ -56,12 +56,12 @@ module Kotoshu
 
     desc 'string TEXT', 'Check spelling/grammar in a text string'
     option :format, type: :string, enum: %w[text markdown], default: 'text',
-             desc: 'Text format (text, markdown)'
+                    desc: 'Text format (text, markdown)'
     def string(text)
       language_code = options[:language]
 
       # Create document from string
-      format_sym = options[:format].to_sym
+      options[:format].to_sym
       document = Documents::Document.from_string(text, language_code: language_code)
 
       # Load analyzer
@@ -81,7 +81,7 @@ module Kotoshu
 
     desc 'stdin', 'Check spelling/grammar from stdin'
     option :format, type: :string, enum: %w[text markdown], default: 'text',
-             desc: 'Text format (text, markdown)'
+                    desc: 'Text format (text, markdown)'
     def stdin
       text = $stdin.read
 
@@ -243,7 +243,7 @@ module Kotoshu
       # For batch mode with Hunspell, we need different approach
       if analyzer.is_a?(SpellChecker)
         # Use traditional spell checker
-        result = analyzer.check_string(document.content)
+        analyzer.check_string(document.content)
         # Convert result to navigation...
         # This is a placeholder - full implementation would convert
       end
@@ -290,10 +290,10 @@ module Kotoshu
       end
 
       # Apply corrections
-      corrected_doc = document.apply(corrections.map { |c|
+      corrected_doc = document.apply(corrections.map do |c|
         # Convert correction hash to SemanticError
         # This is a placeholder - full implementation would reconstruct errors
-      }.compact)
+      end.compact)
 
       # Write corrected document
       backup_path = document.name + ".bak"

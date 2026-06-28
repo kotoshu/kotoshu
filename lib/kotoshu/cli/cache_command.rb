@@ -210,7 +210,7 @@ module Kotoshu
           unless options[:confirm]
             puts "This will remove all cached dictionaries and frequency data."
             print "Are you sure? [y/N] "
-            return unless $stdin.gets.chomp =~ /^[Yy]/
+            return unless /^[Yy]/.match?($stdin.gets.chomp)
           end
 
           count = cache.purge_all
@@ -296,8 +296,8 @@ module Kotoshu
         return "0 B" if bytes.nil? || bytes.zero?
 
         units = %w[B KB MB GB TB]
-        exp = [(Math.log(bytes, 1024)).floor, units.size - 1].min
-        "#{format('%.2f', bytes.to_f / 1024**exp)} #{units[exp]}"
+        exp = [Math.log(bytes, 1024).floor, units.size - 1].min
+        "#{format('%.2f', bytes.to_f / (1024**exp))} #{units[exp]}"
       end
 
       # Get time ago string.

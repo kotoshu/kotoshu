@@ -25,8 +25,8 @@ RSpec.describe Kotoshu::Algorithms::NgramSuggest do
       score1 = described_class.root_score("Hello", "hello")
       score2 = described_class.root_score("HELLO", "hello")
 
-      expect(score1).to be > 0  # Has common prefix "ello"
-      expect(score2).to be < score1  # No common prefix
+      expect(score1).to be > 0 # Has common prefix "ello"
+      expect(score2).to be < score1 # No common prefix
     end
   end
 
@@ -156,8 +156,8 @@ RSpec.describe Kotoshu::Algorithms::NgramSuggest do
                               prefixes: {},
                               suffixes: {},
                               known: Set.new,
-                              maxdiff: 10,  # Higher maxdiff = more permissive
-                              onlymaxdiff: false,  # Allow questionable suggestions
+                              maxdiff: 10, # Higher maxdiff = more permissive
+                              onlymaxdiff: false, # Allow questionable suggestions
                               has_phonetic: false) do |suggestion|
         results << suggestion
       end
@@ -201,8 +201,8 @@ RSpec.describe Kotoshu::Algorithms::NgramSuggest do
                               prefixes: {},
                               suffixes: {},
                               known: Set.new,
-                              maxdiff: 10,  # More permissive
-                              onlymaxdiff: false,  # Allow questionable
+                              maxdiff: 10, # More permissive
+                              onlymaxdiff: false, # Allow questionable
                               has_phonetic: false) do |suggestion|
         results << suggestion
       end

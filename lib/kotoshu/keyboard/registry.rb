@@ -65,7 +65,7 @@ module Kotoshu
           name_str = name.to_s
           result = layouts.values.find do |layout|
             layout.name == name_str ||
-            layout.class.name.end_with?("::#{name_str}")
+              layout.class.name.end_with?("::#{name_str}")
           end
 
           # Return QWERTY as fallback (not default_layout to avoid recursion)

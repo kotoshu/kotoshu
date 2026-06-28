@@ -17,7 +17,7 @@ RSpec.shared_examples 'a language module' do
   end
 
   it 'has a script type' do
-    expect(subject.script_type).to be_in([:latin, :cjk, :rtl, :other])
+    expect(subject.script_type).to be_in(%i[latin cjk rtl other])
   end
 
   it 'has a description' do

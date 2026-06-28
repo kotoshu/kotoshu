@@ -135,15 +135,15 @@ module Kotoshu
 
       (0...m).each do |i|
         (0...n).each do |j|
-          if s1[i] == s2[j]
-            # Characters match - extend diagonal
-            c[i + 1][j + 1] = c[i][j] + 1
-          elsif c[i][j + 1] >= c[i + 1][j]
-            # Take max from top or left
-            c[i + 1][j + 1] = c[i][j + 1]
-          else
-            c[i + 1][j + 1] = c[i + 1][j]
-          end
+          c[i + 1][j + 1] = if s1[i] == s2[j]
+                              # Characters match - extend diagonal
+                              c[i][j] + 1
+                            elsif c[i][j + 1] >= c[i + 1][j]
+                              # Take max from top or left
+                              c[i][j + 1]
+                            else
+                              c[i + 1][j]
+                            end
         end
       end
 

@@ -45,6 +45,7 @@ module Kotoshu
 
         def check(word)
           return { found: false, stem: nil, flags: [] } if word.nil? || word.empty?
+
           # Try exact match first
           first_form = @lookuper.good_forms(word).first
           return { found: true, stem: first_form.stem || word, flags: first_form.flags&.to_a || [] } if first_form
@@ -53,7 +54,8 @@ module Kotoshu
           unless word == word.downcase
             lowercase_form = @lookuper.good_forms(word.downcase).first
             if lowercase_form
-              return { found: true, stem: lowercase_form.stem || word.downcase, flags: lowercase_form.flags&.to_a || [] }
+              return { found: true, stem: lowercase_form.stem || word.downcase,
+                       flags: lowercase_form.flags&.to_a || [] }
             end
           end
 
@@ -62,8 +64,10 @@ module Kotoshu
 
         def suggest(word, max_suggestions: 10)
           return [] if word.nil? || word.empty?
+
           first_form = @lookuper.good_forms(word).first
           return [] if first_form
+
           generate_suggestions(word, max_suggestions).take(max_suggestions)
         end
 
@@ -80,7 +84,8 @@ module Kotoshu
         def calculate_distance(a, b)
           return a.length if b.empty?
           return b.length if a.empty?
-          matrix = Array.new(a.length + 1) { |i| [i] + [0] * b.length }
+
+          matrix = Array.new(a.length + 1) { |i| [i] + ([0] * b.length) }
           (1..b.length).each { |j| matrix[0][j] = j }
           (1..a.length).each do |i|
             (1..b.length).each do |j|
@@ -99,7 +104,7 @@ module Kotoshu
           [distance_score - rank_penalty, 0.0].max
         end
 
-        def generate_suggestions(word, max_suggestions)
+        def generate_suggestions(word, _max_suggestions)
           variations = []
 
           # Missing umlauts
@@ -133,6 +138,7 @@ module Kotoshu
           # Doubled letters
           word.chars.each_with_index do |char, i|
             next if i == 0
+
             doubled = word.dup
             doubled.insert(i, char)
             variations << doubled if @lookuper.good_forms(doubled).first
@@ -143,6 +149,7 @@ module Kotoshu
             deleted = word.dup
             deleted.slice!(i)
             next if deleted.empty?
+
             variations << deleted if @lookuper.good_forms(deleted).first
           end
 
@@ -150,10 +157,10 @@ module Kotoshu
           if word.length > 10
             # Try splitting common compound patterns
             common_prefixes = %w[Arbeits Baum Bau Bauern Berg Buch Dach Dollar Dorf Ein Frauen Feuer Finanz Flug Franz
-              Frei Haupt Haus Hoch Jahr Jung Kinder Klein Konsum Land Lehr Leben Leute Mann MarktMein Milli
-              Morgen Mutter Natur Papier Polizei Post Post Problem Recht Rhein Rot Sache Schule Schiff Schritt
-              Schiff See Sozial Stadt Stein Steuer Strom Tag Teil Tier Tor Tour Typ Uhr Umwelt Unter Volk
-              Wasser Weg Welt Wein Welt Zeit]
+                                 Frei Haupt Haus Hoch Jahr Jung Kinder Klein Konsum Land Lehr Leben Leute Mann MarktMein Milli
+                                 Morgen Mutter Natur Papier Polizei Post Post Problem Recht Rhein Rot Sache Schule Schiff Schritt
+                                 Schiff See Sozial Stadt Stein Steuer Strom Tag Teil Tier Tor Tour Typ Uhr Umwelt Unter Volk
+                                 Wasser Weg Welt Wein Welt Zeit]
             common_prefixes.each do |prefix|
               if word.start_with?(prefix)
                 split_word = prefix + ' ' + word[prefix.length..]
@@ -169,7 +176,8 @@ module Kotoshu
 
           variations.uniq!
           variations.map do |suggestion|
-            { word: suggestion, distance: calculate_distance(word, suggestion), score: calculate_score(word, suggestion, 0) }
+            { word: suggestion, distance: calculate_distance(word, suggestion),
+              score: calculate_score(word, suggestion, 0) }
           end.sort_by { |s| s[:distance] }
         end
       end
@@ -240,6 +248,7 @@ module Kotoshu
 
         def tag(tokens)
           return [] if tokens.nil? || tokens.empty?
+
           tokens.map do |token|
             word = token[:token]
             if word.nil? || word.empty?
@@ -271,10 +280,8 @@ module Kotoshu
 
           # German nouns are capitalized - try lowercase if capitalized doesn't work
           first_form = @lookuper.good_forms(word).first
-          unless first_form
-            if word == word.capitalize && word.length > 1
-              first_form = @lookuper.good_forms(word.downcase).first
-            end
+          if !first_form && word == word.capitalize && word.length > 1
+            first_form = @lookuper.good_forms(word.downcase).first
           end
 
           pos_tag = derive_pos_tag(first_form)
@@ -285,8 +292,10 @@ module Kotoshu
 
         def derive_pos_tag(result)
           return nil unless result
+
           flags = result.flags&.to_a || []
           return guess_pos_from_affix(result) if flags.empty?
+
           flags.each do |flag|
             pos_tag = flag_to_pos(flag)
             return pos_tag if pos_tag
@@ -296,6 +305,7 @@ module Kotoshu
 
         def flag_to_pos(flag)
           return @flag_mapping[flag] if @flag_mapping.key?(flag)
+
           first_char = flag[0]
           @flag_mapping[first_char]
         end
@@ -303,6 +313,7 @@ module Kotoshu
         def guess_pos_from_affix(result)
           suffix = result.suffix
           return guess_pos_from_suffix(suffix) if suffix
+
           nil
         end
 
@@ -312,6 +323,7 @@ module Kotoshu
           return 'ADV' if suffix.match?(/^(lich|weise|lings|maß|mäßig)$/)
           return 'NOUN' if suffix.match?(/^(ung|heit|keit|schaft|tion|ismus|tum|ling|ner|eur)$/)
           return 'ADJ' if suffix.match?(/^(isch|ig|lich|bar|sam|haft|los|mäßig)$/)
+
           nil
         end
       end
@@ -332,7 +344,7 @@ module Kotoshu
             raise NotImplementedError, "#{self.class} must implement #check"
           end
 
-          def applies?(tokens, index)
+          def applies?(_tokens, _index)
             true
           end
         end
@@ -341,7 +353,7 @@ module Kotoshu
         class NounCapitalizationRule < Rule
           # Common German noun suffixes
           NOUN_SUFFIXES = %w[ung heit keit schaft tion ismus tum ling ner eur
-            able ibil ig igkeit lich sam los losung].freeze
+                             able ibil ig igkeit lich sam los losung].freeze
 
           def initialize
             super('DE_NOUN_CAPITALIZATION', 'Noun Capitalization', 'German nouns must be capitalized.')
@@ -371,17 +383,16 @@ module Kotoshu
               # Check position: after determiners often indicates a noun
               if idx > 0
                 prev_token = tokens[idx - 1][:token]&.downcase
-                if %w[der die das ein eine einem einen einer eines].include?(prev_token)
-                  if word == word.downcase && word.length > 2
-                    errors << {
-                      rule_id: @id,
-                      position: token[:position],
-                      message: "German nouns must be capitalized after articles: '#{word}'",
-                      suggestion: word.capitalize,
-                      context: "#{prev_token} #{word}",
-                      suggestions: [word.capitalize]
-                    }
-                  end
+                if %w[der die das ein eine einem einen einer
+                      eines].include?(prev_token) && word == word.downcase && word.length > 2
+                  errors << {
+                    rule_id: @id,
+                    position: token[:position],
+                    message: "German nouns must be capitalized after articles: '#{word}'",
+                    suggestion: word.capitalize,
+                    context: "#{prev_token} #{word}",
+                    suggestions: [word.capitalize]
+                  }
                 end
               end
             end
@@ -473,12 +484,13 @@ module Kotoshu
 
       def initialize(code: "de", name: "German", variant: nil)
         variant ||= extract_region_code(code)
-        super(code: code, name: name, variant: variant)
+        super
         @hunspell_paths = resolve_hunspell_paths(code)
       end
 
       def description
         return name unless variant
+
         variant_name = VARIANT_NAMES[variant] || variant
         "#{name} (#{variant_name})"
       end
@@ -535,6 +547,7 @@ module Kotoshu
 
       def extract_region_code(code)
         return nil unless code.include?("-")
+
         code.split("-", 2).last.upcase
       end
 

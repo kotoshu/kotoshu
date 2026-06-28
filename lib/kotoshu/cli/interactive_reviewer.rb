@@ -161,7 +161,7 @@ module Kotoshu
 
         when /^(\d+)$/
           # Accept suggestion by number
-          suggestion_number = $1.to_i - 1  # Convert to 0-based index
+          suggestion_number = $1.to_i - 1 # Convert to 0-based index
           accept_suggestion_by_number(suggestion_number)
 
         when 'j', 'jump'
@@ -242,7 +242,7 @@ module Kotoshu
 
         return unless input
 
-        number = input.to_i - 1  # Convert to 0-based
+        number = input.to_i - 1 # Convert to 0-based
         if number >= 0 && number < @navigation.errors.size
           @navigation.jump_to(number)
         else

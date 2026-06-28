@@ -265,6 +265,7 @@ module Kotoshu
       def status_for(idx)
         return "[DONE]" if @modified.include?(idx)
         return "[SKIP]" if @skipped.include?(idx)
+
         "[PENDING]"
       end
     end

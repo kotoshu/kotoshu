@@ -213,9 +213,9 @@ RSpec.describe Kotoshu::Cache::LanguageCache do
           url_base: "https://invalid-url-that-does-not-exist.local"
         )
 
-        expect {
+        expect do
           cache_with_invalid_url.get_spelling("en")
-        }.to raise_error(Kotoshu::DictionaryNotFoundError)
+        end.to raise_error(Kotoshu::DictionaryNotFoundError)
       end
     end
   end

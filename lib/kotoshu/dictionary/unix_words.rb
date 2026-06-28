@@ -88,9 +88,9 @@ module Kotoshu
           dist = edit_distance(lookup_word, dict_word)
           [dict_word, dist]
         end.select { |_, dist| dist.positive? && dist <= 2 } # Only close matches
-                  .sort_by { |_, dist| dist }
-                  .first(max_suggestions)
-                  .map(&:first)
+          .sort_by { |_, dist| dist }
+          .first(max_suggestions)
+          .map(&:first)
       end
 
       # Add a word to the dictionary.
@@ -172,8 +172,8 @@ module Kotoshu
         raise DictionaryNotFoundError, path unless File.exist?(path)
 
         File.foreach(path, chomp: true)
-            .reject { |line| line.empty? || line.start_with?("#") }
-            .map { |word| @case_sensitive ? word : word.downcase }
+          .reject { |line| line.empty? || line.start_with?("#") }
+          .map { |word| @case_sensitive ? word : word.downcase }
       end
 
       # Build a hash set for O(1) lookups.

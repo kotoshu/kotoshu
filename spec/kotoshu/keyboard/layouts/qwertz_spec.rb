@@ -30,7 +30,7 @@ RSpec.describe Kotoshu::Keyboard::Layouts::QWERTZ do
     it 'has correct position for umlaut keys' do
       # On German QWERTZ: a s d f g h j k l ö ä
       # Position indices: 0 1 2 3 4 5 6 7 8 9  10
-      expect(layout.position('ä')).to eq([2, 10])  # In home row
+      expect(layout.position('ä')).to eq([2, 10]) # In home row
       expect(layout.position('ö')).to eq([2, 9])
       expect(layout.position('ü')).to eq([1, 10])
     end

@@ -9,7 +9,11 @@ require "benchmark"
 RSpec.describe "Performance Regression Tests", :performance, :slow do
   let(:dictionary) do
     # Create a reasonably sized dictionary
-    words = File.readlines("/usr/share/dict/words", chomp: true).first(5000) rescue []
+    words = begin
+      File.readlines("/usr/share/dict/words", chomp: true).first(5000)
+    rescue StandardError
+      []
+    end
     Kotoshu::Dictionary::PlainText.from_words(words, language_code: "en")
   end
 
@@ -74,7 +78,7 @@ RSpec.describe "Performance Regression Tests", :performance, :slow do
       misses = 0
 
       # Check same words again
-      time = Benchmark.realtime do
+      Benchmark.realtime do
         words.each do |word|
           if spellchecker.correct?(word)
             hits += 1

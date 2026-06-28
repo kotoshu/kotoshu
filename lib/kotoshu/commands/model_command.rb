@@ -11,11 +11,11 @@ module Kotoshu
 
     desc 'convert INPUT OUTPUT', 'Convert FastText .vec file to ONNX format'
     option :language, aliases: '-l', type: :string, required: true,
-             desc: 'Language code (de, en, es, fr, pt, ru)'
+                      desc: 'Language code (de, en, es, fr, pt, ru)'
     option :max_vectors, type: :numeric, default: 500_000,
-             desc: 'Maximum vectors to convert (default: 500k)'
+                         desc: 'Maximum vectors to convert (default: 500k)'
     option :validate, type: :boolean, default: true,
-             desc: 'Validate model after conversion'
+                      desc: 'Validate model after conversion'
     def convert(input, output)
       puts "Converting #{input} to #{output}..."
 
@@ -64,11 +64,11 @@ module Kotoshu
 
     desc 'download LANGUAGE', 'Download FastText model for a language'
     option :type, type: :string, enum: %w[fasttext onnx], default: 'fasttext',
-             desc: 'Model type to download'
+                  desc: 'Model type to download'
     option :output, type: :string,
-             desc: 'Output path (default: $XDG_CACHE_HOME/kotoshu/languages/{code}/models/)'
+                    desc: 'Output path (default: $XDG_CACHE_HOME/kotoshu/languages/{code}/models/)'
     option :force, type: :boolean, default: false,
-             desc: 'Force re-download even if cached'
+                   desc: 'Force re-download even if cached'
     def download(language)
       puts "Downloading #{options[:type]} model for #{language}..."
 
@@ -89,7 +89,7 @@ module Kotoshu
 
     desc 'info LANGUAGE', 'Show information about available models'
     option :type, type: :string, enum: %w[fasttext onnx],
-             desc: 'Model type to show (default: all)'
+                  desc: 'Model type to show (default: all)'
     def info(language)
       cache = Cache::ModelCache.new
 
@@ -165,7 +165,6 @@ module Kotoshu
         end
 
         puts "\n✓ Model is valid!"
-
       rescue StandardError => e
         puts "✗ Validation failed: #{e.message}"
         exit 1
@@ -174,11 +173,11 @@ module Kotoshu
 
     desc 'upload LANGUAGE MODEL_FILE', 'Upload model to dictionaries repository'
     option :repo, type: :string, default: 'kotoshu/dictionaries',
-             desc: 'GitHub repository'
+                  desc: 'GitHub repository'
     option :branch, type: :string, default: 'main',
-             desc: 'Target branch'
+                    desc: 'Target branch'
     option :create_pr, type: :boolean, default: false,
-             desc: 'Create pull request instead of direct push'
+                       desc: 'Create pull request instead of direct push'
     def upload(language, model_file)
       puts "Uploading #{model_file} to #{options[:repo]}..."
 

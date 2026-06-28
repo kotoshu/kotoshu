@@ -18,7 +18,7 @@ module Kotoshu
         # @param tokens [Array<Hash>] Array of token hashes
         # @param rule [Rule] The rule being checked
         # @return [Array<Hash>] Array of error hashes
-        def match(tokens, rule)
+        def match(_tokens, _rule)
           []
         end
 

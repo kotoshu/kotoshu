@@ -65,9 +65,9 @@ module Kotoshu
       def word_at_location
         return nil unless @location
 
-        if @location.column
+        if @location.column && @current && @location.column < @current.length
           # Get character at column
-          return @current[@location.column] if @current && @location.column < @current.length
+          return @current[@location.column]
         end
 
         # For node-based locations, return the current text

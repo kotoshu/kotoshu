@@ -76,8 +76,8 @@ module Kotoshu
         return [] unless File.exist?(PERSONAL_FILE)
 
         File.readlines(PERSONAL_FILE, chomp: true)
-            .reject { |line| line.empty? || line.start_with?("#") }
-            .map(&:strip)
+          .reject { |line| line.empty? || line.start_with?("#") }
+          .map(&:strip)
       end
 
       # Save words to personal dictionary file.

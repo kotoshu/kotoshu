@@ -131,10 +131,10 @@ module Kotoshu
       #
       # @yield [word] Each word
       # @return [Enumerator] Enumerator if no block given
-      def each_word(&block)
+      def each_word(&)
         return enum_for(:each_word) unless block_given?
 
-        words.each(&block)
+        words.each(&)
       end
 
       # Get words starting with a prefix.

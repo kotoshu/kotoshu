@@ -169,8 +169,8 @@ module Kotoshu
         #
         # @param word [String] Word to check
         # @yield [Suggestion, MultiWordSuggestion] Each suggestion object
-        def suggestions(word)
-          return enum_for(:suggestions, word) unless block_given?
+        def suggestions(word, &block)
+          return enum_for(:suggestions, word) unless block
 
           # Track all suggestions we've already yielded
           handled = Set.new
@@ -235,10 +235,8 @@ module Kotoshu
                 word: word,
                 captype: captype,
                 is_forbidden: is_forbidden,
-                handled: handled
-              ) do |suggestion|
-                yield suggestion
-              end
+                handled: handled, &block
+              )
             end
 
             # Generate and check edits (non-compound first)
@@ -462,7 +460,7 @@ module Kotoshu
         # @param word [String] Misspelled word
         # @param handled [Set<String>] Already suggested words
         # @yield [String] Each ngram suggestion
-        def ngram_suggestions(word, handled:)
+        def ngram_suggestions(word, handled:, &block)
           return unless @aff[:MAXNGRAMSUGS]&.positive?
 
           known_lower = handled.map(&:downcase).to_set
@@ -475,26 +473,22 @@ module Kotoshu
             known: known_lower,
             maxdiff: @aff[:MAXDIFF] || 2,
             onlymaxdiff: @aff[:ONLYMAXDIFF] || false,
-            has_phonetic: !@aff[:PHONE].nil?
-          ) do |suggestion|
-            yield suggestion
-          end
+            has_phonetic: !@aff[:PHONE].nil?, &block
+          )
         end
 
         # Generate phonetic suggestions.
         #
         # @param word [String] Misspelled word
         # @yield [String] Each phonetic suggestion
-        def phonet_suggestions(word)
+        def phonet_suggestions(word, &)
           return unless @aff[:PHONE]
 
           PhonetSuggest.suggest(
             word,
             dictionary_words: @words_for_ngram,
-            table: @aff[:PHONE]
-          ) do |suggestion|
-            yield suggestion
-          end
+            table: @aff[:PHONE], &
+          )
         end
 
         # Check if dashes are allowed for joining words.
@@ -556,8 +550,8 @@ module Kotoshu
           return if handled.include?(text)
 
           # Skip if subsumed by existing suggestion
-          if check_inclusion
-            return if handled.any? { |prev| text.downcase.include?(prev.downcase) }
+          if check_inclusion && handled.any? { |prev| text.downcase.include?(prev.downcase) }
+            return
           end
 
           handled.add(text)

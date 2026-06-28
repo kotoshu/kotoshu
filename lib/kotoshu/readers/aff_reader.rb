@@ -117,7 +117,7 @@ module Kotoshu
         name = parts[0]
 
         # Check if it looks like a directive (all caps)
-        return nil unless name =~ /^[A-Z]+$/
+        return nil unless /^[A-Z]+$/.match?(name)
 
         # Handle synonyms
         name = SYNONYMS[name] || name
@@ -199,9 +199,9 @@ module Kotoshu
               # Remove parentheses from parenthesized groups, keep as single string
               # For single characters, keep as is
               if group.start_with?('(') && group.end_with?(')')
-                group[1..-2]  # Remove parentheses, keep content as single string
+                group[1..-2] # Remove parentheses, keep content as single string
               else
-                group  # Keep single character as is
+                group # Keep single character as is
               end
             end
           end
@@ -209,7 +209,9 @@ module Kotoshu
 
         # SFX/PFX directives
         if %w[SFX PFX].include?(directive)
-          flag, crossproduct, count = values[0], values[1], values[2]&.to_i || 0
+          flag = values[0]
+          crossproduct = values[1]
+          count = values[2]&.to_i || 0
           type = directive == 'PFX' ? :prefix : :suffix
 
           affixes = read_array(reader, count).map do |parts|
@@ -298,7 +300,7 @@ module Kotoshu
       def read_array(reader, count)
         result = []
         count.times do
-          line_no, line = reader.next
+          _, line = reader.next
           parts = line.split(/\s+/)
           # Skip the directive name at the beginning
           result << parts[1..] if parts.length > 1
@@ -375,7 +377,7 @@ module Kotoshu
 
         normalized = name.upcase.delete("-")
         if normalized.start_with?("ISO8859")
-          "ISO-8859-#{normalized.sub("ISO8859", "")}"
+          "ISO-8859-#{normalized.sub('ISO8859', '')}"
         else
           name
         end

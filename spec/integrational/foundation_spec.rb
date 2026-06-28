@@ -13,7 +13,7 @@ RSpec.describe 'Foundation Component Integration' do
 
   describe 'EnglishSpellChecker' do
     context 'when dictionary files exist' do
-      before(:each) do
+      before do
         skip 'Dictionary fixtures not found' unless fixtures_exist
       end
 
@@ -64,12 +64,12 @@ RSpec.describe 'Foundation Component Integration' do
 
     context 'when dictionary files do not exist' do
       it 'raises an error when creating checker' do
-        expect {
+        expect do
           Kotoshu::Languages::English::SpellChecker.new(
             aff_path: '/nonexistent/file.aff',
             dic_path: '/nonexistent/file.dic'
           )
-        }.to raise_error(Errno::ENOENT)
+        end.to raise_error(Errno::ENOENT)
       end
     end
   end
@@ -90,7 +90,7 @@ RSpec.describe 'Foundation Component Integration' do
 
   describe 'EnglishPosTagger' do
     context 'when dictionary files exist' do
-      before(:each) do
+      before do
         skip 'Dictionary fixtures not found' unless fixtures_exist
       end
 
@@ -120,14 +120,14 @@ RSpec.describe 'Foundation Component Integration' do
         tagger.tag(tokens)
 
         # Second call should use cache
-        expect { tagger.tag(tokens) }.not_to change { tagger.instance_variable_get(:@lookup_cache).size }
+        expect { tagger.tag(tokens) }.not_to(change { tagger.instance_variable_get(:@lookup_cache).size })
       end
     end
   end
 
   describe 'Component Integration' do
     context 'when dictionary files exist' do
-      before(:each) do
+      before do
         skip 'Dictionary fixtures not found' unless fixtures_exist
       end
 

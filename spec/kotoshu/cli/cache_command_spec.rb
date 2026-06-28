@@ -22,7 +22,7 @@ require "stringio"
 # wired CLI to use the real LanguageCache API. Until that decision is
 # made, every example here is skipped rather than removed.
 RSpec.describe Kotoshu::Cli::CacheCommand do
-  before(:each) do
+  before do
     skip "Kotoshu::Cli::CacheCommand calls nonexistent LanguageCache methods " \
          "(cache_status, get_frequency_data, get_language_info, purge_all). " \
          "See TODO.impl/40-spec-drift-cleanup.md"

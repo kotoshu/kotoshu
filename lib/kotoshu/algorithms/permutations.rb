@@ -39,8 +39,8 @@ module Kotoshu
 
           while (match_data = pattern[:regexp].match(str, pos))
             suggestion = str[0...match_data.begin(0)] +
-                         pattern[:replacement].gsub('_', ' ') +
-                         str[match_data.end(0)..]
+              pattern[:replacement].gsub('_', ' ') +
+              str[match_data.end(0)..]
 
             yield suggestion
             yield suggestion.split(' ') if suggestion.include?(' ')
@@ -65,10 +65,10 @@ module Kotoshu
       #   Kotoshu::Algorithms::Permutations.mapchars("anarchia", [Set.new(['a', 'á', 'ã'])]) do |variant|
       #     puts variant
       #   end
-      def mapchars(word, maptable)
+      def mapchars(word, maptable, &)
         return if word.length < 2 || maptable.nil? || maptable.empty?
 
-        mapchars_internal(word, 0, maptable) { |variant| yield variant }
+        mapchars_internal(word, 0, maptable, &)
       end
 
       # Produces permutations with adjacent chars swapped.
@@ -105,10 +105,10 @@ module Kotoshu
         (0...chars.length - 2).each do |first|
           ((first + 2)...[first + MAX_CHAR_DISTANCE, chars.length].min).each do |second|
             swapped = chars[0...first] +
-                     [chars[second]] +
-                     chars[(first + 1)...second] +
-                     [chars[first]] +
-                     chars[(second + 1)..]
+              [chars[second]] +
+              chars[(first + 1)...second] +
+              [chars[first]] +
+              chars[(second + 1)..]
             yield swapped.join
           end
         end
@@ -256,7 +256,7 @@ module Kotoshu
       # @param start [Integer] Starting position for search
       # @param maptable [Array<Set<String>>] Character mapping table
       # @yield [String] Each variant
-      def mapchars_internal(word, start, maptable)
+      def mapchars_internal(word, start, maptable, &block)
         return if start >= word.length
 
         maptable.each do |options|
@@ -271,7 +271,7 @@ module Kotoshu
               yield replaced
 
               # Recursively continue from this position
-              mapchars_internal(replaced, pos + 1, maptable) { |variant| yield variant }
+              mapchars_internal(replaced, pos + 1, maptable, &block)
             end
           end
         end

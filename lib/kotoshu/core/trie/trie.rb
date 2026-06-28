@@ -135,7 +135,7 @@ module Kotoshu
         # @yield [prefix, node] Each prefix and node visited
         # @return [Trie] Self for chaining
         def traverse(node = @root, prefix = "", &block)
-          return enum_for(:traverse, node, prefix) unless block_given?
+          return enum_for(:traverse, node, prefix) unless block
 
           yield prefix, node
 

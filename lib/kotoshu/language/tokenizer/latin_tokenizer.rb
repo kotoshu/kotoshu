@@ -53,7 +53,7 @@ module Kotoshu
         #
         # @return [Regexp] Word boundary regex
         def word_boundary_regex
-          /[#{WORD_CHARS}]/
+          /[#{WORD_CHARS}]/o
         end
 
         # Normalize token.
@@ -126,13 +126,13 @@ module Kotoshu
           # Check for contraction first
           CONTRACTIONS.each do |contraction|
             if remaining.start_with?(contraction) &&
-               remaining[contraction.length]&.match?(/\s|[^a-zA-Zà-ÿ]/)
+                remaining[contraction.length]&.match?(/\s|[^a-zA-Zà-ÿ]/)
               return contraction
             end
           end
 
           # Extract word with potential apostrophe
-          match = remaining.match(/^([#{WORD_CHARS}]+(?:'[#{WORD_CHARS}]+)?)/)
+          match = remaining.match(/^([#{WORD_CHARS}]+(?:'[#{WORD_CHARS}]+)?)/o)
           match ? match[1] : nil
         end
       end

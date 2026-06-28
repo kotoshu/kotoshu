@@ -64,7 +64,7 @@ module Kotoshu
       # @return [String] String representation
       def to_s
         type_str = prefix? ? 'Prefix' : 'Suffix'
-        "#{type_str}(#{@add}: #{@flag}#{@crossproduct ? '×' : ''}/#{@flags.to_a.join(',')}, on #{condition})"
+        "#{type_str}(#{@add}: #{@flag}#{'×' if @crossproduct}/#{@flags.to_a.join(',')}, on #{condition})"
       end
 
       # Inspect string.
@@ -89,11 +89,11 @@ module Kotoshu
         @pattern = pattern
         # Special chars like #, -, * should be escaped, but ^ and $ should be treated as pattern anchors
         regex_pattern = Regexp.escape(pattern).gsub('\\^', '^').gsub('\\$', '$')
-        if regex_pattern.start_with?('^') || regex_pattern.end_with?('$')
-          @matcher = Regexp.new("(#{regex_pattern})")
-        else
-          @matcher = Regexp.new(".(#{regex_pattern}).")
-        end
+        @matcher = if regex_pattern.start_with?('^') || regex_pattern.end_with?('$')
+                     Regexp.new("(#{regex_pattern})")
+                   else
+                     Regexp.new(".(#{regex_pattern}).")
+                   end
       end
     end
 
@@ -233,7 +233,7 @@ module Kotoshu
           @flags = text.gsub(/[*?]/, '').chars.to_set
           # Handle ) as a flag character (used in sv dictionaries)
           parts = text.gsub(/(?<=[^*?])\)/, '\\)').gsub(/([^*?])/, '\1')
-                        .scan(/[^*?][*?]?/)
+            .scan(/[^*?][*?]?/)
         end
 
         # Full-match regex: the entire flag-combination string must match.
@@ -353,7 +353,7 @@ module Kotoshu
 
       # Pattern for matching phonetic rules.
       # Updated to support extended ASCII (Latin-1) characters like É, À, etc.
-      RULE_PATTERN = /^(?<letters>[[:alpha:]]+)(\((?<optional>[[:alpha:]]+)\))?(?<lookahead>[-]+)?(?<flags>[\^$<]*)(?<priority>\d)?$/.freeze
+      RULE_PATTERN = /^(?<letters>[[:alpha:]]+)(\((?<optional>[[:alpha:]]+)\))?(?<lookahead>-+)?(?<flags>[\^$<]*)(?<priority>\d)?$/
 
       # Rule class for phonetic transformations.
       #
@@ -372,6 +372,7 @@ module Kotoshu
         def match?(word, pos)
           return false if @start && pos > 0
           return @search.match?(word, pos) if @end
+
           @search.match?(word, pos)
         end
       end

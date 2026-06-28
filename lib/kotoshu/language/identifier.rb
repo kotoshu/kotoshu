@@ -107,9 +107,7 @@ module Kotoshu
         text = preprocess_text(text)
 
         # Run detection
-        results = run_detection(text, top_k)
-
-        results
+        run_detection(text, top_k)
       end
 
       # Detect language from file.
@@ -197,7 +195,9 @@ module Kotoshu
       # Ensure model is loaded.
       def ensure_model_loaded
         # Download if needed
-        download_model unless model_downloaded? if @auto_download
+        if @auto_download && @auto_download && !model_downloaded?
+          download_model
+        end
 
         raise "Model not found: #{@model_path}" unless model_downloaded?
 
@@ -251,9 +251,7 @@ module Kotoshu
         text = text[0..500] if text.length > 500
 
         # Normalize whitespace
-        text = text.gsub(/\s+/, ' ')
-
-        text
+        text.gsub(/\s+/, ' ')
       end
 
       # Run language detection.

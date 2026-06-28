@@ -28,7 +28,7 @@ module Kotoshu
     #   loader.load('en', tier: :top_200)  # Combines top_50 + top_200
     class CommonWordsLoader
       # Default data directory (local YAML files)
-      DATA_DIR = File.expand_path('../common_words', __FILE__).freeze
+      DATA_DIR = File.expand_path('common_words', __dir__).freeze
 
       class << self
         # Load common words for a language.
@@ -113,7 +113,7 @@ module Kotoshu
 
         private
 
-        def load_from_yaml(yaml_file, requested_tier)
+        def load_from_yaml(yaml_file, _requested_tier)
           data = YAML.unsafe_load_file(yaml_file)
 
           # Get all tiers from the data

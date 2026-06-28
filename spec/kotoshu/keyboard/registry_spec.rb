@@ -95,9 +95,7 @@ RSpec.describe Kotoshu::Keyboard::Registry do
 
     it 'returns layout instances' do
       layouts = described_class.available_layouts
-      layouts.each do |layout|
-        expect(layout).to be_a(Kotoshu::Keyboard::Layout)
-      end
+      expect(layouts).to all(be_a(Kotoshu::Keyboard::Layout))
     end
 
     it 'includes all expected layouts' do

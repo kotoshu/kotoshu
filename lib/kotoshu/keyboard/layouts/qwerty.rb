@@ -44,7 +44,7 @@ module Kotoshu
           super(
             name: 'QWERTY',
             language_codes: %w[en es pt us en-US en-GB en-AU en-CA en-NZ en-ZA
-                             es-ES es-MX pt-BR pt-PT],
+                               es-ES es-MX pt-BR pt-PT],
             key_positions: KEY_POSITIONS
           )
         end

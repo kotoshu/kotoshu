@@ -42,8 +42,8 @@ module Kotoshu
       # @param hit [Boolean] True if cache hit
       def record_cache(cache_type, hit:)
         @mutex.synchronize do
-          key = "#{cache_type}_cache_hits".to_sym
-          miss_key = "#{cache_type}_cache_misses".to_sym
+          key = :"#{cache_type}_cache_hits"
+          miss_key = :"#{cache_type}_cache_misses"
 
           if hit
             @metrics[key] += 1

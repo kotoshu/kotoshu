@@ -57,7 +57,7 @@ module Kotoshu
       # @param onnx_path [String] Path to .onnx file
       # @param vocabulary [Hash<String, Integer>] Word-to-index mapping
       # @param embedding_matrix [Numo::SFloat] Pre-loaded embeddings (optional)
-      def initialize(language_code:, dimension: DEFAULT_DIMENSION, onnx_path:, vocabulary:, embedding_matrix: nil)
+      def initialize(language_code:, onnx_path:, vocabulary:, dimension: DEFAULT_DIMENSION, embedding_matrix: nil)
         super(language_code: language_code, dimension: dimension)
         @onnx_path = onnx_path
         @vocabulary = vocabulary.freeze
@@ -230,7 +230,7 @@ module Kotoshu
 
         result = @session.run(
           ['embeddings'],
-          { word_indices: [index].pack('q<') }  # Pack int64 as little-endian
+          { word_indices: [index].pack('q<') } # Pack int64 as little-endian
         )
 
         # Unpack float32 array
@@ -298,8 +298,8 @@ module Kotoshu
       # @return [Float] Cosine similarity
       def cosine_similarity(vec1, vec2)
         dot = (vec1 * vec2).sum
-        norm1 = Math.sqrt((vec1 ** 2).sum)
-        norm2 = Math.sqrt((vec2 ** 2).sum)
+        norm1 = Math.sqrt((vec1**2).sum)
+        norm2 = Math.sqrt((vec2**2).sum)
 
         return 0.0 if norm1.zero? || norm2.zero?
 
@@ -325,7 +325,7 @@ module Kotoshu
         if path =~ /\.([a-z]{2})\./i
           Regexp.last_match(1).downcase
         else
-          'en'  # Default to English
+          'en' # Default to English
         end
       end
     end

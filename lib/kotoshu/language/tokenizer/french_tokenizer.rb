@@ -15,7 +15,7 @@ module Kotoshu
       class FrenchTokenizer < Base
         # French word separators - most punctuation and whitespace
         # Note: apostrophe (') is NOT a separator in French (used for contractions)
-        WORD_SEPARATORS = /[\s"()\[\]{}<>,.;:!?\\\/|`~@#$%^&*·]/.freeze
+        WORD_SEPARATORS = /[\s"()\[\]{}<>,.;:!?\\\/|`~@#$%^&*·]/
 
         # Do-not-split list (from LanguageTool)
         DO_NOT_SPLIT = %w[
@@ -30,31 +30,31 @@ module Kotoshu
         # French contractions are complex: l', d', qu', c'est, j'ai, n'a, etc.
         CONTRACTION_PATTERNS = [
           # c' followed by word: c'est, c'était, etc.
-          /^(c[''])$/i,
+          /^(c')$/i,
           # j' (je): j'ai, j'aime, etc.
-          /^(j[''])$/i,
+          /^(j')$/i,
           # n' (ne): n'a, n'est, etc.
-          /^(n[''])$/i,
+          /^(n')$/i,
           # m' (me): m'a, m'appelle, etc.
-          /^(m[''])$/i,
+          /^(m')$/i,
           # t' (te): t'a, t'asseoir, etc.
-          /^(t[''])$/i,
+          /^(t')$/i,
           # s' (se): s'a, s'appelle, etc.
-          /^(s[''])$/i,
+          /^(s')$/i,
           # l' (le/la): l'a, l'homme, l'eau, etc.
-          /^(l[''])$/i,
+          /^(l')$/i,
           # d' (de): d'un, d'une, d'abord, etc.
-          /^(d[''])$/i,
+          /^(d')$/i,
           # qu' (que): qu'un, qu'une, qu'est, etc.
-          /^(qu[''])$/i,
+          /^(qu')$/i,
           # jusqu'à, jusqu'aux, etc.
-          /^(jusqu[''])$/i,
+          /^(jusqu')$/i,
           # puisque, puisqu'il, etc.
-          /^(puisqu[''])$/i,
+          /^(puisqu')$/i,
           # quoique, quoiqu'il, etc.
-          /^(quoiqu[''])$/i,
+          /^(quoiqu')$/i,
           # lorsque, lorsqu'il, etc.
-          /^(lorsqu[''])$/i,
+          /^(lorsqu')$/i,
         ].freeze
 
         def tokenize(text)
@@ -110,11 +110,12 @@ module Kotoshu
           # Handle hyphens first (but not for do-not-split words)
           if word.include?("-")
             # Check if it's a contraction pattern like "jusqu'à-ce"
-            if word.match?(/^(jusqu['']|[cç]['']|j['']|n['']|m['']|t['']|s['']|l['']|d['']|qu['']|lorsqu['']|puisqu['']|quoiqu[''])/)
+            if word.match?(/^(jusqu'|[cç]'|j'|n'|m'|t'|s'|l'|d'|qu'|lorsqu'|puisqu'|quoiqu')/)
               # Split on hyphen for contractions
               parts = []
               word.split("-", -1).each do |part|
                 next if part.empty?
+
                 parts.concat(split_contractions(part))
               end
               return parts
@@ -146,12 +147,13 @@ module Kotoshu
               contraction = match[1]
               rest = word.sub(/^#{Regexp.escape(contraction)}/, "")
               return [contraction, rest] unless rest.empty?
+
               return [contraction]
             end
           end
 
           # Handle special case: word starts with apostrophe
-          if word.match?(/^[cç]['']|^[a-z]['']/i)
+          if word.match?(/^[cç]'|^[a-z]'/i)
             # Split at the apostrophe
             parts = word.split("'", 2)
             return parts if parts.length == 2

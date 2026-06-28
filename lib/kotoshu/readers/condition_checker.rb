@@ -50,7 +50,7 @@ module Kotoshu
     #
     # Used for scripts where Hunspell conditions don't apply or aren't supported.
     class PassthroughConditionChecker < ConditionChecker
-      def matches?(stem)
+      def matches?(_stem)
         true
       end
     end

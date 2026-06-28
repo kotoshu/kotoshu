@@ -48,16 +48,16 @@ module Kotoshu
           errors.select { |e| e.word == word }
         end
 
-        def each_error(&block)
+        def each_error(&)
           return enum_for(:each_error) unless block_given?
 
-          errors.each(&block)
+          errors.each(&)
         end
 
-        def each_unique_error(&block)
+        def each_unique_error(&)
           return enum_for(:each_unique_error) unless block_given?
 
-          errors.group_by(&:word).each(&block)
+          errors.group_by(&:word).each(&)
         end
 
         def first_errors(n = 10)
@@ -83,8 +83,11 @@ module Kotoshu
 
         def to_s
           if success?
-            file ? "File '#{file}': No spelling errors found (#{word_count} words checked)" :
-                   "No spelling errors found (#{word_count} words checked)"
+            if file
+              "File '#{file}': No spelling errors found (#{word_count} words checked)"
+            else
+              "No spelling errors found (#{word_count} words checked)"
+            end
           else
             prefix = file ? "File '#{file}':" : ""
             "#{prefix} #{error_count} spelling error(s) found " \

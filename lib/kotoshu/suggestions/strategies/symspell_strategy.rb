@@ -169,7 +169,7 @@ module Kotoshu
             # Fallback to edit distance approximation
             # This shouldn't happen often with proper SymSpell usage
             lcs_len = longest_common_subsequence_length(str1, str2)
-            str1.length + str2.length - 2 * lcs_len
+            str1.length + str2.length - (2 * lcs_len)
           end
         end
 

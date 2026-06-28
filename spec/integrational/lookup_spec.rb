@@ -29,6 +29,7 @@ RSpec.describe 'Integrational Lookup Tests', :integrational do
     # Test good words
     good.each do |word|
       next if word.nil? || word.empty?
+
       result = lookup_word(dictionary, word)
       good_failures << word unless result
     end
@@ -209,7 +210,8 @@ RSpec.describe 'Integrational Lookup Tests', :integrational do
       end
     end
 
-    %w[compoundrule compoundrule2 compoundrule3 compoundrule4 compoundrule5 compoundrule6 compoundrule7 compoundrule8].each do |name|
+    %w[compoundrule compoundrule2 compoundrule3 compoundrule4 compoundrule5 compoundrule6 compoundrule7
+       compoundrule8].each do |name|
       it "passes #{name} lookup tests" do
         result = run_lookup_tests(name)
         expect(result[:good_failures]).to be_empty, "Good words not found: #{result[:good_failures].join(', ')}"
@@ -233,7 +235,8 @@ RSpec.describe 'Integrational Lookup Tests', :integrational do
       end
     end
 
-    %w[checkcompoundrep checkcompoundtriple compoundforbid simplifiedtriple wordpair forceucase utfcompound].each do |name|
+    %w[checkcompoundrep checkcompoundtriple compoundforbid simplifiedtriple wordpair forceucase
+       utfcompound].each do |name|
       it "passes #{name} lookup tests" do
         result = run_lookup_tests(name)
         expect(result[:good_failures]).to be_empty, "Good words not found: #{result[:good_failures].join(', ')}"

@@ -492,7 +492,7 @@ module Kotoshu
       # @param args [Array<String>] Command arguments
       # @return [String] Joined command string
       def shell_join(args)
-        args.map { |a| a =~ /\s/ ? "'#{a}'" : a }.join(' ')
+        args.map { |a| /\s/.match?(a) ? "'#{a}'" : a }.join(' ')
       end
 
       # Default cache path: $XDG_CACHE_HOME/kotoshu/models

@@ -50,7 +50,7 @@ RSpec.describe Kotoshu::Cli::LanguageResolver do
   describe "'default' keyword" do
     it "uses the configured default language" do
       result = resolver(flag_value: "default", default_language: "es")
-                          .resolve(text: "Hola")
+        .resolve(text: "Hola")
 
       expect(result.language).to eq("es")
       expect(result.detected).to be_nil
@@ -71,7 +71,7 @@ RSpec.describe Kotoshu::Cli::LanguageResolver do
     it "falls back when detected language is not set up" do
       allow(self).to receive(:detected_value).and_return("de")
       result = resolver(flag_value: "auto", default_language: "en")
-                          .resolve(text: "Hallo Welt")
+        .resolve(text: "Hallo Welt")
 
       expect(result.language).to eq("en")
       expect(result.detected).to eq("de")
@@ -82,7 +82,7 @@ RSpec.describe Kotoshu::Cli::LanguageResolver do
     it "falls back when detection returns nil" do
       allow(self).to receive(:detected_value).and_return(nil)
       result = resolver(flag_value: "auto", default_language: "en")
-                          .resolve(text: "")
+        .resolve(text: "")
 
       expect(result.language).to eq("en")
       expect(result.detected).to be_nil
