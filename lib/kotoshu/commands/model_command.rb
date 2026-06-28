@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 require 'thor'
-require_relative '../models/fasttext_model'
-require_relative '../models/onnx_model'
-require_relative '../cache/model_cache'
 
 module Kotoshu
   class ModelCommand < Thor

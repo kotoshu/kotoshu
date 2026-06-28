@@ -1,15 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "context"
-require_relative "suggestion_set"
-require_relative "strategies/base_strategy"
-require_relative "strategies/composite_strategy"
-require_relative "strategies/edit_distance_strategy"
-require_relative "strategies/phonetic_strategy"
-require_relative "strategies/keyboard_proximity_strategy"
-require_relative "strategies/ngram_strategy"
-require_relative "strategies/semantic_strategy"
-
 module Kotoshu
   module Suggestions
     # Generator for spelling suggestions.

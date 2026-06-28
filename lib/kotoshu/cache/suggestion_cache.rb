@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "lookup_cache"
+# LookupCache autoloaded via Kotoshu::Cache
 
 module Kotoshu
   module Cache

@@ -2,7 +2,6 @@
 
 require "json"
 require "digest"
-require_relative "../core/exceptions"
 
 module Kotoshu
   module Integrity

@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../cache/language_cache'
-require_relative '../cache/model_cache'
-require_relative '../cache/frequency_cache'
 require 'json'
 
 module Kotoshu

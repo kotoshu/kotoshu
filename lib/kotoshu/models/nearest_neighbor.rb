@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'word_embedding'
-
 module Kotoshu
   module Models
     # Value object for embedding search results (nearest neighbors).

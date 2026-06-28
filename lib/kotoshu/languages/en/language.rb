@@ -1,12 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../readers/lookup_builder'
-require_relative '../../components/spell_checker'
-require_relative '../../components/whitespace_tokenizer'
-require_relative '../../components/pos_tagger'
-require_relative '../../language/normalizer/base'
-require_relative '../../grammar'
-
 module Kotoshu
   module Languages
     # English language implementation.

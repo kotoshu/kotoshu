@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'spell_checker'
-
 module Kotoshu
   module Components
     # Passthrough spell checker for languages that don't use spell checking.

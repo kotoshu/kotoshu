@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "configuration"
-require_relative "suggestions/generator"
-require_relative "core/models/result/word_result"
-require_relative "core/models/result/document_result"
-
 module Kotoshu
   # Main spellchecker class.
   #

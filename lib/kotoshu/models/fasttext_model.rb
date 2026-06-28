@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'embedding_model'
-require_relative 'word_embedding'
-require_relative 'nearest_neighbor'
-
 module Kotoshu
   module Models
     # FastText embedding model implementation.
@@ -97,8 +93,6 @@ module Kotoshu
       # @return [FastTextModel] Loaded model
       # @raise [ArgumentError] if language not supported
       def self.from_github(language_code, max_vectors: 500_000, cache: nil)
-        require_relative '../cache/model_cache'
-
         cache ||= Cache::ModelCache.new
 
         # Get the .vec file path from cache

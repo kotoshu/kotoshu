@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../models/context'
-require_relative '../models/semantic_error'
-
 module Kotoshu
   module Cli
     # Formats output for interactive review mode.

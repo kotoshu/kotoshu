@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "../dictionary/hunspell"
-require_relative "../dictionary/plain_text"
-
 module Kotoshu
   module Dictionaries
     # Catalog of all available dictionaries from kotoshu/dictionaries repository

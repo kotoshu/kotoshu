@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'display_formatter'
-require_relative 'navigation_manager'
 require 'json'
 require 'csv'
 

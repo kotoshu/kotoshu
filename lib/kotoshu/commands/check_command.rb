@@ -1,13 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../documents/document'
-require_relative '../analyzers/semantic_analyzer'
-require_relative '../models/fasttext_model'
-require_relative '../cache/model_cache'
-require_relative '../cli/interactive_reviewer'
-require_relative '../cli/batch_reporter'
-require_relative '../language/identifier'
-
 module Kotoshu
   class CheckCommand < Thor
     namespace :check
@@ -191,8 +183,6 @@ module Kotoshu
     # @param language_code [String] Language code
     # @return [Object] Hunspell analyzer
     def load_hunspell_analyzer(language_code)
-      require_relative '../dictionary/hunspell'
-
       # Load Hunspell dictionary
       if options[:download]
         puts "Loading Hunspell dictionary for #{language_code}..." if options[:verbose]
@@ -205,7 +195,6 @@ module Kotoshu
       # Create Hunspell-based analyzer
       # Note: This would use HunspellDictionary for checking + EditDistanceStrategy for suggestions
       # For now, we'll use a placeholder
-      require_relative '../spell_checker'
       SpellChecker.new(dictionary: dict, language: language_code)
     rescue StandardError => e
       puts "Error loading Hunspell analyzer: #{e.message}"

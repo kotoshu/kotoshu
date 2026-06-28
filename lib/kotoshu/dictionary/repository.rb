@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "base"
-
 module Kotoshu
   module Dictionary
     # Repository for managing multiple dictionary instances.

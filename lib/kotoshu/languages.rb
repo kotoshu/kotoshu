@@ -1,19 +1,11 @@
 # frozen_string_literal: true
 
 module Kotoshu
-  # Languages module for language-specific implementations.
+  # Per-language implementations (English, German, French, etc.).
   #
-  # Each language has its own namespace under this module,
-  # allowing for clean organization and scalability.
-  #
-  # @example English components
-  #   Kotoshu::Languages::English::SpellChecker
-  #   Kotoshu::Languages::English::Tokenizer
-  #   Kotoshu::Languages::English::POSTagger
-  #   Kotoshu::Languages::English::GrammarRules
-  #
-  # @example French components
-  #   Kotoshu::Languages::French::Tokenizer
+  # Sibling module to {Language} (the framework). Each per-language file
+  # calls Language::Registry.register at load time; {Language::Registry.ensure_languages_loaded}
+  # triggers these autoloads on first registry access.
   module Languages
     autoload :English, "kotoshu/languages/en/language"
     autoload :French, "kotoshu/languages/fr/language"
@@ -24,8 +16,3 @@ module Kotoshu
     autoload :Spanish, "kotoshu/languages/es/language"
   end
 end
-
-# Eagerly trigger autoloads: each language file calls Registry.register
-# at file-load time, so all languages must be loaded for the registry
-# to be fully populated.
-Kotoshu::Languages.constants.each { |c| Kotoshu::Languages.const_get(c) }

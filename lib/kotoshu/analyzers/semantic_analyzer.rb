@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../models/embedding_model'
-require_relative '../models/semantic_error'
-require_relative '../models/context'
-
 module Kotoshu
   module Analyzers
     # Unified semantic error analyzer.

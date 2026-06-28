@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "configuration/builder"
-
 module Kotoshu
   # Sensible defaults for Kotoshu configuration.
   #

@@ -1,110 +1,75 @@
 # frozen_string_literal: true
 
-# EAGER: Core infrastructure
+# Kotoshu is a semantic spell checker for Ruby.
+#
+# Public API entry point. All internal namespaces are autoloaded on first
+# reference; loading this file is cheap and triggers no heavy work.
+#
+# Exception: version.rb is required because autoload only works for module
+# constants, and Bundler/gemspec also reads Kotoshu::VERSION from it.
 require_relative "kotoshu/version"
-require_relative "kotoshu/core"
-require_relative "kotoshu/core/models/word"
-require_relative "kotoshu/core/models/affix_rule"
-require_relative "kotoshu/core/models/result/word_result"
-require_relative "kotoshu/core/models/result/document_result"
-
-# EAGER: String metrics (used by algorithms)
-require_relative "kotoshu/string_metrics"
-
-# EAGER: Algorithms namespace
-require_relative "kotoshu/algorithms"
-
-# EAGER: Algorithms (ported from Spylls)
-require_relative "kotoshu/algorithms/ngram_suggest"
-require_relative "kotoshu/suggestions/suggestion"
-require_relative "kotoshu/suggestions/suggestion_set"
-require_relative "kotoshu/suggestions/context"
-require_relative "kotoshu/suggestions/generator"
-
-# EAGER: Dictionary base
-require_relative "kotoshu/dictionary/base"
-require_relative "kotoshu/dictionary/repository"
-
-# EAGER: Dictionary backends (load all for now, can optimize later)
-require_relative "kotoshu/dictionary/unix_words"
-require_relative "kotoshu/dictionary/plain_text"
-require_relative "kotoshu/dictionary/custom"
-require_relative "kotoshu/dictionary/hunspell"
-require_relative "kotoshu/dictionary/cspell"
-
-# EAGER: Language module (multi-language support)
-require_relative "kotoshu/language"
-
-# EAGER: Strategy base
-require_relative "kotoshu/suggestions/strategies/base_strategy"
-
-# EAGER: Strategies (load all for now, can optimize later)
-require_relative "kotoshu/suggestions/strategies/edit_distance_strategy"
-require_relative "kotoshu/suggestions/strategies/symspell_strategy"
-require_relative "kotoshu/suggestions/strategies/phonetic_strategy"
-require_relative "kotoshu/suggestions/strategies/keyboard_proximity_strategy"
-require_relative "kotoshu/suggestions/strategies/ngram_strategy"
-require_relative "kotoshu/suggestions/strategies/composite_strategy"
-
-# EAGER: Readers for Hunspell files
-require_relative "kotoshu/readers"
-
-# EAGER: Configuration and main interface
-require_relative "kotoshu/dictionaries/catalog"
-require_relative "kotoshu/configuration"
-require_relative "kotoshu/spellchecker"
 
 module Kotoshu
-  # The Kotoshu::Models namespace is opened eagerly by core/models/*.rb.
-  # Semantic/embedding model autoloads live there.
-  Models.autoload :Context, "kotoshu/models/context"
-  Models.autoload :EmbeddingModel, "kotoshu/models/embedding_model"
-  Models.autoload :FastTextModel, "kotoshu/models/fasttext_model"
-  Models.autoload :NearestNeighbor, "kotoshu/models/nearest_neighbor"
-  Models.autoload :OnnxModel, "kotoshu/models/onnx_model"
-  Models.autoload :SemanticError, "kotoshu/models/semantic_error"
-  Models.autoload :Suggestion, "kotoshu/models/suggestion"
-  Models.autoload :WordEmbedding, "kotoshu/models/word_embedding"
-
-  # LAZY: Trie components (autoload)
-  autoload :TrieNode, "kotoshu/core/trie/node"
-  autoload :Trie, "kotoshu/core/trie/trie"
-  autoload :TrieBuilder, "kotoshu/core/trie/builder"
-
-  # LAZY: Features (autoload)
+  # ---- Namespaces (autoloaded; each namespace file declares its children) ----
+  autoload :Algorithms, "kotoshu/algorithms"
+  autoload :Analyzers, "kotoshu/analyzers"
+  autoload :Cache, "kotoshu/cache"
+  autoload :Cli, "kotoshu/cli"
+  autoload :Commands, "kotoshu/commands"
+  autoload :Components, "kotoshu/components"
+  autoload :Configuration, "kotoshu/configuration"
+  autoload :Core, "kotoshu/core"
+  autoload :Data, "kotoshu/data"
+  autoload :DataStructures, "kotoshu/data_structures"
   autoload :Defaults, "kotoshu/defaults"
-  autoload :PersonalDictionary, "kotoshu/personal_dictionary"
-  autoload :ProjectConfig, "kotoshu/project_config"
+  autoload :Dictionaries, "kotoshu/dictionaries"
+  autoload :Dictionary, "kotoshu/dictionary"
+  autoload :Embeddings, "kotoshu/embeddings"
   autoload :FluentChecker, "kotoshu/fluent_checker"
-  autoload :ResourceManager, "kotoshu/resource_manager"
-  autoload :ResourceBundle, "kotoshu/resource_bundle"
-  autoload :SourceRegistry, "kotoshu/source_registry"
-
-  # LAZY: Integrity verification (autoload)
+  autoload :Grammar, "kotoshu/grammar"
   autoload :Integrity, "kotoshu/integrity"
+  autoload :Keyboard, "kotoshu/keyboard"
+  autoload :Language, "kotoshu/language"
+  autoload :Languages, "kotoshu/languages"
+  autoload :Models, "kotoshu/models"
+  autoload :Paths, "kotoshu/paths"
+  autoload :PersonalDictionary, "kotoshu/personal_dictionary"
+  autoload :Plugins, "kotoshu/plugins"
+  autoload :ProjectConfig, "kotoshu/project_config"
+  autoload :Readers, "kotoshu/readers"
+  autoload :ResourceBundle, "kotoshu/resource_bundle"
+  autoload :ResourceManager, "kotoshu/resource_manager"
+  autoload :Results, "kotoshu/results"
+  autoload :SourceRegistry, "kotoshu/source_registry"
+  autoload :Spellchecker, "kotoshu/spellchecker"
+  autoload :StringMetrics, "kotoshu/string_metrics"
+  autoload :Suggestions, "kotoshu/suggestions"
 
-  # LAZY: FastText integration (autoload)
-  autoload :SemanticAnalyzer, "kotoshu/analyzers/semantic_analyzer"
+  # ---- Top-level error classes (all defined in core/exceptions.rb) ----
+  autoload :Error, "kotoshu/core/exceptions"
+  autoload :DictionaryNotFoundError, "kotoshu/core/exceptions"
+  autoload :InvalidDictionaryFormatError, "kotoshu/core/exceptions"
+  autoload :ConfigurationError, "kotoshu/core/exceptions"
+  autoload :SpellcheckError, "kotoshu/core/exceptions"
+  autoload :AffixRuleError, "kotoshu/core/exceptions"
+  autoload :ResourceNotCachedError, "kotoshu/core/exceptions"
+  autoload :ResourceNotSetupError, "kotoshu/core/exceptions"
+  autoload :ResourceResolutionError, "kotoshu/core/exceptions"
+  autoload :IntegrityError, "kotoshu/core/exceptions"
+  autoload :SuikaUnavailable, "kotoshu/core/exceptions"
 
-  # LAZY: Cache management (autoload)
-  autoload :LanguageCache, "kotoshu/cache/language_cache"
-  autoload :ModelCache, "kotoshu/cache/model_cache"
-
-  # LAZY: Language detection (autoload)
-  autoload :LanguageIdentifier, "kotoshu/language/identifier"
-
-  # LAZY: Development tools (autoload)
+  # ---- Lazily-loaded singletons (not in their own namespace file) ----
   autoload :Debug, "kotoshu/debug_mode"
   autoload :DebugLogger, "kotoshu/debug_logger"
+  autoload :LanguageCache, "kotoshu/cache/language_cache"
+  autoload :LanguageIdentifier, "kotoshu/language/identifier"
   autoload :Metrics, "kotoshu/metrics_module"
   autoload :MetricsCollector, "kotoshu/metrics_collector"
+  autoload :ModelCache, "kotoshu/cache/model_cache"
+  autoload :SemanticAnalyzer, "kotoshu/analyzers/semantic_analyzer"
 end
 
 module Kotoshu
-  class Error < StandardError; end
-
-  autoload :Paths, "kotoshu/paths"
-
   # Global configuration instance.
   #
   # @return [Configuration] The global configuration

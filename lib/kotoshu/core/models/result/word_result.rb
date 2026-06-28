@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require "lutaml/model"
-require_relative "../../../suggestions/suggestion"
-require_relative "../../../suggestions/suggestion_set"
 
 module Kotoshu
   module Models
