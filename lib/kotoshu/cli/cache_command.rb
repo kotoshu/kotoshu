@@ -98,6 +98,38 @@ module Kotoshu
         puts "  Bytes reclaimed: #{format_bytes(result[:bytes_reclaimed])}"
       end
 
+      desc "evict", "Evict oldest entries to enforce the configured size cap"
+      method_option :dry_run,
+                    type: :boolean,
+                    default: false,
+                    desc: "Show what would be evicted without removing"
+      def evict
+        cache = create_cache
+        plan = cache.evict(dry_run: options[:dry_run])
+
+        if options[:dry_run]
+          if plan[:evict].empty?
+            puts "Nothing to evict — cache is under the size cap"
+            return
+          end
+
+          puts "Dry run — no changes made"
+          puts "Would evict #{plan[:evict].size} entries, " \
+               "reclaiming #{format_bytes(plan[:bytes_reclaimed])}:"
+          print_eviction_list(plan[:evict])
+          return
+        end
+
+        if plan[:evict].empty?
+          puts "Nothing to evict — cache is under the size cap"
+          return
+        end
+
+        puts "Evicted #{plan[:evict].size} entries, " \
+             "reclaimed #{format_bytes(plan[:bytes_reclaimed])}:"
+        print_eviction_list(plan[:evict])
+      end
+
       desc "download LANGUAGE", "Download spelling or grammar for a language"
       method_option :type,
                     type: :string,
@@ -207,6 +239,16 @@ module Kotoshu
       # Distinct language codes that have at least one cached resource.
       def cached_languages(cache)
         cache.cached_resources.map { |r| r.split(":").first }.uniq
+      end
+
+      # Print each entry in an eviction plan: path, size, cached-at.
+      #
+      # @param entries [Array<Hash>] each has :path, :size, :cached_at
+      # @return [void]
+      def print_eviction_list(entries)
+        entries.each do |e|
+          puts "  #{e[:path]} (#{format_bytes(e[:size])}, cached #{e[:cached_at] || 'unknown'})"
+        end
       end
 
       # Status line for a (language, type) pair.

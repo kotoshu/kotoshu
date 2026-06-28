@@ -135,13 +135,43 @@ module Kotoshu
         #
         # Marks the registry as loaded so ensure_languages_loaded does
         # not re-populate from autoloaded language files. Tests rely on
-        # clear producing an actually-empty registry.
+        # clear producing an actually-empty registry. Pair with
+        # {restore_autoload!} in an +after(:all)+ hook so the registry
+        # is repopulated for specs that depend on it.
         #
         # @return [void]
         def clear
           @languages.clear
           @detectors.clear
           @languages_loaded = true
+        end
+
+        # Re-enable lazy autoload of per-language implementations after
+        # a {clear}, then replay the registration of every loaded
+        # per-language class. File-level +register+ calls only fire
+        # once (Ruby autoload runs each file exactly once), so the
+        # replay walks the already-loaded constants and re-issues
+        # {register} from each class's +registered_codes+ list.
+        #
+        # Intended for test-suite cleanup so one spec's {clear} does
+        # not leak an empty registry into unrelated specs.
+        #
+        # @return [void]
+        def restore_autoload!
+          @languages_loaded = false
+          return if @replaying
+
+          @replaying = true
+          begin
+            Kotoshu::Languages.constants.each do |c|
+              klass = Kotoshu::Languages.const_get(c)
+              next unless klass.is_a?(Class) && (klass < Kotoshu::Language::Base)
+
+              klass.registered_codes.each { |code| register(code, klass) }
+            end
+          ensure
+            @replaying = false
+          end
         end
 
         # Get language info by code.

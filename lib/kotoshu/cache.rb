@@ -16,6 +16,7 @@ module Kotoshu
   module Cache
     autoload :BaseCache, "kotoshu/cache/base_cache"
     autoload :Cache, "kotoshu/cache/cache"
+    autoload :EvictionPolicy, "kotoshu/cache/eviction_policy"
     autoload :FrequencyCache, "kotoshu/cache/frequency_cache"
     autoload :LanguageCache, "kotoshu/cache/language_cache"
     autoload :LookupCache, "kotoshu/cache/lookup_cache"

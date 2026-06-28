@@ -265,4 +265,85 @@ RSpec.describe Kotoshu::Cli::CacheCommand do
       expect(cli.time_ago(Time.now.utc.iso8601)).to eq("just now")
     end
   end
+
+  describe "#evict" do
+    def write_resource(lang, bytes:, cached_at:, type: "spelling")
+      dir = File.join(temp_dir, "languages", lang, type)
+      FileUtils.mkdir_p(dir)
+      File.write(File.join(dir, "index.dic"), "x" * bytes)
+      File.write(
+        File.join(dir, "metadata.json"),
+        JSON.generate(
+          version: cached_at,
+          cached_at: cached_at,
+          language: lang,
+          type: type,
+          url: "https://example.test",
+          checksum: "deadbeef"
+        )
+      )
+      dir
+    end
+
+    # Subclass the CLI to inject a small-cap cache rather than stubbing
+    # create_cache on any instance. The default 1 GB cap makes eviction
+    # impractical to exercise in a unit test; the subclass points the
+    # command at a 1 KB cap so we can force eviction with a few bytes
+    # of fixture data.
+    let(:cli_class) do
+      cache_path = temp_dir
+      Class.new(described_class) do
+        define_method(:create_cache) do
+          Kotoshu::Cache::LanguageCache.new(cache_path: cache_path, max_cache_size: 1_000)
+        end
+      end
+    end
+
+    context "with --dry-run flag" do
+      it "reports nothing-to-evict when under the cap" do
+        write_resource("en", bytes: 100, cached_at: "2026-03-01T00:00:00Z")
+        cli = cli_class.new([], cache_path: temp_dir, dry_run: true)
+        output = capture_output { cli.evict }
+
+        expect(output).to include("Nothing to evict")
+      end
+
+      it "lists the entries that would be evicted without removing them" do
+        old_dir = write_resource("en", bytes: 600, cached_at: "2026-01-01T00:00:00Z")
+        new_dir = write_resource("de", bytes: 600, cached_at: "2026-03-01T00:00:00Z")
+        cli = cli_class.new([], cache_path: temp_dir, dry_run: true)
+
+        output = capture_output { cli.evict }
+
+        expect(output).to include("Dry run")
+        expect(output).to include("Would evict 1 entries")
+        expect(output).to include(old_dir)
+        expect(File.exist?(old_dir)).to be(true)
+        expect(File.exist?(new_dir)).to be(true)
+      end
+    end
+
+    context "without --dry-run flag" do
+      it "removes the oldest entry and reports the reclaimed bytes" do
+        old_dir = write_resource("en", bytes: 600, cached_at: "2026-01-01T00:00:00Z")
+        new_dir = write_resource("de", bytes: 600, cached_at: "2026-03-01T00:00:00Z")
+        cli = cli_class.new([], cache_path: temp_dir)
+
+        output = capture_output { cli.evict }
+
+        expect(output).to include("Evicted 1 entries")
+        expect(File.exist?(old_dir)).to be(false)
+        expect(File.exist?(new_dir)).to be(true)
+      end
+
+      it "reports nothing-to-evict when under the cap" do
+        write_resource("fr", bytes: 100, cached_at: "2026-03-01T00:00:00Z")
+        cli = cli_class.new([], cache_path: temp_dir)
+
+        output = capture_output { cli.evict }
+
+        expect(output).to include("Nothing to evict")
+      end
+    end
+  end
 end
