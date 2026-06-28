@@ -21,5 +21,6 @@ module Kotoshu
     autoload :Manifest, "kotoshu/integrity/manifest"
     autoload :AuditLog, "kotoshu/integrity/audit_log"
     autoload :NetHTTP, "kotoshu/integrity/net_http"
+    autoload :RotationPolicy, "kotoshu/integrity/rotation_policy"
   end
 end
