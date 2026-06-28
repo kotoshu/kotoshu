@@ -134,20 +134,6 @@ module Kotoshu
         "#{@add} #{@condition.is_a?(Regexp) ? condition_to_s : @condition}"
       end
 
-      # Convert to hash.
-      #
-      # @return [Hash] Hash representation
-      def to_h
-        {
-          type: @type,
-          flag: @flag,
-          strip: @strip,
-          add: @add,
-          condition: @condition.is_a?(Regexp) ? @condition.source : @condition,
-          cross_product: @cross_product
-        }
-      end
-
       # Check equality based on all attributes.
       #
       # @param other [AffixRule] The other rule

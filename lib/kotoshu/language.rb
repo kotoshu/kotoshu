@@ -2,6 +2,7 @@
 
 require_relative "language/registry"
 require_relative "language/detector"
+require_relative "language/suika"
 require_relative "language/tokenizer/base"
 require_relative "language/tokenizer/latin_tokenizer"
 require_relative "language/tokenizer/french_tokenizer"

@@ -17,8 +17,8 @@ RSpec.describe Kotoshu::Cache::LanguageCache do
       cache = described_class.new
 
       expect(cache.cache_path).to end_with("kotoshu")
-      expect(cache.cache_ttl).to eq(86_400) # 24 hours
-      expect(cache.max_cache_size).to eq(1_073_741_824) # 1GB
+      expect(cache.cache_ttl).to eq(604_800) # 7 days
+      expect(cache.max_cache_size).to eq(1_073_741_824) # 1 GB
     end
 
     it "creates a cache with custom values" do
@@ -56,136 +56,77 @@ RSpec.describe Kotoshu::Cache::LanguageCache do
       expected = File.join(temp_dir, "languages", "de", "grammar")
       expect(path).to eq(expected)
     end
+
+    it "is consistent with resource_dir_for" do
+      expect(cache.language_path("fr", "spelling"))
+        .to eq(cache.resource_dir_for("fr:spelling"))
+    end
   end
 
-  describe "cache interface" do
-    describe "#read and #write" do
-      it "writes and reads values" do
-        cache.write("test:key", { value: "test_data" })
-        result = cache.read("test:key")
-
-        expect(result).to eq({ "value" => "test_data" })
+  describe "resource presence interface" do
+    describe "#available?" do
+      it "returns false for non-cached resources" do
+        expect(cache.available?("en:spelling")).to be false
       end
 
-      it "returns nil for non-existent keys" do
-        expect(cache.read("nonexistent:key")).to be_nil
+      it "returns true when metadata + dictionary files exist" do
+        lang_path = cache.language_path("en", "spelling")
+        FileUtils.mkdir_p(lang_path)
+        File.write(File.join(lang_path, "metadata.json"),
+                   JSON.generate(version: Time.now.utc.iso8601,
+                                 cached_at: Time.now.utc.iso8601))
+        File.write(File.join(lang_path, "index.aff"), "AFF")
+        File.write(File.join(lang_path, "index.dic"), "DIC")
+
+        expect(cache.available?("en:spelling")).to be true
       end
 
-      it "returns the written value from #write" do
-        result = cache.write("test:key", { value: "test" })
-        expect(result).to eq({ value: "test" })
-      end
-    end
-
-    describe "#fetch" do
-      it "returns cached value if exists" do
-        cache.write("test:key", { value: "cached" })
-        result = cache.fetch("test:key") { { value: "computed" } }
-
-        expect(result["value"]).to eq("cached")
-      end
-
-      it "computes and caches value if not exists" do
-        result = cache.fetch("test:new_key") { { value: "computed" } }
-
-        # fetch returns the original value (with symbol keys)
-        expect(result[:value]).to eq("computed")
-        # read returns the cached value (with string keys after JSON)
-        expect(cache.read("test:new_key")["value"]).to eq("computed")
-      end
-
-      it "tracks cache hits and misses" do
-        cache.write("test:key", { value: "cached" })
-
-        cache.fetch("test:key") { { value: "computed" } }
-        cache.fetch("test:miss") { { value: "computed" } }
-
-        stats = cache.stats
-        expect(stats[:hits]).to eq(1)
-        expect(stats[:misses]).to eq(1)
+      it "returns false for unsupported language" do
+        expect(cache.available?("xx:spelling")).to be false
       end
     end
 
-    describe "#delete" do
-      it "deletes a cached value" do
-        cache.write("test:key", { value: "test" })
-        result = cache.delete("test:key")
-
-        expect(result).to eq({ "value" => "test" })
-        expect(cache.read("test:key")).to be_nil
+    describe "#cached_resources" do
+      it "returns empty list for an empty cache" do
+        expect(cache.cached_resources).to eq([])
       end
 
-      it "returns nil for non-existent keys" do
-        expect(cache.delete("nonexistent:key")).to be_nil
-      end
-    end
+      it "returns resource IDs for each cached language directory" do
+        lang_path = cache.language_path("en", "spelling")
+        FileUtils.mkdir_p(lang_path)
+        File.write(File.join(lang_path, "metadata.json"), '{"version":"x"}')
 
-    describe "#key?" do
-      it "returns true for existing keys" do
-        cache.write("test:key", { value: "test" })
-        expect(cache.key?("test:key")).to be true
-      end
-
-      it "returns false for non-existent keys" do
-        expect(cache.key?("nonexistent:key")).to be false
+        expect(cache.cached_resources).to include("en:spelling")
       end
     end
 
     describe "#clear" do
-      it "removes all cached entries" do
-        cache.write("test:key1", { value: "test1" })
-        cache.write("test:key2", { value: "test2" })
+      it "removes a specific cached resource" do
+        lang_path = cache.language_path("en", "spelling")
+        FileUtils.mkdir_p(lang_path)
+        File.write(File.join(lang_path, "metadata.json"), "{}")
 
-        cache.clear
+        expect(cache.clear("en:spelling")).to be true
+        expect(File.exist?(lang_path)).to be false
+      end
 
-        expect(cache.read("test:key1")).to be_nil
-        expect(cache.read("test:key2")).to be_nil
+      it "returns false when the resource is absent" do
+        expect(cache.clear("en:spelling")).to be false
+      end
+    end
+
+    describe "#clear_all" do
+      it "removes every cached resource" do
+        lang_path = cache.language_path("en", "spelling")
+        FileUtils.mkdir_p(lang_path)
+        File.write(File.join(lang_path, "metadata.json"), "{}")
+
+        cache.clear_all
+
+        expect(File.exist?(lang_path)).to be false
       end
 
       it "resets statistics" do
-        cache.write("test:key", { value: "test" })
-        cache.read("test:key")
-
-        cache.clear
-
-        stats = cache.stats
-        expect(stats[:hits]).to eq(0)
-        expect(stats[:misses]).to eq(0)
-      end
-    end
-
-    describe "#size" do
-      it "returns 0 for empty cache" do
-        expect(cache.size).to eq(0)
-      end
-
-      it "returns the number of entries" do
-        # Create metadata files to simulate cached languages
-        lang_path = cache.language_path("en", "spelling")
-        FileUtils.mkdir_p(lang_path)
-        File.write(File.join(lang_path, "metadata.json"), '{"version": "2024-01-01T00:00:00Z"}')
-
-        expect(cache.size).to eq(1)
-      end
-    end
-
-    describe "#stats" do
-      it "returns cache statistics" do
-        stats = cache.stats
-
-        expect(stats).to include(:hits, :misses, :size, :hit_rate, :total_size_bytes, :cached_languages, :oldest_entry)
-        expect(stats[:hits]).to eq(0)
-        expect(stats[:misses]).to eq(0)
-        expect(stats[:hit_rate]).to eq(0)
-      end
-    end
-
-    describe "#reset_stats" do
-      it "resets hit and miss counters" do
-        cache.write("test:key", { value: "test" })
-        cache.read("test:key")
-        cache.read("test:miss")
-
         cache.reset_stats
 
         stats = cache.stats
@@ -195,15 +136,55 @@ RSpec.describe Kotoshu::Cache::LanguageCache do
     end
   end
 
+  describe "#stats" do
+    it "returns the documented statistics shape" do
+      stats = cache.stats
+
+      expect(stats).to include(:hits, :misses, :total, :hit_rate,
+                               :cached_resources, :size_bytes, :oldest_entry)
+      expect(stats[:hits]).to eq(0)
+      expect(stats[:misses]).to eq(0)
+      expect(stats[:hit_rate]).to eq(0.0)
+      expect(stats[:cached_resources]).to eq([])
+    end
+
+    it "includes cached resources in stats" do
+      lang_path = cache.language_path("en", "spelling")
+      FileUtils.mkdir_p(lang_path)
+
+      metadata = {
+        version: Time.now.utc.iso8601,
+        cached_at: Time.now.utc.iso8601,
+        language: "en",
+        type: "spelling",
+        size: 2048
+      }
+      File.write(File.join(lang_path, "metadata.json"), JSON.generate(metadata))
+
+      stats = cache.stats
+      expect(stats[:cached_resources]).to include("en:spelling")
+    end
+  end
+
+  describe "#reset_stats" do
+    it "resets hit and miss counters" do
+      cache.reset_stats
+
+      stats = cache.stats
+      expect(stats[:hits]).to eq(0)
+      expect(stats[:misses]).to eq(0)
+    end
+  end
+
   describe "#get_spelling" do
     context "when resources are cached and valid" do
       before do
         lang_path = cache.language_path("en", "spelling")
         FileUtils.mkdir_p(lang_path)
 
-        # Create metadata file
         metadata = {
           version: Time.now.utc.iso8601,
+          cached_at: Time.now.utc.iso8601,
           language: "en",
           type: "spelling",
           checksum: "abc123",
@@ -211,7 +192,6 @@ RSpec.describe Kotoshu::Cache::LanguageCache do
         }
         File.write(File.join(lang_path, "metadata.json"), JSON.generate(metadata))
 
-        # Create dictionary files
         File.write(File.join(lang_path, "index.aff"), "AFF content")
         File.write(File.join(lang_path, "index.dic"), "DIC content")
       end
@@ -246,9 +226,9 @@ RSpec.describe Kotoshu::Cache::LanguageCache do
         lang_path = cache.language_path("en", "grammar")
         FileUtils.mkdir_p(lang_path)
 
-        # Create metadata file
         metadata = {
           version: Time.now.utc.iso8601,
+          cached_at: Time.now.utc.iso8601,
           language: "en",
           type: "grammar",
           checksum: "def456",
@@ -256,7 +236,6 @@ RSpec.describe Kotoshu::Cache::LanguageCache do
         }
         File.write(File.join(lang_path, "metadata.json"), JSON.generate(metadata))
 
-        # Create rules file
         File.write(File.join(lang_path, "rules.yaml"), "rules: []")
       end
 
@@ -272,12 +251,12 @@ RSpec.describe Kotoshu::Cache::LanguageCache do
 
   describe "#clean" do
     before do
-      # Create cached entries
       lang_path = cache.language_path("en", "spelling")
       FileUtils.mkdir_p(lang_path)
 
       metadata = {
-        version: (Time.now.utc - 48_000).iso8601, # 2 days ago (expired)
+        version: (Time.now.utc - 48_000).iso8601, # expired (>1 hour TTL)
+        cached_at: (Time.now.utc - 48_000).iso8601,
         language: "en",
         type: "spelling",
         size: 1000
@@ -290,34 +269,6 @@ RSpec.describe Kotoshu::Cache::LanguageCache do
 
       expect(result[:expired_entries_removed]).to be > 0
       expect(File.exist?(File.join(cache.language_path("en", "spelling"), "metadata.json"))).to be false
-    end
-  end
-
-  describe "#stats" do
-    before do
-      # Create cached entries
-      lang_path = cache.language_path("en", "spelling")
-      FileUtils.mkdir_p(lang_path)
-
-      metadata = {
-        version: Time.now.utc.iso8601,
-        language: "en",
-        type: "spelling",
-        size: 2048
-      }
-      File.write(File.join(lang_path, "metadata.json"), JSON.generate(metadata))
-    end
-
-    it "includes cached languages in stats" do
-      stats = cache.stats
-
-      expect(stats[:cached_languages]).to include("en")
-    end
-
-    it "includes total size in stats" do
-      stats = cache.stats
-
-      expect(stats[:total_size_bytes]).to eq(2048)
     end
   end
 end

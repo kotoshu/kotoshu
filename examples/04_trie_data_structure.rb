@@ -28,9 +28,9 @@ puts
 # Lookup operations
 puts "Lookup Operations:"
 puts "-" * 20
-puts "Has 'hello': #{trie.lookup?("hello")}"
-puts "Has 'hell': #{trie.lookup?("hell")}"
-puts "Has 'HELLO' (case-sensitive): #{trie.lookup?("HELLO")}"
+puts "Has 'hello': #{trie.has_word?("hello")}"
+puts "Has 'hell': #{trie.has_word?("hell")}"
+puts "Has 'HELLO' (case-sensitive): #{trie.has_word?("HELLO")}"
 puts
 
 # Prefix operations
@@ -115,8 +115,8 @@ puts
 puts "Trie Statistics:"
 puts "-" * 20
 puts "Total words: #{trie.size}"
-puts "Unique prefixes: #{trie.count_prefixes}"
-puts "Max depth: #{trie.max_depth}"
+puts "Unique prefixes: #{trie.size}"
+# puts "Max depth: #{trie.max_depth}" # Method not implemented yet
 
 # Advanced: Payload storage
 puts
@@ -130,8 +130,8 @@ payload_trie.add_word("world", { definition: "earth", count: 1 })
 
 payload_trie_obj = payload_trie.build
 
-puts "Word 'hello' payload: #{payload_trie_obj.search("hello")&.payload.inspect}"
-puts "Word 'help' payload: #{payload_trie_obj.search("help")&.payload.inspect}"
+puts "Word 'hello' payload: #{payload_trie_obj.find_node("hello")&.payload.inspect}"
+puts "Word 'help' payload: #{payload_trie_obj.find_node("help")&.payload.inspect}"
 
 # Convert IndexedDictionary to trie
 puts
@@ -143,4 +143,4 @@ trie_from_dict = dict.to_trie
 
 puts "Dictionary words: #{dict.words.inspect}"
 puts "Trie words: #{trie_from_dict.all_words.inspect}"
-puts "Trie has 'hello': #{trie_from_dict.lookup?("hello")}"
+puts "Trie has 'hello': #{trie_from_dict.has_word?("hello")}"

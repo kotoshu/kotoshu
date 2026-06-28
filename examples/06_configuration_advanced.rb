@@ -15,9 +15,19 @@ puts
 puts "1. Global Configuration"
 puts "-" * 40
 
+# Use system dictionary instead of non-existent path
+dict_path = if File.exist?("/usr/share/dict/words")
+              "/usr/share/dict/words"
+            elsif File.exist?("dictionaries/unix_words/words")
+              "dictionaries/unix_words/words"
+            else
+              # Will use auto-detected system dictionary
+              nil
+            end
+
 Kotoshu.configure do |config|
-  config.dictionary_type = :plain_text
-  config.dictionary_path = "dictionaries/plain_text/en_US/words.txt"
+  config.dictionary_type = :unix_words
+  config.dictionary_path = dict_path
   config.language = "en-US"
   config.max_suggestions = 15
   config.case_sensitive = false
@@ -39,7 +49,7 @@ puts "Using configured spellchecker:"
 puts "  Has 'hello': #{Kotoshu.correct?("hello")}"
 puts "  Has 'Kotoshu': #{Kotoshu.correct?("Kotoshu")}"
 suggestions = Kotoshu.suggest("helo")
-puts "  Suggestions for 'helo': #{suggestions.to_words.join(", ").first(50)}..."
+puts "  Suggestions for 'helo': #{suggestions.to_words.first(10).join(", ")}..."
 
 puts
 puts "=" * 40
@@ -78,16 +88,16 @@ repo = Kotoshu::Dictionary::Repository.new
 # Register multiple dictionaries
 repo.register(:en_US, custom_dict)
 repo.register(:programming, Kotoshu::Dictionary::PlainText.from_words(
-  %w[code function variable class module],
-  language_code: "en"
-))
+                              %w[code function variable class module],
+                              language_code: "en"
+                            ))
 repo.register(:tech, Kotoshu::Dictionary::PlainText.from_words(
-  %w[computer software hardware internet api],
-  language_code: "en"
-))
+                       %w[computer software hardware internet api],
+                       language_code: "en"
+                     ))
 
 puts "Registered dictionaries:"
-repo.keys.each do |key|
+repo.each_key do |key|
   dict = repo.get(key)
   puts "  #{key}: #{dict.size} words (#{dict.type})"
 end
@@ -107,19 +117,19 @@ puts "4. IndexedDictionary (Rich Query Interface)"
 puts "-" * 40
 
 index_dict = Kotoshu.dictionary(%w[
-  hello help held heap
-  world work word
-  test text toast
-  run running runner
-  code coding coded
-])
+                                  hello help held heap
+                                  world work word
+                                  test text toast
+                                  run running runner
+                                  code coding coded
+                                ])
 
 puts "IndexedDictionary: #{index_dict.size} words"
 puts
 
 puts "Query methods:"
-puts "  Words starting with 'he': #{index_dict.find_by_prefix('he').inspect}"
-puts "  Words ending with 'ld': #{index_dict.find_by_suffix('ld').inspect}"
+puts "  Words starting with 'he': #{index_dict.find_by_prefix("he").inspect}"
+puts "  Words ending with 'ld': #{index_dict.find_by_suffix("ld").inspect}"
 puts "  Words with length 3: #{index_dict.find_by_length(3).inspect}"
 puts "  Words matching pattern 't.*t': #{index_dict.find_by_pattern(/t.*t/).inspect}"
 puts
@@ -165,9 +175,11 @@ puts "  Unique errors: #{text_result.unique_error_count}"
 puts
 puts "  Errors:"
 text_result.errors.each do |error|
-  suggestions_str = error.has_suggestions? ?
-                     " (suggestions: #{error.top_suggestions(2).join(", ")})" :
-                     ""
+  suggestions_str = if error.has_suggestions?
+                      " (suggestions: #{error.top_suggestions(2).join(", ")})"
+                    else
+                      ""
+                    end
   puts "    • #{error.word} at position #{error.position}#{suggestions_str}"
 end
 

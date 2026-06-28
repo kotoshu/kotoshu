@@ -162,4 +162,18 @@ module Kotoshu
 
     attr_reader :resource_id, :expected, :actual, :url
   end
+
+  # Error raised when Japanese-language features are requested but the
+  # suika gem is unavailable. suika is a soft runtime dependency because
+  # its native extension (dartsclone) does not build on slim/minimal
+  # environments. All non-Japanese code paths are unaffected.
+  class SuikaUnavailable < Error
+    def initialize(detail = nil)
+      message = "suika gem not loaded"
+      message += " (#{detail})" if detail
+      message += ". Install with: gem install suika"
+      message += ". Or set KOTOSHU_NO_SUIKA=1 to silence this in code paths that opt out."
+      super(message)
+    end
+  end
 end

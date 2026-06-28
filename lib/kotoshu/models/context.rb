@@ -23,7 +23,7 @@ module Kotoshu
       # @param before [String] Text before the error
       # @param current [String] The current line/text containing the error
       # @param after [String] Text after the error
-      # @param location [Documents::Location] The error location
+      # @param location [Object] The error location (line/column holder)
       # @param window [Integer] Window size used for context (default: 5)
       def initialize(before:, current:, after:, location:, window: 5)
         @before = before

@@ -28,8 +28,8 @@ if en_gb_entry
 
   en_gb_dict = en_gb_entry.load
   puts "Loaded #{en_gb_dict.size} words"
-  puts "Has 'colour': #{en_gb_dict.lookup?('colour')}"
-  puts "Has 'color': #{en_gb_dict.lookup?('color')}"
+  puts "Has 'colour': #{en_gb_dict.lookup?("colour")}"
+  puts "Has 'color': #{en_gb_dict.lookup?("color")}"
 else
   puts "Dictionary not found"
 end
@@ -107,9 +107,7 @@ test_cases.each do |lang, words|
   status = correct_result ? "✓" : "✗"
   puts "#{status} #{lang.upcase} '#{words[:correct]}': #{correct_result}"
 
-  if incorrect_result.has_suggestions?
-    puts "  Suggestions for '#{words[:incorrect]}': #{incorrect_result.top_suggestions(3).join(', ')}"
-  end
+  puts "  Suggestions for '#{words[:incorrect]}': #{incorrect_result.top_suggestions(3).join(", ")}" if incorrect_result.has_suggestions?
 end
 
 puts
@@ -212,8 +210,8 @@ english_variants.each do |code|
     color_result = checker.correct?("color")
 
     puts "#{entry.name}:"
-    puts "  'colour': #{colour_result ? '✓' : '✗'}"
-    puts "  'color': #{color_result ? '✓' : '✗'}"
+    puts "  'colour': #{colour_result ? "✓" : "✗"}"
+    puts "  'color': #{color_result ? "✓" : "✗"}"
   rescue StandardError => e
     puts "#{entry.name}: ✗ Error - #{e.message}"
   end
@@ -261,15 +259,13 @@ if entry
   puts "Code: #{entry.code}"
   puts "Name: #{entry.name}"
   puts "Language: #{entry.language}"
-  puts "Region: #{entry.region || 'N/A'}"
+  puts "Region: #{entry.region || "N/A"}"
   puts "Format: #{entry.format}"
   puts "Source: #{entry.source}"
   puts "License: #{entry.license}"
   puts "Word count: #{entry.word_count}"
   puts "Dictionary URL: #{entry.dic_url}"
-  if entry.aff_url
-    puts "Affix URL: #{entry.aff_url}"
-  end
+  puts "Affix URL: #{entry.aff_url}" if entry.aff_url
   puts "Metadata: #{entry.metadata.inspect}"
 end
 

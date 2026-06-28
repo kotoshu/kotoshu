@@ -22,7 +22,7 @@ if unix_dict
   puts "Has 'hello': #{unix_dict.lookup?("hello")}"
   puts "Has 'Kotoshu': #{unix_dict.lookup?("Kotoshu")}"
   suggestions = unix_dict.suggest("helo", max_suggestions: 5)
-  puts "Suggestions for 'helo': #{suggestions.join(', ')}"
+  puts "Suggestions for 'helo': #{suggestions.join(", ")}"
 else
   puts "No system dictionary found"
 end
@@ -131,7 +131,7 @@ puts "Words with prefix 'hel': #{cspell_dict.words_with_prefix("hel").inspect}"
 # Convert to trie
 trie = cspell_dict.trie
 puts "\nTrie structure:"
-puts "  Has 'hello': #{trie.lookup?("hello")}"
+puts "  Has 'hello': #{trie.has_word?("hello")}"
 puts "  Has prefix 'wo': #{trie.has_prefix?("wo")}"
 puts "  Words with prefix 'wo': #{trie.words_with_prefix("wo").inspect}"
 puts "  Suggestions for 'he': #{trie.suggestions("he").inspect}"

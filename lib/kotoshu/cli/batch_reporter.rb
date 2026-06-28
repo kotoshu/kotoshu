@@ -24,9 +24,17 @@ module Kotoshu
     class BatchReporter
       attr_reader :document, :navigation, :formatter
 
+      # Display name lookup for document formats.
+      FORMAT_NAMES = {
+        text: 'Plain Text',
+        markdown: 'Markdown',
+        asciidoc: 'AsciiDoc',
+        code: 'Code'
+      }.freeze
+
       # Create a new batch reporter.
       #
-      # @param document [Documents::Document] Document being reported
+      # @param document [#name,#format,#language_code] Document being reported
       # @param navigation [NavigationManager] Navigation state
       # @param formatter [DisplayFormatter, nil] Display formatter
       def initialize(document, navigation, formatter: nil)
@@ -112,7 +120,7 @@ module Kotoshu
         lines << @formatter.colorize("╚═══════════════════════════════════════════════════════════════╝", :bold)
         lines << ""
         lines << "Document: #{@document.name}"
-        lines << "Format: #{Documents::Document::FORMATS[@document.format]}"
+        lines << "Format: #{FORMAT_NAMES[@document.format] || @document.format}"
         lines << "Language: #{@document.language_code}"
         lines << ""
         lines << @formatter.colorize("Summary", :bold)

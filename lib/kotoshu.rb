@@ -86,13 +86,6 @@ module Kotoshu
   # LAZY: FastText integration (autoload)
   autoload :SemanticAnalyzer, "kotoshu/analyzers/semantic_analyzer"
 
-  # LAZY: Document abstraction (autoload)
-  autoload :Location, "kotoshu/documents/location"
-  autoload :Document, "kotoshu/documents/document"
-  autoload :PlainTextDocument, "kotoshu/documents/plain_text_document"
-  autoload :MarkdownDocument, "kotoshu/documents/markdown_document"
-  autoload :AsciidocDocument, "kotoshu/documents/asciidoc_document"
-
   # LAZY: Cache management (autoload)
   autoload :LanguageCache, "kotoshu/cache/language_cache"
   autoload :ModelCache, "kotoshu/cache/model_cache"

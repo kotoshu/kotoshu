@@ -118,6 +118,20 @@ module Kotoshu
         AVAILABLE_LANGUAGES.dup
       end
 
+      # Absolute on-disk path for a (language, resource_type) pair.
+      #
+      # Composes `cache_path/languages/{lang}/{type}`. Use this rather
+      # than reaching into `cache_path` from outside the cache — it
+      # keeps the on-disk layout encapsulated and lets the layout
+      # evolve without breaking callers.
+      #
+      # @param language [String] Language code (e.g., 'en', 'de')
+      # @param type [String] Resource type ('spelling', 'grammar', 'frequency')
+      # @return [String] Absolute directory path for the resource
+      def language_path(language, type)
+        File.join(@cache_path, "languages", language, type)
+      end
+
       # Get language metadata (word count, license, source).
       #
       # @param language_code [String] The language code
@@ -414,7 +428,7 @@ module Kotoshu
       def metadata_path_for(resource_id)
         language = extract_language(resource_id)
         type = extract_type(resource_id)
-        File.join(@cache_path, "languages", language, type, "metadata.json")
+        File.join(language_path(language, type), "metadata.json")
       end
 
       # Get resource directory path.
@@ -422,9 +436,7 @@ module Kotoshu
       # @param resource_id [String] The resource identifier
       # @return [String] Resource directory path
       def resource_dir_for(resource_id)
-        language = extract_language(resource_id)
-        type = extract_type(resource_id)
-        File.join(@cache_path, "languages", language, type)
+        language_path(extract_language(resource_id), extract_type(resource_id))
       end
 
       # Check if all resource files exist.

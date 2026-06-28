@@ -26,16 +26,16 @@ puts "Checking text:"
 puts "-" * 40
 result = Kotoshu.check(text)
 
-if result.success?
-  puts result.to_s
-else
-  puts result.to_s
+puts result
+unless result.success?
   puts
   puts "Errors found:"
   result.each_error do |error|
-    suggestions_str = error.has_suggestions? ?
-                       " (did you mean #{error.top_suggestions(3).join(', ')}?)" :
-                       ""
+    suggestions_str = if error.has_suggestions?
+                        " (did you mean #{error.top_suggestions(3).join(", ")}?)"
+                      else
+                        ""
+                      end
     puts "  • #{error.word}#{suggestions_str}"
   end
 end
@@ -60,9 +60,7 @@ if File.exist?(file_path)
     file_result.each_unique_error do |word, errors|
       puts "  • #{word} (appears #{errors.size}x)"
       first_error = errors.first
-      if first_error.has_suggestions?
-        puts "    Suggestions: #{first_error.top_suggestions(3).join(', ')}"
-      end
+      puts "    Suggestions: #{first_error.top_suggestions(3).join(", ")}" if first_error.has_suggestions?
     end
   end
 end

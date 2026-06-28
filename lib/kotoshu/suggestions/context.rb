@@ -31,18 +31,6 @@ module Kotoshu
         @options.key?(key)
       end
 
-      # Convert context to hash.
-      #
-      # @return [Hash] Context as hash
-      def to_h
-        {
-          word: @word,
-          dictionary: @dictionary,
-          max_results: @max_results,
-          options: @options
-        }
-      end
-
       # Inspect the context.
       #
       # @return [String] Inspection string

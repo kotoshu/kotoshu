@@ -157,6 +157,20 @@ module Kotoshu
 
       # Apply conversions to word.
       #
+      # Note: Python's `re.match(string, pos)` anchors at pos, but Ruby's
+      # `Regexp#match?` searches from pos onward. We must check that the
+      # match actually begins at pos, otherwise short conversions fire on
+      # later positions in the word and produce nonsense like "ÉÉÉÉ" for
+      # "bébé".
+      #
+      # Spylls uses Python's stable `sorted(..., key=lambda r: len(r[0]))`
+      # which preserves declaration order for ties. Ruby's `sort_by` is
+      # unstable, so we add the table index as a secondary key to mirror
+      # Spylls. Without this, Nepali's ICONV reorders the `ZWNJ$ → ZWNJ`
+      # no-op rule behind `ZWNJ → U+FFF0`, causing the trailing-ZWNJ word
+      # to be normalized to U+FFF0 (and then dropped by IGNORE) so it
+      # matches the dictionary.
+      #
       # @param word [String] Input word
       # @return [String] Converted word
       def call(word)
@@ -164,12 +178,16 @@ module Kotoshu
         result = ''
 
         while pos < word.length
-          matches = @table.select { |_, pattern| pattern.match?(word, pos) }
-                             .sort_by { |search, _| search.length }
-                             .reverse
+          matches = @table.each_with_index.filter_map do |(search, pattern, _), idx|
+            m = pattern.match(word, pos)
+            next unless m && m.begin(0) == pos
+
+            [search, idx]
+          end.sort_by { |s, idx| [-s.length, idx] }
 
           if matches.any?
-            search, _, replacement = matches.first
+            search, idx = matches.first
+            _, _, replacement = @table[idx]
             result += replacement
             pos += search.length
           else
@@ -198,8 +216,9 @@ module Kotoshu
     # @attr text [String] The rule text
     # @attr flags [Set<String>] Flags in this rule
     # @attr re [Regexp] Compiled regex for full matching
+    # @attr partial_re [Regexp] Compiled regex for prefix matching
     class CompoundRule
-      attr_reader :text, :flags, :re
+      attr_reader :text, :flags, :re, :partial_re
 
       # Create a new compound rule.
       #
@@ -217,19 +236,57 @@ module Kotoshu
                         .scan(/[^*?][*?]?/)
         end
 
-        @re = Regexp.new(parts.join)
+        # Full-match regex: the entire flag-combination string must match.
+        @re = Regexp.new("\\A#{parts.join}\\z")
+
+        # Partial-match regex: any prefix of the rule is accepted. Built
+        # by making each trailing part optional, from the end backwards:
+        # parts ["A","B","C"] → "A(B(C?)?)?" which matches "A", "AB", "ABC".
+        @partial_re = if parts.empty?
+                        Regexp.new('\\A\\z')
+                      else
+                        Regexp.new("\\A#{build_partial(parts)}\\z")
+                      end
       end
 
       # Check if flag sets fully match this rule.
       #
       # @param flag_sets [Array<Set<String>>] Array of flag sets
-      # @return [Boolean] True if matches
+      # @return [Boolean] True if the entire flag-combination matches
       def fullmatch(flag_sets)
         relevant_flags = flag_sets.map { |f| @flags.intersection(f).to_a }
-        # Try all combinations of relevant flags
+        return false if relevant_flags.empty? || relevant_flags.any?(&:empty?)
+
         relevant_flags[0].product(*relevant_flags[1..]).any? do |fc|
           @re.match?(fc.join)
         end
+      end
+
+      # Check if flag sets form a valid prefix of this rule.
+      #
+      # Used during compounds_by_rules recursion to prune branches that
+      # can never lead to a full match.
+      #
+      # @param flag_sets [Array<Set<String>>] Array of flag sets
+      # @return [Boolean] True if a prefix of the rule matches
+      def partial_match(flag_sets)
+        relevant_flags = flag_sets.map { |f| @flags.intersection(f).to_a }
+        return false if relevant_flags.empty? || relevant_flags.any?(&:empty?)
+
+        relevant_flags[0].product(*relevant_flags[1..]).any? do |fc|
+          @partial_re.match?(fc.join)
+        end
+      end
+
+      private
+
+      # Build a regex where each trailing part becomes optional.
+      #
+      # ["A", "B", "C"] → "A(B(C?)?)?"
+      def build_partial(parts)
+        parts.reverse.reduce(nil) do |inner, part|
+          inner ? "#{part}(#{inner})?" : "#{part}?"
+        end.gsub('??', '?')
       end
     end
 
@@ -252,13 +309,17 @@ module Kotoshu
         @right = right
         @replacement = replacement
 
-        # Parse left side
-        @left_stem, _, @left_flag = left.partition('/')
+        # Parse left side. The separator from partition('/') distinguishes
+        # "no slash" (no flag specified → nil, so the matcher skips the
+        # flag check) from a slash with an empty flag.
+        @left_stem, sep, @left_flag = left.partition('/')
+        @left_flag = nil if sep.empty?
         @left_stem = '' if @left_stem == '0'
         @left_no_affix = @left_stem.empty? && left.start_with?('0')
 
         # Parse right side
-        @right_stem, _, @right_flag = right.partition('/')
+        @right_stem, sep, @right_flag = right.partition('/')
+        @right_flag = nil if sep.empty?
         @right_stem = '' if @right_stem == '0'
         @right_no_affix = @right_stem.empty? && right.start_with?('0')
       end
@@ -282,9 +343,13 @@ module Kotoshu
 
     # Phonetic table for PHONE directive.
     #
-    # @attr table [Array<Array<String>>] Array of [pattern, replacement] pairs
+    # Domain object wrapping the parsed PHONE rules. Rules are indexed by
+    # their first letter so the metaphone algorithm can look up candidates
+    # in O(1) per character position.
+    #
+    # @attr rules [Hash<String, Array<Rule>>] First-char → rule list
     class PhonetTable
-      attr_reader :table
+      attr_reader :table, :rules
 
       # Pattern for matching phonetic rules.
       # Updated to support extended ASCII (Latin-1) characters like É, À, etc.
@@ -323,10 +388,18 @@ module Kotoshu
         end
       end
 
+      # Whether this table contains any rules.
+      #
+      # @return [Boolean]
+      def empty?
+        @table.empty?
+      end
+
       # Parse a phonetic rule.
       #
       # @param search [String] Search pattern
-      # @param replacement [String] Replacement string
+      # @param replacement [String] Replacement string ("_" means silent/empty,
+      #   per aspell's phonetic convention which Hunspell inherited)
       # @return [Rule] Parsed rule
       def parse_rule(search, replacement)
         match = RULE_PATTERN.match(search)
@@ -342,9 +415,14 @@ module Kotoshu
           regex = text.join
         end
 
+        # Aspell/Hunspell phonetic convention: "_" in the replacement column
+        # means "produce nothing" (silent). Normalizing here means downstream
+        # code can append the replacement verbatim.
+        normalized_replacement = replacement == '_' ? '' : replacement
+
         Rule.new(
           search: Regexp.new(regex),
-          replacement:,
+          replacement: normalized_replacement,
           start: match['flags']&.include?('^'),
           end: match['flags']&.include?('$'),
           priority: match['priority']&.to_i || 5,

@@ -1,35 +1,30 @@
 # frozen_string_literal: true
 
-require "suika"
-
 module Kotoshu
   module Language
     module Tokenizer
       # Tokenizer for Japanese text.
       #
-      # Uses Suika gem for morphological analysis.
-      #
-      # Suika is a pure Ruby Japanese morphological analyzer with a built-in
-      # dictionary from mecab-ipadic. It provides proper tokenization with
-      # part-of-speech information.
+      # Uses Suika gem for morphological analysis. Suika is a soft runtime
+      # dependency — see {Kotoshu::Language::Suika} for load status and
+      # {Kotoshu::SuikaUnavailable} for the error raised when Japanese
+      # tokenization is requested without it.
       #
       # @see https://github.com/yoshoku/suika
       class JapaneseTokenizer < Base
         # Japanese word separators - keep it simple since Suika handles tokenization
         WORD_SEPARATORS = /[\s"()\[\]{}<>,.;:!?\\\/|`~@#$%^&*·]/.freeze
 
-        # Class variable to hold the Suika tagger instance
-        @@tagger = nil
-
         def tokenize(text)
           return [] if text.nil? || text.strip.empty?
 
-          # Initialize tagger once (class variable for reuse)
-          @@tagger ||= ::Suika::Tagger.new
+          # Suika::Tagger is process-wide memoized in Language::Suika;
+          # raises SuikaUnavailable when the gem is missing.
+          tagger = Kotoshu::Language::Suika.tagger
 
           # Suika.parse returns an array of "surface\tfeatures" strings
           tokens = []
-          parsed = @@tagger.parse(text)
+          parsed = tagger.parse(text)
 
           parsed.each do |token|
             # Suika returns: "すもも	名詞,一般,*,*,*,*,すもも,スモモ,スモモ"
@@ -48,7 +43,7 @@ module Kotoshu
         # @param text [String] Text to check
         # @return [Boolean] True if Japanese
         def japanese?(text)
-          text.match?(/[\u3040-\u309F\u30A0-\u30FF]/) # Hiragana or Katakana
+          text.match?(/[぀-ゟ゠-ヿ]/) # Hiragana or Katakana
         end
 
         def word_separators

@@ -3,7 +3,6 @@
 require_relative '../models/embedding_model'
 require_relative '../models/semantic_error'
 require_relative '../models/context'
-require_relative '../documents/document'
 
 module Kotoshu
   module Analyzers
@@ -213,7 +212,7 @@ module Kotoshu
         end
 
         # Check if it's a word choice error (semantic similarity but different word)
-        if suggestions.first&.source == :semantic
+        if suggestions.first&.source == "semantic"
           return :word_choice
         end
 

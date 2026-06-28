@@ -173,18 +173,21 @@ module Kotoshu
       end
       alias words to_words
 
-      # Convert to array of hashes.
+      # Convert to an array of hashes for serialization.
+      #
+      # Use this when you need the Hash shape (e.g. JSON output). For the
+      # enumerable contract, {#to_a} / {#each} yield {Suggestion} objects.
       #
       # @return [Array<Hash>] Array of suggestion hashes
-      def to_a
-        @suggestions.map(&:to_h)
+      def to_hashes
+        @suggestions.map(&:to_hash)
       end
 
       # Convert to JSON-compatible array.
       #
       # @return [Array<Hash>] JSON-compatible array
       def as_json(*)
-        to_a
+        to_hashes
       end
 
       # String representation.
