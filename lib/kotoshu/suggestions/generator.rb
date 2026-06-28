@@ -145,19 +145,24 @@ module Kotoshu
 
       # Look up a word in the dictionary.
       #
+      # Dispatch is type-driven (no `respond_to?`): Hash and Array are
+      # supported as ad-hoc dictionaries for tests and one-off scripts;
+      # everything else is treated as a real dictionary backend that
+      # implements the documented `lookup(word)` interface. Passing an
+      # object that doesn't quack like a dictionary surfaces as a
+      # NoMethodError on `lookup` — that's intentional; the caller
+      # misconfigured the generator.
+      #
       # @param word [String] The word
       # @return [Boolean] True if found
       def dictionary_lookup(word)
-        if @dictionary.respond_to?(:lookup)
-          @dictionary.lookup(word)
-        elsif @dictionary.respond_to?(:include?)
-          @dictionary.include?(word)
-        elsif @dictionary.is_a?(Hash)
+        case @dictionary
+        when Hash
           @dictionary.key?(word)
-        elsif @dictionary.is_a?(Array)
+        when Array
           @dictionary.include?(word)
         else
-          false
+          @dictionary.lookup(word)
         end
       end
     end
