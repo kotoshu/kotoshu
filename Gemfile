@@ -23,6 +23,7 @@ gem "suika", "~> 0.3"
 
 group :development, :test do
   gem "asciidoctor", "~> 2.0"
+  gem "benchmark", "~> 0.4"
   gem "benchmark-ips", "~> 2.12"
   gem "rspec", "~> 3.12"
   gem "rspec-mocks", "~> 3.12"

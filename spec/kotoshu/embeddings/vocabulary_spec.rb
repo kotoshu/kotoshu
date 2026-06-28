@@ -73,14 +73,13 @@ RSpec.describe Vocabulary do
 
     it "auto-detects language from filename" do
       data = ["hello", "world"]
-      File.write(vocab_file.path, JSON.generate(data))
+      Dir.mktmpdir do |dir|
+        lang_path = File.join(dir, "vocab.en.vocab.json")
+        File.write(lang_path, JSON.generate(data))
 
-      # Rename to include language code
-      new_path = vocab_file.path.sub(/\.json$/, ".en.vocab.json")
-      File.rename(vocab_file.path, new_path)
-
-      vocab = described_class.from_file(new_path)
-      expect(vocab.language_code).to eq("en")
+        vocab = described_class.from_file(lang_path)
+        expect(vocab.language_code).to eq("en")
+      end
     end
 
     it "raises ArgumentError for non-existent file" do
