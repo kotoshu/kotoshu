@@ -19,6 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   on a sibling lockfile (`audit.log.lock`) so concurrent writers cannot
   race the rename chain. `AuditLog#entries` now walks both the current
   log and all rotations, newest-first.
+- **Shell completion** (`kotoshu completions bash|zsh|fish`). Emits a
+  shell-specific completion script that completes top-level subcommands
+  and dynamically completes language codes for `setup` / `fetch` by
+  shelling out to `kotoshu completions languages`. README documents
+  install paths for bash, zsh, and fish.
 
 ## [0.4.0] — 2026-06-29
 

@@ -715,6 +715,39 @@ Total:
 ======================================================================
 ----
 
+=== Shell Completion
+
+Kotoshu ships tab-completion scripts for bash, zsh, and fish. The scripts
+complete subcommands for `kotoshu <TAB>` and language codes for
+`kotoshu setup <TAB>` (the language list is read dynamically via
+`kotoshu completions languages`, so newly registered languages appear
+without re-running the install step).
+
+Install for your shell:
+
+[source,bash]
+----
+# bash (system-wide)
+kotoshu completions bash > /etc/bash_completion.d/kotoshu
+
+# bash (single user)
+kotoshu completions bash > ~/.local/share/bash-completion/completions/kotoshu
+
+# zsh — drop into any directory on your $fpath
+kotoshu completions zsh > "${fpath[1]}/_kotoshu"
+
+# fish
+kotoshu completions fish > ~/.config/fish/completions/kotoshu.fish
+----
+
+To see the supported language codes without installing a completion
+script:
+
+[source,bash]
+----
+kotoshu completions languages
+----
+
 === Language Support Matrix
 
 Kotoshu provides multi-language support with varying feature availability.

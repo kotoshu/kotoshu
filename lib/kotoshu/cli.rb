@@ -54,6 +54,7 @@ module Kotoshu
   module Cli
     # LAZY: CLI helper components (autoloaded on first reference)
     autoload :CacheCommand, "kotoshu/cli/cache_command"
+    autoload :CompletionsCommand, "kotoshu/cli/completions_command"
     autoload :Errors, "kotoshu/cli/errors"
     autoload :NavigationManager, "kotoshu/cli/navigation_manager"
     autoload :DisplayFormatter, "kotoshu/cli/display_formatter"
@@ -238,6 +239,9 @@ module Kotoshu
 
       desc "cache SUBCOMMAND", "Cache management"
       subcommand "cache", CacheCommand
+
+      desc "completions SUBCOMMAND", "Emit shell completion scripts"
+      subcommand "completions", CompletionsCommand
 
       desc "status", "Show setup, cache, and runtime status"
       long_desc <<~DESC
