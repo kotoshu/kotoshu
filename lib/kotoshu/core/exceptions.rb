@@ -148,19 +148,26 @@ module Kotoshu
   # The downloaded bytes are never trusted until verified against a known
   # manifest entry. Mismatch raises this error with both hashes so the
   # caller can surface them in audit logs and CI output.
+  #
+  # The optional +remediation:+ hint is appended to the message when the
+  # caller knows the user-facing fix (e.g. "Run `kotoshu cache download
+  # :en --model` to re-download"). Existing callers that omit it see no
+  # change in the message format.
   class IntegrityError < Error
-    def initialize(resource_id, expected:, actual:, url: nil)
+    def initialize(resource_id, expected:, actual:, url: nil, remediation: nil)
       @resource_id = resource_id
       @expected = expected
       @actual = actual
       @url = url
+      @remediation = remediation
       msg = "Integrity verification failed for #{resource_id}: "
       msg << "expected sha256=#{expected}, got sha256=#{actual}"
       msg << " (url: #{url})" if url
+      msg << ". #{remediation}" if remediation
       super(msg)
     end
 
-    attr_reader :resource_id, :expected, :actual, :url
+    attr_reader :resource_id, :expected, :actual, :url, :remediation
   end
 
   # Error raised when Japanese-language features are requested but the
