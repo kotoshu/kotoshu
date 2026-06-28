@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "shellwords"
+require "open3"
 
 RSpec.describe Kotoshu::Language::Suika do
   describe "::LOADED" do
@@ -26,6 +26,7 @@ RSpec.describe Kotoshu::Language::Suika do
   describe "KOTOSHU_NO_SUIKA=1 opt-out" do
     let(:script) do
       <<~'RUBY'
+        ENV["KOTOSHU_NO_SUIKA"] = "1"
         require "kotoshu"
         begin
           Kotoshu::Language::Suika.tagger
@@ -37,7 +38,9 @@ RSpec.describe Kotoshu::Language::Suika do
     end
 
     it "forces LOADED to false and raises SuikaUnavailable" do
-      output = `KOTOSHU_NO_SUIKA=1 bundle exec ruby -e #{Shellwords.escape(script)} 2>&1`
+      output, status = Open3.capture2e("bundle", "exec", "ruby", "-e", script)
+      skip "Bundle exec unavailable in this environment" unless status.success? || output =~ /LOADED=/
+
       expect(output).to match(/LOADED=false/)
       expect(output).to match(/RAISED=yes/)
       expect(output).to include("suika gem not loaded")

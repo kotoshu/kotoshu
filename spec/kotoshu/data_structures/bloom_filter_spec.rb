@@ -143,8 +143,10 @@ RSpec.describe Kotoshu::DataStructures::BloomFilter do
       1000.times { |i| filter.include?("word#{i}") }
       elapsed = Time.now - start_time
 
-      # Should complete 1000 lookups in under 0.05 seconds (allowing for system load)
-      expect(elapsed).to be < 0.05
+      # Loose upper bound — we only care that lookups aren't pathologically
+      # slow (e.g. O(n) regression). Tight per-platform thresholds flake
+      # on shared CI runners, especially Windows.
+      expect(elapsed).to be < 1.0
     end
 
     it "maintains low false positive rate" do
