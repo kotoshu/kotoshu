@@ -174,8 +174,18 @@ module Kotoshu
 
       # Load cached resource data (implements abstract method).
       #
+      # Verifies the cached model file's SHA-256 against the checksum
+      # recorded at download time. A mismatch — truncated file, disk
+      # corruption, manual edit — raises {Kotoshu::IntegrityError} with
+      # a remediation hint pointing at the cache subcommand, matching
+      # the Phase C contract of TODO.impl/38-onnx-semantic-gating.md.
+      # Caches written before checksums were recorded are accepted as
+      # "unverified" (graceful degradation).
+      #
       # @param resource_id [String] The resource identifier
       # @return [Hash, nil] Loaded model info
+      # @raise [Kotoshu::IntegrityError] if the cached file's checksum
+      #   does not match the recorded checksum
       def load_cached(resource_id)
         language = extract_language(resource_id)
         type = extract_type(resource_id)
@@ -195,6 +205,8 @@ module Kotoshu
         model_file = File.join(resource_dir_for(resource_id), filename)
 
         return nil unless File.exist?(model_file)
+
+        verify_cached_integrity!(resource_id, metadata, model_file)
 
         { model_path: model_file, metadata: metadata }
       end
@@ -238,6 +250,35 @@ module Kotoshu
       end
 
       private
+
+      # Verify a cached model file's SHA-256 against the checksum
+      # recorded in its metadata. Raises {Kotoshu::IntegrityError} on
+      # mismatch so the caller surfaces a clear, actionable error.
+      # Caches written without a checksum field are accepted silently
+      # to preserve backward compatibility with pre-verification caches.
+      #
+      # @param resource_id [String] The resource identifier (e.g. "en:onnx")
+      # @param metadata [Hash] Parsed metadata.json (string keys)
+      # @param model_file [String] Path to the cached model file
+      # @return [void]
+      # @raise [Kotoshu::IntegrityError] if checksums do not match
+      #
+      def verify_cached_integrity!(resource_id, metadata, model_file)
+        expected = metadata["checksum"]
+        return unless expected
+
+        actual = Digest::SHA256.file(model_file).hexdigest
+        return if actual == expected
+
+        remediation = "Run `kotoshu cache download :#{extract_language(resource_id)} --model` to re-download."
+        raise Kotoshu::IntegrityError.new(
+          resource_id,
+          expected: expected,
+          actual: actual,
+          url: metadata["url"],
+          remediation: remediation
+        )
+      end
 
       # Build metadata hash for a model.
       #
