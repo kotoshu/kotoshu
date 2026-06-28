@@ -64,7 +64,7 @@ module Kotoshu
         @github_url = github_url || default_github_url
         @resource_pin = resource_pin || @source_registry.pin_for_source(:spelling)
         @manifest_url = manifest_url
-        @audit_log = audit_log || Kotoshu::Integrity::AuditLog.new
+        @audit_log = audit_log || default_audit_log
         @max_cache_size = max_cache_size || default_max_cache_size
         @manifest = nil
         @manifest_loaded = false
@@ -602,6 +602,22 @@ module Kotoshu
       # @return [Integer] Default max cache size in bytes
       def default_max_cache_size
         1_073_741_824
+      end
+
+      # Build a default audit log bound to the configured rotation
+      # policy. Pulls +audit_max_bytes+ and +audit_rotations+ from
+      # +Kotoshu::Configuration.instance+ so ENV overrides
+      # (+KOTOSHU_AUDIT_MAX_BYTES+, +KOTOSHU_AUDIT_ROTATIONS+) and
+      # programmatic settings flow through naturally.
+      #
+      # @return [Kotoshu::Integrity::AuditLog]
+      def default_audit_log
+        config = Kotoshu::Configuration.instance
+        policy = Kotoshu::Integrity::RotationPolicy.new(
+          max_bytes: config.audit_max_bytes,
+          rotations: config.audit_rotations
+        )
+        Kotoshu::Integrity::AuditLog.new(rotation_policy: policy)
       end
     end
   end

@@ -114,6 +114,18 @@ module Kotoshu
         description: "Maximum cache size in bytes",
         type: Integer
       },
+      audit_max_bytes: {
+        env: "KOTOSHU_AUDIT_MAX_BYTES",
+        default: 10_485_760, # 10 MB
+        description: "Audit log size threshold (bytes) that triggers rotation",
+        type: Integer
+      },
+      audit_rotations: {
+        env: "KOTOSHU_AUDIT_ROTATIONS",
+        default: 5,
+        description: "Number of historical audit log rotations to keep",
+        type: Integer
+      },
       dictionary_type: {
         env: "KOTOSHU_DICTIONARY_TYPE",
         default: :unix_words,
@@ -286,6 +298,12 @@ module Kotoshu
 
     # @return [Integer] Maximum cache size in bytes
     attr_accessor :max_cache_size
+
+    # @return [Integer] Audit log size threshold (bytes) for rotation
+    attr_accessor :audit_max_bytes
+
+    # @return [Integer] Number of historical audit log rotations to keep
+    attr_accessor :audit_rotations
 
     # @return [Resolver] The configuration resolver
     attr_reader :resolver
@@ -512,6 +530,8 @@ module Kotoshu
       @auto_download = SCHEMA[:auto_download][:default]
       @cache_ttl = SCHEMA[:cache_ttl][:default]
       @max_cache_size = SCHEMA[:max_cache_size][:default]
+      @audit_max_bytes = SCHEMA[:audit_max_bytes][:default]
+      @audit_rotations = SCHEMA[:audit_rotations][:default]
       @resource_pin = SCHEMA[:resource_pin][:default]
     end
 

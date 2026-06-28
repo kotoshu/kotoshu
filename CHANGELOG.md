@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Audit log rotation** (`Kotoshu::Integrity::RotationPolicy`). When the
+  current `audit.log` exceeds `audit_max_bytes` (default 10 MB,
+  `KOTOSHU_AUDIT_MAX_BYTES`), the log rotates through `audit_rotations`
+  historical files (default 5, `KOTOSHU_AUDIT_ROTATIONS`). Total on-disk
+  footprint is bounded at `max_bytes * (rotations + 1)`. The rotation
+  policy is a pure value object — `AuditLog#record` consults it on every
+  write and executes the returned rename plan under an exclusive flock
+  on a sibling lockfile (`audit.log.lock`) so concurrent writers cannot
+  race the rename chain. `AuditLog#entries` now walks both the current
+  log and all rotations, newest-first.
+
 ## [0.4.0] — 2026-06-29
 
 Tier 2 release. Completes the Hunspell correctness work (morphological
