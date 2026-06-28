@@ -1,11 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../algorithms/lookup'
-require_relative '../algorithms/capitalization'
-require_relative 'aff_reader'
-require_relative 'dic_reader'
-require_relative 'condition_checker'
-
 module Kotoshu
   module Readers
     # Builder for creating Lookup::Lookuper instances from Hunspell data.

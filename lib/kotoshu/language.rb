@@ -1,22 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "language/registry"
-require_relative "language/detector"
-require_relative "language/suika"
-require_relative "language/tokenizer/base"
-require_relative "language/tokenizer/latin_tokenizer"
-require_relative "language/tokenizer/french_tokenizer"
-require_relative "language/tokenizer/german_tokenizer"
-require_relative "language/tokenizer/spanish_tokenizer"
-require_relative "language/tokenizer/portuguese_tokenizer"
-require_relative "language/tokenizer/russian_tokenizer"
-require_relative "language/tokenizer/japanese_tokenizer"
-require_relative "language/normalizer/base"
-require_relative "language/languages/base"
-
-# Load all language-specific modules from new structure (languages/{en,fr,de,ja,pt,ru,es}/)
-require_relative "languages"
-
 module Kotoshu
   # Language module for multi-language support.
   #
@@ -32,8 +15,29 @@ module Kotoshu
   # @example List supported languages
   #   Kotoshu::Language.supported_codes  # => ["de-DE", "en-US", ...]
   module Language
-    # Register the default detector with the registry
-    Registry.register_detector(Detector)
+    autoload :Registry, "kotoshu/language/registry"
+    autoload :Detector, "kotoshu/language/detector"
+    autoload :LanguageIdentifier, "kotoshu/language/identifier"
+    autoload :Suika, "kotoshu/language/suika"
+
+    module Tokenizer
+      autoload :Base, "kotoshu/language/tokenizer/base"
+      autoload :LatinTokenizer, "kotoshu/language/tokenizer/latin_tokenizer"
+      autoload :FrenchTokenizer, "kotoshu/language/tokenizer/french_tokenizer"
+      autoload :GermanTokenizer, "kotoshu/language/tokenizer/german_tokenizer"
+      autoload :SpanishTokenizer, "kotoshu/language/tokenizer/spanish_tokenizer"
+      autoload :PortugueseTokenizer, "kotoshu/language/tokenizer/portuguese_tokenizer"
+      autoload :RussianTokenizer, "kotoshu/language/tokenizer/russian_tokenizer"
+      autoload :JapaneseTokenizer, "kotoshu/language/tokenizer/japanese_tokenizer"
+    end
+
+    module Normalizer
+      autoload :Base, "kotoshu/language/normalizer/base"
+    end
+
+    # Base class for per-language implementations (Kotoshu::Languages::*).
+    # File path is historical (languages/base.rb under language/).
+    autoload :Base, "kotoshu/language/languages/base"
 
     class << self
       # Detect language from text.
@@ -98,3 +102,8 @@ module Kotoshu
     end
   end
 end
+
+# Register the default detector with the registry.
+# Both Registry and Detector are autoloaded above; referencing them
+# here triggers their loads.
+Kotoshu::Language::Registry.register_detector(Kotoshu::Language::Detector)

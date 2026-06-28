@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'aff_data'
-require_relative 'file_reader'
-
 module Kotoshu
   module Readers
     # AFF file reader for Hunspell affix files.

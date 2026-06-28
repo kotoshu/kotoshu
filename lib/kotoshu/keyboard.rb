@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'keyboard/registry'
-
 module Kotoshu
   # Keyboard layout system for Kotoshu
   #
@@ -17,6 +15,17 @@ module Kotoshu
   #   dvorak.distance('a', 'e')  # => 2 (home row on Dvorak)
   #
   module Keyboard
+    autoload :Layout, "kotoshu/keyboard/layout"
+    autoload :Registry, "kotoshu/keyboard/registry"
+
+    module Layouts
+      autoload :QWERTY, "kotoshu/keyboard/layouts/qwerty"
+      autoload :QWERTZ, "kotoshu/keyboard/layouts/qwertz"
+      autoload :AZERTY, "kotoshu/keyboard/layouts/azerty"
+      autoload :JCUKEN, "kotoshu/keyboard/layouts/jcuken"
+      autoload :Dvorak, "kotoshu/keyboard/layouts/dvorak"
+    end
+
     class << self
       # Get keyboard layout for a language code
       #

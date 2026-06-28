@@ -17,12 +17,12 @@ module Kotoshu
   #   trie.insert("hello")
   #   trie.lookup("hello")  # => true
   module Core
+    autoload :IndexedDictionary, "kotoshu/core/indexed_dictionary"
+
+    module Trie
+      autoload :Trie, "kotoshu/core/trie/trie"
+      autoload :Builder, "kotoshu/core/trie/builder"
+      autoload :Node, "kotoshu/core/trie/node"
+    end
   end
 end
-
-# Require core submodules
-require_relative "core/exceptions"
-require_relative "core/indexed_dictionary"
-require_relative "core/trie/trie"
-require_relative "core/trie/builder"
-require_relative "core/trie/node"
