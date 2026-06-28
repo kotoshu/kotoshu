@@ -22,7 +22,9 @@ module Kotoshu
       DEFAULT_CACHE_SIZE = 10_000
 
       # @return [Boolean] Whether vectors are pre-normalized
-      attr_reader :pre_normalize
+      def pre_normalize?
+        @pre_normalize
+      end
 
       # @return [Integer] Number of cache hits
       attr_reader :cache_hits
@@ -55,6 +57,8 @@ module Kotoshu
       def cosine(vec1, vec2)
         return 0.0 if vec1.nil? || vec2.nil? || vec1.empty? || vec2.empty?
 
+        validate_dimensions!(vec1, vec2)
+
         norm1 = get_norm(vec1)
         norm2 = get_norm(vec2)
 
@@ -73,6 +77,8 @@ module Kotoshu
       def dot_product(vec1, vec2)
         return 0.0 if vec1.nil? || vec2.nil? || vec1.empty? || vec2.empty?
 
+        validate_dimensions!(vec1, vec2)
+
         vec1.zip(vec2).sum { |a, b| a * b }
       end
 
@@ -85,6 +91,8 @@ module Kotoshu
       def euclidean(vec1, vec2)
         return 0.0 if vec1.nil? || vec2.nil? || vec1.empty? || vec2.empty?
         return 0.0 if vec1.equal?(vec2)
+
+        validate_dimensions!(vec1, vec2)
 
         sum = 0.0
         vec1.zip(vec2) do |a, b|
@@ -102,6 +110,8 @@ module Kotoshu
       #
       def manhattan(vec1, vec2)
         return 0.0 if vec1.nil? || vec2.nil? || vec1.empty? || vec2.empty?
+
+        validate_dimensions!(vec1, vec2)
 
         vec1.zip(vec2).sum { |a, b| (a - b).abs }
       end
@@ -217,6 +227,24 @@ module Kotoshu
       end
 
       private
+
+      # Raise ArgumentError if two non-empty vectors have different lengths.
+      #
+      # Array#zip pads the shorter vector with nil, which produces a
+      # confusing TypeError deep inside the arithmetic. Surface the
+      # mismatch at the API boundary instead.
+      #
+      # @param vec1 [Array<Float>] First vector
+      # @param vec2 [Array<Float>] Second vector
+      # @return [void]
+      # @raise [ArgumentError] if lengths differ
+      #
+      def validate_dimensions!(vec1, vec2)
+        return if vec1.length == vec2.length
+
+        raise ArgumentError,
+              "vector dimension mismatch: #{vec1.length} vs #{vec2.length}"
+      end
 
       # Get norm with caching
       #

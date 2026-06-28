@@ -6,12 +6,14 @@ RSpec.describe Kotoshu::Embeddings::SimilarityEngine do
   describe "#initialize" do
     it "defaults to non-pre-normalized, norm-caching mode" do
       engine = described_class.new
+      expect(engine).not_to be_pre_normalize
       expect(engine.normalization_required?).to be true
       expect(engine.cache_stats[:cache_size]).to eq(0)
     end
 
     it "honors pre_normalize: true" do
       engine = described_class.new(pre_normalize: true)
+      expect(engine).to be_pre_normalize
       expect(engine.normalization_required?).to be false
     end
 
@@ -69,14 +71,29 @@ RSpec.describe Kotoshu::Embeddings::SimilarityEngine do
   describe "dimension mismatch" do
     let(:engine) { described_class.new }
 
-    it "raises TypeError when vectors have different lengths (current contract)" do
-      # zip of [1,2,3] with [1,2] produces [[1,1],[2,2],[3,nil]], and
-      # 3 * nil raises. Documents the existing behavior so a future
-      # hardening (clean ArgumentError or silent truncation) surfaces as
-      # a test diff rather than a silent regression.
-      v1 = [1.0, 0.0, 0.0]
-      v2 = [1.0, 1.0]
-      expect { engine.cosine(v1, v2) }.to raise_error(TypeError)
+    it "raises ArgumentError from cosine" do
+      expect { engine.cosine([1.0, 0.0, 0.0], [1.0, 1.0]) }
+        .to raise_error(ArgumentError, /dimension mismatch/)
+    end
+
+    it "raises ArgumentError from dot_product" do
+      expect { engine.dot_product([1.0, 0.0, 0.0], [1.0, 1.0]) }
+        .to raise_error(ArgumentError, /dimension mismatch/)
+    end
+
+    it "raises ArgumentError from euclidean" do
+      expect { engine.euclidean([1.0, 0.0, 0.0], [1.0, 1.0]) }
+        .to raise_error(ArgumentError, /dimension mismatch/)
+    end
+
+    it "raises ArgumentError from manhattan" do
+      expect { engine.manhattan([1.0, 0.0, 0.0], [1.0, 1.0]) }
+        .to raise_error(ArgumentError, /dimension mismatch/)
+    end
+
+    it "does not raise when one operand is empty (early-return path)" do
+      expect(engine.cosine([], [1.0])).to eq(0.0)
+      expect(engine.cosine([1.0], [])).to eq(0.0)
     end
   end
 

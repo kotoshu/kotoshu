@@ -210,14 +210,20 @@ module Kotoshu
 
       # Fetch with block (cache-aside pattern)
       #
+      # Yields the key to the block on a miss, matching Ruby's
+      # +Hash#fetch+ convention. The block is invoked at most once per
+      # call.
+      #
       # @param key [Object] Cache key
+      # @yieldparam key [Object] The key being fetched
+      # @yieldreturn [Object] Value to cache and return on miss
       # @return [Object] Cached value or block result
       #
-      def fetch(key, &block)
+      def fetch(key)
         result = self[key]
         return result if result || key?(key)
 
-        value = yield
+        value = yield(key)
         self[key] = value
         value
       end
