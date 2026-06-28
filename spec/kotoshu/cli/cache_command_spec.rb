@@ -1,33 +1,11 @@
 # frozen_string_literal: true
 
-require_relative "../../../lib/kotoshu/cli/cache_command"
+require "kotoshu"
 require "stringio"
+require "fileutils"
+require "tempfile"
 
-# This spec exercises Kotoshu::Cli::CacheCommand, the CLI class wired up
-# in lib/kotoshu/cli.rb. That class calls methods on LanguageCache that
-# do not exist in the current implementation:
-#
-#   - cache.cache_status            (no such method)
-#   - cache.get_frequency_data(...) (only private download_frequency)
-#   - cache.get_language_info(...)  (actual API: cache.language_info)
-#   - cache.purge_all               (actual API: cache.clear_all)
-#
-# A parallel implementation at lib/kotoshu/commands/cache_command.rb
-# (Kotoshu::CacheCommand, no Cli namespace) calls the correct API but
-# is NOT wired into cli.rb. So `kotoshu cache ...` is currently broken
-# end-to-end.
-#
-# Quarantined wholesale in TODO.impl/40-spec-drift-cleanup.md pending
-# one of: (a) consolidate to a single cache_command.rb, or (b) fix the
-# wired CLI to use the real LanguageCache API. Until that decision is
-# made, every example here is skipped rather than removed.
 RSpec.describe Kotoshu::Cli::CacheCommand do
-  before do
-    skip "Kotoshu::Cli::CacheCommand calls nonexistent LanguageCache methods " \
-         "(cache_status, get_frequency_data, get_language_info, purge_all). " \
-         "See TODO.impl/40-spec-drift-cleanup.md"
-  end
-
   let(:temp_dir) { Dir.mktmpdir }
 
   after do
@@ -35,11 +13,7 @@ RSpec.describe Kotoshu::Cli::CacheCommand do
   end
 
   def create_cli(options = {})
-    cli = described_class.new([], options)
-    allow(cli).to receive(:create_cache).and_return(
-      Kotoshu::Cache::LanguageCache.new(cache_path: temp_dir, cache_ttl: 3600)
-    )
-    cli
+    described_class.new([], options.merge(cache_path: temp_dir))
   end
 
   def capture_output
@@ -82,6 +56,7 @@ RSpec.describe Kotoshu::Cli::CacheCommand do
 
         metadata = {
           version: (Time.now.utc - 48_000).iso8601,
+          cached_at: (Time.now.utc - 48_000).iso8601,
           language: "en",
           type: "spelling",
           size: 1000
@@ -103,6 +78,7 @@ RSpec.describe Kotoshu::Cli::CacheCommand do
 
         metadata = {
           version: (Time.now.utc - 48_000).iso8601,
+          cached_at: (Time.now.utc - 48_000).iso8601,
           language: "en",
           type: "spelling",
           size: 1000
@@ -119,15 +95,15 @@ RSpec.describe Kotoshu::Cli::CacheCommand do
   end
 
   describe "#download" do
-    context "without --force flag" do
-      it "attempts to download language resources", :network do
+    context "without --type flag" do
+      it "raises DictionaryNotFoundError when no network", :network do
         cli = create_cli(verbose: true)
         expect { cli.download("en") }.to raise_error(Kotoshu::DictionaryNotFoundError)
       end
     end
 
     context "with --type flag" do
-      it "downloads only the specified resource type" do
+      it "raises DictionaryNotFoundError when no network", :network do
         cli = create_cli(type: "grammar", verbose: true)
         expect { cli.download("en") }.to raise_error(Kotoshu::DictionaryNotFoundError)
       end
@@ -136,7 +112,7 @@ RSpec.describe Kotoshu::Cli::CacheCommand do
 
   describe "#purge" do
     context "without --confirm flag" do
-      it "prompts for confirmation before purging" do
+      it "aborts purge when user declines" do
         lang_path = File.join(temp_dir, "languages", "en", "spelling")
         FileUtils.mkdir_p(lang_path)
         File.write(File.join(lang_path, "metadata.json"), '{"version": "2024-01-01"}')
@@ -172,7 +148,8 @@ RSpec.describe Kotoshu::Cli::CacheCommand do
         FileUtils.mkdir_p(lang_path)
 
         metadata = {
-          version: (Time.now.utc - 3600).iso8601,
+          version: Time.now.utc.iso8601,
+          cached_at: Time.now.utc.iso8601,
           language: "en",
           type: "spelling",
           size: 1000
@@ -212,6 +189,7 @@ RSpec.describe Kotoshu::Cli::CacheCommand do
 
       metadata = {
         version: Time.now.utc.iso8601,
+        cached_at: Time.now.utc.iso8601,
         language: "en",
         type: "spelling",
         checksum: "abc123",
@@ -226,6 +204,7 @@ RSpec.describe Kotoshu::Cli::CacheCommand do
 
       grammar_metadata = {
         version: Time.now.utc.iso8601,
+        cached_at: Time.now.utc.iso8601,
         language: "en",
         type: "grammar",
         size: 500
