@@ -239,43 +239,50 @@ module Kotoshu
 
         # Look up a word in the dictionary.
         #
+        # Type-driven dispatch (no `respond_to?`): IndexedDictionary is
+        # checked first because it is the most common case in the
+        # hot path; Hash and Array are ad-hoc dictionaries for tests
+        # and one-off scripts; anything else must implement the
+        # documented `lookup(word)` interface. Passing an object that
+        # doesn't quack like a dictionary surfaces as a NoMethodError.
+        #
         # @param context [Context] The suggestion context
         # @param word [String] The word to look up
         # @return [Boolean] True if word exists
         def dictionary_lookup(context, word)
           dictionary = context.dictionary
 
-          # Check if it's a dictionary backend with lookup method
-          if dictionary.respond_to?(:lookup)
-            dictionary.lookup(word)
-          elsif dictionary.is_a?(::Kotoshu::Core::IndexedDictionary)
+          case dictionary
+          when Kotoshu::Core::IndexedDictionary
             dictionary.has_word?(word)
-          elsif dictionary.respond_to?(:include?)
-            dictionary.include?(word)
-          elsif dictionary.is_a?(Hash)
+          when Hash
             dictionary.key?(word)
+          when Array
+            dictionary.include?(word)
           else
-            false
+            dictionary.lookup(word)
           end
         end
 
         # Get all words from the dictionary.
+        #
+        # Type-driven dispatch (no `respond_to?`). Mirrors
+        # {#dictionary_lookup}'s ordering.
         #
         # @param context [Context] The suggestion context
         # @return [Array<String>] All words
         def dictionary_words(context)
           dictionary = context.dictionary
 
-          if dictionary.respond_to?(:words)
+          case dictionary
+          when Kotoshu::Core::IndexedDictionary
             dictionary.words
-          elsif dictionary.is_a?(Array)
-            dictionary
-          elsif dictionary.is_a?(Hash)
+          when Hash
             dictionary.keys
-          elsif dictionary.is_a?(::Kotoshu::Core::IndexedDictionary)
-            dictionary.words
+          when Array
+            dictionary
           else
-            []
+            dictionary.words
           end
         end
 
