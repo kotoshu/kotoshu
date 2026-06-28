@@ -253,6 +253,12 @@ RSpec.describe Kotoshu::Embeddings::LruCache do
       expect(cache["computed"]).to eq("computed-value")
     end
 
+    it "yields the key to the block, matching Hash#fetch" do
+      cache = described_class.new
+      result = cache.fetch("k") { |key| "#{key}-value" }
+      expect(result).to eq("k-value")
+    end
+
     it "only invokes the block once per key" do
       cache = described_class.new
       invocations = 0
