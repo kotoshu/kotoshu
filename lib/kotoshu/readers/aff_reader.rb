@@ -340,21 +340,30 @@ module Kotoshu
         end
       end
 
-      # Detect the file's encoding from its SET directive.
-      # Pre-scans the first ~4KB of the file in binary mode so we can
-      # reopen with the correct encoding before the FileReader consumes it.
+      # Detect the file's encoding.
+      #
+      # Strategy (matches Hunspell's actual behavior):
+      # 1. If the file has a `SET` directive, use that (normalized to Ruby form).
+      # 2. Else if the file's bytes are valid UTF-8, treat it as UTF-8.
+      # 3. Otherwise default to ISO-8859-1 (Latin-1), which is what Hunspell
+      #    itself does for non-UTF-8 locales when `SET` is missing.
+      #
+      # Pre-scans the file in binary mode so we can reopen with the correct
+      # encoding before the FileReader consumes it.
       #
       # @param path [String] Path to the .aff file
-      # @return [String, nil] Encoding name (e.g., "ISO8859-1", "UTF-8") or nil
+      # @return [String, nil] Encoding name (e.g., "ISO-8859-1", "UTF-8") or nil
       def detect_encoding(path)
         return nil if path.nil? || path.empty?
         return nil unless File.file?(path)
 
-        snippet = File.open(path, "rb") { |f| f.read(4096) }
-        match = snippet.match(/^SET\s+(\S+)/)
-        return nil unless match
+        snippet = File.binread(path)
+        set_match = snippet.match(/^SET\s+(\S+)/)
+        return normalize_encoding_name(set_match[1]) if set_match
 
-        normalize_encoding_name(match[1])
+        return "UTF-8" if snippet.force_encoding("UTF-8").valid_encoding?
+
+        "ISO-8859-1"
       end
 
       # Normalize Hunspell encoding names to Ruby encoding names.

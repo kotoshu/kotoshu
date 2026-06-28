@@ -419,12 +419,13 @@ module Kotoshu
           edits(word) do |suggestion|
             break if count > limit
 
-            # Filter for valid words
             filtered = filter_suggestion(suggestion, compounds)
             next unless filtered
 
-            yield filtered
-            count += 1
+            Array(filtered).each do |sug|
+              yield sug
+              count += 1
+            end
           end
         end
 
@@ -445,7 +446,7 @@ module Kotoshu
             suffixes: @aff[:SFX] || {},
             known: known_lower,
             maxdiff: @aff[:MAXDIFF] || 2,
-            onlymaxdiff: @aff[:ONLYMAXDIFF] || true,
+            onlymaxdiff: @aff[:ONLYMAXDIFF] || false,
             has_phonetic: !@aff[:PHONE].nil?
           ) do |suggestion|
             yield suggestion
@@ -525,7 +526,7 @@ module Kotoshu
 
           # Skip if subsumed by existing suggestion
           if check_inclusion
-            return if handled.any? { |prev| prev.downcase.in?(text.downcase) }
+            return if handled.any? { |prev| text.downcase.include?(prev.downcase) }
           end
 
           handled.add(text)
@@ -545,9 +546,12 @@ module Kotoshu
 
         # Filter suggestion to only valid words.
         #
+        # For MultiWordSuggestion with allow_dash and use_dash?, returns BOTH
+        # the space-joined and dash-joined forms (matching Hunspell behavior).
+        #
         # @param suggestion [Suggestion, MultiWordSuggestion]
         # @param compounds [Boolean] Whether to check compound forms
-        # @return [Suggestion, nil] Filtered suggestion or nil if invalid
+        # @return [Suggestion, Array<Suggestion>, nil] Filtered suggestion(s) or nil
         def filter_suggestion(suggestion, compounds)
           is_good = ->(word) do
             if compounds
@@ -558,12 +562,14 @@ module Kotoshu
           end
 
           if suggestion.is_a?(MultiWordSuggestion)
-            # Check all words are valid
             return nil unless suggestion.words.all? { |w| is_good.call(w) }
 
-            suggestion.stringify
+            if suggestion.allow_dash && use_dash?
+              [suggestion.stringify(' '), suggestion.stringify('-')]
+            else
+              suggestion.stringify(' ')
+            end
           else
-            # Check single word is valid
             return nil unless is_good.call(suggestion.text)
 
             suggestion

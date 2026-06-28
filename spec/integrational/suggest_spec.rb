@@ -36,26 +36,28 @@ RSpec.describe 'Integrational Suggestion Tests', :integrational do
     }
   end
 
-  # Parse suggestions from file
+  # Parse suggestions from file.
+  #
+  # Each line in the .sug file aligns 1:1 with a word in the .wrong file
+  # (Spylls/Hunspell convention). An empty line means "no suggestion
+  # expected" — we must preserve alignment, so empty lines become [].
+  # Multiple suggestions on a line are comma-separated.
   def parse_suggestions(name)
     path = File.join(SpyllsTestHelper::BASE_FOLDER, name)
     return [] unless File.file?(path)
 
-    File.read(path).split("\n").filter_map do |line|
-      next if line.empty?
-      next if line.strip == '.'
-      # Split by comma, handling the special case for ph.sug
-      # which contains "Oh, my gosh!" and "OH, MY GOSH!"
-      if line.include?(', ') && line.split(', ').length == 2
-        # This could be "Oh, my gosh!" or a real suggestion list
-        # For now, treat it as a single line if it looks like a phrase
-        if line =~ /^[A-Z][a-z]+, [a-z]+ [a-z]+!$/
-          [line.strip]
-        else
-          line.split(', ').map(&:strip)
-        end
+    content = File.read(path)
+    lines = content.end_with?("\n") ? content[0..-2] : content
+    lines.split("\n").map do |line|
+      stripped = line.strip
+      next [] if stripped.empty? || stripped == '.'
+
+      # ph.sug contains "Oh, my gosh!" — preserve as a single literal when
+      # it matches that pattern.
+      if stripped =~ /^[A-Z][a-z]+, [a-z]+ [a-z]+!$/
+        [stripped]
       else
-        line.split(', ').map(&:strip)
+        stripped.split(', ').map(&:strip)
       end
     end
   end

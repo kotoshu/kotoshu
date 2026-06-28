@@ -43,7 +43,7 @@ module Kotoshu
                          str[match_data.end(0)..]
 
             yield suggestion
-            yield suggestion.split(' ', 2) if suggestion.include?(' ')
+            yield suggestion.split(' ') if suggestion.include?(' ')
 
             # Move past this match to find next occurrence
             pos = match_data.end(0)
