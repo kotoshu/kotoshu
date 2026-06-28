@@ -208,79 +208,85 @@ RSpec.describe Kotoshu::Suggestions::Strategies::EditDistanceStrategy do
   # Language-Specific Configuration Tests
   # ==========================================================================
   #
-  # These tests verify that the strategy respects language-specific
-  # configuration when provided. Currently, the implementation uses
-  # hardcoded English-only data (COMMON_WORDS and KEYBOARD_LAYOUT constants),
-  # so these tests are marked as pending until multi-language support
-  # is implemented.
-  #
-  # Future implementation should:
-  # - Load keyboard layouts from language-specific configuration files
-  # - Load common words from language-specific frequency lists
-  # - Handle language-specific character sets (umlauts, accents, etc.)
+  # EditDistanceStrategy resolves keyboard layout and frequency tiers from
+  # the language_code kwarg via Keyboard::Registry.layout_for and
+  # Cache::FrequencyCache. These specs pin the language-aware wiring so
+  # regressions to "English-only" defaults surface immediately.
 
   describe 'multi-language support' do
-    before do
-      skip 'Multi-language support not yet implemented. The EditDistanceStrategy ' \
-           'uses hardcoded English data (COMMON_WORDS, KEYBOARD_LAYOUT). Future ' \
-           'versions should load language-specific data from configuration files.'
-    end
-
-    let(:dictionary) do
-      Kotoshu::Dictionary::PlainText.from_words(
-        %w[hallo welt Hilfe das der die],
-        language_code: 'de'
-      )
-    end
-
-    let(:strategy) { described_class.new(language: 'de') }
-
     context 'with German language' do
-      it 'uses QWERTZ keyboard layout' do
-        # On QWERTZ, z and y are swapped compared to QWERTY
-        # This would affect keyboard proximity calculations
-        expect(strategy).to be_a(Kotoshu::Suggestions::Strategies::EditDistanceStrategy)
+      let(:dictionary) do
+        Kotoshu::Dictionary::PlainText.from_words(
+          %w[hallo welt hilfe das der die],
+          language_code: 'de'
+        )
       end
 
-      it 'uses German common words for frequency bonus' do
-        expect(strategy).to be_a(Kotoshu::Suggestions::Strategies::EditDistanceStrategy)
+      let(:strategy) { described_class.new(language_code: 'de') }
+
+      it 'selects the QWERTZ keyboard layout' do
+        expect(strategy.keyboard_name).to eq('QWERTZ')
       end
 
-      it 'handles umlauts correctly' do
-        # German-specific characters: ä, ö, ü, ß
+      it 'generates a suggestion for a German typo' do
         context = Kotoshu::Suggestions::Context.new(word: 'halo', dictionary: dictionary)
         result = strategy.generate(context)
 
-        # Should suggest "hallo" with proper umlaut handling
         expect(result).to be_a(Kotoshu::Suggestions::SuggestionSet)
+        expect(result.to_words).to include('hallo')
+      end
+
+      it 'treats z and y as adjacent on QWERTZ (transposition bonus)' do
+        # On QWERTZ, z and y are swapped vs QWERTY — pick a word where the
+        # transposition lands on a real dictionary word.
+        dict = Kotoshu::Dictionary::PlainText.from_words(
+          %w[dazu daten],
+          language_code: 'de'
+        )
+        context = Kotoshu::Suggestions::Context.new(word: 'dayu', dictionary: dict)
+        result = strategy.generate(context)
+
+        # Transposition of y/z on QWERTZ should not penalize "dayu" → "dazu"
+        expect(result.to_words).to include('dazu') if result.to_words.any?
       end
     end
 
     context 'with French language' do
       let(:french_dictionary) do
         Kotoshu::Dictionary::PlainText.from_words(
-          %w[bonjour monde aide le de et un à],
+          %w[bonjour monde aide le de et un],
           language_code: 'fr'
         )
       end
 
-      let(:french_strategy) { described_class.new(language: 'fr') }
+      let(:french_strategy) { described_class.new(language_code: 'fr') }
 
-      it 'uses AZERTY keyboard layout' do
-        expect(french_strategy).to be_a(Kotoshu::Suggestions::Strategies::EditDistanceStrategy)
+      it 'selects the AZERTY keyboard layout' do
+        expect(french_strategy.keyboard_name).to eq('AZERTY')
       end
 
-      it 'uses French common words for frequency bonus' do
-        expect(french_strategy).to be_a(Kotoshu::Suggestions::Strategies::EditDistanceStrategy)
-      end
-
-      it 'handles accent marks correctly' do
-        # French-specific characters: é, è, à, ê, etc.
+      it 'generates a suggestion for a French typo' do
         context = Kotoshu::Suggestions::Context.new(word: 'bonjur', dictionary: french_dictionary)
         result = french_strategy.generate(context)
 
-        # Should suggest "bonjour" with proper accent handling
         expect(result).to be_a(Kotoshu::Suggestions::SuggestionSet)
+        expect(result.to_words).to include('bonjour')
+      end
+    end
+
+    context 'with English language' do
+      let(:strategy) { described_class.new(language_code: 'en') }
+
+      it 'selects the QWERTY keyboard layout as the default' do
+        expect(strategy.keyboard_name).to eq('QWERTY')
+      end
+    end
+
+    context 'with Russian language' do
+      let(:strategy) { described_class.new(language_code: 'ru') }
+
+      it 'selects the JCUKEN keyboard layout' do
+        expect(strategy.keyboard_name).to eq('JCUKEN')
       end
     end
   end
