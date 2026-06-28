@@ -354,11 +354,11 @@ module Kotoshu
         lines << ""
 
         lines << "Other:"
-        if report.audit_log_path
-          lines << "  Audit log      #{report.audit_log_path} (#{StatusReport.format_bytes(report.audit_log_size_bytes)})"
-        else
-          lines << "  Audit log      (none yet — created on first audited operation)"
-        end
+        lines << if report.audit_log_path
+                   "  Audit log      #{report.audit_log_path} (#{StatusReport.format_bytes(report.audit_log_size_bytes)})"
+                 else
+                   "  Audit log      (none yet — created on first audited operation)"
+                 end
         lines << "  Default lang   #{report.default_language || '(none)'}"
         lines << "  Offline mode   #{report.offline ? 'yes' : 'no'}"
         lines.join("\n")
@@ -421,7 +421,7 @@ module Kotoshu
           default_language: Kotoshu.configuration.default_language
         ).resolve(text: text)
 
-        $stderr.puts "# #{result.note}" if result.note
+        warn "# #{result.note}" if result.note
         result.language
       end
 
@@ -478,7 +478,7 @@ module Kotoshu
           lines << "FAIL #{source} (#{result.error_count} errors)"
           result.each_error do |error|
             suggestions_str = if error.has_suggestions?
-                                " -> #{error.top_suggestions(3).join(", ")}"
+                                " -> #{error.top_suggestions(3).join(', ')}"
                               else
                                 ""
                               end
@@ -501,7 +501,7 @@ module Kotoshu
 
         results = result.errors.map do |err|
           suggestions = err.top_suggestions(3)
-          suggestion_text = suggestions.empty? ? "" : " Suggestions: #{suggestions.join(", ")}"
+          suggestion_text = suggestions.empty? ? "" : " Suggestions: #{suggestions.join(', ')}"
           {
             "ruleId" => "kotoshu/spelling",
             "level" => "warning",
@@ -592,9 +592,10 @@ module Kotoshu
             index = [index - 1, 0].max
           when "l"
             errors.each_with_index do |e, i|
-              marker = case
-                       when accepted.key?(i) then "✓"
-                       when skipped.include?(i) then "s"
+              marker = if accepted.key?(i)
+                         "✓"
+                       elsif skipped.include?(i)
+                         "s"
                        else " "
                        end
               puts "  #{marker} #{i + 1}. #{e.word}"

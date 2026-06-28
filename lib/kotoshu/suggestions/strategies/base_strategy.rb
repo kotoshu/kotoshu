@@ -123,10 +123,10 @@ module Kotoshu
           suggestions = words.map do |word|
             # Try case-sensitive first, then case-insensitive for distance lookup
             distance = if distances.key?(word)
-                        distances[word]
-                      else
-                        distances.fetch(word.downcase, 1)
-                      end
+                         distances[word]
+                       else
+                         distances.fetch(word.downcase, 1)
+                       end
             confidence = calculate_confidence(distance)
 
             # Calculate n-gram similarity (like Hunspell) for better ranking
@@ -177,6 +177,7 @@ module Kotoshu
           prefix_len = 0
           (0...[len1, len2, 4].min).each do |i|
             break if w1[i] != w2[i]
+
             prefix_len += 1
           end
 
@@ -184,6 +185,7 @@ module Kotoshu
           suffix_len = 0
           (1..[len1, len2, 4].min).each do |i|
             break if w1[-i] != w2[-i]
+
             suffix_len += 1
           end
 

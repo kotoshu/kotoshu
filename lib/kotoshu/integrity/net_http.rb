@@ -14,7 +14,7 @@ module Kotoshu
         def get(url, redirect_limit: 3)
           uri = URI(url)
           raise ArgumentError, "Only http/https supported: #{url}" unless
-            uri.scheme == "http" || uri.scheme == "https"
+            ["http", "https"].include?(uri.scheme)
 
           http = Net::HTTP.new(uri.host, uri.port)
           http.use_ssl = (uri.scheme == "https")

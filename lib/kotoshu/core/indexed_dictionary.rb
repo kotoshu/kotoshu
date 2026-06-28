@@ -41,12 +41,12 @@ module Kotoshu
 
         # Update exact index (case-sensitive)
         @indexes[:exact][word] ||= []
-        @indexes[:exact][word] << @size - 1
+        @indexes[:exact][word] << (@size - 1)
 
         # Update lowercase index (case-insensitive)
         lower = word.downcase
         @indexes[:lowercase][lower] ||= []
-        @indexes[:lowercase][lower] << @size - 1
+        @indexes[:lowercase][lower] << (@size - 1)
 
         # Update prefix indexes (for prefix searching)
         (1...word.length).each do |i|

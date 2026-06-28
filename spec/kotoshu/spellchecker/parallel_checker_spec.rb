@@ -43,9 +43,7 @@ RSpec.describe Kotoshu::Spellchecker::ParallelChecker do
         results = checker.check_files_parallel(files.map(&:path))
 
         expect(results.size).to eq(3)
-        results.each do |result|
-          expect(result).to be_a(Kotoshu::Models::Result::DocumentResult)
-        end
+        expect(results).to all(be_a(Kotoshu::Models::Result::DocumentResult))
       ensure
         files.each(&:unlink)
       end

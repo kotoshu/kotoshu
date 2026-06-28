@@ -93,6 +93,7 @@ module Kotoshu
 
         @key_positions.select do |k, p|
           next if k == key
+
           ((p[0] - pos[0]).abs + (p[1] - pos[1]).abs) == 1
         end.keys
       end

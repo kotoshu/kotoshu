@@ -35,8 +35,8 @@ class Search
       @heap.size
     end
 
-    def each(&block)
-      @heap.each(&block)
+    def each(&)
+      @heap.each(&)
     end
 
     def to_a

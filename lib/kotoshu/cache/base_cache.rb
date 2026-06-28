@@ -527,8 +527,6 @@ module Kotoshu
         0 # Override in subclass if needed
       end
 
-      private
-
       # Parse resource identifier into components.
       #
       # @param resource_id [String] The resource identifier (e.g., "en:spelling" or "en:fasttext")

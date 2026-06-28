@@ -20,7 +20,7 @@ module Kotoshu
         # @option config [Float] min_similarity Minimum similarity threshold (0-1)
         # @option config [Integer] max_results Maximum results to return
         def initialize(name: :ngram, **config)
-          super(name: name, **config)
+          super
         end
 
         # Generate suggestions based on n-gram similarity.
@@ -31,7 +31,7 @@ module Kotoshu
           word = context.word
           n = get_config(:n, 3)
           min_sim = get_config(:min_similarity, 0.3)
-          min_typo_similarity = get_config(:min_typo_similarity, 0.70)  # Filter by typo correction similarity
+          min_typo_similarity = get_config(:min_typo_similarity, 0.70) # Filter by typo correction similarity
 
           return create_suggestion_set([]) if word.length < n
 

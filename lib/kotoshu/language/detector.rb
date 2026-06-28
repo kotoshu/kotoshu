@@ -33,37 +33,37 @@ module Kotoshu
         japanese: {
           pattern: /[\u3040-\u309F]|[\u30A0-\u30FF]|[\u4E00-\u9FFF]/,
           min_ratio: 0.2,
-          scripts: [:hiragana, :katakana, :cjk],
-          must_have: [:hiragana]  # Only require hiragana, not both
+          scripts: %i[hiragana katakana cjk],
+          must_have: [:hiragana] # Only require hiragana, not both
         },
 
         # Portuguese: Latin with specific accents
         portuguese: {
-          pattern: /[ãõáàâãéêíóôõúç]/i,
+          pattern: /[ãõáàâéêíóôúç]/i,
           min_ratio: 0.05,
           scripts: [:latin]
         },
 
         # French: Latin with specific accents (NOT German umlauts)
         french: {
-          pattern: /[éèêëàâùûüîïôç]/i,  # Removed ä, ö (not French)
-          min_ratio: 0.02,  # Lower threshold
+          pattern: /[éèêëàâùûüîïôç]/i, # Removed ä, ö (not French)
+          min_ratio: 0.02, # Lower threshold
           scripts: [:latin],
-          priority: 1  # Higher priority than English
+          priority: 1 # Higher priority than English
         },
 
         # Spanish: Latin with inverted punctuation
         spanish: {
           pattern: /[áéíóúüñ¿¡]/i,
-          min_ratio: 0.02,  # Lower threshold
+          min_ratio: 0.02, # Lower threshold
           scripts: [:latin],
           priority: 1
         },
 
         # German: Latin with umlauts and eszett
         german: {
-          pattern: /[äöüßÄÖÜ]/,  # Explicitly include uppercase
-          min_ratio: 0.02,  # Lower threshold
+          pattern: /[äöüßÄÖÜ]/, # Explicitly include uppercase
+          min_ratio: 0.02, # Lower threshold
           scripts: [:latin],
           priority: 1
         },
@@ -103,7 +103,7 @@ module Kotoshu
 
           # Sort by score, then by priority (higher priority first)
           result = scores.max_by do |code, score|
-            config = LANGUAGE_PATTERNS.find { |k, v| CODE_MAPPING[k] == code }
+            config = LANGUAGE_PATTERNS.find { |k, _v| CODE_MAPPING[k] == code }
             priority = config&.last&.dig(:priority) || 0
             [score, priority]
           end
@@ -174,17 +174,17 @@ module Kotoshu
         # @return [Float] Score (0-1)
         def score_language(text, language, config, text_length)
           # Check required scripts
-          if config[:must_have]
-            return 0 unless config[:must_have].all? do |script|
-              text.match?(CHARACTER_SETS[script])
-            end
+          if config[:must_have] && !config[:must_have].all? do |script|
+            text.match?(CHARACTER_SETS[script])
+          end
+            return 0
           end
 
           # Check forbidden scripts
-          if config[:must_not_have]
-            return 0 if config[:must_not_have].any? do |script|
-              text.match?(CHARACTER_SETS[script])
-            end
+          if config[:must_not_have] && config[:must_not_have].any? do |script|
+            text.match?(CHARACTER_SETS[script])
+          end
+            return 0
           end
 
           # Count matching characters
@@ -207,7 +207,7 @@ module Kotoshu
             script_bonus = config[:scripts].count do |script|
               text.match?(CHARACTER_SETS[script])
             end
-            score *= (1 + script_bonus * 0.1)
+            score *= (1 + (script_bonus * 0.1))
           end
 
           # Extra bonus for non-Latin specific characters (accents, umlauts, etc.)
@@ -230,11 +230,11 @@ module Kotoshu
         def normalize_confidence(top_score, all_scores)
           return 0.0 if top_score.zero?
 
-          second_best = all_scores.sort { |a, b| b <=> a }[1] || 0
+          second_best = all_scores.sort.reverse[1] || 0
           return 1.0 if second_best.zero?
 
           ratio = top_score / (top_score + second_best)
-          (ratio * 0.8 + 0.2).clamp(0.0, 1.0) # Minimum confidence 0.2
+          ((ratio * 0.8) + 0.2).clamp(0.0, 1.0) # Minimum confidence 0.2
         end
       end
     end

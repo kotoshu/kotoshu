@@ -41,6 +41,7 @@ module Kotoshu
 
         def check(word)
           return { found: false, stem: nil, flags: [] } if word.nil? || word.empty?
+
           first_form = @lookuper.good_forms(word).first
           if first_form
             { found: true, stem: first_form.stem || word, flags: first_form.flags&.to_a || [] }
@@ -51,8 +52,10 @@ module Kotoshu
 
         def suggest(word, max_suggestions: 10)
           return [] if word.nil? || word.empty?
+
           first_form = @lookuper.good_forms(word).first
           return [] if first_form
+
           generate_suggestions(word, max_suggestions).take(max_suggestions)
         end
 
@@ -69,7 +72,8 @@ module Kotoshu
         def calculate_distance(a, b)
           return a.length if b.empty?
           return b.length if a.empty?
-          matrix = Array.new(a.length + 1) { |i| [i] + [0] * b.length }
+
+          matrix = Array.new(a.length + 1) { |i| [i] + ([0] * b.length) }
           (1..b.length).each { |j| matrix[0][j] = j }
           (1..a.length).each do |i|
             (1..b.length).each do |j|
@@ -88,7 +92,7 @@ module Kotoshu
           [distance_score - rank_penalty, 0.0].max
         end
 
-        def generate_suggestions(word, max_suggestions)
+        def generate_suggestions(word, _max_suggestions)
           variations = []
 
           # Missing accents and ñ
@@ -107,8 +111,10 @@ module Kotoshu
           # Common substitutions
           word.chars.each_with_index do |char, i|
             next unless SPANISH_SUBSTITUTIONS.key?(char.downcase)
+
             SPANISH_SUBSTITUTIONS[char.downcase].each do |sub|
               next if sub.empty?
+
               substituted = word.dup
               substituted[i] = sub
               variations << substituted if @lookuper.good_forms(substituted).first
@@ -118,6 +124,7 @@ module Kotoshu
           # Doubled and deleted letters
           word.chars.each_with_index do |char, i|
             next if i == 0
+
             doubled = word.dup
             doubled.insert(i, char)
             variations << doubled if @lookuper.good_forms(doubled).first
@@ -127,12 +134,14 @@ module Kotoshu
             deleted = word.dup
             deleted.slice!(i)
             next if deleted.empty?
+
             variations << deleted if @lookuper.good_forms(deleted).first
           end
 
           variations.uniq!
           variations.map do |suggestion|
-            { word: suggestion, distance: calculate_distance(word, suggestion), score: calculate_score(word, suggestion, 0) }
+            { word: suggestion, distance: calculate_distance(word, suggestion),
+              score: calculate_score(word, suggestion, 0) }
           end.sort_by { |s| s[:distance] }
         end
       end
@@ -176,6 +185,7 @@ module Kotoshu
 
         def tag(tokens)
           return [] if tokens.nil? || tokens.empty?
+
           tokens.map do |token|
             word = token[:token]
             if word.nil? || word.empty?
@@ -204,6 +214,7 @@ module Kotoshu
         def lookup_with_pos(word)
           return { pos_tag: nil, lemma: nil } if word.nil? || word.empty?
           return @lookup_cache[word] if @lookup_cache.key?(word)
+
           first_form = @lookuper.good_forms(word).first
           pos_tag = derive_pos_tag(first_form)
           cache_result = { pos_tag: pos_tag, lemma: first_form&.stem }
@@ -213,8 +224,10 @@ module Kotoshu
 
         def derive_pos_tag(result)
           return nil unless result
+
           flags = result.flags&.to_a || []
           return guess_pos_from_affix(result) if flags.empty?
+
           flags.each do |flag|
             pos_tag = flag_to_pos(flag)
             return pos_tag if pos_tag
@@ -224,6 +237,7 @@ module Kotoshu
 
         def flag_to_pos(flag)
           return @flag_mapping[flag] if @flag_mapping.key?(flag)
+
           first_char = flag[0]
           @flag_mapping[first_char]
         end
@@ -231,6 +245,7 @@ module Kotoshu
         def guess_pos_from_affix(result)
           suffix = result.suffix
           return guess_pos_from_suffix(suffix) if suffix
+
           nil
         end
 
@@ -240,6 +255,7 @@ module Kotoshu
           return 'ADV' if suffix.match?(/^(mente)$/)
           return 'NOUN' if suffix.match?(/^(ción|sión|miento|dad|eza|ismo|ista|or|nte|aje)$/)
           return 'ADJ' if suffix.match?(/%(oso|oso|able|ible|ble|ico|ica|ante)$/)
+
           nil
         end
       end
@@ -273,7 +289,7 @@ module Kotoshu
               next if word.nil? || word.empty?
 
               # Check for standard ? or ! without corresponding inverted marks
-              if word == '?' || word == '!'
+              if ['?', '!'].include?(word)
                 # Look backwards to see if there's an inverted mark
                 found_inverted = false
                 (0...idx).reverse_each do |j|
@@ -308,7 +324,7 @@ module Kotoshu
             super('ES_GENDER_AGREEMENT', 'Gender Agreement', 'Nouns and adjectives must agree in gender.')
           end
 
-          def check(tokens)
+          def check(_tokens)
             # Simplified implementation
             []
           end
@@ -386,12 +402,13 @@ module Kotoshu
 
       def initialize(code: "es", name: "Spanish", variant: nil)
         variant ||= extract_region_code(code)
-        super(code: code, name: name, variant: variant)
+        super
         @hunspell_paths = resolve_hunspell_paths(code)
       end
 
       def description
         return name unless variant
+
         variant_name = VARIANT_NAMES[variant] || variant
         "#{name} (#{variant_name})"
       end
@@ -448,6 +465,7 @@ module Kotoshu
 
       def extract_region_code(code)
         return nil unless code.include?("-")
+
         code.split("-", 2).last.upcase
       end
 

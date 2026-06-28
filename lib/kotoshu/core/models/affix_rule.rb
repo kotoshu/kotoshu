@@ -130,8 +130,8 @@ module Kotoshu
       def to_hunspell
         type_code = TYPES[@type]
         cross = @cross_product ? "Y" : "N"
-        "#{type_code} #{@flag} #{cross} #{@strip.empty? ? "0" : @strip} " \
-        "#{@add} #{@condition.is_a?(Regexp) ? condition_to_s : @condition}"
+        "#{type_code} #{@flag} #{cross} #{@strip.empty? ? '0' : @strip} " \
+          "#{@add} #{@condition.is_a?(Regexp) ? condition_to_s : @condition}"
       end
 
       # Check equality based on all attributes.

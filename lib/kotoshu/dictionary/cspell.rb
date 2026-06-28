@@ -107,9 +107,9 @@ module Kotoshu
           dist = edit_distance(lookup_word, dict_word)
           [dict_word, dist]
         end.select { |_, dist| dist.positive? && dist <= 2 }
-                            .sort_by { |_, dist| dist }
-                            .first(max_suggestions - prefix_suggestions.length)
-                            .map(&:first)
+          .sort_by { |_, dist| dist }
+          .first(max_suggestions - prefix_suggestions.length)
+          .map(&:first)
 
         # Combine both sets
         (prefix_suggestions + results).uniq.first(max_suggestions)
@@ -197,10 +197,10 @@ module Kotoshu
       # @return [Core::Trie::Trie] The loaded trie
       def load_text_file(path)
         words = File.foreach(path, chomp: true)
-                    .reject { |line| line.empty? || line.strip.empty? || line.strip.start_with?("#") }
-                    .map(&:strip)
-                    .map { |word| @case_sensitive ? word : word.downcase }
-                    .uniq
+          .reject { |line| line.empty? || line.strip.empty? || line.strip.start_with?("#") }
+          .map(&:strip)
+          .map { |word| @case_sensitive ? word : word.downcase }
+          .uniq
 
         Core::Trie::Builder.from_array(words)
       end

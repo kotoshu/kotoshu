@@ -100,10 +100,10 @@ module Kotoshu
       #
       # @yield [key] Block to execute for each key
       # @return [Enumerator] Enumerator if no block given
-      def each_key(&block)
+      def each_key(&)
         return enum_for(:each_key) unless block_given?
 
-        @dictionaries.each_key(&block)
+        @dictionaries.each_key(&)
       end
 
       # Get all dictionaries.
@@ -133,10 +133,10 @@ module Kotoshu
       #
       # @yield [key, dictionary] Each key and dictionary
       # @return [Enumerator] Enumerator if no block given
-      def each(&block)
+      def each(&)
         return enum_for(:each) unless block_given?
 
-        @dictionaries.each(&block)
+        @dictionaries.each(&)
       end
 
       # Merge another repository into this one.

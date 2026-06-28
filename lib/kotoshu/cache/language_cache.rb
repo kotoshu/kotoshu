@@ -328,8 +328,6 @@ module Kotoshu
         load_cached_resource_by_type(resource_id, type, metadata)
       end
 
-      private
-
       # Load metadata for a resource.
       #
       # @param resource_id [String] The resource identifier

@@ -120,6 +120,7 @@ module Kotoshu
 
           word.chars.each_with_index do |char, i|
             next unless japanese_substitutions.key?(char)
+
             japanese_substitutions[char].each do |sub|
               substituted = word.dup
               substituted[i] = sub
@@ -144,7 +145,8 @@ module Kotoshu
         def levenshtein_distance(a, b)
           return a.length if b.empty?
           return b.length if a.empty?
-          matrix = Array.new(a.length + 1) { |i| [i] + [0] * b.length }
+
+          matrix = Array.new(a.length + 1) { |i| [i] + ([0] * b.length) }
           (1..b.length).each { |j| matrix[0][j] = j }
           (1..a.length).each do |i|
             (1..b.length).each do |j|
@@ -349,7 +351,7 @@ module Kotoshu
             super('JA_PARTICLE_USAGE', 'Particle Usage', 'Correct usage of topic marker は vs subject marker が.')
           end
 
-          def check(tokens)
+          def check(_tokens)
             # Simplified implementation
             []
           end
@@ -418,11 +420,12 @@ module Kotoshu
 
       def initialize(code: "ja", name: "Japanese", variant: nil)
         variant ||= extract_region_code(code)
-        super(code: code, name: name, variant: variant)
+        super
       end
 
       def description
         return name unless variant
+
         variant_name = VARIANT_NAMES[variant] || variant
         "#{name} (#{variant_name})"
       end
@@ -470,6 +473,7 @@ module Kotoshu
 
       def extract_region_code(code)
         return nil unless code.include?("-")
+
         code.split("-", 2).last.upcase
       end
     end

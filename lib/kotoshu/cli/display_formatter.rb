@@ -62,7 +62,7 @@ module Kotoshu
         lines << "Language: #{document.language_code}"
         lines << ""
         lines << colorize("Error Summary", :bold)
-        lines << "─" * 40
+        lines << ("─" * 40)
 
         # Total counts
         lines << "Total errors found: #{stats[:total]}"
@@ -113,16 +113,16 @@ module Kotoshu
         lines = []
         lines << ""
         lines << colorize("═" * 70, :bold)
-        lines << colorize("Error #{index} of #{total}", :bold) + " — #{error_type_label(error.error_type)}"
+        lines << (colorize("Error #{index} of #{total}", :bold) + " — #{error_type_label(error.error_type)}")
         lines << colorize("═" * 70, :bold)
         lines << ""
 
         # Error location
-        lines << colorize("Location:", :bold) + " #{error.location}"
+        lines << (colorize("Location:", :bold) + " #{error.location}")
         lines << ""
 
         # Error with highlighting
-        lines << colorize("Found:", :error) + " #{highlight_in_context(error)}"
+        lines << (colorize("Found:", :error) + " #{highlight_in_context(error)}")
         lines << ""
 
         # Context window
@@ -134,7 +134,7 @@ module Kotoshu
 
         # Confidence indicator
         conf_label = confidence_label(error.confidence)
-        lines << colorize("Confidence:", :bold) + " #{conf_label} (#{(error.confidence * 100).round(1)}%)"
+        lines << (colorize("Confidence:", :bold) + " #{conf_label} (#{(error.confidence * 100).round(1)}%)")
         lines << ""
 
         # Suggestions
@@ -145,7 +145,8 @@ module Kotoshu
         end
 
         # Action prompt
-        lines << colorize("Actions:", :bold) + " [Enter] Next [1-#{error.suggestions&.size || 0}] Accept [s] Skip [b] Back [q] Quit"
+        lines << (colorize("Actions:",
+                           :bold) + " [Enter] Next [1-#{error.suggestions&.size || 0}] Accept [s] Skip [b] Back [q] Quit")
         lines << ""
 
         lines.join("\n")
@@ -206,17 +207,17 @@ module Kotoshu
         lines = []
         lines << ""
         lines << colorize("All Errors (#{navigation.errors.size})", :bold)
-        lines << "─" * 70
+        lines << ("─" * 70)
 
         navigation.list_all.each do |line|
           # Add color coding based on status
           colored_line = if line.include?('[DONE]')
-                          colorize(line, :success)
-                        elsif line.include?('[SKIP]')
-                          colorize(line, :dim)
-                        else
-                          line
-                        end
+                           colorize(line, :success)
+                         elsif line.include?('[SKIP]')
+                           colorize(line, :dim)
+                         else
+                           line
+                         end
           lines << colored_line
         end
 
@@ -234,7 +235,7 @@ module Kotoshu
         lines = []
         lines << ""
         lines << colorize("Review Statistics", :bold)
-        lines << "─" * 40
+        lines << ("─" * 40)
         lines << "Total: #{stats[:total]}"
         lines << "Pending: #{stats[:pending]}"
         lines << colorize("Modified: #{stats[:modified]}", :success)

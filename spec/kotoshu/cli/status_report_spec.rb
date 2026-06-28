@@ -97,6 +97,7 @@ RSpec.describe Kotoshu::Cli::StatusReport do
     let(:fake_rm) do
       rm = Object.new
       def rm.languages_setup; %w[en]; end
+
       def rm.setup?(lang, resource: nil)
         lang == "en" && resource == :spelling
       end

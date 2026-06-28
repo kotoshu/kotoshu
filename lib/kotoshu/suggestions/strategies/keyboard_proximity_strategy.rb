@@ -73,7 +73,7 @@ module Kotoshu
         # @option config [Integer] max_distance Maximum keyboard distance
         # @option config [Integer] max_results Maximum results to return
         def initialize(name: :keyboard_proximity, **config)
-          super(name: name, **config)
+          super
         end
 
         # Generate suggestions based on keyboard proximity.
@@ -83,7 +83,7 @@ module Kotoshu
         def generate(context)
           word = context.word
           max_dist = get_config(:max_distance, 2)
-          min_similarity = get_config(:min_similarity, 0.70)  # Filter low-similarity suggestions
+          min_similarity = get_config(:min_similarity, 0.70) # Filter low-similarity suggestions
 
           all_words = dictionary_words(context)
 
@@ -102,7 +102,7 @@ module Kotoshu
 
             # Calculate typo correction similarity
             similarity = calculate_ngram_similarity(word, dict_word)
-            next if similarity < min_similarity  # Filter by similarity threshold
+            next if similarity < min_similarity # Filter by similarity threshold
 
             # Keep the minimum distance for each word
             results_with_distances[dict_word] ||= dist
@@ -149,12 +149,12 @@ module Kotoshu
           # Fill the matrix
           (1..len1).each do |i|
             (1..len2).each do |j|
-              cost = (str1[i - 1] == str2[j - 1]) ? 0 : 1
+              cost = str1[i - 1] == str2[j - 1] ? 0 : 1
 
               d[i][j] = [
                 d[i - 1][j] + 1,      # deletion
                 d[i][j - 1] + 1,      # insertion
-                d[i - 1][j - 1] + cost  # substitution
+                d[i - 1][j - 1] + cost # substitution
               ].min
             end
           end

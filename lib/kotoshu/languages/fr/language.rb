@@ -40,9 +40,9 @@ module Kotoshu
           'œ' => %w[oe],
           'æ' => %w[ae],
           # Common French errors
-          'c' => %w[ç],  # garçon vs garcon
-          'e' => %w[é è ê],  # café vs caffe
-          'a' => %w[à],  # à vs a
+          'c' => %w[ç], # garçon vs garcon
+          'e' => %w[é è ê], # café vs caffe
+          'a' => %w[à], # à vs a
         }.freeze
 
         def initialize(aff_path:, dic_path:, script: :latin, encoding: 'UTF-8')
@@ -55,6 +55,7 @@ module Kotoshu
 
         def check(word)
           return { found: false, stem: nil, flags: [] } if word.nil? || word.empty?
+
           first_form = @lookuper.good_forms(word).first
           if first_form
             { found: true, stem: first_form.stem || word, flags: first_form.flags&.to_a || [] }
@@ -65,8 +66,10 @@ module Kotoshu
 
         def suggest(word, max_suggestions: 10)
           return [] if word.nil? || word.empty?
+
           first_form = @lookuper.good_forms(word).first
           return [] if first_form
+
           generate_suggestions(word, max_suggestions).take(max_suggestions)
         end
 
@@ -83,7 +86,8 @@ module Kotoshu
         def calculate_distance(a, b)
           return a.length if b.empty?
           return b.length if a.empty?
-          matrix = Array.new(a.length + 1) { |i| [i] + [0] * b.length }
+
+          matrix = Array.new(a.length + 1) { |i| [i] + ([0] * b.length) }
           (1..b.length).each { |j| matrix[0][j] = j }
           (1..a.length).each do |i|
             (1..b.length).each do |j|
@@ -102,7 +106,7 @@ module Kotoshu
           [distance_score - rank_penalty, 0.0].max
         end
 
-        def generate_suggestions(word, max_suggestions)
+        def generate_suggestions(word, _max_suggestions)
           variations = []
 
           # Missing accents
@@ -121,6 +125,7 @@ module Kotoshu
           # Doubled letters
           word.chars.each_with_index do |char, i|
             next if i == 0
+
             doubled = word.dup
             doubled.insert(i, char)
             variations << doubled if @lookuper.good_forms(doubled).first
@@ -131,12 +136,14 @@ module Kotoshu
             deleted = word.dup
             deleted.slice!(i)
             next if deleted.empty?
+
             variations << deleted if @lookuper.good_forms(deleted).first
           end
 
           # Common substitutions
           word.chars.each_with_index do |char, i|
             next unless FRENCH_SUBSTITUTIONS.key?(char.downcase)
+
             FRENCH_SUBSTITUTIONS[char.downcase].each do |sub|
               substituted = word.dup
               substituted[i] = sub
@@ -146,7 +153,8 @@ module Kotoshu
 
           variations.uniq!
           variations.map do |suggestion|
-            { word: suggestion, distance: calculate_distance(word, suggestion), score: calculate_score(word, suggestion, 0) }
+            { word: suggestion, distance: calculate_distance(word, suggestion),
+              score: calculate_score(word, suggestion, 0) }
           end.sort_by { |s| s[:distance] }
         end
       end
@@ -206,6 +214,7 @@ module Kotoshu
 
         def tag(tokens)
           return [] if tokens.nil? || tokens.empty?
+
           tokens.map do |token|
             word = token[:token]
             if word.nil? || word.empty?
@@ -234,6 +243,7 @@ module Kotoshu
         def lookup_with_pos(word)
           return { pos_tag: nil, lemma: nil } if word.nil? || word.empty?
           return @lookup_cache[word] if @lookup_cache.key?(word)
+
           first_form = @lookuper.good_forms(word).first
           pos_tag = derive_pos_tag(first_form)
           cache_result = { pos_tag: pos_tag, lemma: first_form&.stem }
@@ -243,8 +253,10 @@ module Kotoshu
 
         def derive_pos_tag(result)
           return nil unless result
+
           flags = result.flags&.to_a || []
           return guess_pos_from_affix(result) if flags.empty?
+
           flags.each do |flag|
             pos_tag = flag_to_pos(flag)
             return pos_tag if pos_tag
@@ -254,6 +266,7 @@ module Kotoshu
 
         def flag_to_pos(flag)
           return @flag_mapping[flag] if @flag_mapping.key?(flag)
+
           first_char = flag[0]
           @flag_mapping[first_char]
         end
@@ -261,6 +274,7 @@ module Kotoshu
         def guess_pos_from_affix(result)
           suffix = result.suffix
           return guess_pos_from_suffix(suffix) if suffix
+
           nil
         end
 
@@ -270,6 +284,7 @@ module Kotoshu
           return 'ADV' if suffix.end_with?('ment')
           return 'NOUN' if suffix.match?(/^(tion|sion|ment|age|ure|ée|ée)$/)
           return 'ADJ' if suffix.match?(/^(if|ive|eux|euse|able|ible)$/)
+
           nil
         end
       end
@@ -290,7 +305,7 @@ module Kotoshu
             raise NotImplementedError, "#{self.class} must implement #check"
           end
 
-          def applies?(tokens, index)
+          def applies?(_tokens, _index)
             true
           end
         end
@@ -310,8 +325,8 @@ module Kotoshu
             tokens.each_cons(2) do |article_token, noun_token|
               article = article_token[:token]&.downcase
               next unless MASCULINE_SINGULAR.include?(article) ||
-                          FEMININE_SINGULAR.include?(article) ||
-                          PLURAL.include?(article)
+                FEMININE_SINGULAR.include?(article) ||
+                PLURAL.include?(article)
 
               # This is a simplified check - full implementation would need dictionary lookup
               # for gender/number information
@@ -420,12 +435,13 @@ module Kotoshu
 
       def initialize(code: "fr", name: "French", variant: nil)
         variant ||= extract_region_code(code)
-        super(code: code, name: name, variant: variant)
+        super
         @hunspell_paths = resolve_hunspell_paths(code)
       end
 
       def description
         return name unless variant
+
         variant_name = VARIANT_NAMES[variant] || variant
         "#{name} (#{variant_name})"
       end
@@ -482,6 +498,7 @@ module Kotoshu
 
       def extract_region_code(code)
         return nil unless code.include?("-")
+
         code.split("-", 2).last.upcase
       end
 

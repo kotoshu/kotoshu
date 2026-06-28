@@ -154,7 +154,7 @@ module Kotoshu
       @expected = expected
       @actual = actual
       @url = url
-      msg = +"Integrity verification failed for #{resource_id}: "
+      msg = "Integrity verification failed for #{resource_id}: "
       msg << "expected sha256=#{expected}, got sha256=#{actual}"
       msg << " (url: #{url})" if url
       super(msg)

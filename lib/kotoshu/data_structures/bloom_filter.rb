@@ -169,7 +169,7 @@ module Kotoshu
         hash1 = item.hash
         hash2 = (item.hash * 31) + seed
 
-        (hash1 + seed * hash2.abs) % @size
+        (hash1 + (seed * hash2.abs)) % @size
       end
     end
   end

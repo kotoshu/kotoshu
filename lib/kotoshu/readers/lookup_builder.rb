@@ -103,8 +103,6 @@ module Kotoshu
         dic_reader.read
       end
 
-      private
-
       # Select the appropriate Casing class based on the aff file's directives.
       #
       # Hunspell associates a casing strategy with the language declared via
@@ -156,7 +154,7 @@ module Kotoshu
             first_char = reversed_suffix[0] || ''
             suffixes_index[first_char] ||= []
             affix_hash = build_affix_hash(affix, script: @script || :latin,
-                                                add: stripped_add)
+                                                 add: stripped_add)
             suffixes_index[first_char] << affix_hash
             suffixes_by_flag[affix.flag] << affix_hash
           end
@@ -173,7 +171,7 @@ module Kotoshu
             first_char = stripped_add[0] || ''
             prefixes_index[first_char] ||= []
             affix_hash = build_affix_hash(affix, script: @script || :latin,
-                                                add: stripped_add)
+                                                 add: stripped_add)
             prefixes_index[first_char] << affix_hash
             prefixes_by_flag[affix.flag] << affix_hash
           end

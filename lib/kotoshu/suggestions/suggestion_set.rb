@@ -142,10 +142,10 @@ module Kotoshu
       #
       # @yield [suggestion] Each suggestion
       # @return [Enumerator] Enumerator if no block given
-      def each(&block)
+      def each(&)
         return enum_for(:each) unless block_given?
 
-        @suggestions.each(&block)
+        @suggestions.each(&)
       end
 
       # Get unique suggestions (by word, case-insensitive).
@@ -204,7 +204,7 @@ module Kotoshu
         if @suggestions.empty?
           to_s
         else
-          "#{self} [#{@suggestions.map(&:word).join(", ")}]"
+          "#{self} [#{@suggestions.map(&:word).join(', ')}]"
         end
       end
 

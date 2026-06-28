@@ -110,14 +110,12 @@ module Kotoshu
           # Right double quote to straight
           text = text.gsub(/[\u2018\u2019]/, "'")
           # Backticks to quotes
-          text = text.gsub(/`/, "'")
+          text = text.gsub('`', "'")
           # Other quote variants
-          text = text.gsub(/\u00AB/, '"')  # Left-pointing double angle
-          text = text.gsub(/\u00BB/, '"')  # Right-pointing double angle
-          text = text.gsub(/\u2039/, "'")  # Single left-pointing
-          text = text.gsub(/\u203A/, "'")  # Single right-pointing
-
-          text
+          text = text.gsub("\u00AB", '"')  # Left-pointing double angle
+          text = text.gsub("\u00BB", '"')  # Right-pointing double angle
+          text = text.gsub("\u2039", "'")  # Single left-pointing
+          text.gsub("\u203A", "'") # Single right-pointing
         end
 
         # Normalize whitespace.
@@ -126,9 +124,9 @@ module Kotoshu
         # @return [String] Text with normalized whitespace
         def normalize_whitespace(text)
           text
-            .gsub(/[\u00A0\u202F\u205F]/, " ")  # Various space chars
-            .gsub(/[\u2000-\u200B]/, " ")      # Various space chars
-            .gsub(/\s+/, " ")                   # Collapse multiple spaces
+            .gsub(/[\u00A0\u202F\u205F]/, " ") # Various space chars
+            .gsub(/[\u2000-\u200B]/, " ") # Various space chars
+            .gsub(/\s+/, " ") # Collapse multiple spaces
             .strip
         end
       end

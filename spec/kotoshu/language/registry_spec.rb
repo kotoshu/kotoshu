@@ -147,6 +147,7 @@ RSpec.describe Kotoshu::Language::Registry do
       Class.new do
         def detect(text)
           return "en" if text.match?(/hello/i)
+
           nil
         end
       end.new
@@ -165,6 +166,7 @@ RSpec.describe Kotoshu::Language::Registry do
         def detect(text)
           return "en" if text.match?(/hello/i)
           return "fr" if text.match?(/bonjour/i)
+
           nil
         end
       end.new

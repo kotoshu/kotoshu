@@ -44,7 +44,6 @@ module Kotoshu
                     onlymaxdiff: true,
                     has_phonetic: false,
                     &block)
-
           # Stage 1: Find best root candidates by n-gram score
           root_scores = []
 
@@ -180,7 +179,7 @@ module Kotoshu
           end
 
           # Score is: 2 * LCS - length difference
-          result = 2 * lcs - (word1.length - word2.length).abs
+          result = (2 * lcs) - (word1.length - word2.length).abs
 
           # Add common start substring length
           result += StringMetrics.leftcommonsubstring(word1_lower, word2_lower)
@@ -200,10 +199,10 @@ module Kotoshu
 
           # Apply "questionable" threshold based on diff_factor and has_phonetic
           questionable_limit = if has_phonetic
-                                word2.length * diff_factor
-                              else
-                                (word1.length + word2.length) * diff_factor
-                              end
+                                 word2.length * diff_factor
+                               else
+                                 (word1.length + word2.length) * diff_factor
+                               end
 
           result -= 1000 if bigrams < questionable_limit
 
@@ -297,14 +296,14 @@ module Kotoshu
             strip = suffix[:strip] || ''
             add = suffix[:affix]
             root = strip.empty? ? stem : stem[0...(stem.length - strip.length)]
-            res << root + add
+            res << (root + add)
           end
 
           applicable_prefixes.each do |prefix|
             strip = prefix[:strip] || ''
             add = prefix[:affix]
             root = strip.empty? ? stem : stem[strip.length..]
-            res << add + root
+            res << (add + root)
           end
 
           cross.each do |prefix, suffix|
@@ -315,7 +314,7 @@ module Kotoshu
             base = stem.dup
             base = base[pstrip.length..] if !pstrip.empty? && base.start_with?(pstrip)
             base = base[0...(base.length - sstrip.length)] if !sstrip.empty? && base.end_with?(sstrip)
-            res << pad + base + sad
+            res << (pad + base + sad)
           end
 
           res.uniq
@@ -351,6 +350,7 @@ module Kotoshu
               # Questionable suggestion
               # Stop if we already found good ones, or if we're excluding questionable
               return if found.positive? || onlymaxdiff
+
               seen = true
             end
 

@@ -51,7 +51,7 @@ module Kotoshu
           dist = suggestion.distance
           conf = suggestion.confidence
           source = suggestion.source
-          output.puts "#{" " * @indent}#{suggestion.word} (dist: #{dist}, conf: #{conf.round(2)}, src: #{source})"
+          output.puts "#{' ' * @indent}#{suggestion.word} (dist: #{dist}, conf: #{conf.round(2)}, src: #{source})"
         end
         @indent -= 2
       end
@@ -123,13 +123,13 @@ module Kotoshu
       # @param decisions [Array] Decision nodes
       def print_decisions(decisions, index = 0)
         decisions.each do |decision|
-          prefix = "#{" " * @indent}#{index}. "
+          prefix = "#{' ' * @indent}#{index}. "
           output.puts "#{prefix}#{decision[:description]}"
 
           if should_log?(:trace) && decision[:details]
             @indent += 2
             decision[:details].each do |key, value|
-              output.puts "#{" " * @indent}#{key}: #{value}"
+              output.puts "#{' ' * @indent}#{key}: #{value}"
             end
             @indent -= 2
           end

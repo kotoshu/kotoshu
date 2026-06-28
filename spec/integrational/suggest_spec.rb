@@ -54,7 +54,7 @@ RSpec.describe 'Integrational Suggestion Tests', :integrational do
 
       # ph.sug contains "Oh, my gosh!" / "OH, MY GOSH!" — a single phrase
       # that happens to contain ", " and must NOT be split.
-      if stripped =~ /^[A-Z][A-Za-z]+, [A-Za-z]+ [A-Za-z]+!$/
+      if /^[A-Z][A-Za-z]+, [A-Za-z]+ [A-Za-z]+!$/.match?(stripped)
         [stripped]
       else
         stripped.split(', ').map(&:strip)

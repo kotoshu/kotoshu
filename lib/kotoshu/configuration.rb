@@ -339,7 +339,7 @@ module Kotoshu
       apply_resolver_values
       apply_explicit_settings(settings)
 
-      yield self if block_given?
+      yield self if block
     end
 
     # Get a configuration value using the resolver.
@@ -539,7 +539,7 @@ module Kotoshu
     # Explicit settings have priority over ENV and defaults.
     def apply_explicit_settings(settings)
       settings.each do |key, value|
-        next if key == :env || key == :cli_options
+        next if %i[env cli_options].include?(key)
 
         send("#{key}=", value) if respond_to?("#{key}=")
       end
@@ -639,6 +639,7 @@ module Kotoshu
       raise DictionaryNotFoundError,
             "no unix_words dictionary found; run `kotoshu setup #{@language}`"
     end
+
     # Load PlainText dictionary.
     def load_plain_text_dictionary
       path = @dictionary_path

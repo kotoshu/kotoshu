@@ -105,10 +105,10 @@ module Kotoshu
         #
         # @yield [strategy] Each strategy
         # @return [Enumerator] Enumerator if no block given
-        def each_strategy(&block)
+        def each_strategy(&)
           return enum_for(:each_strategy) unless block_given?
 
-          @strategies.each(&block)
+          @strategies.each(&)
         end
 
         # Sort strategies by priority.
@@ -123,7 +123,7 @@ module Kotoshu
         #
         # @return [String] String representation
         def to_s
-          "#{self.class.name}(name: #{@name}, strategies: #{@strategies.map(&:name).join(", ")})"
+          "#{self.class.name}(name: #{@name}, strategies: #{@strategies.map(&:name).join(', ')})"
         end
         alias inspect to_s
 

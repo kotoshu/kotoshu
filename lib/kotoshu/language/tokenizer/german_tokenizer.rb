@@ -16,7 +16,7 @@ module Kotoshu
       # underscore (_) and single low quote (‚ - U+201A).
       class GermanTokenizer < Base
         # German-specific word separators (exclude underscore and single low quote)
-        WORD_SEPARATORS = /[\s"()\[\]{}<>,.;:!?\\\/|`~@#$%^&*+\-·]/.freeze
+        WORD_SEPARATORS = /[\s"()\[\]{}<>,.;:!?\\\/|`~@#$%^&*+\-·]/
 
         def tokenize(text)
           return [] if text.nil? || text.strip.empty?

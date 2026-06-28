@@ -174,13 +174,18 @@ RSpec.describe "Property-Based Tests", :property do
 
     it "caches suggestions with same word regardless of max_results" do
       suggestions1 = Kotoshu::Suggestions::SuggestionSet.new([
-                                                               Kotoshu::Suggestions::Suggestion.new(word: "hello", distance: 1),
-                                                               Kotoshu::Suggestions::Suggestion.new(word: "help", distance: 1)
+                                                               Kotoshu::Suggestions::Suggestion.new(word: "hello",
+                                                                                                    distance: 1),
+                                                               Kotoshu::Suggestions::Suggestion.new(word: "help",
+                                                                                                    distance: 1)
                                                              ])
       suggestions2 = Kotoshu::Suggestions::SuggestionSet.new([
-                                                               Kotoshu::Suggestions::Suggestion.new(word: "hello", distance: 1),
-                                                               Kotoshu::Suggestions::Suggestion.new(word: "help", distance: 1),
-                                                               Kotoshu::Suggestions::Suggestion.new(word: "he'll", distance: 1)
+                                                               Kotoshu::Suggestions::Suggestion.new(word: "hello",
+                                                                                                    distance: 1),
+                                                               Kotoshu::Suggestions::Suggestion.new(word: "help",
+                                                                                                    distance: 1),
+                                                               Kotoshu::Suggestions::Suggestion.new(word: "he'll",
+                                                                                                    distance: 1)
                                                              ])
 
       cache.write("helo", suggestions1, max_results: 2)

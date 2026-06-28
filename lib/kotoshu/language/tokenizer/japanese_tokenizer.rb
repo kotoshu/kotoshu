@@ -13,7 +13,7 @@ module Kotoshu
       # @see https://github.com/yoshoku/suika
       class JapaneseTokenizer < Base
         # Japanese word separators - keep it simple since Suika handles tokenization
-        WORD_SEPARATORS = /[\s"()\[\]{}<>,.;:!?\\\/|`~@#$%^&*·]/.freeze
+        WORD_SEPARATORS = /[\s"()\[\]{}<>,.;:!?\\\/|`~@#$%^&*·]/
 
         def tokenize(text)
           return [] if text.nil? || text.strip.empty?

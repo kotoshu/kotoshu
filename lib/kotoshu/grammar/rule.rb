@@ -11,7 +11,7 @@ module Kotoshu
                   :exceptions, :message, :suggestion
 
       def initialize(id:, name:, category:, severity:, description:,
-                     patterns:, exceptions: {}, message:, suggestion:)
+                     patterns:, message:, suggestion:, exceptions: {})
         @id = id
         @name = name
         @category = category

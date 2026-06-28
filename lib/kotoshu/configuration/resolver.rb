@@ -89,7 +89,7 @@ module Kotoshu
       def get_all(key)
         {
           cli: @cli[key],
-          env: ENV[env_key_for(key)],
+          env: ENV.fetch(env_key_for(key), nil),
           programmatic: @programmatic[key],
           default: @defaults[key]
         }

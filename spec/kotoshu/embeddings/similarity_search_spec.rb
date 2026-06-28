@@ -238,8 +238,8 @@ RSpec.describe Kotoshu::Embeddings::SimilaritySearch do
       search = described_class.new(vocabulary: vocabulary, model: model)
       str = search.to_s
       expect(str).to include("SimilaritySearch")
-      expect(str).to include("7")  # vocab_size
-      expect(str).to include("false")  # loaded status
+      expect(str).to include("7") # vocab_size
+      expect(str).to include("false") # loaded status
     end
   end
 

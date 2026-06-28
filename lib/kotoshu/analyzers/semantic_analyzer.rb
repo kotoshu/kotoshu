@@ -147,7 +147,7 @@ module Kotoshu
         return false if word.nil? || word.empty?
 
         # Skip numbers
-        return true if word =~ /^\d+$/
+        return true if /^\d+$/.match?(word)
 
         # Skip single characters (likely abbreviations)
         return true if word.length == 1
@@ -196,8 +196,8 @@ module Kotoshu
       # @param suggestions [Array<Models::Suggestion>] Suggestions
       # @param context [Models::Context, nil] Context
       # @return [Symbol] Error type
-      def classify_error(word, suggestions, context)
-        return :orthographic if suggestions&.empty?
+      def classify_error(word, suggestions, _context)
+        return :orthographic if suggestions && suggestions.empty?
 
         top_suggestion = suggestions.first
 
@@ -236,7 +236,17 @@ module Kotoshu
       # @return [String] Word without diacritics
       def normalize_diacritics(word)
         # Simple normalization (transliterate to ASCII)
-        word.encode('ASCII', fallback: ->(c) { c == 'ä' ? 'ae' : c == 'ö' ? 'oe' : c == 'ü' ? 'ue' : c == 'ß' ? 'ss' : c })
+        word.encode('ASCII', fallback: ->(c) {
+          if c == 'ä'
+            'ae'
+          elsif c == 'ö'
+            'oe'
+          elsif c == 'ü'
+            'ue'
+          else
+            c == 'ß' ? 'ss' : c
+          end
+        })
           .downcase
       end
 
@@ -275,7 +285,7 @@ module Kotoshu
         # Simple boost: if word is semantically similar to surrounding words
         surrounding.reduce(0.0) do |boost, surrounding_word|
           sim = @model.similarity(word, surrounding_word)
-          boost + (sim || 0.0) * 0.02  # Small boost for each similar word
+          boost + ((sim || 0.0) * 0.02) # Small boost for each similar word
         end
       end
 

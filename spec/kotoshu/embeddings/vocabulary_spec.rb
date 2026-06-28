@@ -36,9 +36,9 @@ RSpec.describe Vocabulary do
     end
 
     it "raises error for empty word_to_index" do
-      expect {
+      expect do
         described_class.new(language_code: language_code, word_to_index: {})
-      }.to raise_error(ArgumentError, /cannot be empty/)
+      end.to raise_error(ArgumentError, /cannot be empty/)
     end
   end
 
@@ -83,9 +83,9 @@ RSpec.describe Vocabulary do
     end
 
     it "raises ArgumentError for non-existent file" do
-      expect {
+      expect do
         described_class.from_file("/nonexistent/file.json")
-      }.to raise_error(ArgumentError, /File not found/)
+      end.to raise_error(ArgumentError, /File not found/)
     end
   end
 

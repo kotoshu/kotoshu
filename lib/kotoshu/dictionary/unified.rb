@@ -119,8 +119,8 @@ module Kotoshu
 
       # Read dic file
       dic_reader = Readers::DicReader.new(dic_path,
-                                           flag_format: aff_data['FLAG'] || 'short',
-                                           flag_synonyms: aff_data['AF'] || {})
+                                          flag_format: aff_data['FLAG'] || 'short',
+                                          flag_synonyms: aff_data['AF'] || {})
       dic_words = dic_reader.read
 
       new(aff_data, dic_words)
@@ -145,9 +145,11 @@ module Kotoshu
         zipfile.each do |entry|
           if entry.name.end_with?('.aff')
             raise ArgumentError, "Multiple .aff files found in zip" if aff_entry
+
             aff_entry = entry
           elsif entry.name.end_with?('.dic')
             raise ArgumentError, "Multiple .dic files found in zip" if dic_entry
+
             dic_entry = entry
           end
         end
@@ -157,15 +159,15 @@ module Kotoshu
 
         # Read aff file
         aff_reader = Readers::ZipReader.new(zipfile, aff_entry.name)
-        aff_data = aff_reader.to_a
+        aff_reader.to_a
         # Parse the raw data into proper aff structure
-        aff_reader = Readers::AffReader.new(zip_path) # Temporary for context
+        Readers::AffReader.new(zip_path) # Temporary for context
         aff_data = Readers::AffReader.new(aff_entry.name).read
 
         # Read dic file
         dic_reader = Readers::DicReader.new(dic_entry.name,
-                                             flag_format: aff_data['FLAG'] || 'short',
-                                             flag_synonyms: aff_data['AF'] || {})
+                                            flag_format: aff_data['FLAG'] || 'short',
+                                            flag_synonyms: aff_data['AF'] || {})
         dic_words = dic_reader.read
 
         new(aff_data, dic_words)
@@ -217,12 +219,10 @@ module Kotoshu
     #
     # @example
     #   dictionary.suggest('spylls')  # => ["spells", "spills", ...]
-    def suggest(word)
+    def suggest(word, &)
       return enum_for(:suggest, word) unless block_given?
 
-      @suggester.suggestions(word) do |suggestion|
-        yield suggestion
-      end
+      @suggester.suggestions(word, &)
     end
 
     private

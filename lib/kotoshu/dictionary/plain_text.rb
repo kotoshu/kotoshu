@@ -92,9 +92,9 @@ module Kotoshu
           dist = edit_distance(lookup_word, dict_word)
           [dict_word, dist]
         end.select { |_, dist| dist.positive? && dist <= 2 }
-                  .sort_by { |_, dist| dist }
-                  .first(max_suggestions)
-                  .map(&:first)
+          .sort_by { |_, dist| dist }
+          .first(max_suggestions)
+          .map(&:first)
       end
 
       # Add a word to the dictionary.
@@ -178,7 +178,7 @@ module Kotoshu
       #   dict = PlainText.from_string(text, language_code: "en")
       def self.from_string(text, language_code:, locale: nil, case_sensitive: false)
         words = text.split("\n").reject { |l| l.empty? || l.strip.start_with?("#") }
-                    .map(&:strip)
+          .map(&:strip)
 
         from_words(words, language_code: language_code, locale: locale,
                           case_sensitive: case_sensitive)
@@ -234,10 +234,10 @@ module Kotoshu
         raise DictionaryNotFoundError, path unless File.exist?(path)
 
         File.foreach(path, chomp: true)
-            .reject { |line| line.empty? || line.strip.start_with?("#") }
-            .map(&:strip)
-            .select { |word| @word_pattern.nil? || word.match?(@word_pattern) }
-            .map { |word| @case_sensitive ? word : word.downcase }
+          .reject { |line| line.empty? || line.strip.start_with?("#") }
+          .map(&:strip)
+          .select { |word| @word_pattern.nil? || word.match?(@word_pattern) }
+          .map { |word| @case_sensitive ? word : word.downcase }
       end
 
       # Build a hash set for O(1) lookups.

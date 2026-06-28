@@ -19,14 +19,22 @@ module Kotoshu
 
     # @return [Hash<Symbol, Source>]
     SOURCES = {
-      spelling:         Source.new(repo: "dictionaries",         default_pin: "v1",   template: "dictionaries/%<pin>s/%<lang>s/spelling/index.%<ext>s"),
-      grammar:          Source.new(repo: "dictionaries",         default_pin: "v1",   template: "dictionaries/%<pin>s/%<lang>s/grammar/rules.yaml"),
-      dict_manifest:    Source.new(repo: "dictionaries",         default_pin: "v1",   template: "dictionaries/%<pin>s/manifest.json"),
-      frequency:        Source.new(repo: "frequency-list-kelly", default_pin: "main", template: "frequency-list-kelly/%<pin>s/data/%<lang>s.json"),
-      freq_manifest:    Source.new(repo: "frequency-list-kelly", default_pin: "main", template: "frequency-list-kelly/%<pin>s/manifest.json"),
-      model:            Source.new(repo: "models-fasttext-onnx", default_pin: "main", template: "models-fasttext-onnx/%<pin>s/models/%<lang>s/fasttext.%<lang>s.onnx"),
-      model_vocab:      Source.new(repo: "models-fasttext-onnx", default_pin: "main", template: "models-fasttext-onnx/%<pin>s/models/%<lang>s/fasttext.%<lang>s.vocab.json"),
-      model_manifest:   Source.new(repo: "models-fasttext-onnx", default_pin: "main", template: "models-fasttext-onnx/%<pin>s/manifest.json")
+      spelling: Source.new(repo: "dictionaries", default_pin: "v1",
+                           template: "dictionaries/%<pin>s/%<lang>s/spelling/index.%<ext>s"),
+      grammar: Source.new(repo: "dictionaries", default_pin: "v1",
+                          template: "dictionaries/%<pin>s/%<lang>s/grammar/rules.yaml"),
+      dict_manifest: Source.new(repo: "dictionaries", default_pin: "v1",
+                                template: "dictionaries/%<pin>s/manifest.json"),
+      frequency: Source.new(repo: "frequency-list-kelly", default_pin: "main",
+                            template: "frequency-list-kelly/%<pin>s/data/%<lang>s.json"),
+      freq_manifest: Source.new(repo: "frequency-list-kelly", default_pin: "main",
+                                template: "frequency-list-kelly/%<pin>s/manifest.json"),
+      model: Source.new(repo: "models-fasttext-onnx", default_pin: "main",
+                        template: "models-fasttext-onnx/%<pin>s/models/%<lang>s/fasttext.%<lang>s.onnx"),
+      model_vocab: Source.new(repo: "models-fasttext-onnx", default_pin: "main",
+                              template: "models-fasttext-onnx/%<pin>s/models/%<lang>s/fasttext.%<lang>s.vocab.json"),
+      model_manifest: Source.new(repo: "models-fasttext-onnx", default_pin: "main",
+                                 template: "models-fasttext-onnx/%<pin>s/manifest.json")
     }.freeze
 
     # @param base_url [String] GitHub raw root, no trailing slash.

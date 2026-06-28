@@ -39,6 +39,7 @@ module Kotoshu
 
         def check(word)
           return { found: false, stem: nil, flags: [] } if word.nil? || word.empty?
+
           first_form = @lookuper.good_forms(word).first
           if first_form
             { found: true, stem: first_form.stem || word, flags: first_form.flags&.to_a || [] }
@@ -49,8 +50,10 @@ module Kotoshu
 
         def suggest(word, max_suggestions: 10)
           return [] if word.nil? || word.empty?
+
           first_form = @lookuper.good_forms(word).first
           return [] if first_form
+
           generate_suggestions(word, max_suggestions).take(max_suggestions)
         end
 
@@ -67,7 +70,8 @@ module Kotoshu
         def calculate_distance(a, b)
           return a.length if b.empty?
           return b.length if a.empty?
-          matrix = Array.new(a.length + 1) { |i| [i] + [0] * b.length }
+
+          matrix = Array.new(a.length + 1) { |i| [i] + ([0] * b.length) }
           (1..b.length).each { |j| matrix[0][j] = j }
           (1..a.length).each do |i|
             (1..b.length).each do |j|
@@ -86,10 +90,11 @@ module Kotoshu
           [distance_score - rank_penalty, 0.0].max
         end
 
-        def generate_suggestions(word, max_suggestions)
+        def generate_suggestions(word, _max_suggestions)
           variations = []
           word.chars.each_with_index do |char, i|
             next if i == 0
+
             doubled = word.dup
             doubled.insert(i, char)
             variations << doubled if @lookuper.good_forms(doubled).first
@@ -98,6 +103,7 @@ module Kotoshu
             deleted = word.dup
             deleted.slice!(i)
             next if deleted.empty?
+
             variations << deleted if @lookuper.good_forms(deleted).first
           end
           common_substitutions = {
@@ -115,6 +121,7 @@ module Kotoshu
           }
           word.chars.each_with_index do |char, i|
             next unless common_substitutions.key?(char.downcase)
+
             common_substitutions[char.downcase].each do |sub|
               substituted = word.dup
               substituted[i] = sub
@@ -123,7 +130,8 @@ module Kotoshu
           end
           variations.uniq!
           variations.map do |suggestion|
-            { word: suggestion, distance: calculate_distance(word, suggestion), score: calculate_score(word, suggestion, 0) }
+            { word: suggestion, distance: calculate_distance(word, suggestion),
+              score: calculate_score(word, suggestion, 0) }
           end.sort_by { |s| s[:distance] }
         end
       end
@@ -152,6 +160,7 @@ module Kotoshu
 
         def tokenize(text)
           return [] if text.nil? || text.empty?
+
           tokens = super
           if @expand_contractions
             tokens = expand_contractions(tokens)
@@ -191,19 +200,23 @@ module Kotoshu
 
         def expand_single_contraction(token)
           word = token[:token]
-          if word =~ POSSESSIVE_PATTERN
+          if POSSESSIVE_PATTERN.match?(word)
             base = word[0..-3]
             if CONTRACTION_WITH_S.include?(base.downcase)
-              return [{ token: base, position: token[:position], length: base.length }, { token: "'s", position: token[:position] + base.length, length: 2 }]
+              return [{ token: base, position: token[:position], length: base.length },
+                      { token: "'s", position: token[:position] + base.length, length: 2 }]
             else
-              return [{ token: base, position: token[:position], length: base.length }, { token: "'s", position: token[:position] + base.length, length: 2 }]
+              return [{ token: base, position: token[:position], length: base.length },
+                      { token: "'s", position: token[:position] + base.length, length: 2 }]
             end
           end
-          CONTRACTIONS.each do |suffix, expansion|
-            next if suffix == "'s" || suffix == "'clock"
+          CONTRACTIONS.each do |suffix, _expansion|
+            next if ["'s", "'clock"].include?(suffix)
+
             if word.end_with?(suffix) && word.length > suffix.length
               prefix = word[0...-suffix.length]
-              return [{ token: prefix, position: token[:position], length: prefix.length }, { token: suffix, position: token[:position] + prefix.length, length: suffix.length }]
+              return [{ token: prefix, position: token[:position], length: prefix.length },
+                      { token: suffix, position: token[:position] + prefix.length, length: suffix.length }]
             end
           end
           nil
@@ -244,6 +257,7 @@ module Kotoshu
 
         def tag(tokens)
           return [] if tokens.nil? || tokens.empty?
+
           tokens.map do |token|
             word = token[:token]
             if word.nil? || word.empty?
@@ -272,6 +286,7 @@ module Kotoshu
         def lookup_with_pos(word)
           return { pos_tag: nil, lemma: nil } if word.nil? || word.empty?
           return @lookup_cache[word] if @lookup_cache.key?(word)
+
           first_form = @lookuper.good_forms(word).first
           pos_tag = derive_pos_tag(first_form)
           cache_result = { pos_tag: pos_tag, lemma: first_form&.stem }
@@ -281,8 +296,10 @@ module Kotoshu
 
         def derive_pos_tag(result)
           return nil unless result
+
           flags = result.flags&.to_a || []
           return guess_pos_from_affix(result) if flags.empty?
+
           flags.each do |flag|
             pos_tag = flag_to_pos(flag)
             return pos_tag if pos_tag
@@ -292,6 +309,7 @@ module Kotoshu
 
         def flag_to_pos(flag)
           return @flag_mapping[flag] if @flag_mapping.key?(flag)
+
           first_char = flag[0]
           @flag_mapping[first_char]
         end
@@ -305,6 +323,7 @@ module Kotoshu
           end
           prefix = result.prefix
           return nil unless prefix
+
           nil
         end
 
@@ -314,6 +333,7 @@ module Kotoshu
           return 'ADV' if suffix.end_with?('ly')
           return 'NOUN' if suffix.match?(/^(tion|sion|ment|ness|ity|ship|er|or|ist)$/)
           return 'ADJ' if suffix.match?(/^(able|ible|al|ial|ic|ive|ful|less|ous)$/)
+
           nil
         end
       end
@@ -345,12 +365,13 @@ module Kotoshu
 
       def initialize(code: "en", name: "English", variant: nil)
         variant ||= extract_region_code(code)
-        super(code: code, name: name, variant: variant)
+        super
         @hunspell_paths = resolve_hunspell_paths(code)
       end
 
       def description
         return name unless variant
+
         variant_name = VARIANT_NAMES[variant] || variant
         "#{name} (#{variant_name})"
       end
@@ -409,10 +430,13 @@ module Kotoshu
 
       def valid_in_other_variant?(word)
         return nil if @variant.nil? || @code == 'en'
+
         HUNSPELL_DICTIONARIES.each do |variant_code, paths|
           next if variant_code == @code
           next unless File.exist?(paths[:aff]) && File.exist?(paths[:dic])
-          checker = SpellChecker.new(aff_path: paths[:aff], dic_path: paths[:dic], script: :latin, encoding: 'ISO-8859-1')
+
+          checker = SpellChecker.new(aff_path: paths[:aff], dic_path: paths[:dic], script: :latin,
+                                     encoding: 'ISO-8859-1')
           if checker.correct?(word)
             region = variant_code.split('-').last.upcase
             variant_name = VARIANT_NAMES[region] || variant_code
@@ -426,6 +450,7 @@ module Kotoshu
 
       def extract_region_code(code)
         return nil unless code.include?("-")
+
         code.split("-", 2).last.upcase
       end
 

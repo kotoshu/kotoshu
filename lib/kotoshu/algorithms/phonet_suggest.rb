@@ -65,9 +65,9 @@ module Kotoshu
             score = 2 * StringMetrics.ngram(3, misspelling_ph, word_ph, longer_worse: true)
 
             # Use heap-like behavior: keep only MAX_ROOTS best results
-            if scores.size >= MAX_ROOTS
+            if (scores.size >= MAX_ROOTS) && scores.first && scores.first[0] < score
               # Remove the worst score if we're at capacity
-              scores.sort!.shift if scores.first && scores.first[0] < score
+              scores.sort!.shift
             end
 
             scores << [score, stem] if scores.size < MAX_ROOTS || scores.empty? || score > scores.first[0]
@@ -77,7 +77,7 @@ module Kotoshu
           # nlargest uses full-tuple comparison, so ties on score are broken
           # by descending stem — matching that here is what reproduces
           # Spylls/Hunspell's phonet suggestion order.
-          guesses = scores.sort { |a, b| b <=> a }
+          guesses = scores.sort.reverse
 
           # Final pass: re-score with the precise metric. The second sort
           # must be stable by score only — Python's sorted(key=..., reverse=True)
@@ -99,7 +99,7 @@ module Kotoshu
         # @param word2 [String] Candidate suggestion
         # @return [Float] Final score
         def final_score(word1, word2)
-          2 * StringMetrics.lcslen(word1, word2) -
+          (2 * StringMetrics.lcslen(word1, word2)) -
             (word1.length - word2.length).abs +
             StringMetrics.leftcommonsubstring(word1, word2)
         end
@@ -156,12 +156,12 @@ module Kotoshu
 
           # Try to match
           match_data = if rule[:end]
-                        # Full match from position
-                        rule[:search].match(word[pos..])
-                      else
-                        # Regular match from position
-                        rule[:search].match(word, pos)
-                      end
+                         # Full match from position
+                         rule[:search].match(word[pos..])
+                       else
+                         # Regular match from position
+                         rule[:search].match(word, pos)
+                       end
 
           return nil unless match_data
 

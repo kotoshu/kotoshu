@@ -111,7 +111,7 @@ RSpec.describe "kotoshu CLI end-to-end", :slow do
 
         expect(code).to eq(3)
         expect(stderr).to match(/not set up/i)
-        expect(stderr).to match(/kotoshu setup de/)
+        expect(stderr).to include('kotoshu setup de')
       end
     end
 
@@ -165,12 +165,12 @@ RSpec.describe "kotoshu CLI end-to-end", :slow do
         populate_en_cache(kotoshu_home)
         file = write_tmp_file("dirty.txt", dirty_text)
         stdout, _stderr, code = run_cli("check", file, "--language", "en", "--interactive",
-                                       stdin: "n\n1\nq\n")
+                                        stdin: "n\n1\nq\n")
 
         expect(code).to eq(1)
-        expect(stdout).to match(/Interactive review/)
+        expect(stdout).to include('Interactive review')
         expect(stdout).to match(/'\w+' \(offset/)
-        expect(stdout).to match(/Review complete/)
+        expect(stdout).to include('Review complete')
       end
     end
 
@@ -190,7 +190,7 @@ RSpec.describe "kotoshu CLI end-to-end", :slow do
     it "prints the version banner" do
       stdout, _stderr, code = run_cli("version")
       expect(code).to eq(0)
-      expect(stdout).to match(/Kotoshu version/)
+      expect(stdout).to include('Kotoshu version')
       expect(stdout).to match(/Ruby \d/)
     end
   end
@@ -207,7 +207,7 @@ RSpec.describe "kotoshu CLI end-to-end", :slow do
         populate_en_cache(kotoshu_home)
         stdout, _stderr, code = run_cli("setup", "--list")
         expect(code).to eq(0)
-        expect(stdout).to match(/Set up languages:/)
+        expect(stdout).to include('Set up languages:')
         expect(stdout).to include("en")
       end
     end
@@ -220,19 +220,19 @@ RSpec.describe "kotoshu CLI end-to-end", :slow do
           "--dic", EN_DIC_FIXTURE
         )
         expect(code).to eq(0)
-        expect(stdout).to match(/Setup en\.\.\. OK/)
+        expect(stdout).to include('Setup en... OK')
         expect(stdout).to include("source: local")
 
         # Follow-up check should now succeed using the registered files
         file = write_tmp_file("clean.txt", "hello world\n")
-        stdout2, _stderr2, code2 = run_cli("check", file, "--language", "en")
+        _, _stderr2, code2 = run_cli("check", file, "--language", "en")
         expect(code2).to eq(0)
       end
 
       it "fails when only one of --aff/--dic is given" do
         _stdout, stderr, code = run_cli("setup", "en", "--aff", EN_AFF_FIXTURE)
         expect(code).to eq(2)
-        expect(stderr).to match(/--aff and --dic must both be given/)
+        expect(stderr).to include('--aff and --dic must both be given')
       end
 
       it "fails when --aff/--dic used with multiple languages" do
@@ -242,7 +242,7 @@ RSpec.describe "kotoshu CLI end-to-end", :slow do
           "--dic", EN_DIC_FIXTURE
         )
         expect(code).to eq(2)
-        expect(stderr).to match(/exactly one language/)
+        expect(stderr).to include('exactly one language')
       end
     end
 
@@ -261,7 +261,7 @@ RSpec.describe "kotoshu CLI end-to-end", :slow do
                                       "--aff", EN_AFF_FIXTURE,
                                       "--dic", EN_DIC_FIXTURE)
       expect(code).to eq(0)
-      expect(stdout).to match(/Setup en\.\.\. OK/)
+      expect(stdout).to include('Setup en... OK')
     end
   end
 end

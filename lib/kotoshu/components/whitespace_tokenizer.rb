@@ -28,7 +28,7 @@ module Kotoshu
     #   # => ["Hello", ",", "world", "!"]
     class WhitespaceTokenizer < Tokenizer
       # Regex pattern for matching tokens (words or punctuation).
-      TOKEN_PATTERN = /[\w']+|[^\w\s]/.freeze
+      TOKEN_PATTERN = /[\w']+|[^\w\s]/
 
       # Create a new whitespace tokenizer.
       #
@@ -81,7 +81,7 @@ module Kotoshu
       # @param char [String] Single character
       # @return [Boolean] True if word character
       def word_char?(char)
-        char.match?(/[\w]/)
+        char.match?(/\w/)
       end
 
       # Check if a character is punctuation.

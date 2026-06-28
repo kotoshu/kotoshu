@@ -124,7 +124,7 @@ module Kotoshu
         lines << "Language: #{@document.language_code}"
         lines << ""
         lines << @formatter.colorize("Summary", :bold)
-        lines << "─" * 70
+        lines << ("─" * 70)
 
         stats = @navigation.statistics
         lines << "Total errors: #{stats[:total]}"
@@ -146,7 +146,7 @@ module Kotoshu
         # Top errors
         if @navigation.errors.any?
           lines << @formatter.colorize("Top Errors", :bold)
-          lines << "─" * 70
+          lines << ("─" * 70)
 
           @navigation.errors.first(10).each_with_index do |error, idx|
             lines << "#{idx + 1}. [#{error.location}] #{error.original}"

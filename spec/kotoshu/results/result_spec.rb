@@ -99,24 +99,24 @@ RSpec.describe Kotoshu::Results::Result do
   describe "composable operations" do
     it "chains multiple operations" do
       result = described_class::Success.new(5)
-                                       .and_then { |v| described_class::Success.new(v * 2) }
-                                       .and_then { |v| described_class::Success.new(v + 1) }
+        .and_then { |v| described_class::Success.new(v * 2) }
+        .and_then { |v| described_class::Success.new(v + 1) }
 
       expect(result.value).to eq(11)
     end
 
     it "short-circuits on first failure" do
       result = described_class::Success.new(5)
-                                       .and_then { |_v| described_class::Failure.new(StandardError.new("fail")) }
-                                       .and_then { |_v| described_class::Success.new("never reached") }
+        .and_then { |_v| described_class::Failure.new(StandardError.new("fail")) }
+        .and_then { |_v| described_class::Success.new("never reached") }
 
       expect(result).to be_failure
     end
 
     it "recovers from failure" do
       result = described_class::Failure.new(StandardError.new("fail"))
-                                       .or_else { described_class::Success.new("recovered") }
-                                       .map(&:upcase)
+        .or_else { described_class::Success.new("recovered") }
+        .map(&:upcase)
 
       expect(result.value).to eq("RECOVERED")
     end

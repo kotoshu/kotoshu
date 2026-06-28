@@ -21,7 +21,7 @@ module Kotoshu
       #
       # @param max_size [Integer] Maximum number of entries (default: 5000)
       def initialize(max_size: DEFAULT_MAX_SIZE)
-        super(max_size: max_size)
+        super
       end
 
       # Write suggestions to cache.

@@ -201,8 +201,6 @@ module Kotoshu
         pairs.map { |word1, word2| similarity(word1, word2) }
       end
 
-      private
-
       # Detect language code from file path.
       #
       # @param path [String] File path
@@ -212,7 +210,7 @@ module Kotoshu
         if path =~ /\.([a-z]{2})\./i
           Regexp.last_match(1).downcase
         else
-          'en'  # Default to English
+          'en' # Default to English
         end
       end
     end

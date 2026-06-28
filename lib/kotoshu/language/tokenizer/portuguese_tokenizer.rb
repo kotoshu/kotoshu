@@ -17,7 +17,7 @@ module Kotoshu
       class PortugueseTokenizer < Base
         # Portuguese word separators - most punctuation and whitespace
         # Note: We protect special patterns before splitting
-        WORD_SEPARATORS = /[\s"()\[\]{}<>@€£\\$%‰‱ºªᵃᵒˢ|`~#^·]/.freeze
+        WORD_SEPARATORS = /[\s"()\[\]{}<>@€£\\$%‰‱ºªᵃᵒˢ|`~#^·]/
 
         # Placeholder characters (using non-printing characters)
         DECIMAL_COMMA_SUBST = "\uE001"

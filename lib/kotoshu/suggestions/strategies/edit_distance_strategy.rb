@@ -118,9 +118,9 @@ module Kotoshu
         def generate(context)
           word = context.word
           max_dist = get_config(:max_distance, 2)
-          min_confidence = get_config(:min_confidence, 0.75)  # Higher threshold for quality
-          min_similarity = get_config(:min_jaro_similarity, 0.70)  # Minimum Jaro-Winkler similarity (0.0-1.0)
-          min_results = get_config(:min_results, 3)  # Always return at least 3 suggestions if available
+          min_confidence = get_config(:min_confidence, 0.75) # Higher threshold for quality
+          min_similarity = get_config(:min_jaro_similarity, 0.70) # Minimum Jaro-Winkler similarity (0.0-1.0)
+          min_results = get_config(:min_results, 3) # Always return at least 3 suggestions if available
 
           # When the dictionary is case-insensitive, normalize case before
           # edit-distance comparison — otherwise "HELO" can never match
@@ -165,8 +165,8 @@ module Kotoshu
             # Normalize score to confidence (0.0 to 1.0)
             # Lower score = higher confidence
             if score_range > 0
-              normalized = (score.to_f - min_score) / score_range  # 0 to 1
-              confidence = 1.0 - normalized  # Invert: lower score = higher confidence
+              normalized = (score.to_f - min_score) / score_range # 0 to 1
+              confidence = 1.0 - normalized # Invert: lower score = higher confidence
             else
               confidence = 1.0
             end
@@ -178,8 +178,8 @@ module Kotoshu
             jaro_similarity = calculate_ngram_similarity(compare_word, compare_dict)
 
             # Skip low-confidence or low-similarity suggestions (unless we need more for min_results)
-            if confidence < min_confidence || jaro_similarity < min_similarity
-              next if suggestions.size >= min_results
+            if (confidence < min_confidence || jaro_similarity < min_similarity) && (suggestions.size >= min_results)
+              next
             end
 
             suggestions << Suggestion.new(
@@ -188,7 +188,7 @@ module Kotoshu
               confidence: confidence,
               source: @name,
               original_length: word.length,
-              ngram_score: jaro_similarity,  # Now stores Jaro-Winkler similarity (0.0-1.0)
+              ngram_score: jaro_similarity, # Now stores Jaro-Winkler similarity (0.0-1.0)
               enhanced_score: score
             )
 
@@ -306,18 +306,18 @@ module Kotoshu
           # Fill the matrix
           (1..len1).each do |i|
             (1..len2).each do |j|
-              cost = (str1[i - 1] == str2[j - 1]) ? 0 : 1
+              cost = str1[i - 1] == str2[j - 1] ? 0 : 1
 
               d[i][j] = [
                 d[i - 1][j] + 1,      # deletion
                 d[i][j - 1] + 1,      # insertion
-                d[i - 1][j - 1] + cost  # substitution
+                d[i - 1][j - 1] + cost # substitution
               ].min
 
               # Check for transposition (Damerau extension)
               if i > 1 && j > 1 &&
-                 str1[i - 1] == str2[j - 2] &&
-                 str1[i - 2] == str2[j - 1]
+                  str1[i - 1] == str2[j - 2] &&
+                  str1[i - 2] == str2[j - 1]
                 d[i][j] = [d[i][j], d[i - 2][j - 2] + 1].min
               end
             end
@@ -349,7 +349,7 @@ module Kotoshu
         # @param distance [Integer] Edit distance
         # @return [Float] Enhanced score (lower is better)
         def calculate_enhanced_score(original, suggestion, distance)
-          score = distance * 1000.0  # Base score from edit distance
+          score = distance * 1000.0 # Base score from edit distance
 
           # Factor 1: Word frequency bonus (common words get lower score)
           score -= frequency_bonus(suggestion)
@@ -389,6 +389,7 @@ module Kotoshu
           transpositions = 0
           (0...o.length).each do |i|
             next if o[i] == s[i]
+
             # Find matching char in suggestion
             match_idx = s.index(o[i], i + 1)
             if match_idx && (match_idx == i + 1 || (match_idx > i + 1 && s[i] == o[match_idx]))
@@ -425,16 +426,16 @@ module Kotoshu
               # Use OOP keyboard layout for distance calculation
               key_dist = @keyboard_layout.distance(c1, c2)
 
-              if key_dist == Float::INFINITY
-                # Symbol or unknown key - medium penalty
-                penalty += 50
-              elsif key_dist == 1
-                penalty += 10  # Very likely typo (adjacent keys)
-              elsif key_dist == 2
-                penalty += 30  # Somewhat likely
-              else
-                penalty += 100  # Unlikely to be typo (far keys)
-              end
+              penalty += if key_dist == Float::INFINITY
+                           # Symbol or unknown key - medium penalty
+                           50
+                         elsif key_dist == 1
+                           10  # Very likely typo (adjacent keys)
+                         elsif key_dist == 2
+                           30  # Somewhat likely
+                         else
+                           100 # Unlikely to be typo (far keys)
+                         end
             end
           end
 
@@ -454,12 +455,12 @@ module Kotoshu
           if suggestion.length == original.length + 1
             # Check if suggestion has a double letter that original is missing
             suggestion.chars.each_cons(2).with_index do |pair, i|
-              if pair[0] == pair[1]  # Found double letter at positions i and i+1
+              if pair[0] == pair[1] # Found double letter at positions i and i+1
                 # Check if removing the second occurrence (at i+1) gives us the original word
                 # For "hello" with "ll" at position 2, remove position 3: "hel" + "o" = "helo"
                 expected = suggestion[0...i + 1] + suggestion[i + 2..-1]
                 if expected == original
-                  bonus += 300  # Strong bonus for missing double letter (MORE than transposition!)
+                  bonus += 300 # Strong bonus for missing double letter (MORE than transposition!)
                   break
                 end
               end
@@ -470,11 +471,11 @@ module Kotoshu
           if original.length == suggestion.length + 1
             # Check if original has a double letter that suggestion doesn't
             original.chars.each_cons(2).with_index do |pair, i|
-              if pair[0] == pair[1]  # Found double letter in original
+              if pair[0] == pair[1] # Found double letter in original
                 # Check if removing it gives the suggestion
                 reconstructed = original[0...i + 1] + original[i + 1..-1]
                 if reconstructed == suggestion
-                  bonus += 100  # Bonus for extra double letter
+                  bonus += 100 # Bonus for extra double letter
                   break
                 end
               end
@@ -483,13 +484,11 @@ module Kotoshu
 
           # Pattern 3: Common prefixes/suffixes
           if original.start_with?(suggestion[0...3]) && suggestion.length > original.length
-            bonus += 30  # Suggestion extends common prefix
+            bonus += 30 # Suggestion extends common prefix
           end
 
           bonus
         end
-
-        private
 
         # Resolve keyboard layout using OOP registry pattern
         #
@@ -559,8 +558,6 @@ module Kotoshu
           @frequency_tiers
         end
 
-        private
-
         # Try to load frequency data from FrequencyCache (OOP cache pattern).
         #
         # Uses FrequencyCache to download Kelly frequency lists from GitHub
@@ -593,6 +590,7 @@ module Kotoshu
         def try_load_from_kelly(language_code); end
         def try_load_kelly_local(language_code); end
         def try_load_kelly_from_github(language_code); end
+
         # Kelly Project frequency lists are stored in:
         # frequency-list-kelly/data/{language_code}.json
         #
@@ -622,7 +620,7 @@ module Kotoshu
             # User's local kotoshu clone
             File.expand_path('~/src/kotoshu/frequency-list-kelly/data'),
             # Environment variable override
-            ENV['KELLY_DATA_PATH']
+            ENV.fetch('KELLY_DATA_PATH', nil)
           ].compact.uniq
 
           kelly_paths.each do |path|

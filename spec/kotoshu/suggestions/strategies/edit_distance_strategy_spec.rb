@@ -221,7 +221,9 @@ RSpec.describe Kotoshu::Suggestions::Strategies::EditDistanceStrategy do
 
   describe 'multi-language support' do
     before do
-      skip "Multi-language support not yet implemented. The EditDistanceStrategy uses hardcoded English data (COMMON_WORDS, KEYBOARD_LAYOUT). Future versions should load language-specific data from configuration files."
+      skip 'Multi-language support not yet implemented. The EditDistanceStrategy ' \
+           'uses hardcoded English data (COMMON_WORDS, KEYBOARD_LAYOUT). Future ' \
+           'versions should load language-specific data from configuration files.'
     end
 
     let(:dictionary) do
@@ -300,7 +302,7 @@ RSpec.describe Kotoshu::Suggestions::Strategies::EditDistanceStrategy do
 
     it 'filters out low-similarity suggestions' do
       strategy = described_class.new(
-        min_jaro_similarity: 0.70  # Filter out suggestions with < 70% similarity
+        min_jaro_similarity: 0.70 # Filter out suggestions with < 70% similarity
       )
 
       context = Kotoshu::Suggestions::Context.new(word: 'wrold', dictionary: dictionary)
@@ -315,13 +317,14 @@ RSpec.describe Kotoshu::Suggestions::Strategies::EditDistanceStrategy do
     it 'respects min_results configuration even with threshold' do
       # Add words similar to "wrold" to test min_results behavior
       test_dictionary = Kotoshu::Dictionary::PlainText.from_words(
-        (SpecHelpers::LanguageFixtures::COMMON_WORDS_BY_LANGUAGE[:en] + %w[world word would old rod fold rolf told]).uniq,
+        (SpecHelpers::LanguageFixtures::COMMON_WORDS_BY_LANGUAGE[:en] + %w[world word would old rod fold rolf
+                                                                           told]).uniq,
         language_code: 'en'
       )
 
       strategy = described_class.new(
-        min_jaro_similarity: 0.75,  # High but achievable threshold
-        min_results: 3  # Always return at least 3 suggestions
+        min_jaro_similarity: 0.75, # High but achievable threshold
+        min_results: 3 # Always return at least 3 suggestions
       )
 
       context = Kotoshu::Suggestions::Context.new(word: 'wrold', dictionary: test_dictionary)
@@ -336,7 +339,7 @@ RSpec.describe Kotoshu::Suggestions::Strategies::EditDistanceStrategy do
 
     it 'filters by confidence threshold as well' do
       strategy = described_class.new(
-        min_confidence: 0.50  # Filter out suggestions with < 50% confidence
+        min_confidence: 0.50 # Filter out suggestions with < 50% confidence
       )
 
       context = Kotoshu::Suggestions::Context.new(word: 'wrold', dictionary: dictionary)
@@ -393,7 +396,7 @@ RSpec.describe Kotoshu::Suggestions::Strategies::EditDistanceStrategy do
       )
 
       start_time = Time.now
-      result = strategy.generate(context)
+      strategy.generate(context)
       elapsed = Time.now - start_time
 
       # Should complete quickly even for long words with no matches
@@ -439,9 +442,7 @@ RSpec.describe Kotoshu::Suggestions::Strategies::EditDistanceStrategy do
       context = Kotoshu::Suggestions::Context.new(word: 'wrold', dictionary: dictionary)
       result = strategy.generate(context)
 
-      result.suggestions.each do |suggestion|
-        expect(suggestion).to be_from_source(:edit_distance)
-      end
+      expect(result.suggestions).to all(be_from_source(:edit_distance))
     end
   end
 

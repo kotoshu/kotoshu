@@ -80,6 +80,7 @@ module Kotoshu
       def confidence_level
         return :high if @similarity > 0.8
         return :medium if @similarity > 0.5
+
         :low
       end
     end

@@ -16,7 +16,7 @@ module Kotoshu
     #
     # To follow algorithm details, start reading from Lookup.call method.
     module Lookup
-      NUMBER_REGEXP = /^\d+(\.\d+)?$/.freeze
+      NUMBER_REGEXP = /^\d+(\.\d+)?$/
 
       # Position of word part in compound word.
       #
@@ -299,12 +299,14 @@ module Kotoshu
                        capitalization: true,
                        allow_nosuggest: true,
                        affix_forms: true,
-                       compound_forms: true)
-          return enum_for(:good_forms, word,
-                          capitalization: capitalization,
-                          allow_nosuggest: allow_nosuggest,
-                          affix_forms: affix_forms,
-                          compound_forms: compound_forms) unless block_given?
+                       compound_forms: true, &block)
+          unless block
+            return enum_for(:good_forms, word,
+                            capitalization: capitalization,
+                            allow_nosuggest: allow_nosuggest,
+                            affix_forms: affix_forms,
+                            compound_forms: compound_forms)
+          end
 
           # Get capitalization variants
           if capitalization
@@ -322,9 +324,9 @@ module Kotoshu
                 if @aff[:CHECKSHARPS] && @aff[:KEEPCASE]
                   stem = form.in_dictionary ? form.in_dictionary[:stem] : form.stem
                   if stem.include?('ß') &&
-                     captype == Capitalization::Type::ALL &&
-                     word.include?('ß') &&
-                     form.flags.include?(@aff[:KEEPCASE])
+                      captype == Capitalization::Type::ALL &&
+                      word.include?('ß') &&
+                      form.flags.include?(@aff[:KEEPCASE])
                     next
                   end
                 end
@@ -334,9 +336,7 @@ module Kotoshu
             end
 
             if compound_forms
-              compound_forms_internal(variant, captype: captype, allow_nosuggest: allow_nosuggest) do |form|
-                yield form
-              end
+              compound_forms_internal(variant, captype: captype, allow_nosuggest: allow_nosuggest, &block)
             end
           end
         end
@@ -393,19 +393,21 @@ module Kotoshu
         def affix_forms_internal(word, captype:, allow_nosuggest:, with_forbidden: false,
                                  compoundpos: nil, prefix_flags: [], suffix_flags: [],
                                  forbidden_flags: [])
-          return enum_for(:affix_forms_internal, word,
-                          captype: captype,
-                          allow_nosuggest: allow_nosuggest,
-                          with_forbidden: with_forbidden,
-                          compoundpos: compoundpos,
-                          prefix_flags: prefix_flags,
-                          suffix_flags: suffix_flags,
-                          forbidden_flags: forbidden_flags) unless block_given?
+          unless block_given?
+            return enum_for(:affix_forms_internal, word,
+                            captype: captype,
+                            allow_nosuggest: allow_nosuggest,
+                            with_forbidden: with_forbidden,
+                            compoundpos: compoundpos,
+                            prefix_flags: prefix_flags,
+                            suffix_flags: suffix_flags,
+                            forbidden_flags: forbidden_flags)
+          end
 
           produce_affix_forms(word, compoundpos: compoundpos,
-                              prefix_flags: prefix_flags,
-                              suffix_flags: suffix_flags,
-                              forbidden_flags: forbidden_flags).each do |form|
+                                    prefix_flags: prefix_flags,
+                                    suffix_flags: suffix_flags,
+                                    forbidden_flags: forbidden_flags).each do |form|
             found = false
             homonyms = @dic[:homonyms]&.call(form.stem) || []
 
@@ -415,15 +417,15 @@ module Kotoshu
             # Spylls lookup.py — a forbidden stem must not appear as a
             # compound part (even without affixes) nor as an affixed form.
             if !with_forbidden && @aff[:FORBIDDENWORD] &&
-               (compoundpos || form.has_affixes?) &&
-               homonyms.any? { |h| (h[:flags] || []).include?(@aff[:FORBIDDENWORD]) }
+                (compoundpos || form.has_affixes?) &&
+                homonyms.any? { |h| (h[:flags] || []).include?(@aff[:FORBIDDENWORD]) }
               next
             end
 
             homonyms.each do |homonym|
               candidate = form.replace(in_dictionary: homonym)
               if is_good_form(candidate, captype: captype, allow_nosuggest: allow_nosuggest,
-                              compoundpos: compoundpos)
+                                         compoundpos: compoundpos)
                 found = true
                 yield candidate
               end
@@ -433,12 +435,12 @@ module Kotoshu
             # original word is capitalized, also try lowercased stem homonyms
             # so that compound parts that must be uppercased can still match.
             if compoundpos == CompoundPos::BEGIN_POS && @aff[:FORCEUCASE] &&
-               captype == Capitalization::Type::INIT
+                captype == Capitalization::Type::INIT
               lower_homonyms = @dic[:homonyms]&.call(form.stem.downcase) || []
               lower_homonyms.each do |homonym|
                 candidate = form.replace(in_dictionary: homonym)
                 if is_good_form(candidate, captype: captype, allow_nosuggest: allow_nosuggest,
-                                compoundpos: compoundpos)
+                                           compoundpos: compoundpos)
                   found = true
                   yield candidate
                 end
@@ -463,13 +465,13 @@ module Kotoshu
             ignorecase_homonyms = @dic[:homonyms]&.call(form.stem, ignorecase: true) || []
             ignorecase_homonyms.each do |homonym|
               forbidden = @aff[:FORBIDDENWORD] &&
-                          form.has_affixes? &&
-                          (homonym[:flags] || []).include?(@aff[:FORBIDDENWORD])
+                form.has_affixes? &&
+                (homonym[:flags] || []).include?(@aff[:FORBIDDENWORD])
               next if forbidden && !with_forbidden
 
               candidate = form.replace(in_dictionary: homonym)
               if is_good_form(candidate, captype: captype, allow_nosuggest: allow_nosuggest,
-                              compoundpos: compoundpos)
+                                         compoundpos: compoundpos)
                 yield candidate
               end
             end
@@ -483,12 +485,16 @@ module Kotoshu
         # @param allow_nosuggest [Boolean] Include NOSUGGEST words
         # @yield [CompoundForm] Each valid compound form
         def compound_forms_internal(word, captype:, allow_nosuggest:)
-          return enum_for(:compound_forms_internal, word, captype: captype, allow_nosuggest: allow_nosuggest) unless block_given?
+          unless block_given?
+            return enum_for(:compound_forms_internal, word, captype: captype,
+                                                            allow_nosuggest: allow_nosuggest)
+          end
 
           # Check if any affix form has FORBIDDENWORD
           if @aff[:FORBIDDENWORD]
             forbidden_found = false
-            affix_forms_internal(word, captype: captype, allow_nosuggest: allow_nosuggest, with_forbidden: true) do |form|
+            affix_forms_internal(word, captype: captype, allow_nosuggest: allow_nosuggest,
+                                       with_forbidden: true) do |form|
               if form.flags.include?(@aff[:FORBIDDENWORD])
                 forbidden_found = true
                 break
@@ -524,12 +530,14 @@ module Kotoshu
                                  compoundpos: nil,
                                  prefix_flags: [],
                                  suffix_flags: [],
-                                 forbidden_flags: [])
-          return enum_for(:produce_affix_forms, word,
-                          compoundpos: compoundpos,
-                          prefix_flags: prefix_flags,
-                          suffix_flags: suffix_flags,
-                          forbidden_flags: forbidden_flags) unless block_given?
+                                 forbidden_flags: [], &block)
+          unless block
+            return enum_for(:produce_affix_forms, word,
+                            compoundpos: compoundpos,
+                            prefix_flags: prefix_flags,
+                            suffix_flags: suffix_flags,
+                            forbidden_flags: forbidden_flags)
+          end
 
           # "Whole word" is always an option
           yield AffixForm.new(word, word)
@@ -540,9 +548,7 @@ module Kotoshu
 
           # Generate suffix forms
           if suffix_allowed
-            desuffix(word, required_flags: suffix_flags, forbidden_flags: forbidden_flags) do |form|
-              yield form
-            end
+            desuffix(word, required_flags: suffix_flags, forbidden_flags: forbidden_flags, &block)
           end
 
           # Generate prefix forms
@@ -572,11 +578,13 @@ module Kotoshu
         # @param crossproduct [Boolean] Whether suffix must have crossproduct
         # @yield [AffixForm] Each form with suffix removed
         def desuffix(word, required_flags: [], forbidden_flags: [], nested: false, crossproduct: false)
-          return enum_for(:desuffix, word,
-                          required_flags: required_flags,
-                          forbidden_flags: forbidden_flags,
-                          nested: nested,
-                          crossproduct: crossproduct) unless block_given?
+          unless block_given?
+            return enum_for(:desuffix, word,
+                            required_flags: required_flags,
+                            forbidden_flags: forbidden_flags,
+                            nested: nested,
+                            crossproduct: crossproduct)
+          end
 
           suffixes_index = @aff[:suffixes_index] || {}
           word_reversed = word.reverse
@@ -628,10 +636,12 @@ module Kotoshu
         # @param nested [Boolean] Whether this is a nested call
         # @yield [AffixForm] Each form with prefix removed
         def deprefix(word, required_flags: [], forbidden_flags: [], nested: false)
-          return enum_for(:deprefix, word,
-                          required_flags: required_flags,
-                          forbidden_flags: forbidden_flags,
-                          nested: nested) unless block_given?
+          unless block_given?
+            return enum_for(:deprefix, word,
+                            required_flags: required_flags,
+                            forbidden_flags: forbidden_flags,
+                            nested: nested)
+          end
 
           prefixes_index = @aff[:prefixes_index] || {}
 
@@ -741,11 +751,11 @@ module Kotoshu
           # part to appear at this slot.
           return true if @aff[:COMPOUNDFLAG] && all_flags.include?(@aff[:COMPOUNDFLAG])
           return true if compoundpos == CompoundPos::BEGIN_POS && @aff[:COMPOUNDBEGIN] &&
-                          all_flags.include?(@aff[:COMPOUNDBEGIN])
+            all_flags.include?(@aff[:COMPOUNDBEGIN])
           return true if compoundpos == CompoundPos::MIDDLE && @aff[:COMPOUNDMIDDLE] &&
-                          all_flags.include?(@aff[:COMPOUNDMIDDLE])
+            all_flags.include?(@aff[:COMPOUNDMIDDLE])
           return true if compoundpos == CompoundPos::END_POS && @aff[:COMPOUNDEND] &&
-                          all_flags.include?(@aff[:COMPOUNDEND])
+            all_flags.include?(@aff[:COMPOUNDEND])
 
           false
         end
@@ -758,10 +768,12 @@ module Kotoshu
         # @param allow_nosuggest [Boolean] Include NOSUGGEST words
         # @yield [CompoundForm] Each valid compound form
         def compounds_by_flags(word_rest, captype:, depth: 0, allow_nosuggest: true)
-          return enum_for(:compounds_by_flags, word_rest,
-                          captype: captype,
-                          depth: depth,
-                          allow_nosuggest: allow_nosuggest) unless block_given?
+          unless block_given?
+            return enum_for(:compounds_by_flags, word_rest,
+                            captype: captype,
+                            depth: depth,
+                            allow_nosuggest: allow_nosuggest)
+          end
 
           aff = @aff
           compound_min = aff[:COMPOUNDMIN] || 3
@@ -777,9 +789,9 @@ module Kotoshu
           # prefixes still need COMPOUNDPERMITFLAG.
           if depth.positive?
             affix_forms_internal(word_rest, captype: captype, allow_nosuggest: allow_nosuggest,
-                                 compoundpos: CompoundPos::END_POS,
-                                 prefix_flags: permit_flags,
-                                 forbidden_flags: forbidden_flags) do |form|
+                                            compoundpos: CompoundPos::END_POS,
+                                            prefix_flags: permit_flags,
+                                            forbidden_flags: forbidden_flags) do |form|
               yield CompoundForm.new([form])
             end
           end
@@ -803,12 +815,13 @@ module Kotoshu
 
             # Check if beg is a valid word at this position
             affix_forms_internal(beg, captype: captype, allow_nosuggest: allow_nosuggest,
-                                 compoundpos: compoundpos,
-                                 prefix_flags: prefix_flags,
-                                 suffix_flags: permit_flags,
-                                 forbidden_flags: forbidden_flags) do |form|
+                                      compoundpos: compoundpos,
+                                      prefix_flags: prefix_flags,
+                                      suffix_flags: permit_flags,
+                                      forbidden_flags: forbidden_flags) do |form|
               # Recursively check rest
-              compounds_by_flags(rest, captype: captype, depth: depth + 1, allow_nosuggest: allow_nosuggest) do |partial|
+              compounds_by_flags(rest, captype: captype, depth: depth + 1,
+                                       allow_nosuggest: allow_nosuggest) do |partial|
                 yield CompoundForm.new([form, *partial.parts])
               end
             end
@@ -816,11 +829,12 @@ module Kotoshu
             # SIMPLIFIEDTRIPLE handling
             if aff[:SIMPLIFIEDTRIPLE] && !beg.empty? && !rest.empty? && beg[-1] == rest[0]
               affix_forms_internal(beg + beg[-1], captype: captype, allow_nosuggest: allow_nosuggest,
-                                   compoundpos: compoundpos,
-                                   prefix_flags: prefix_flags,
-                                   suffix_flags: permit_flags,
-                                   forbidden_flags: forbidden_flags) do |form|
-                compounds_by_flags(rest, captype: captype, depth: depth + 1, allow_nosuggest: allow_nosuggest) do |partial|
+                                                  compoundpos: compoundpos,
+                                                  prefix_flags: prefix_flags,
+                                                  suffix_flags: permit_flags,
+                                                  forbidden_flags: forbidden_flags) do |form|
+                compounds_by_flags(rest, captype: captype, depth: depth + 1,
+                                         allow_nosuggest: allow_nosuggest) do |partial|
                   yield CompoundForm.new([form.replace(text: beg), *partial.parts])
                 end
               end
@@ -836,10 +850,12 @@ module Kotoshu
         # @param allow_nosuggest [Boolean] Include NOSUGGEST words
         # @yield [CompoundForm] Each valid compound form
         def compounds_by_rules(word_rest, prev_parts: [], rules: nil, allow_nosuggest: true)
-          return enum_for(:compounds_by_rules, word_rest,
-                          prev_parts: prev_parts,
-                          rules: rules,
-                          allow_nosuggest: allow_nosuggest) unless block_given?
+          unless block_given?
+            return enum_for(:compounds_by_rules, word_rest,
+                            prev_parts: prev_parts,
+                            rules: rules,
+                            allow_nosuggest: allow_nosuggest)
+          end
 
           aff = @aff
           compound_min = aff[:COMPOUNDMIN] || 3
@@ -877,7 +893,8 @@ module Kotoshu
               matching_rules = compound_rules.select { |rule| rule[:partial_match]&.call(flag_sets) }
               next if matching_rules.empty?
 
-              compounds_by_rules(word_rest[pos..], prev_parts: parts, rules: matching_rules, allow_nosuggest: allow_nosuggest) do |partial|
+              compounds_by_rules(word_rest[pos..], prev_parts: parts, rules: matching_rules,
+                                                   allow_nosuggest: allow_nosuggest) do |partial|
                 yield CompoundForm.new([AffixForm.new(beg, beg), *partial.parts])
               end
             end
@@ -893,10 +910,11 @@ module Kotoshu
           aff = @aff
 
           # FORCEUCASE check
-          if aff[:FORCEUCASE] && ![Capitalization::Type::ALL, Capitalization::Type::INIT].include?(captype)
-            if @dic[:has_flag]&.call(compound.parts.last.text, aff[:FORCEUCASE])
-              return true
-            end
+          if aff[:FORCEUCASE] && ![Capitalization::Type::ALL,
+                                   Capitalization::Type::INIT].include?(captype) && @dic[:has_flag]&.call(
+                                     compound.parts.last.text, aff[:FORCEUCASE]
+                                   )
+            return true
           end
 
           # Check all adjacent pairs
@@ -922,18 +940,16 @@ module Kotoshu
             if aff[:CHECKCOMPOUNDREP] && aff[:REP]
               Kotoshu::Algorithms::Permutations.replchars(left + right, aff[:REP]) do |candidate|
                 if candidate.is_a?(String) &&
-                   affix_forms_internal(candidate, captype: captype, allow_nosuggest: true).any?
+                    affix_forms_internal(candidate, captype: captype, allow_nosuggest: true).any?
                   return true
                 end
               end
             end
 
             # CHECKCOMPOUNDTRIPLE check
-            if aff[:CHECKCOMPOUNDTRIPLE]
-              if (left[-2..] + right[0]).chars.uniq.length == 1 ||
-                 (left[-1] + right[0..1]).chars.uniq.length == 1
-                return true
-              end
+            if aff[:CHECKCOMPOUNDTRIPLE] && ((left[-2..] + right[0]).chars.uniq.length == 1 ||
+                  (left[-1] + right[0..1]).chars.uniq.length == 1)
+              return true
             end
 
             # CHECKCOMPOUNDCASE check
@@ -946,10 +962,10 @@ module Kotoshu
             end
 
             # CHECKCOMPOUNDPATTERN check
-            if aff[:CHECKCOMPOUNDPATTERN]
-              if aff[:CHECKCOMPOUNDPATTERN].any? { |pattern| pattern[:match]&.call(left_paradigm, right_paradigm) }
-                return true
-              end
+            if aff[:CHECKCOMPOUNDPATTERN] && aff[:CHECKCOMPOUNDPATTERN].any? do |pattern|
+              pattern[:match]&.call(left_paradigm, right_paradigm)
+            end
+              return true
             end
 
             # CHECKCOMPOUNDDUP check

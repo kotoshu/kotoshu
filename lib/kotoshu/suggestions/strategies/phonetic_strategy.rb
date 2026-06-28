@@ -22,7 +22,7 @@ module Kotoshu
         # @option config [Symbol] algorithm The algorithm to use (:soundex or :metaphone)
         # @option config [Integer] max_results Maximum results to return
         def initialize(name: :phonetic, **config)
-          super(name: name, **config)
+          super
         end
 
         # Generate suggestions based on phonetic similarity.

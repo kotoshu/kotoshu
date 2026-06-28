@@ -214,7 +214,7 @@ class LruCache
     result = self[key]
     return result if result || key?(key)
 
-    value = block.call
+    value = yield
     self[key] = value
     value
   end

@@ -95,6 +95,7 @@ module Kotoshu
       def confidence_level
         return :high if @confidence > 0.8
         return :medium if @confidence > 0.5
+
         :low
       end
 
