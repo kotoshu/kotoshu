@@ -232,9 +232,9 @@ module Kotoshu
         def tag(tokens)
           return [] if tokens.nil? || tokens.empty?
 
-          # Initialize Suika tagger
-          require "suika" unless defined?(::Suika)
-          @suika_tagger ||= ::Suika::Tagger.new
+          # Suika::Tagger is process-wide memoized in Language::Suika;
+          # raises SuikaUnavailable when the gem is missing.
+          @suika_tagger ||= Kotoshu::Language::Suika.tagger
 
           tokens.map do |token|
             word = token[:token]

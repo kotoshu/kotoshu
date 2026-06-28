@@ -117,18 +117,27 @@ module Kotoshu
 
       # Reset the IO object.
       def reset_io
-        @file = File.open(@path, "r:#{@encoding}:utf-8")
+        @file = File.open(@path, "rb")
         @iterator = read_lines.lazy
       end
 
       # Read lines from the file.
       #
+      # Reads as binary and normalizes each line to UTF-8. The
+      # `@encoding` attribute holds the *source* encoding declared via the
+      # SET directive or auto-detected (Hunspell historically defaulted to
+      # ISO-8859-1 when no SET line was present); every line is transcoded
+      # to UTF-8 so downstream code (string metrics, regexps, suggestions)
+      # never has to think about encoding.
+      #
       # @return [Enumerator] Enumerator of [line_no, line] pairs
       def read_lines
         return enum_for(:read_lines) unless block_given?
 
-        @file.each_line do |line|
+        @file.each_line do |raw|
           @line_no += 1
+
+          line = decode_line(raw)
           line = line.strip
 
           # Skip empty lines
@@ -145,6 +154,27 @@ module Kotoshu
 
           yield [@line_no, line]
         end
+      end
+
+      # Decode a raw line of bytes to a UTF-8 String.
+      #
+      # Strategy:
+      # 1. Treat the bytes as the declared @encoding (typically UTF-8 or
+      #    ISO-8859-1).
+      # 2. Transcode to UTF-8. ISO-8859-1 → UTF-8 is lossless (every byte
+      #    0x00..0xFF maps to a codepoint), so legacy Latin-1 files round-trip
+      #    cleanly. For UTF-8 source data this is a no-op.
+      # 3. If the declared encoding doesn't fit the bytes (e.g., a `.dic` file
+      #    is actually Latin-1 even though its sibling `.aff` declared UTF-8),
+      #    reinterpret as ISO-8859-1. This matches Hunspell's tolerant
+      #    behaviour: every byte 0x00..0xFF is a valid Latin-1 codepoint, so
+      #    this never fails. As a last resort, scrub invalid bytes.
+      def decode_line(raw)
+        line = raw.dup.force_encoding(@encoding)
+        return line.encode("UTF-8") if line.valid_encoding?
+
+        latin1 = raw.dup.force_encoding("ISO-8859-1")
+        latin1.encode("UTF-8")
       end
     end
 

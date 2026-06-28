@@ -156,10 +156,7 @@ class DictionaryValidator
       end
 
       # Run tests if --full
-      if @options[:full] && result.success?
-        run_full_tests(dict, entry, result)
-      end
-
+      run_full_tests(dict, entry, result) if @options[:full] && result.success?
     rescue StandardError => e
       result.error!(e)
     end
@@ -189,7 +186,7 @@ class DictionaryValidator
     begin
       misspelled = misspelled_test_word(entry.language)
       suggestions = dict.suggest(misspelled, max_suggestions: 5)
-      if suggestions && suggestions.any?
+      if suggestions&.any?
         result.add_test_result(:suggestions, true, "Found #{suggestions.size} suggestions for '#{misspelled}'")
       else
         result.add_test_result(:suggestions, false, "No suggestions for '#{misspelled}'")
@@ -199,12 +196,12 @@ class DictionaryValidator
     end
 
     # Test 4: Case sensitivity (if not case-sensitive)
-    unless dict.case_sensitive?
-      if dict.lookup?(test_word.upcase) || dict.lookup?(test_word.downcase)
-        result.add_test_result(:case_insensitive, true, "Case-insensitive lookup works")
-      else
-        result.add_test_result(:case_insensitive, false, "Case-insensitive lookup failed")
-      end
+    return if dict.case_sensitive?
+
+    if dict.lookup?(test_word.upcase) || dict.lookup?(test_word.downcase)
+      result.add_test_result(:case_insensitive, true, "Case-insensitive lookup works")
+    else
+      result.add_test_result(:case_insensitive, false, "Case-insensitive lookup failed")
     end
   end
 
@@ -273,7 +270,7 @@ class DictionaryValidator
     }.fetch(language, "a")
   end
 
-  def nonsense_test_word(language)
+  def nonsense_test_word(_language)
     # Nonsense words that shouldn't exist
     "zzzzzzzzz"
   end
@@ -295,7 +292,7 @@ class DictionaryValidator
 
   def print_header
     print "#{Colors::BOLD}Kotoshu Dictionary Validator#{Colors::RESET}\n"
-    print "=" * 60 + "\n\n"
+    print "#{"=" * 60}\n\n"
 
     stats = @catalog.statistics
     print "Catalog Statistics:\n"
@@ -305,35 +302,34 @@ class DictionaryValidator
     print "  Languages: #{stats[:languages]}\n"
     print "  Total words: #{stats[:total_words].round}\n"
     print "\n"
-    print "=" * 60 + "\n\n"
+    print "#{"=" * 60}\n\n"
   end
 
-  def print_status(entry, index, total, result)
+  def print_status(entry, index, total, _result)
     print "[#{index}/#{total}] #{Colors::CYAN}#{entry.code}#{Colors::RESET} - #{entry.description}\n"
     print "        Format: #{entry.format}, License: #{entry.license}\n"
   end
 
-  def print_result(entry, result)
+  def print_result(_entry, result)
     if result.success?
       print "        #{Colors::GREEN}✓ PASS#{Colors::RESET}"
       print " - #{result.size.round} words, #{(result.load_time * 1000).round(1)}ms"
       print " - Tests: #{result.test_results.size}" if @options[:full]
-      print "\n"
     elsif result.warning?
       print "        #{Colors::YELLOW}⚠ WARN#{Colors::RESET}"
       print " - #{result.size.round} words, #{(result.load_time * 1000).round(1)}ms"
       print " - #{result.test_results[:warning]}"
-      print "\n"
     else
       print "        #{Colors::RED}✗ FAIL#{Colors::RESET}"
       print " - #{result.error.class}: #{result.error.message}"
-      print "\n"
     end
+    print "\n"
 
     # Print test results details
     if @options[:full] && result.test_results.any?
       result.test_results.each do |name, test_result|
         next if name == :warning
+
         status = test_result[:passed] ? "#{Colors::GREEN}✓#{Colors::RESET}" : "#{Colors::RED}✗#{Colors::RESET}"
         print "          #{status} #{name}: #{test_result[:details]}\n"
       end
@@ -343,9 +339,9 @@ class DictionaryValidator
   end
 
   def print_summary
-    print "=" * 60 + "\n"
+    print "#{"=" * 60}\n"
     print "#{Colors::BOLD}Validation Summary#{Colors::RESET}\n"
-    print "=" * 60 + "\n\n"
+    print "#{"=" * 60}\n\n"
 
     total = @results.size
     success = @results.count(&:success?)
@@ -358,7 +354,7 @@ class DictionaryValidator
     print "#{Colors::RED}✗ Failed: #{errors}#{Colors::RESET}\n"
     print "\n"
 
-    if success > 0
+    if success.positive?
       avg_load_time = @results.select(&:success?).map(&:load_time).sum / success
       avg_size = @results.select(&:success?).map(&:size).sum / success
       print "Average load time: #{(avg_load_time * 1000).round(1)}ms\n"
@@ -366,7 +362,7 @@ class DictionaryValidator
       print "\n"
     end
 
-    if errors > 0
+    if errors.positive?
       print "#{Colors::BOLD}Failed Dictionaries:#{Colors::RESET}\n"
       @results.select(&:error?).each do |result|
         print "  #{Colors::RED}#{result.code}#{Colors::RESET}: #{result.error.message}\n"
@@ -374,27 +370,27 @@ class DictionaryValidator
       print "\n"
     end
 
-    if warnings > 0
-      print "#{Colors::BOLD}Warnings:#{Colors::RESET}\n"
-      @results.select(&:warning?).each do |result|
-        print "  #{Colors::YELLOW}#{result.code}#{Colors::RESET}: #{result.test_results[:warning]}\n"
-      end
-      print "\n"
+    return unless warnings.positive?
+
+    print "#{Colors::BOLD}Warnings:#{Colors::RESET}\n"
+    @results.select(&:warning?).each do |result|
+      print "  #{Colors::YELLOW}#{result.code}#{Colors::RESET}: #{result.test_results[:warning]}\n"
     end
+    print "\n"
   end
 
   def write_report
     report_path = "dictionary_validation_report.json"
     File.write(report_path, JSON.pretty_generate({
-      timestamp: Time.now.iso8601,
-      summary: {
-        total: @results.size,
-        success: @results.count(&:success?),
-        warnings: @results.count(&:warning?),
-        errors: @results.count(&:error?)
-      },
-      results: @results.map(&:to_h)
-    }))
+                                                   timestamp: Time.now.iso8601,
+                                                   summary: {
+                                                     total: @results.size,
+                                                     success: @results.count(&:success?),
+                                                     warnings: @results.count(&:warning?),
+                                                     errors: @results.count(&:error?)
+                                                   },
+                                                   results: @results.map(&:to_h)
+                                                 }))
     print "Report written to: #{report_path}\n"
   end
 

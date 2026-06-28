@@ -56,7 +56,7 @@ RSpec.describe 'Integrational Lookup Tests', :integrational do
       expect(result[:bad_failures]).to be_empty, "Bad words found: #{result[:bad_failures].join(', ')}"
     end
 
-    it 'passes base_utf lookup tests', pending: 'Turkish i capitalization issue' do
+    it 'passes base_utf lookup tests' do
       result = run_lookup_tests('base_utf')
       expect(result[:good_failures]).to be_empty, "Good words not found: #{result[:good_failures].join(', ')}"
       expect(result[:bad_failures]).to be_empty, "Bad words found: #{result[:bad_failures].join(', ')}"
@@ -209,7 +209,7 @@ RSpec.describe 'Integrational Lookup Tests', :integrational do
       end
     end
 
-    (1..8).map { |n| "compoundrule#{n}" }.each do |name|
+    %w[compoundrule compoundrule2 compoundrule3 compoundrule4 compoundrule5 compoundrule6 compoundrule7 compoundrule8].each do |name|
       it "passes #{name} lookup tests" do
         result = run_lookup_tests(name)
         expect(result[:good_failures]).to be_empty, "Good words not found: #{result[:good_failures].join(', ')}"
@@ -321,7 +321,7 @@ RSpec.describe 'Integrational Lookup Tests', :integrational do
       end
     end
 
-    it 'passes nepali lookup tests', pending: 'conversion of invisible characters' do
+    it 'passes nepali lookup tests' do
       result = run_lookup_tests('nepali')
       expect(result[:good_failures]).to be_empty, "Good words not found: #{result[:good_failures].join(', ')}"
       expect(result[:bad_failures]).to be_empty, "Bad words found: #{result[:bad_failures].join(', ')}"
@@ -356,7 +356,7 @@ RSpec.describe 'Integrational Lookup Tests', :integrational do
       expect(result[:bad_failures]).to be_empty, "Bad words found: #{result[:bad_failures].join(', ')}"
     end
 
-    it 'passes timelimit lookup tests', pending: true do
+    it 'passes timelimit lookup tests' do
       result = run_lookup_tests('timelimit')
       expect(result[:good_failures]).to be_empty, "Good words not found: #{result[:good_failures].join(', ')}"
       expect(result[:bad_failures]).to be_empty, "Bad words found: #{result[:bad_failures].join(', ')}"

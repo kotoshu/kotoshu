@@ -52,7 +52,7 @@ module Kotoshu
       # Create a new semantic error.
       #
       # @param id [String, Symbol] Unique identifier for this error
-      # @param location [Documents::Location] Location of error in document
+      # @param location [Object] Location of error in document (line/column holder)
       # @param original [String] The original (incorrect) word/text
       # @param suggestions [Array<Suggestion>] Suggested corrections
       # @param error_type [Symbol] Error type (must be in ERROR_TYPES)

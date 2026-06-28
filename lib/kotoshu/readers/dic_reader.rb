@@ -8,25 +8,44 @@ module Kotoshu
     #
     # @attr stem [String] The word stem
     # @attr flags [Set<String>] Morphological flags
-    Word = Struct.new(:stem, :flags, keyword_init: true) do
+    # @attr morph_data [Array<String>] Morphological data fields (e.g. "ph:wich")
+    Word = Struct.new(:stem, :flags, :morph_data, keyword_init: true) do
       # Create a word from a dictionary line.
       #
       # @param line [String] The dictionary line
       # @param context [Hash] The reading context (for flag parsing)
       # @return [Word] The parsed word
       def self.from_line(line, context = {})
-        # Format: stem[/flags][\t<morph_data>]
-        # Split off morphological data first (tab or space separated),
-        # then split stem from flags on the first "/".
-        head = line.split(/[\t]/, 2).first || line
+        # Format: stem[/flags][<SEP><morph_data>]
+        # SEP is a tab per spec, but real-world fixtures (including the
+        # Hunspell ph.* tests) sometimes use spaces. We split on the first
+        # morphological token (key:value) regardless of separator.
+        head, morph = split_stem_and_morph(line)
         head = head.strip
-        slash_idx = head.index('/')
-        if slash_idx
-          stem = head[0...slash_idx]
-          flags_str = head[(slash_idx + 1)..]
-        else
+
+        # Find the first UNESCAPED slash to split stem from flags.
+        # Hunspell allows `\/` to represent a literal `/` inside a word —
+        # so we can't just use String#index('/'). Mirrors Spylls's
+        # SLASH_REGEXP (a slash not preceded by a backslash).
+        #
+        # Special case: a word that STARTS with `/` is not an empty stem +
+        # flags — it's a word whose first character is `/`. Without this,
+        # dic entry `/` would be parsed as stem="" + flags="".
+        if head.start_with?('/')
           stem = head
           flags_str = nil
+        else
+          slash_idx = unescaped_slash_index(head)
+          if slash_idx
+            stem = head[0...slash_idx]
+            flags_str = head[(slash_idx + 1)..]
+          else
+            stem = head
+            flags_str = nil
+          end
+
+          # Replace escaped slashes in the stem: `\/` → `/`
+          stem = stem.gsub('\/', '/') if stem.include?('\/')
         end
 
         flags = if flags_str && !flags_str.empty? && context[:flag_format]
@@ -37,7 +56,43 @@ module Kotoshu
                   Set.new
                 end
 
-        new(stem:, flags:)
+        morph_data = parse_morph_data(morph)
+        new(stem:, flags:, morph_data:)
+      end
+
+      # Split a dictionary line into stem and morphological-data portions.
+      #
+      # Hunspell specifies tab-separated morph data, but the ph.* test
+      # fixtures use spaces. We honor both: if there's a tab, split there;
+      # otherwise split before the first `key:value` token (which is the
+      # universal signature of morphological data).
+      #
+      # @param line [String] The raw dictionary line
+      # @return [Array(String, String)] [stem portion, morph portion]
+      def self.split_stem_and_morph(line)
+        tab_idx = line.index("\t")
+        return line.split("\t", 2) if tab_idx
+
+        match = line.match(/(.*?)(\s+[a-zA-Z]+:[^\s].*)$/)
+        return [line, ''] unless match
+
+        [match[1], match[2]]
+      end
+
+      # Parse morphological data from the post-tab portion of a dic line.
+      #
+      # Hunspell morphological data is whitespace-separated key:value tokens
+      # such as `ph:wich` (phonetic), `st:foo` (stem), `po:noun` (part of
+      # speech). We preserve them as a list of raw strings — downstream
+      # consumers (e.g. PhonetSuggest via alt_spellings) extract what they
+      # need.
+      #
+      # @param morph [String, nil] The morphological portion
+      # @return [Array<String>] List of morphological tokens
+      def self.parse_morph_data(morph)
+        return [] if morph.nil?
+
+        morph.split(/\s+/).reject(&:empty?)
       end
 
       # Parse flags from string.
@@ -49,8 +104,11 @@ module Kotoshu
       def self.parse_flags(string, flag_format, flag_synonyms = {})
         return Set.new if string.nil? || string.empty?
 
-        # Check flag synonyms
-        if flag_synonyms && string =~ /^\d+$/
+        # AF (flag aliases) only applies when aliases are actually defined
+        # and the string is a positional alias index (pure digits). Without
+        # the !empty? guard, a `FLAG num` dictionary with no AF would have
+        # every numeric flag collapsed to the empty set.
+        if flag_synonyms.is_a?(Hash) && !flag_synonyms.empty? && string =~ /^\d+$/
           return flag_synonyms[string] || Set.new
         end
 
@@ -66,6 +124,20 @@ module Kotoshu
         else
           string.chars.to_set
         end
+      end
+
+      # Find the index of the first unescaped slash in the string.
+      #
+      # @param str [String] Input string
+      # @return [Integer, nil] Index of first unescaped `/`, or nil
+      def self.unescaped_slash_index(str)
+        i = 0
+        while i < str.length
+          c = str[i]
+          return i if c == '/' && (i.zero? || str[i - 1] != '\\')
+          i += 1
+        end
+        nil
       end
     end
 

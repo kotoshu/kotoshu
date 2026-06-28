@@ -32,6 +32,11 @@ module Kotoshu
       # @return [Integer] Cache TTL in seconds
       attr_reader :cache_ttl
 
+      # @return [Integer] Maximum total cache size in bytes. Recorded
+      #   for stats and reporting; future eviction logic
+      #   (TODO.impl/34-cache-eviction.md) will enforce it.
+      attr_reader :max_cache_size
+
       # @return [String] GitHub repository URL
       attr_reader :github_url
 
@@ -50,9 +55,10 @@ module Kotoshu
       # @param manifest_url [String, nil] Override manifest.json URL
       # @param audit_log [Integrity::AuditLog, nil] Override audit log
       # @param source_registry [Kotoshu::SourceRegistry, nil] Single source of truth for URLs/pins
+      # @param max_cache_size [Integer, nil] Maximum cache size in bytes (default 1 GB)
       def initialize(cache_path: nil, url_base: nil, cache_ttl: nil, github_url: nil,
                      resource_pin: nil, manifest_url: nil, audit_log: nil,
-                     source_registry: nil)
+                     source_registry: nil, max_cache_size: nil)
         @cache_path = cache_path || default_cache_path
         @source_registry = source_registry || default_source_registry
         @url_base = url_base || @source_registry.base_url
@@ -61,6 +67,7 @@ module Kotoshu
         @resource_pin = resource_pin || @source_registry.pin_for_source(:spelling)
         @manifest_url = manifest_url
         @audit_log = audit_log || Kotoshu::Integrity::AuditLog.new
+        @max_cache_size = max_cache_size || default_max_cache_size
         @manifest = nil
         @manifest_loaded = false
         @hits = 0
@@ -590,6 +597,15 @@ module Kotoshu
       # @return [Integer] Default TTL in seconds
       def default_cache_ttl
         604_800
+      end
+
+      # Default maximum cache size (1 GB). Future eviction logic
+      # (TODO.impl/34) will enforce this; for now it is reported in
+      # stats so consumers can decide whether to display a warning.
+      #
+      # @return [Integer] Default max cache size in bytes
+      def default_max_cache_size
+        1_073_741_824
       end
     end
   end

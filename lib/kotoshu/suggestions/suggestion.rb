@@ -1,38 +1,48 @@
 # frozen_string_literal: true
 
+require "lutaml/model"
+
 module Kotoshu
   module Suggestions
     # A single suggestion with associated metadata and behavior.
-    # This is MORE model-driven than Spylls which returns plain strings.
-    class Suggestion
-      attr_reader :word, :distance, :confidence, :source, :metadata
+    #
+    # Serialized via lutaml-model. Use +to_hash+ / +Suggestion.as_json(instance)+ /
+    # +Suggestion.from_hash(hash)+ / +Suggestion.from_json(string)+ for the
+    # wire forms — no hand-rolled +to_h+ / +as_json+ on the model.
+    class Suggestion < Lutaml::Model::Serializable
+      attribute :word, :string
+      attribute :distance, :integer, default: 0
+      attribute :confidence, :float, default: 1.0
+      attribute :source, :string, default: "unknown"
+      attribute :metadata, :hash, default: {}
 
-      # @param word [String] The suggested word
-      # @param distance [Integer] Edit distance from original (lower is better)
-      # @param confidence [Float] Confidence score (0.0 to 1.0, higher is better)
-      # @param source [String, Symbol] The strategy that produced this suggestion
-      # @param metadata [Hash] Additional metadata about the suggestion
-      def initialize(word:, distance: 0, confidence: 1.0, source: :unknown, **metadata)
-        @word = word
-        @distance = distance
-        @confidence = confidence
-        @source = source
-        @metadata = metadata
-        freeze
+      # Support the legacy +**metadata+ kwarg catch-all so existing callers
+      # (e.g., +Suggestion.new(word:, distance:, source:, original_length: 5)+)
+      # continue to work; extra kwargs land in the +metadata+ attribute.
+      # Source is stored as a string for clean serialization; +from_source?+
+      # normalizes Symbol/String comparison so callers can pass either.
+      def initialize(word:, distance: 0, confidence: 1.0, source: "unknown", **metadata)
+        super(
+          word: word,
+          distance: distance,
+          confidence: confidence,
+          source: source.to_s,
+          metadata: metadata
+        )
       end
 
       # Check if this is a high-confidence suggestion.
       #
       # @return [Boolean] True if confidence >= 0.8
       def high_confidence?
-        @confidence >= 0.8
+        confidence >= 0.8
       end
 
       # Check if this is a low-confidence suggestion.
       #
       # @return [Boolean] True if confidence < 0.5
       def low_confidence?
-        @confidence < 0.5
+        confidence < 0.5
       end
 
       # Calculate combined score considering distance and confidence.
@@ -41,11 +51,10 @@ module Kotoshu
       # @param confidence_weight [Float] Weight for confidence (default: 0.7)
       # @return [Float] Combined score (0.0 to 1.0, higher is better)
       def combined_score(distance_weight: 0.3, confidence_weight: 0.7)
-        # Normalize distance (assume max meaningful distance is 5)
-        normalized_distance = [@distance, 5].min / 5.0
+        normalized_distance = [distance, 5].min / 5.0
         distance_score = 1.0 - normalized_distance
 
-        (distance_score * distance_weight) + (@confidence * confidence_weight)
+        (distance_score * distance_weight) + (confidence * confidence_weight)
       end
 
       # Check if this suggestion is the same word as another.
@@ -54,15 +63,17 @@ module Kotoshu
       # @return [Boolean] True if words match (case-insensitive)
       def same_word?(other)
         other_word = other.is_a?(Suggestion) ? other.word : other.to_s
-        @word.downcase == other_word.downcase
+        word.downcase == other_word.downcase
       end
 
       # Check if this suggestion comes from a specific source.
       #
+      # Source is stored as a string; comparison normalizes Symbol/String.
+      #
       # @param source [String, Symbol] The source to check
       # @return [Boolean] True if this suggestion came from the source
       def from_source?(source)
-        @source == source
+        self.source == source.to_s
       end
 
       # Compare suggestions for sorting (higher combined score first).
@@ -77,89 +88,47 @@ module Kotoshu
       # @param other [Suggestion] The other suggestion
       # @return [Integer] -1, 0, or 1
       def <=>(other)
-        # First by combined score (descending)
         score_cmp = other.combined_score <=> combined_score
         return score_cmp unless score_cmp.zero?
 
-        # Then by distance (ascending)
-        distance_cmp = @distance <=> other.distance
+        distance_cmp = distance <=> other.distance
         return distance_cmp unless distance_cmp.zero?
 
-        # Then by length similarity (like CSpell - prefer words of similar length)
-        # We need access to original word length, which is stored in metadata
-        orig_len = @metadata[:original_length] || @word.length
+        orig_len = metadata[:original_length] || word.length
         other_orig_len = other.metadata[:original_length] || other.word.length
 
-        # Calculate absolute difference from original length
-        my_len_diff = (@word.length - orig_len).abs
+        my_len_diff = (word.length - orig_len).abs
         other_len_diff = (other.word.length - other_orig_len).abs
 
         len_cmp = my_len_diff <=> other_len_diff
         return len_cmp unless len_cmp.zero?
 
-        # Then by n-gram similarity (like Hunspell - more shared n-grams is better)
-        # We use pre-computed n-gram score from metadata if available
-        my_ngram = @metadata[:ngram_score] || 0
+        my_ngram = metadata[:ngram_score] || 0
         other_ngram = other.metadata[:ngram_score] || 0
 
-        ngram_cmp = other_ngram <=> my_ngram  # Higher is better
+        ngram_cmp = other_ngram <=> my_ngram
         return ngram_cmp unless ngram_cmp.zero?
 
-        # Finally by word alphabetically (ascending) - ONLY as final tiebreaker
-        @word.downcase <=> other.word.downcase
+        word.downcase <=> other.word.downcase
       end
 
-      # Check equality with another suggestion.
-      #
-      # @param other [Object] The other object
-      # @return [Boolean] True if equal
       def ==(other)
         return false unless other.is_a?(Suggestion)
 
-        @word.downcase == other.word.downcase
+        word.downcase == other.word.downcase
       end
       alias eql? ==
 
-      # Hash value for use in Hash keys.
-      #
-      # @return [Integer] Hash code
       def hash
-        @word.downcase.hash
+        word.downcase.hash
       end
 
-      # Convert suggestion to hash.
-      #
-      # @return [Hash] Suggestion as hash
-      def to_h
-        {
-          word: @word,
-          distance: @distance,
-          confidence: @confidence,
-          source: @source,
-          combined_score: combined_score
-        }.merge(@metadata)
-      end
-
-      # Convert suggestion to JSON-compatible hash.
-      #
-      # @return [Hash] JSON-compatible hash
-      def as_json(*)
-        to_h
-      end
-
-      # String representation.
-      #
-      # @return [String] String representation
       def to_s
-        "Suggestion(word: '#{@word}', distance: #{@distance}, confidence: #{format("%.2f", @confidence)}, source: #{@source})"
+        format("Suggestion(word: '%<word>s', distance: %<distance>d, confidence: %<confidence>.2f, source: %<source>s)",
+               word: word, distance: distance, confidence: confidence, source: source)
       end
 
-      # Inspect the suggestion.
-      #
-      # @return [String] Inspection string
-      def inspect
-        to_s
-      end
+      alias inspect to_s
 
       # Create a suggestion from a simple word (convenience method).
       #

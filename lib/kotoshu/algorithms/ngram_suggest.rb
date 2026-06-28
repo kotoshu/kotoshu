@@ -54,7 +54,18 @@ module Kotoshu
             # Skip words with length difference > 4
             next if (stem.length - misspelling.length).abs > 4
 
-            score = root_score(misspelling, stem)
+            # Use the best score across the stem and any ph: alt-spellings,
+            # matching Hunspell's ngram_suggest behavior (without this,
+            # dictionaries that rely on `ph:` for phonetic hints never
+            # surface those words as candidates).
+            score = if word_entry[:alt_spellings]&.any?
+                      alts = word_entry[:alt_spellings].map do |alt|
+                        root_score(misspelling, alt)
+                      end
+                      [root_score(misspelling, stem), *alts].max
+                    else
+                      root_score(misspelling, stem)
+                    end
 
             # Use heap to keep only MAX_ROOTS best results
             if root_scores.size >= MAX_ROOTS
@@ -73,6 +84,20 @@ module Kotoshu
           root_scores.sort_by { |score, _| -score }.first(MAX_ROOTS).each do |(_, root_entry)|
             root = root_entry[:stem] || root_entry
 
+            # Alt spellings (from `ph:` morph data): if the alt form passes
+            # the threshold, we suggest the STEM (not the alt) — this is
+            # how Hunspell/Spylls surface dictionary entries whose canonical
+            # form is unrelated but whose pronunciation matches. The alt is
+            # only used for scoring; the real suggestion is the stem.
+            if root_entry[:alt_spellings]
+              root_entry[:alt_spellings].each do |variant|
+                score = rough_affix_score(misspelling, variant.downcase)
+                next unless score > threshold
+
+                guess_scores << [score, variant, root]
+              end
+            end
+
             # Generate forms with suffixes
             forms = forms_for(root_entry, prefixes, suffixes, similar_to: misspelling)
 
@@ -84,16 +109,20 @@ module Kotoshu
             end
           end
 
-          # Limit to MAX_GUESSES and sort by score
-          guesses = guess_scores.sort.reverse.first(MAX_GUESSES)
+          # Limit to MAX_GUESSES. Use stable descending sort (Ruby's sort_by
+          # with a negated key is stable, matching Python's
+          # sorted(key=..., reverse=True) which preserves input order for
+          # ties — important for reproducibility against Hunspell fixtures
+          # where dictionary order matters).
+          guesses = guess_scores.sort_by { |score, _, _| -score }.first(MAX_GUESSES)
 
           # Stage 3: Calculate precise scores
           fact = maxdiff >= 0 ? (10.0 - maxdiff) / 5.0 : 1.0
 
           guesses2 = guesses.map do |score, compared, real|
             [precise_affix_score(misspelling, compared.to_s.downcase,
-                                fact, base: score, has_phonetic: has_phonetic), real.to_s]
-          end.sort.reverse
+                                 fact, base: score, has_phonetic: has_phonetic), real.to_s]
+          end.sort_by { |score, _| -score }
 
           # Stage 4: Filter and yield suggestions
           filter_guesses(guesses2, known: known, onlymaxdiff: onlymaxdiff, &block)
@@ -205,23 +234,91 @@ module Kotoshu
 
         # Generate all possible affixed forms for a dictionary word.
         #
+        # For each flag the word carries, the corresponding affix entries are
+        # considered. A suffix/prefix is only kept when (a) its condition
+        # matches the stem (e.g. `[^ey]$` for the `-ed` suffix on "look"),
+        # and (b) its `add` is a suffix/prefix of the misspelling. This
+        # two-clause filter is what keeps the candidate space bounded — the
+        # condition check rejects entries that simply can't apply to this
+        # stem, and the `similar_to` check rejects entries that can't
+        # produce the misspelling we're trying to fix.
+        #
+        # Then, for every valid suffix we produce `stem + add` (with the
+        # suffix's `strip` length removed from the stem end). For every
+        # valid prefix we produce `add + stem` (with the prefix's `strip`
+        # length removed from the stem start). For every (prefix, suffix)
+        # cross-product pair, we produce `prefix.add + (stripped stem) +
+        # suffix.add`.
+        #
+        # The base stem is always the first form in the result.
+        #
         # @param word_entry [Hash] Dictionary word with stem and flags
-        # @param all_prefixes [Hash] Available prefixes
-        # @param all_suffixes [Hash] Available suffixes
-        # @param similar_to [String] Original misspelling (for filtering)
-        # @return [Array<String>] Generated forms
+        # @param all_prefixes [Hash] Flag → list of prefix hashes
+        # @param all_suffixes [Hash] Flag → list of suffix hashes
+        # @param similar_to [String] Misspelling being corrected (used as
+        #   the suffix/prefix filter)
+        # @return [Array<String>] Generated affixed forms
         def forms_for(word_entry, all_prefixes, all_suffixes, similar_to:)
           stem = word_entry[:stem] || word_entry
           flags = word_entry[:flags] || []
 
-          # Base form without affixes
           res = [stem]
 
-          # Generate suffix forms
-          # Simplified: just return base form for now
-          # Full implementation would parse affix flags and apply them
+          similar = similar_to.to_s
 
-          res
+          suffixes = flags.flat_map { |f| all_suffixes[f] || [] }
+          prefixes = flags.flat_map { |f| all_prefixes[f] || [] }
+
+          applicable_suffixes = suffixes.select do |suffix|
+            add = suffix[:affix]
+            next false if add.nil? || add.empty?
+            next false if similar.length < add.length
+            next false unless similar.end_with?(add)
+
+            checker = suffix[:condition_checker]
+            checker.nil? || checker.matches?(stem)
+          end
+
+          applicable_prefixes = prefixes.select do |prefix|
+            add = prefix[:affix]
+            next false if add.nil? || add.empty?
+            next false if similar.length < add.length
+            next false unless similar.start_with?(add)
+
+            checker = prefix[:condition_checker]
+            checker.nil? || checker.matches?(stem)
+          end
+
+          cross = applicable_prefixes.product(applicable_suffixes).select do |prefix, suffix|
+            prefix[:crossproduct] && suffix[:crossproduct]
+          end
+
+          applicable_suffixes.each do |suffix|
+            strip = suffix[:strip] || ''
+            add = suffix[:affix]
+            root = strip.empty? ? stem : stem[0...(stem.length - strip.length)]
+            res << root + add
+          end
+
+          applicable_prefixes.each do |prefix|
+            strip = prefix[:strip] || ''
+            add = prefix[:affix]
+            root = strip.empty? ? stem : stem[strip.length..]
+            res << add + root
+          end
+
+          cross.each do |prefix, suffix|
+            pstrip = prefix[:strip] || ''
+            sstrip = suffix[:strip] || ''
+            pad = prefix[:affix]
+            sad = suffix[:affix]
+            base = stem.dup
+            base = base[pstrip.length..] if !pstrip.empty? && base.start_with?(pstrip)
+            base = base[0...(base.length - sstrip.length)] if !sstrip.empty? && base.end_with?(sstrip)
+            res << pad + base + sad
+          end
+
+          res.uniq
         end
 
         # Filter guesses by score into quality buckets.

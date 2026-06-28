@@ -373,39 +373,104 @@ module Kotoshu
         # @param word [String] Word to process
         # @param captype [Symbol] Capitalization type
         # @param allow_nosuggest [Boolean] Include NOSUGGEST words
+        # @param with_forbidden [Boolean] When true, also yield forms whose
+        #   homonym carries FORBIDDENWORD (used by compound_forms_internal to
+        #   detect forbidden base words). When false (default), forbidden
+        #   homonyms are skipped per-homonym — not by aborting the whole
+        #   search, so a non-forbidden homonym of the same stem can still
+        #   match.
+        # @param compoundpos [Symbol, nil] When called from compounds_by_flags,
+        #   the position in compound (BEGIN_POS / MIDDLE / END_POS). Drives
+        #   suffix/prefix allowance in produce_affix_forms and compound
+        #   position flag checks in is_good_form.
+        # @param prefix_flags [Array<String>] Flags a prefix must carry to be
+        #   valid inside a compound (COMPOUNDPERMITFLAG).
+        # @param suffix_flags [Array<String>] Flags a suffix must carry to be
+        #   valid inside a compound (COMPOUNDPERMITFLAG).
+        # @param forbidden_flags [Array<String>] Flags that disqualify an
+        #   affix inside a compound (COMPOUNDFORBIDFLAG).
         # @yield [AffixForm] Each valid affix form
-        def affix_forms_internal(word, captype:, allow_nosuggest:)
-          return enum_for(:affix_forms_internal, word, captype: captype, allow_nosuggest: allow_nosuggest) unless block_given?
+        def affix_forms_internal(word, captype:, allow_nosuggest:, with_forbidden: false,
+                                 compoundpos: nil, prefix_flags: [], suffix_flags: [],
+                                 forbidden_flags: [])
+          return enum_for(:affix_forms_internal, word,
+                          captype: captype,
+                          allow_nosuggest: allow_nosuggest,
+                          with_forbidden: with_forbidden,
+                          compoundpos: compoundpos,
+                          prefix_flags: prefix_flags,
+                          suffix_flags: suffix_flags,
+                          forbidden_flags: forbidden_flags) unless block_given?
 
-          # Yield all possible affix forms
-          produce_affix_forms(word).each do |form|
-            # Check homonyms
+          produce_affix_forms(word, compoundpos: compoundpos,
+                              prefix_flags: prefix_flags,
+                              suffix_flags: suffix_flags,
+                              forbidden_flags: forbidden_flags).each do |form|
+            found = false
             homonyms = @dic[:homonyms]&.call(form.stem) || []
-            next if homonyms.empty?
 
-            # Check FORBIDDENWORD for compound/affix forms
-            if @aff[:FORBIDDENWORD] && form.has_affixes?
-              if homonyms.any? { |h| (h[:flags] || []).include?(@aff[:FORBIDDENWORD]) }
-                return
-              end
+            # FORBIDDENWORD: in compound context (compoundpos set) OR when the
+            # form has affixes, if ANY homonym of the stem carries
+            # FORBIDDENWORD, the entire form is rejected. This mirrors
+            # Spylls lookup.py — a forbidden stem must not appear as a
+            # compound part (even without affixes) nor as an affixed form.
+            if !with_forbidden && @aff[:FORBIDDENWORD] &&
+               (compoundpos || form.has_affixes?) &&
+               homonyms.any? { |h| (h[:flags] || []).include?(@aff[:FORBIDDENWORD]) }
+              next
             end
 
-            # Check each homonym
             homonyms.each do |homonym|
               candidate = form.replace(in_dictionary: homonym)
-              if is_good_form(candidate, captype: captype, allow_nosuggest: allow_nosuggest)
+              if is_good_form(candidate, captype: captype, allow_nosuggest: allow_nosuggest,
+                              compoundpos: compoundpos)
+                found = true
                 yield candidate
               end
             end
 
-            # Special case: FORCEUCASE for compound beginning
-            if captype == Capitalization::Type::INIT && @aff[:FORCEUCASE]
+            # FORCEUCASE: when checking the beginning of a compound and the
+            # original word is capitalized, also try lowercased stem homonyms
+            # so that compound parts that must be uppercased can still match.
+            if compoundpos == CompoundPos::BEGIN_POS && @aff[:FORCEUCASE] &&
+               captype == Capitalization::Type::INIT
               lower_homonyms = @dic[:homonyms]&.call(form.stem.downcase) || []
               lower_homonyms.each do |homonym|
                 candidate = form.replace(in_dictionary: homonym)
-                if is_good_form(candidate, captype: captype, allow_nosuggest: allow_nosuggest)
+                if is_good_form(candidate, captype: captype, allow_nosuggest: allow_nosuggest,
+                                compoundpos: compoundpos)
+                  found = true
                   yield candidate
                 end
+              end
+            end
+
+            # Skip the case-insensitive fallback when any path already matched
+            # for this form, when the form lives in a compound slot (compound
+            # parts go through their own dispatch), or when the original
+            # word's captype is not ALL — the lowercase index is only meant
+            # for ALLCAPS queries whose dictionary stem differs in case.
+            next if found
+            next if compoundpos
+            next if captype != Capitalization::Type::ALL
+            next unless @aff[:casing].guess(word) == Capitalization::Type::NO
+
+            # ALLCAPS case-insensitive fallback: when the original input was
+            # ALL CAPS but the dictionary stem has a different case (e.g.
+            # user typed "UNICEF'S" / captype=ALL but the variant being
+            # checked is "unicef's" / captype=NO), look up homonyms in the
+            # lowercase index. Mirrors Spylls lookup.py:423-436.
+            ignorecase_homonyms = @dic[:homonyms]&.call(form.stem, ignorecase: true) || []
+            ignorecase_homonyms.each do |homonym|
+              forbidden = @aff[:FORBIDDENWORD] &&
+                          form.has_affixes? &&
+                          (homonym[:flags] || []).include?(@aff[:FORBIDDENWORD])
+              next if forbidden && !with_forbidden
+
+              candidate = form.replace(in_dictionary: homonym)
+              if is_good_form(candidate, captype: captype, allow_nosuggest: allow_nosuggest,
+                              compoundpos: compoundpos)
+                yield candidate
               end
             end
           end
@@ -516,8 +581,12 @@ module Kotoshu
           suffixes_index = @aff[:suffixes_index] || {}
           word_reversed = word.reverse
 
-          suffixes_index[word_reversed[0]] ||= []
-          suffixes_index[word_reversed[0]].each do |suffix|
+          # Spylls's Trie.lookup yields root payloads (empty-add suffixes)
+          # before walking the path, so suffixes with add="" are always
+          # considered. The hash index drops them unless we explicitly
+          # include the "" bucket.
+          candidates = (suffixes_index[''] || []) + (suffixes_index[word_reversed[0]] || [])
+          candidates.each do |suffix|
             # Check if suffix is valid
             next if crossproduct && !suffix[:crossproduct]
             next unless (required_flags - (suffix[:flags] || [])).empty?
@@ -525,8 +594,12 @@ module Kotoshu
 
             # Check if suffix matches
             if word.end_with?(suffix[:affix])
-              # Remove suffix and add strip value
-              stem = word[0...-suffix[:affix].length] + suffix[:affix_data][:strip]
+              # Remove suffix and add strip value. Note: when affix is "",
+              # `word[0...-0]` would be `word[0...0]` = "" — so handle the
+              # empty case explicitly to keep the whole word as the base.
+              base = suffix[:affix].empty? ? word : word[0...-suffix[:affix].length]
+              strip = suffix[:affix_data] ? suffix[:affix_data][:strip] : ''
+              stem = base + strip
 
               # Check condition (only if condition_checker is present)
               next if suffix[:condition_checker] && !suffix[:condition_checker].matches?(stem)
@@ -562,16 +635,23 @@ module Kotoshu
 
           prefixes_index = @aff[:prefixes_index] || {}
 
-          prefixes_index[word[0]] ||= []
-          prefixes_index[word[0]].each do |prefix|
+          # Mirror the suffix side: prefixes with add="" live under the ""
+          # bucket and must always be considered.
+          candidates = (prefixes_index[''] || []) + (prefixes_index[word[0]] || [])
+          candidates.each do |prefix|
             # Check if prefix is valid
             next unless (required_flags - (prefix[:flags] || [])).empty?
             next unless (forbidden_flags & (prefix[:flags] || [])).empty?
 
             # Check if prefix matches
             if word.start_with?(prefix[:affix])
-              # Remove prefix and add strip value
-              stem = word[prefix[:affix].length..] + prefix[:affix_data][:strip]
+              # Remove prefix and re-add the strip value at the START.
+              # (For suffixes the strip is appended; for prefixes it's
+              # prepended — the strip/affix are mirrors of each other
+              # and the strip lives on the same edge of the stem as the
+              # affix does on the candidate.)
+              strip = prefix[:affix_data] ? prefix[:affix_data][:strip] : ''
+              stem = strip + word[prefix[:affix].length..]
 
               # Check condition (only if condition_checker is present)
               next if prefix[:condition_checker] && !prefix[:condition_checker].matches?(stem)
@@ -593,11 +673,19 @@ module Kotoshu
 
         # Check if an affix form is valid.
         #
+        # When compoundpos is nil (non-compound check), the form must not
+        # carry ONLYINCOMPOUND. When compoundpos is set (compound part
+        # check), ONLYINCOMPOUND is allowed and instead the form must carry
+        # COMPOUNDFLAG or the position-specific flag (COMPOUNDBEGIN /
+        # COMPOUNDMIDDLE / COMPOUNDEND). This mirrors Spylls lookup.py
+        # is_good_form.
+        #
         # @param form [AffixForm] Form to check
         # @param captype [Symbol] Original word's capitalization type
         # @param allow_nosuggest [Boolean] Include NOSUGGEST words
+        # @param compoundpos [Symbol, nil] Position in compound, or nil
         # @return [Boolean] Whether form is valid
-        def is_good_form(form, captype:, allow_nosuggest:)
+        def is_good_form(form, captype:, allow_nosuggest:, compoundpos: nil)
           return false unless form.in_dictionary
 
           root_flags = form.in_dictionary[:flags] || []
@@ -636,15 +724,30 @@ module Kotoshu
 
           # Check CIRCUMFIX
           if @aff[:CIRCUMFIX]
-            suffix_has = form.suffix && (form.suffix[:flags] || []).include?(@aff[:CIRCUMFIX])
-            prefix_has = form.prefix && (form.prefix[:flags] || []).include?(@aff[:CIRCUMFIX])
+            suffix_has = form.suffix ? (form.suffix[:flags] || []).include?(@aff[:CIRCUMFIX]) : false
+            prefix_has = form.prefix ? (form.prefix[:flags] || []).include?(@aff[:CIRCUMFIX]) : false
             return false if suffix_has != prefix_has
           end
 
-          # If not checking compound position, just check ONLYINCOMPOUND
-          return !all_flags.include?(@aff[:ONLYINCOMPOUND])
+          # Compound position checks
+          if compoundpos.nil?
+            # Non-compound: reject ONLYINCOMPOUND words
+            return !all_flags.include?(@aff[:ONLYINCOMPOUND])
+          end
 
-          true
+          # Compound: must carry COMPOUNDFLAG or the position-specific flag.
+          # ONLYINCOMPOUND is allowed here (it just means "not valid outside
+          # compounds") — the compound position flag is what authorizes the
+          # part to appear at this slot.
+          return true if @aff[:COMPOUNDFLAG] && all_flags.include?(@aff[:COMPOUNDFLAG])
+          return true if compoundpos == CompoundPos::BEGIN_POS && @aff[:COMPOUNDBEGIN] &&
+                          all_flags.include?(@aff[:COMPOUNDBEGIN])
+          return true if compoundpos == CompoundPos::MIDDLE && @aff[:COMPOUNDMIDDLE] &&
+                          all_flags.include?(@aff[:COMPOUNDMIDDLE])
+          return true if compoundpos == CompoundPos::END_POS && @aff[:COMPOUNDEND] &&
+                          all_flags.include?(@aff[:COMPOUNDEND])
+
+          false
         end
 
         # Generate compound forms by flags.
@@ -663,23 +766,21 @@ module Kotoshu
           aff = @aff
           compound_min = aff[:COMPOUNDMIN] || 3
           compound_word_max = aff[:COMPOUNDWORDMAX]
-          compound_begin = aff[:COMPOUNDBEGIN]
-          compound_middle = aff[:COMPOUNDMIDDLE]
-          compound_end = aff[:COMPOUNDEND]
-          compound_flag = aff[:COMPOUNDFLAG]
           compound_permit_flag = aff[:COMPOUNDPERMITFLAG]
           compound_forbid_flag = aff[:COMPOUNDFORBIDFLAG]
 
           forbidden_flags = compound_forbid_flag ? [compound_forbid_flag] : []
           permit_flags = compound_permit_flag ? [compound_permit_flag] : []
 
-          # Check if rest can be compound end
+          # Check if rest can be compound end. At END position, suffixes are
+          # always allowed (compoundpos=END_POS in produce_affix_forms), but
+          # prefixes still need COMPOUNDPERMITFLAG.
           if depth.positive?
-            affix_forms_internal(word_rest, captype: captype, allow_nosuggest: allow_nosuggest) do |form|
-              # Check if form can be at compound end
-              if can_be_at_compound_pos?(form, :end, compound_begin, compound_middle, compound_end, compound_flag, permit_flags)
-                yield CompoundForm.new([form])
-              end
+            affix_forms_internal(word_rest, captype: captype, allow_nosuggest: allow_nosuggest,
+                                 compoundpos: CompoundPos::END_POS,
+                                 prefix_flags: permit_flags,
+                                 forbidden_flags: forbidden_flags) do |form|
+              yield CompoundForm.new([form])
             end
           end
 
@@ -688,6 +789,11 @@ module Kotoshu
           return if compound_word_max && depth >= compound_word_max
 
           compoundpos = depth.zero? ? CompoundPos::BEGIN_POS : CompoundPos::MIDDLE
+          # At BEGIN_POS, prefixes are allowed by default (no permit flag
+          # needed); at MIDDLE, prefixes need the permit flag. Suffixes at
+          # both BEGIN and MIDDLE need the permit flag — when there is no
+          # COMPOUNDPERMITFLAG in the .aff, suffix_flags is empty and
+          # produce_affix_forms blocks all suffixes inside compounds.
           prefix_flags = compoundpos == CompoundPos::BEGIN_POS ? [] : permit_flags
 
           # Try all possible split positions
@@ -696,9 +802,11 @@ module Kotoshu
             rest = word_rest[pos..]
 
             # Check if beg is a valid word at this position
-            affix_forms_internal(beg, captype: captype, allow_nosuggest: allow_nosuggest) do |form|
-              next unless can_be_at_compound_pos?(form, compoundpos, compound_begin, compound_middle, compound_end, compound_flag, permit_flags)
-
+            affix_forms_internal(beg, captype: captype, allow_nosuggest: allow_nosuggest,
+                                 compoundpos: compoundpos,
+                                 prefix_flags: prefix_flags,
+                                 suffix_flags: permit_flags,
+                                 forbidden_flags: forbidden_flags) do |form|
               # Recursively check rest
               compounds_by_flags(rest, captype: captype, depth: depth + 1, allow_nosuggest: allow_nosuggest) do |partial|
                 yield CompoundForm.new([form, *partial.parts])
@@ -707,9 +815,11 @@ module Kotoshu
 
             # SIMPLIFIEDTRIPLE handling
             if aff[:SIMPLIFIEDTRIPLE] && !beg.empty? && !rest.empty? && beg[-1] == rest[0]
-              affix_forms_internal(beg + beg[-1], captype: captype, allow_nosuggest: allow_nosuggest) do |form|
-                next unless can_be_at_compound_pos?(form, compoundpos, compound_begin, compound_middle, compound_end, compound_flag, permit_flags)
-
+              affix_forms_internal(beg + beg[-1], captype: captype, allow_nosuggest: allow_nosuggest,
+                                   compoundpos: compoundpos,
+                                   prefix_flags: prefix_flags,
+                                   suffix_flags: permit_flags,
+                                   forbidden_flags: forbidden_flags) do |form|
                 compounds_by_flags(rest, captype: captype, depth: depth + 1, allow_nosuggest: allow_nosuggest) do |partial|
                   yield CompoundForm.new([form.replace(text: beg), *partial.parts])
                 end
@@ -774,28 +884,6 @@ module Kotoshu
           end
         end
 
-        # Check if form can be at specified compound position.
-        #
-        # @param form [AffixForm] Form to check
-        # @param pos [Symbol] Compound position
-        # @return [Boolean]
-        def can_be_at_compound_pos?(form, pos, compound_begin, compound_middle, compound_end, compound_flag, permit_flags)
-          flags = form.flags
-
-          return true if compound_flag && flags.include?(compound_flag)
-
-          case pos
-          when CompoundPos::BEGIN_POS
-            flags.include?(compound_begin)
-          when CompoundPos::MIDDLE
-            flags.include?(compound_middle) || permit_flags.any? { |f| flags.include?(f) }
-          when CompoundPos::END_POS
-            flags.include?(compound_end) || permit_flags.any? { |f| flags.include?(f) }
-          else
-            false
-          end
-        end
-
         # Check if compound form has any issues.
         #
         # @param compound [CompoundForm] Compound to check
@@ -825,14 +913,16 @@ module Kotoshu
             end
 
             # Check if "left right" exists as single dictionary entry
-            if @affix_forms&.call(left + ' ' + right, captype: captype)&.any?
+            joined = left + ' ' + right
+            if affix_forms_internal(joined, captype: captype, allow_nosuggest: true).any?
               return true
             end
 
             # CHECKCOMPOUNDREP check
             if aff[:CHECKCOMPOUNDREP] && aff[:REP]
               Kotoshu::Algorithms::Permutations.replchars(left + right, aff[:REP]) do |candidate|
-                if candidate.is_a?(String) && @affix_forms&.call(candidate, captype: captype)&.any?
+                if candidate.is_a?(String) &&
+                   affix_forms_internal(candidate, captype: captype, allow_nosuggest: true).any?
                   return true
                 end
               end

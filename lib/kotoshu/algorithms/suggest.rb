@@ -183,6 +183,13 @@ module Kotoshu
             good_forms.any?
           end
 
+          # Helper: same as is_good_suggestion but with capitalization variants.
+          # Used for CHECKSHARPS where the candidate differs in case from any
+          # dictionary entry (e.g. "MÜSSIG" vs stem "müßig").
+          is_good_suggestion_cap = ->(w) do
+            @lookup.good_forms(w, capitalization: true, allow_nosuggest: false).any?
+          end
+
           # Helper: Check if word is forbidden
           is_forbidden = ->(w) do
             return false unless @aff[:FORBIDDENWORD]
@@ -192,6 +199,20 @@ module Kotoshu
 
           # Get capitalization type and variants
           captype, variants = @aff[:casing].corrections(word)
+
+          # Special case: CHECKSHARPS with sharp-s in word
+          #
+          # German capitalizes sharp s as SS — when CHECKSHARPS is on, an
+          # ALLCAPS word like "MÜßIG" is wrong even though its stem "müßig"
+          # carries KEEPCASE. We replace ß→SS and try the result as a
+          # candidate.
+          if @aff[:CHECKSHARPS] && captype == Capitalization::Type::ALL && word.include?('ß')
+            sharp_swapped = word.gsub('ß', 'SS')
+            if is_good_suggestion_cap.call(sharp_swapped)
+              yield Suggestion.new(sharp_swapped, 'checksharps')
+              return
+            end
+          end
 
           # Special case: FORCEUCASE with NO capitalization
           if @aff[:FORCEUCASE] && captype == Capitalization::Type::NO
@@ -211,6 +232,7 @@ module Kotoshu
             if idx.positive? && is_good_suggestion.call(variant)
               handle_found(
                 Suggestion.new(variant, 'case'),
+                word: word,
                 captype: captype,
                 is_forbidden: is_forbidden,
                 handled: handled
@@ -225,6 +247,7 @@ module Kotoshu
             edit_suggestions(variant, compounds: false, limit: MAXSUGGESTIONS) do |suggestion|
               handle_found(
                 suggestion,
+                word: word,
                 captype: captype,
                 is_forbidden: is_forbidden,
                 handled: handled,
@@ -248,6 +271,7 @@ module Kotoshu
               edit_suggestions(variant, compounds: true, limit: limit) do |suggestion|
                 handle_found(
                   suggestion,
+                  word: word,
                   captype: captype,
                   is_forbidden: is_forbidden,
                   handled: handled,
@@ -288,10 +312,12 @@ module Kotoshu
 
           # Ngram-based suggestions
           if @aff[:MAXNGRAMSUGS]&.positive?
+            limit = @aff[:MAXNGRAMSUGS]
             ngrams_seen = 0
             ngram_suggestions(word, handled: handled) do |sug|
               handle_found(
                 Suggestion.new(sug, 'ngram'),
+                word: word,
                 captype: captype,
                 is_forbidden: is_forbidden,
                 handled: handled,
@@ -299,8 +325,9 @@ module Kotoshu
               ) do |suggestion|
                 yield suggestion
                 ngrams_seen += 1
-                break if ngrams_seen >= @aff[:MAXNGRAMSUGS]
               end
+              # break out of ngram_suggestions, not just handle_found
+              break if ngrams_seen >= limit
             end
           end
 
@@ -310,6 +337,7 @@ module Kotoshu
             phonet_suggestions(word) do |sug|
               handle_found(
                 Suggestion.new(sug, 'phonet'),
+                word: word,
                 captype: captype,
                 is_forbidden: is_forbidden,
                 handled: handled,
@@ -317,8 +345,8 @@ module Kotoshu
               ) do |suggestion|
                 yield suggestion
                 phonet_seen += 1
-                break if phonet_seen >= MAXPHONSUGS
               end
+              break if phonet_seen >= MAXPHONSUGS
             end
           end
         end
@@ -442,8 +470,8 @@ module Kotoshu
           NgramSuggest.suggest(
             word.downcase,
             dictionary_words: @words_for_ngram,
-            prefixes: @aff[:PFX] || {},
-            suffixes: @aff[:SFX] || {},
+            prefixes: @aff[:prefixes_by_flag] || {},
+            suffixes: @aff[:suffixes_by_flag] || {},
             known: known_lower,
             maxdiff: @aff[:MAXDIFF] || 2,
             onlymaxdiff: @aff[:ONLYMAXDIFF] || false,
@@ -485,12 +513,13 @@ module Kotoshu
         # Handle a found suggestion with proper capitalization and validation.
         #
         # @param suggestion [Suggestion, MultiWordSuggestion] Raw suggestion
+        # @param word [String] Original misspelled word (used for case preservation)
         # @param captype [Symbol] Original word's capitalization type
         # @param is_forbidden [Proc] Function to check if word is forbidden
         # @param handled [Set<String>] Already handled suggestions
         # @param check_inclusion [Boolean] Whether to check for subsumption
         # @yield [Suggestion] Processed suggestion if valid
-        def handle_found(suggestion, captype:, is_forbidden:, handled:, check_inclusion: false)
+        def handle_found(suggestion, word:, captype:, is_forbidden:, handled:, check_inclusion: false)
           return unless block_given?
 
           text = suggestion.text
@@ -504,11 +533,13 @@ module Kotoshu
               text = suggestion.text
             end
 
-            # Fix "aNew" -> "a New" case
+            # "aNew" coerces to "a new"; restore the original word's capital
+            # at the split boundary so it reads "a New" (matching the input's
+            # HUHINIT/HUH case pattern).
             if [Capitalization::Type::HUH, Capitalization::Type::HUHINIT].include?(captype) && text.include?(' ')
               pos = text.index(' ')
-              if pos && text[pos + 1] != text[pos] && text[pos + 1]&.upcase == text[pos]
-                text = text[0...pos + 1] + text[pos] + text[(pos + 2)..]
+              if pos && text[pos + 1] != word[pos] && text[pos + 1]&.upcase == word[pos]
+                text = text[0...pos + 1] + word[pos] + text[(pos + 2)..]
               end
             end
           end
@@ -533,15 +564,22 @@ module Kotoshu
           yield suggestion.replace(text: text)
         end
 
-        # Check if suggestion has KEEPCASE flag.
+        # Check if suggestion's stem carries the KEEPCASE flag.
+        #
+        # Mirrors Spylls suggest.py:206: when KEEPCASE is set and the
+        # candidate's stem has the flag, the candidate's case must NOT be
+        # coerced to the misspelling's captype (e.g. input "FOO" should
+        # suggest "foo", not "FOO"). The CHECKSHARPS exception is that for
+        # ß-containing words, KEEPCASE has its German-specific meaning
+        # (ß↔SS) and case coercion still applies.
         #
         # @param suggestion [Suggestion, MultiWordSuggestion]
         # @return [Boolean]
         def suggestion_has_keepcase_flag?(suggestion)
           return false unless @aff[:KEEPCASE]
+          return false if @aff[:CHECKSHARPS] && suggestion.text.include?('ß')
 
-          # Simplified check - full implementation would check dictionary
-          suggestion.text.include?('ß')
+          @dic[:has_flag]&.call(suggestion.text, @aff[:KEEPCASE]) || false
         end
 
         # Filter suggestion to only valid words.

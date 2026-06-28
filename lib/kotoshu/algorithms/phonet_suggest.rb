@@ -73,14 +73,20 @@ module Kotoshu
             scores << [score, stem] if scores.size < MAX_ROOTS || scores.empty? || score > scores.first[0]
           end
 
-          # Sort by score descending
-          guesses = scores.sort.reverse
+          # Sort by (score, stem) tuple descending. Python's heap-based
+          # nlargest uses full-tuple comparison, so ties on score are broken
+          # by descending stem — matching that here is what reproduces
+          # Spylls/Hunspell's phonet suggestion order.
+          guesses = scores.sort { |a, b| b <=> a }
 
-          # Finally, sort suggestions by simplistic string similarity metric
+          # Final pass: re-score with the precise metric. The second sort
+          # must be stable by score only — Python's sorted(key=..., reverse=True)
+          # preserves the order from the previous sort for ties, which is
+          # load-bearing for the phone.sug fixture.
           guesses2 = guesses.map do |score, word|
             final_scr = final_score(misspelling_lower, word.downcase)
             [score + final_scr, word]
-          end.sort.reverse
+          end.sort_by { |score, _| -score }
 
           guesses2.each do |_, sug|
             yield sug
@@ -105,13 +111,13 @@ module Kotoshu
         # look at aspell's original description:
         # http://aspell.net/man-html/Phonetic-Code.html
         #
-        # @param table [Hash] Phone table with :rules hash
+        # @param table [Readers::PhonetTable] Phone table
         # @param word [String] Word to calculate metaphone for
         # @return [String] Metaphone representation
         def metaphone(table, word)
           return word if table.nil? || table.empty?
 
-          rules = table[:rules] || {}
+          rules = table.rules
           pos = 0
           word_upper = word.upcase
           result = +''

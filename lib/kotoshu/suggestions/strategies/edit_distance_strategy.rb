@@ -122,6 +122,14 @@ module Kotoshu
           min_similarity = get_config(:min_jaro_similarity, 0.70)  # Minimum Jaro-Winkler similarity (0.0-1.0)
           min_results = get_config(:min_results, 3)  # Always return at least 3 suggestions if available
 
+          # When the dictionary is case-insensitive, normalize case before
+          # edit-distance comparison — otherwise "HELO" can never match
+          # "Hello" within distance 2 (case differences alone cost 4).
+          # The original dictionary casing is preserved on the returned
+          # suggestion (we only normalize for the comparison).
+          case_insensitive = dictionary_case_insensitive?(context)
+          compare_word = case_insensitive ? word.downcase : word
+
           # Get all dictionary words
           all_words = dictionary_words(context)
 
@@ -130,11 +138,12 @@ module Kotoshu
           all_words.each do |dict_word|
             next if dict_word == word
 
-            dist = edit_distance(word, dict_word)
+            compare_dict = case_insensitive ? dict_word.downcase : dict_word
+            dist = edit_distance(compare_word, compare_dict)
             next if dist > max_dist || dist <= 0
 
             # Calculate enhanced score (lower is better)
-            score = calculate_enhanced_score(word, dict_word, dist)
+            score = calculate_enhanced_score(compare_word, compare_dict, dist)
             candidates << [dict_word, dist, score]
           end
 
@@ -162,8 +171,11 @@ module Kotoshu
               confidence = 1.0
             end
 
-            # Calculate Jaro-Winkler similarity for additional filtering
-            jaro_similarity = calculate_ngram_similarity(word, dict_word)
+            # Calculate Jaro-Winkler similarity for additional filtering.
+            # Use the same case normalization as the edit distance so the
+            # similarity score is consistent with the distance threshold.
+            compare_dict = case_insensitive ? dict_word.downcase : dict_word
+            jaro_similarity = calculate_ngram_similarity(compare_word, compare_dict)
 
             # Skip low-confidence or low-similarity suggestions (unless we need more for min_results)
             if confidence < min_confidence || jaro_similarity < min_similarity
@@ -232,7 +244,6 @@ module Kotoshu
         def dictionary_lookup(context, word)
           dictionary = context.dictionary
 
-          # First check if it's a dictionary backend with lookup method
           if dictionary.respond_to?(:lookup)
             dictionary.lookup(word)
           elsif defined?(::Kotoshu::Core::IndexedDictionary) && dictionary.is_a?(::Kotoshu::Core::IndexedDictionary)
@@ -246,6 +257,24 @@ module Kotoshu
           else
             false
           end
+        end
+
+        # Determine whether the context's dictionary treats lookups
+        # case-insensitively. When true, the edit-distance and similarity
+        # calculations lowercase both sides so case differences don't
+        # masquerade as edit-distance penalties.
+        #
+        # @param context [Context] The suggestion context
+        # @return [Boolean]
+        def dictionary_case_insensitive?(context)
+          dictionary = context.dictionary
+          # PlainText and similar backends expose `case_sensitive` directly.
+          # Hunspell/IndexedDictionary route case through the casing layer,
+          # so we leave them case-sensitive here (their casing machinery
+          # already produces the right variants upstream).
+          return false unless dictionary.is_a?(::Kotoshu::Dictionary::PlainText)
+
+          !dictionary.case_sensitive
         end
 
         # Calculate Damerau-Levenshtein edit distance between two strings.

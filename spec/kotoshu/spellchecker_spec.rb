@@ -178,7 +178,7 @@ RSpec.describe Kotoshu::Spellchecker, "# Walking Skeleton - Spellchecker Service
       expect(result).to be_a(Kotoshu::Models::Result::WordResult)
       expect(result.correct?).to be false
       expect(result.word).to eq("helo")
-      expect(result.suggestions).to be_a(Kotoshu::Suggestions::SuggestionSet)
+      expect(result.suggestions).to all(be_a(Kotoshu::Suggestions::Suggestion))
     end
 
     it "returns incorrect result for nil" do

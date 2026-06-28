@@ -39,8 +39,16 @@ Gem::Specification.new do |spec|
 
   # Runtime dependencies
   spec.add_dependency "thor", "~> 1.0"
-  spec.add_dependency "suika", "~> 0.3"
   spec.add_dependency "rubyzip", "~> 2.3"
+  spec.add_dependency "lutaml-model", "~> 0.8"
+
+  # Optional: suika is soft-required for Japanese morphological analysis.
+  # Not declared here so `gem install kotoshu` succeeds on slim/minimal
+  # environments where suika's native extension (dartsclone) cannot build.
+  # Users who need Japanese support install it separately
+  # (`gem install suika`). The library auto-detects at load time and raises
+  # Kotoshu::Language::SuikaUnavailable when Japanese tokenization is
+  # requested without it. All other languages are unaffected.
 
   # Optional: onnxruntime is soft-required for semantic features.
   # Not declared here so `gem install kotoshu` succeeds on platforms

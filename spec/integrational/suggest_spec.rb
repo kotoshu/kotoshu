@@ -52,9 +52,9 @@ RSpec.describe 'Integrational Suggestion Tests', :integrational do
       stripped = line.strip
       next [] if stripped.empty? || stripped == '.'
 
-      # ph.sug contains "Oh, my gosh!" — preserve as a single literal when
-      # it matches that pattern.
-      if stripped =~ /^[A-Z][a-z]+, [a-z]+ [a-z]+!$/
+      # ph.sug contains "Oh, my gosh!" / "OH, MY GOSH!" — a single phrase
+      # that happens to contain ", " and must NOT be split.
+      if stripped =~ /^[A-Z][A-Za-z]+, [A-Za-z]+ [A-Za-z]+!$/
         [stripped]
       else
         stripped.split(', ').map(&:strip)
@@ -107,7 +107,7 @@ RSpec.describe 'Integrational Suggestion Tests', :integrational do
 
   # Suggest Base
   describe 'Suggest Base' do
-    it 'passes sug suggestion tests', pending: ['permanent.Vacation'] do
+    it 'passes sug suggestion tests' do
       result = run_suggestion_tests('sug', pending_words: ['permanent.Vacation'])
       failures = result[:results].reject { |r| r[:match] || r[:pending] }
       expect(failures).to be_empty, lambda {
@@ -115,7 +115,7 @@ RSpec.describe 'Integrational Suggestion Tests', :integrational do
       }
     end
 
-    it 'passes sugutf suggestion tests', pending: ['permanent.Vacation'] do
+    it 'passes sugutf suggestion tests' do
       result = run_suggestion_tests('sugutf', pending_words: ['permanent.Vacation'])
       failures = result[:results].reject { |r| r[:match] || r[:pending] }
       expect(failures).to be_empty, lambda {
@@ -165,7 +165,7 @@ RSpec.describe 'Integrational Suggestion Tests', :integrational do
       }
     end
 
-    it 'passes keepcase suggestion tests', pending: ['bar'] do
+    it 'passes keepcase suggestion tests' do
       result = run_suggestion_tests('keepcase', pending_words: ['bar'])
       failures = result[:results].reject { |r| r[:match] || r[:pending] }
       expect(failures).to be_empty, lambda {

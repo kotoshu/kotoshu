@@ -186,17 +186,13 @@ RSpec.describe Kotoshu::Models::Word, "# Walking Skeleton - Word VALUE Object" d
     end
   end
 
-  describe "#to_h" do
-    it "returns hash representation" do
+  describe "#text, #flags, #morphological_data" do
+    it "exposes attributes via readers" do
       word = Kotoshu::Models::Word.new("hello", flags: ["noun"], morphological_data: { root: "hell" })
 
-      hash = word.to_h
-
-      expect(hash).to eq({
-                           text: "hello",
-                           flags: ["noun"],
-                           morphological_data: { root: "hell" }
-                         })
+      expect(word.text).to eq("hello")
+      expect(word.flags).to eq(["noun"])
+      expect(word.morphological_data).to eq(root: "hell")
     end
   end
 

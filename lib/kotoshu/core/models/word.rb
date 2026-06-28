@@ -81,17 +81,6 @@ module Kotoshu
         @text
       end
 
-      # Convert to hash.
-      #
-      # @return [Hash] Hash representation
-      def to_h
-        {
-          text: @text,
-          flags: @flags,
-          morphological_data: @morphological_data
-        }
-      end
-
       # Check equality based on text.
       #
       # @param other [Word, String] The other object

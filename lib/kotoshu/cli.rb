@@ -491,7 +491,7 @@ module Kotoshu
       def format_as_json(result, source)
         require "json"
 
-        output = result.as_json
+        output = Kotoshu::Models::Result::DocumentResult.as_json(result)
         output["source"] = source
         JSON.pretty_generate(output)
       end

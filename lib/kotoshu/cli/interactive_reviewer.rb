@@ -23,7 +23,7 @@ module Kotoshu
 
       # Create a new interactive reviewer.
       #
-      # @param document [Documents::Document] Document to review
+      # @param document [Object] Document to review (responds to #content)
       # @param analyzer [Analyzers::SemanticAnalyzer] Error analyzer
       # @param formatter [DisplayFormatter, nil] Display formatter (default: new instance)
       def initialize(document, analyzer, formatter: nil)

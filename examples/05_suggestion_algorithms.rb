@@ -94,7 +94,7 @@ metaphone_strategy = Kotoshu::Suggestions::Strategies::PhoneticStrategy.new(
 )
 
 context3 = Kotoshu::Suggestions::Context.new(
-  word: "fnix",  # Should suggest "Phoenix"
+  word: "fnix", # Should suggest "Phoenix"
   dictionary: test_dict,
   max_results: 5
 )
@@ -125,7 +125,7 @@ ngram_strategy = Kotoshu::Suggestions::Strategies::NgramStrategy.new(
 )
 
 context4 = Kotoshu::Suggestions::Context.new(
-  word: "tsting",  # Should suggest "testing"
+  word: "tsting", # Should suggest "testing"
   dictionary: test_dict,
   max_results: 5
 )
@@ -199,7 +199,7 @@ end
 prefix_strategy = PrefixStrategy.new(name: :prefix)
 
 context6 = Kotoshu::Suggestions::Context.new(
-  word: "hel",  # Incomplete word
+  word: "hel", # Incomplete word
   dictionary: test_dict,
   max_results: 10
 )
