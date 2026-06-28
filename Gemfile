@@ -31,7 +31,7 @@ group :development, :test do
   gem "rubocop", "~> 1.21"
   gem "rubocop-performance", "~> 1.20"
   gem "rubocop-rake", "~> 0.6"
-  gem "rubocop-rspec", "~> 2.20"
+  gem "rubocop-rspec", "~> 3.0"
   gem "simplecov", "~> 0.22"
   gem "yard", "~> 0.9"
 end
