@@ -58,6 +58,7 @@ module Kotoshu
     autoload :Errors, "kotoshu/cli/errors"
     autoload :NavigationManager, "kotoshu/cli/navigation_manager"
     autoload :DisplayFormatter, "kotoshu/cli/display_formatter"
+    autoload :PersonalCommand, "kotoshu/cli/personal_command"
     autoload :InteractiveReviewer, "kotoshu/cli/interactive_reviewer"
     autoload :BatchReporter, "kotoshu/cli/batch_reporter"
     autoload :AutoSetup, "kotoshu/cli/auto_setup"
@@ -239,6 +240,9 @@ module Kotoshu
 
       desc "cache SUBCOMMAND", "Cache management"
       subcommand "cache", CacheCommand
+
+      desc "personal SUBCOMMAND", "Personal dictionary management"
+      subcommand "personal", PersonalCommand
 
       desc "completions SUBCOMMAND", "Emit shell completion scripts"
       subcommand "completions", CompletionsCommand
