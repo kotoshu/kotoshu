@@ -55,14 +55,16 @@ RSpec.describe Kotoshu::Algorithms::PhonetSuggest do
   end
 
   describe ".match_rule" do
+    let(:rule_class) { Kotoshu::Readers::PhonetTable::Rule }
+
     let(:unanchored_rule) do
-      { search: /AB/, replacement: "X", start: false, end: false }
+      rule_class.new(search: /AB/, replacement: "X", start: false, end: false)
     end
     let(:start_anchored_rule) do
-      { search: /AB/, replacement: "X", start: true, end: false }
+      rule_class.new(search: /AB/, replacement: "X", start: true, end: false)
     end
     let(:end_anchored_rule) do
-      { search: /AB/, replacement: "X", start: false, end: true }
+      rule_class.new(search: /AB/, replacement: "X", start: false, end: true)
     end
 
     it "returns the match length for a matching unanchored rule" do

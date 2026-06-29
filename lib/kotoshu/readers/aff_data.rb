@@ -364,16 +364,36 @@ module Kotoshu
       # @attr priority [Integer] Rule priority
       # @attr followup [Boolean] Follow-up rule
       Rule = Struct.new(:search, :replacement, :start, :end, :priority, :followup, keyword_init: true) do
+        # Length of the match if this rule fires at +pos+ in +word+,
+        # or nil if the rule doesn't match. The metaphone walker uses
+        # the length to advance its position past the consumed input.
+        #
+        # @param word [String] Word to match against
+        # @param pos [Integer] Position in word
+        # @return [Integer, nil] Length of matched substring, or nil
+        def match_length(word, pos)
+          return nil if start && pos.positive?
+
+          match_data = if self[:end]
+                         # Anchor at end of word: strip the prefix so
+                         # the regex can match without considering the
+                         # preceding characters.
+                         search.match(word[pos..])
+                       else
+                         search.match(word, pos)
+                       end
+          return nil unless match_data
+
+          match_data.to_s.length
+        end
+
         # Check if rule matches at position.
         #
         # @param word [String] Word to check
         # @param pos [Integer] Position in word
         # @return [Boolean] True if matches
         def match?(word, pos)
-          return false if @start && pos > 0
-          return @search.match?(word, pos) if @end
-
-          @search.match?(word, pos)
+          !match_length(word, pos).nil?
         end
       end
 

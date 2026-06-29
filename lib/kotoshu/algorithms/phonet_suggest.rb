@@ -144,28 +144,17 @@ module Kotoshu
           result
         end
 
-        # Check if a rule matches at the given position.
+        # Check if a rule matches at the given position. Thin delegate
+        # over {PhonetTable::Rule#match_length} so the matching logic
+        # lives in one place — the rule value object — rather than
+        # being duplicated here.
         #
-        # @param rule [Hash] Rule hash with :search (Regexp), :start, :end
+        # @param rule [PhonetTable::Rule] Rule with :search, :start, :end
         # @param word [String] The word to match against
         # @param pos [Integer] Position in word
         # @return [Integer, nil] Length of match, or nil if no match
         def match_rule(rule, word, pos)
-          # Check start constraint
-          return nil if rule[:start] && pos > 0
-
-          # Try to match
-          match_data = if rule[:end]
-                         # Full match from position
-                         rule[:search].match(word[pos..])
-                       else
-                         # Regular match from position
-                         rule[:search].match(word, pos)
-                       end
-
-          return nil unless match_data
-
-          match_data.to_s.length
+          rule.match_length(word, pos)
         end
       end
     end
