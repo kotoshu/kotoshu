@@ -110,18 +110,27 @@ module Kotoshu
 
       # Remove this affix from a word (reverse operation).
       #
+      # Unlike #apply, the condition is checked against the candidate base
+      # form (the result of stripping the affix), not the input. This makes
+      # #remove the proper inverse of #apply: every successful apply can be
+      # undone by a matching remove.
+      #
       # @param word [String] The word to modify
       # @return [String, nil] The stripped word, or nil if affix doesn't match
       def remove(word)
-        return nil unless applies_to?(word)
+        return nil if word.nil? || word.empty?
 
-        if prefix?
-          # Remove prefix if it matches
-          word.start_with?(@add) ? @strip + word[@add.length..] : nil
-        else
-          # Remove suffix if it matches
-          word.end_with?(@add) ? word[0...-@add.length] + @strip : nil
-        end
+        candidate =
+          if prefix?
+            word.start_with?(@add) ? @strip + word[@add.length..] : nil
+          else
+            word.end_with?(@add) ? word[0...-@add.length] + @strip : nil
+          end
+
+        return nil if candidate.nil?
+        return nil unless candidate.match?(@condition)
+
+        candidate
       end
 
       # Get the Hunspell representation.
@@ -171,13 +180,15 @@ module Kotoshu
 
       # Compile condition string to regex.
       #
+      # Hunspell uses '.' for match-all, '[...]' for character classes,
+      # and '^[...]' for negated classes. The compiled regex is anchored:
+      # suffix conditions anchor to end-of-string, prefix to start.
+      #
       # @param condition [String] The condition string
       # @return [Regexp] The compiled regex
       def compile_condition(condition)
         return // if condition == "."
 
-        # Hunspell uses '.' for match-all, '[...]' for character classes
-        # and '^[...]' for negated classes. Convert to Ruby regex.
         regex_str = condition.dup
 
         # Convert [...] to Ruby character class
@@ -187,28 +198,33 @@ module Kotoshu
         # Convert ^ to negative lookahead for single character
         regex_str = regex_str.gsub("\\^(\\w)", "(?!\\1).")
 
-        # Anchor to end for suffix, beginning for prefix
+        # Anchor to end for suffix, beginning for prefix.
+        # The anchors themselves are NOT escaped — Ruby's Regexp needs
+        # the bare ^/$ metacharacters to mean start/end of line.
         if @type == :suffix
-          Regexp.new("#{regex_str}\\$")
+          Regexp.new("#{regex_str}$")
         else
-          Regexp.new("\\^#{regex_str}")
+          Regexp.new("^#{regex_str}")
         end
       end
 
-      # Convert regex condition back to string.
+      # Convert regex condition back to a Hunspell condition string.
       #
       # @return [String] The condition string
       def condition_to_s
         source = @condition.source
+        return "." if source.empty?
 
-        # Remove anchors
-        source = source.gsub("\\^", "").gsub("\\$", "")
+        # Strip the anchors added by compile_condition. Using a regex
+        # pattern with escaped metacharacters so gsub matches the literal
+        # ^ and $ characters, not the zero-width anchors.
+        source = source.gsub('^', "").gsub('$', "")
 
         # Convert negative lookaheads back
-        source = source.gsub("\\(\\?\\!([^)]+)\\)\\.", "^\\1")
+        source = source.gsub(/\(\?!([^)]+)\)\./, "^\\1")
 
-        # Convert non-capturing groups back
-        source.gsub("\\(\\?:", "[").gsub("\\)", "]")
+        # Convert non-capturing groups back to character classes
+        source.gsub('(?:', "[").gsub(')', "]")
       end
 
       # Create an affix rule from a Hunspell affix line.
