@@ -24,6 +24,7 @@ module Kotoshu
   autoload :Defaults, "kotoshu/defaults"
   autoload :Dictionaries, "kotoshu/dictionaries"
   autoload :Dictionary, "kotoshu/dictionary"
+  autoload :Documents, "kotoshu/documents"
   autoload :Embeddings, "kotoshu/embeddings"
   autoload :FluentChecker, "kotoshu/fluent_checker"
   autoload :Grammar, "kotoshu/grammar"
