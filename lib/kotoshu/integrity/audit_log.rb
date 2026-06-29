@@ -84,11 +84,22 @@ module Kotoshu
 
       # Iterate every recorded entry (parsed Hashes) across the current
       # log and all rotations, newest-first.
+      #
+      # Newest-first means: within each file, lines are yielded in reverse
+      # write order (the last appended entry first); files are visited in
+      # order current, .1, .2, ... (newest file first). This guarantees a
+      # strictly decreasing write-time ordering across the whole log,
+      # which is what an auditor scanning "what did kotoshu fetch most
+      # recently?" expects.
       def each(&block)
         return enum_for(:each) unless block
 
-        each_current(&block)
-        each_rotation(&block)
+        each_file_reversed(@path, &block)
+        return unless rotation_policy&.rotations&.positive?
+
+        1.upto(rotation_policy.rotations) do |n|
+          each_file_reversed("#{@path}.#{n}", &block)
+        end
       end
 
       def entries
@@ -104,31 +115,17 @@ module Kotoshu
 
       private
 
-      def each_current
-        return unless File.exist?(@path)
+      # Yield parsed entries from +path+ newest-first (reverse line order).
+      # No-op when the file doesn't exist. Each individual rotation file is
+      # bounded by +RotationPolicy.max_bytes+, so loading one file's lines
+      # into memory before reversing is acceptable.
+      def each_file_reversed(path)
+        return unless File.exist?(path)
 
-        File.foreach(@path, encoding: "UTF-8") do |line|
-          line = line.strip
-          next if line.empty?
-
-          yield JSON.parse(line)
-        end
-      end
-
-      def each_rotation
-        return unless rotation_policy&.rotations&.positive?
-
-        1.upto(rotation_policy.rotations) do |n|
-          rotated = "#{@path}.#{n}"
-          next unless File.exist?(rotated)
-
-          File.foreach(rotated, encoding: "UTF-8") do |line|
-            line = line.strip
-            next if line.empty?
-
-            yield JSON.parse(line)
-          end
-        end
+        File.readlines(path, encoding: "UTF-8")
+          .map(&:strip)
+          .reject(&:empty?)
+          .reverse_each { |line| yield JSON.parse(line) }
       end
 
       def clear_rotations
