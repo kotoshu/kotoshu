@@ -273,7 +273,7 @@ module Kotoshu
     # @param language [String] Language code
     def show_model_info(language)
       cache = Cache::ModelCache.new
-      model_path = File.join(cache.instance_variable_get(:@cache_path), language, 'models')
+      model_path = File.join(cache.cache_path, language, 'models')
 
       if Dir.exist?(model_path)
         puts "\nModel files:"

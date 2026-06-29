@@ -117,7 +117,7 @@ module Kotoshu
         neighbors = neighbors.select { |n| n.similarity >= @min_similarity }
 
         # If we have context, rank by contextual relevance
-        if context && context.respond_to?(:surrounding_words)
+        if context.is_a?(Kotoshu::Models::Context)
           neighbors = rank_by_context(neighbors, context)
         end
 

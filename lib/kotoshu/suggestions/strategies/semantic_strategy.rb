@@ -103,16 +103,6 @@ module Kotoshu
           true
         end
 
-        # Get embedding for a word.
-        #
-        # @param word [String] The word
-        # @return [Array<Float>, nil] Embedding vector or nil if not found
-        def embedding_for(word)
-          return nil unless @search
-
-          @search.send(:get_embedding, word)
-        end
-
         # Compute semantic similarity between two words.
         #
         # @param word1 [String] First word

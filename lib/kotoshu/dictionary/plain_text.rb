@@ -37,21 +37,24 @@ module Kotoshu
 
       # Create a new PlainText dictionary.
       #
-      # @param path [String] Path to the dictionary file or URL
+      # @param path [String, nil] Path to the dictionary file or URL. Nil
+      #   when constructing from in-memory +words:+.
       # @param language_code [String] The language code
       # @param locale [String, nil] The locale (optional)
       # @param case_sensitive [Boolean] Whether lookups are case-sensitive
       # @param word_pattern [Regexp, nil] Pattern to filter words (optional)
       # @param metadata [Hash] Additional metadata (optional)
-      def initialize(path, language_code:, locale: nil, case_sensitive: false,
-                     word_pattern: nil, metadata: {})
+      # @param words [Array<String>, nil] Initial word list (bypasses
+      #   file loading; used by .from_words).
+      def initialize(path = nil, language_code:, locale: nil, case_sensitive: false,
+                     word_pattern: nil, metadata: {}, words: nil)
         super(language_code, locale: locale, metadata: metadata)
 
         @original_path = path
-        @path = resolve_path(path)
+        @path = path ? resolve_path(path) : nil
         @case_sensitive = case_sensitive
         @word_pattern = word_pattern
-        @words = load_words(@path)
+        @words = words ? normalize_words(words) : load_words(@path)
         @word_set = build_word_set
 
         # Register this dictionary type
@@ -147,21 +150,8 @@ module Kotoshu
       # @example
       #   dict = PlainText.from_words(%w[hello world test], language_code: "en")
       def self.from_words(words, language_code:, locale: nil, case_sensitive: false)
-        dict = allocate
-
-        dict.instance_variable_set(:@language_code, language_code.dup.freeze)
-        dict.instance_variable_set(:@locale, locale&.dup&.freeze)
-        dict.instance_variable_set(:@path, nil)
-        dict.instance_variable_set(:@case_sensitive, case_sensitive)
-        dict.instance_variable_set(:@word_pattern, nil)
-        dict.instance_variable_set(:@words, words.dup.map { |w| case_sensitive ? w : w.downcase })
-        dict.instance_variable_set(:@word_set, dict.instance_variable_get(:@words).each_with_index.to_h)
-        dict.instance_variable_set(:@metadata, {}.freeze)
-
-        # Register this dictionary type (unless already registered)
-        register_type(:plain_text) unless Dictionary.registry.key?(:plain_text)
-
-        dict
+        new(words: words, language_code: language_code,
+            locale: locale, case_sensitive: case_sensitive)
       end
 
       # Create a dictionary from a string.
@@ -244,6 +234,15 @@ module Kotoshu
       # @return [Hash] Word to index mapping
       def build_word_set
         @words.each_with_index.to_h
+      end
+
+      # Normalize an in-memory word list for storage: dup (so callers
+      # can't mutate our copy) and downcase unless case-sensitive.
+      #
+      # @param words [Array<String>] Input words
+      # @return [Array<String>] Normalized words
+      def normalize_words(words)
+        words.dup.map { |w| @case_sensitive ? w : w.downcase }
       end
 
       # Calculate Levenshtein edit distance.

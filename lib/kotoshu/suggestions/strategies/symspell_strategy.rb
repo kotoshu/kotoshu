@@ -257,16 +257,11 @@ module Kotoshu
         # @param dictionary [Object] Dictionary object
         # @return [Array<String>] All words
         def dictionary_words(dictionary)
-          if dictionary.respond_to?(:words)
-            dictionary.words
-          elsif dictionary.is_a?(Array)
-            dictionary
-          elsif dictionary.is_a?(Hash)
-            dictionary.keys
-          elsif dictionary.respond_to?(:all_words)
-            dictionary.all_words
-          else
-            []
+          case dictionary
+          when Kotoshu::Dictionary::Base then dictionary.words # all_words is an alias
+          when Array then dictionary.dup
+          when Hash then dictionary.keys
+          else []
           end
         end
       end

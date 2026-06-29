@@ -215,20 +215,16 @@ module Kotoshu
         def dictionary_words(context)
           dictionary = context.dictionary
 
-          # Check for IndexedDictionary if Core module is loaded
           if defined?(::Kotoshu::Core::IndexedDictionary) && dictionary.is_a?(::Kotoshu::Core::IndexedDictionary)
             dictionary.all_words
-          elsif dictionary.respond_to?(:words)
-            dictionary.words
-          elsif dictionary.is_a?(Hash)
-            dictionary.keys
-          elsif dictionary.is_a?(Set)
-            dictionary.to_a
-          elsif dictionary.is_a?(Array)
-            dictionary
           else
-            # Fallback: try to iterate
-            Array(dictionary).flat_map(&:to_a)
+            case dictionary
+            when Kotoshu::Dictionary::Base then dictionary.words
+            when Hash then dictionary.keys
+            when Set then dictionary.to_a
+            when Array then dictionary.dup
+            else Array(dictionary).flat_map(&:to_a)
+            end
           end
         end
 
@@ -240,18 +236,15 @@ module Kotoshu
         def dictionary_lookup(context, word)
           dictionary = context.dictionary
 
-          if dictionary.respond_to?(:lookup)
-            dictionary.lookup(word)
-          elsif defined?(::Kotoshu::Core::IndexedDictionary) && dictionary.is_a?(::Kotoshu::Core::IndexedDictionary)
+          if defined?(::Kotoshu::Core::IndexedDictionary) && dictionary.is_a?(::Kotoshu::Core::IndexedDictionary)
             dictionary.has_word?(word)
-          elsif dictionary.is_a?(Set)
-            dictionary.include?(word)
-          elsif dictionary.respond_to?(:include?)
-            dictionary.include?(word)
-          elsif dictionary.is_a?(Hash)
-            dictionary.key?(word)
           else
-            false
+            case dictionary
+            when Kotoshu::Dictionary::Base then dictionary.lookup(word)
+            when Hash then dictionary.key?(word)
+            when Set, Array then dictionary.include?(word)
+            else false
+            end
           end
         end
 

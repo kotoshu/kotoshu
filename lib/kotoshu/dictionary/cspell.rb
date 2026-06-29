@@ -34,20 +34,33 @@ module Kotoshu
       # @param locale [String, nil] The locale (optional)
       # @param case_sensitive [Boolean] Whether lookups are case-sensitive
       # @param metadata [Hash] Additional metadata (optional)
-      def initialize(path, language_code:, locale: nil, case_sensitive: false, metadata: {})
+      # @param path [String, nil] Path to the dictionary file (.txt or
+      #   .trie). Nil when constructing from in-memory +words:+.
+      # @param language_code [String] The language code
+      # @param locale [String, nil] The locale (optional)
+      # @param case_sensitive [Boolean] Whether lookups are case-sensitive
+      # @param metadata [Hash] Additional metadata (optional)
+      # @param words [Array<String>, nil] Initial word list (bypasses
+      #   file loading; used by .from_words).
+      def initialize(path = nil, language_code:, locale: nil, case_sensitive: false,
+                     metadata: {}, words: nil)
         super(language_code, locale: locale, metadata: metadata)
 
-        @path = File.expand_path(path)
+        @path = path ? File.expand_path(path) : nil
         @case_sensitive = case_sensitive
 
-        raise DictionaryNotFoundError, @path unless File.exist?(@path)
+        if words
+          normalized = words.map { |w| case_sensitive ? w : w.downcase }.uniq
+          @trie = Core::Trie::Builder.from_array(normalized)
+        else
+          raise DictionaryNotFoundError, @path unless File.exist?(@path)
 
-        # Load based on file extension
-        @trie = if @path.end_with?(".trie")
-                  load_trie_file(@path)
-                else
-                  load_text_file(@path)
-                end
+          @trie = if @path.end_with?(".trie")
+                    load_trie_file(@path)
+                  else
+                    load_text_file(@path)
+                  end
+        end
 
         # Register this dictionary type
         self.class.register_type(:cspell) unless Dictionary.registry.key?(:cspell)
@@ -166,23 +179,8 @@ module Kotoshu
       # @example
       #   dict = CSpell.from_words(%w[hello world test], language_code: "en")
       def self.from_words(words, language_code:, locale: nil, case_sensitive: false)
-        dict = allocate
-
-        # Build trie from words
-        normalized_words = words.map { |w| case_sensitive ? w : w.downcase }.uniq
-        trie = Core::Trie::Builder.from_array(normalized_words)
-
-        dict.instance_variable_set(:@language_code, language_code.dup.freeze)
-        dict.instance_variable_set(:@locale, locale&.dup&.freeze)
-        dict.instance_variable_set(:@path, nil)
-        dict.instance_variable_set(:@case_sensitive, case_sensitive)
-        dict.instance_variable_set(:@trie, trie)
-        dict.instance_variable_set(:@metadata, {}.freeze)
-
-        # Register this dictionary type (unless already registered)
-        register_type(:cspell) unless Dictionary.registry.key?(:cspell)
-
-        dict
+        new(words: words, language_code: language_code,
+            locale: locale, case_sensitive: case_sensitive)
       end
 
       private
