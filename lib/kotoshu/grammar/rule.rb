@@ -82,6 +82,8 @@ module Kotoshu
           PatternMatchers::PossessiveContextMatcher.new(pattern, exceptions)
         elsif condition_types.include?('distance_check')
           PatternMatchers::DoubleNegativeMatcher.new(pattern, exceptions)
+        elsif condition_types.include?('phrase_check')
+          PatternMatchers::PhraseMatcher.new(pattern, exceptions)
         else
           PatternMatchers::BaseMatcher.new(pattern)
         end
