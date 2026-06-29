@@ -7,25 +7,36 @@ module Kotoshu
   #
   # Stored in ~/.config/kotoshu/personal.dic (Hunspell format) under the
   # XDG config directory. Override via KOTOSHU_PERSONAL_DIC.
+  #
+  # The on-disk path is resolved lazily on every call so env-var
+  # overrides take effect at runtime — handy for tests and for users
+  # who set KOTOSHU_PERSONAL_DIC after the gem loads.
   class PersonalDictionary
-    PERSONAL_FILE = Kotoshu::Paths.personal_dictionary_path
-
     class << self
+      # Resolve the personal-dictionary file path from Paths (which
+      # honors KOTOSHU_PERSONAL_DIC). Read fresh each call so an
+      # env override applied after gem load still takes effect.
+      #
+      # @return [String]
+      def file_path
+        Kotoshu::Paths.personal_dictionary_path
+      end
+
       # Add a word to personal dictionary.
       #
       # @param word [String] Word to add
-      # @return [Boolean] True if added
+      # @return [Boolean] True if the word was newly added (i.e. it
+      #   wasn't already in the dictionary); false otherwise.
       def add_word(word)
         return false if word.nil? || word.empty?
 
         ensure_directory
         words = load_words
 
-        unless words.include?(word.downcase)
-          words << word.downcase
-          save_words(words)
-        end
+        return false if words.include?(word.downcase)
 
+        words << word.downcase
+        save_words(words)
         true
       end
 
@@ -66,16 +77,16 @@ module Kotoshu
 
       # Ensure personal dictionary's parent directory exists.
       def ensure_directory
-        FileUtils.mkdir_p(File.dirname(PERSONAL_FILE))
+        FileUtils.mkdir_p(File.dirname(file_path))
       end
 
       # Load words from personal dictionary file.
       #
       # @return [Array<String>] List of words
       def load_words
-        return [] unless File.exist?(PERSONAL_FILE)
+        return [] unless File.exist?(file_path)
 
-        File.readlines(PERSONAL_FILE, chomp: true)
+        File.readlines(file_path, chomp: true)
           .reject { |line| line.empty? || line.start_with?("#") }
           .map(&:strip)
       end
@@ -85,7 +96,7 @@ module Kotoshu
       # @param words [Array<String>] Words to save
       def save_words(words)
         ensure_directory
-        File.open(PERSONAL_FILE, "w") do |f|
+        File.open(file_path, "w") do |f|
           words.sort.uniq.each { |word| f.puts word }
         end
       end
