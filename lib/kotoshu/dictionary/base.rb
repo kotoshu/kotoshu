@@ -58,15 +58,28 @@ module Kotoshu
 
       # Check if a word exists in the dictionary (alias for lookup).
       #
+      # Dispatches dynamically to whatever +lookup+ the concrete subclass
+      # defines. (Ruby's +alias+ keyword would bind to Base#lookup at
+      # definition time and bypass subclass overrides — these one-line
+      # method definitions are what makes the alias actually work.)
+      #
       # @param word [String] The word to look up
       # @return [Boolean] True if the word exists
       def lookup?(word)
         lookup(word)
       end
 
-      alias has_word? lookup
-      alias include? lookup
-      alias contains? lookup
+      def has_word?(word)
+        lookup(word)
+      end
+
+      def include?(word)
+        lookup(word)
+      end
+
+      def contains?(word)
+        lookup(word)
+      end
 
       # Generate spelling suggestions for a word.
       #
@@ -89,7 +102,10 @@ module Kotoshu
       def add_word(word, flags: [])
         raise NotImplementedError, "#{self.class} must implement #add_word"
       end
-      alias << add_word
+
+      def <<(word, flags: [])
+        add_word(word, flags: flags)
+      end
 
       # Remove a word from the dictionary.
       #
@@ -109,7 +125,10 @@ module Kotoshu
       def words
         raise NotImplementedError, "#{self.class} must implement #words"
       end
-      alias all_words words
+
+      def all_words
+        words
+      end
 
       # Get the number of words in the dictionary.
       #

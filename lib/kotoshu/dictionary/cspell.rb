@@ -117,15 +117,13 @@ module Kotoshu
       #
       # @param word [String] The word to add
       # @param flags [Array<String>] Flags (ignored for CSpell)
-      # @return [Boolean] True if added
+      # @return [Boolean] Always false — CSpell dictionaries are loaded
+      #   into a frozen Trie (see Core::Trie::Builder#build) and cannot
+      #   be mutated after load. The Trie itself rejects inserts with
+      #   +FrozenError+; this method short-circuits so callers see the
+      #   same "no" answer they would from {#remove_word}.
       def add_word(word, flags: [])
-        return false if word.nil? || word.empty?
-
-        lookup_word = @case_sensitive ? word : word.downcase
-        return false if @trie.lookup(lookup_word)
-
-        @trie.insert(lookup_word)
-        true
+        false
       end
 
       # Remove a word from the dictionary.
