@@ -44,7 +44,7 @@ module Kotoshu
       # @param force_download [Boolean] Force re-download even if cached
       # @return [Hash, nil] Frequency data with :frequency_path, :tiers, :metadata keys
       def get_frequency(language_code, force_download: false)
-        get(language_code, force_download)
+        get(language_code, force_download: force_download)
       end
 
       # Check if a resource type is supported.
@@ -60,7 +60,10 @@ module Kotoshu
       # @return [Array<String>] List of cached language codes
       def cached_resources
         directories = Dir.glob(File.join(@cache_path, "*")).select do |path|
-          File.directory?(path) && !File.basename(path).start_with?(".")
+          basename = File.basename(path)
+          # Skip dotfiles AND the working-directory scratch slot that
+          # BaseCache#initialize creates at <cache_path>/tmp/.
+          File.directory?(path) && !basename.start_with?(".") && basename != "tmp"
         end
         directories.map { |path| File.basename(path) }
       end
