@@ -37,7 +37,9 @@ module Kotoshu
       attr_reader :onnx_path
 
       # @return [Boolean] Whether the model is loaded
-      attr_reader :loaded
+      def loaded?
+        @loaded
+      end
 
       # @return [Integer] Number of inference calls
       attr_reader :inference_count
