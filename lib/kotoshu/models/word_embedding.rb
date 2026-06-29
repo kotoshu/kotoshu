@@ -13,7 +13,7 @@ module Kotoshu
     #
     # @see https://fasttext.cc/docs/en/crawl-vectors.html FastText crawl vectors
     class WordEmbedding
-      attr_reader :word, :vector, :language_code, :dimension
+      attr_reader :word, :vector, :language_code, :dimension, :magnitude
 
       # Create a new word embedding.
       #
@@ -29,6 +29,7 @@ module Kotoshu
         @vector = vector.freeze
         @language_code = language_code
         @dimension = dimension
+        @magnitude = Math.sqrt(@vector.map { |x| x * x }.sum)
 
         freeze
       end
@@ -47,12 +48,10 @@ module Kotoshu
         return 0.0 if @dimension != other.dimension
 
         dot_product = @vector.zip(other.vector).map { |a, b| a * b }.sum
-        magnitude_a = vector_magnitude
-        magnitude_b = other.vector_magnitude
 
-        return 0.0 if magnitude_a.zero? || magnitude_b.zero?
+        return 0.0 if magnitude.zero? || other.magnitude.zero?
 
-        dot_product / (magnitude_a * magnitude_b)
+        dot_product / (magnitude * other.magnitude)
       end
 
       # Calculate Euclidean distance from another embedding.
@@ -93,15 +92,6 @@ module Kotoshu
         "#{self.class.name}[#{@word}, #{@language_code}, #{@dimension}D]"
       end
       alias_method :inspect, :to_s
-
-      private
-
-      # Calculate vector magnitude (Euclidean norm).
-      #
-      # @return [Float] Magnitude
-      def vector_magnitude
-        @magnitude ||= Math.sqrt(@vector.map { |x| x * x }.sum)
-      end
     end
   end
 end

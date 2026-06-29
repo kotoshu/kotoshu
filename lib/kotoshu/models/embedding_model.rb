@@ -28,7 +28,6 @@ module Kotoshu
         @language_code = language_code
         @dimension = dimension
         @vocabulary_size = 0
-        freeze
       end
 
       # Get embedding vector for a word.
@@ -101,8 +100,8 @@ module Kotoshu
           )
         end.compact
 
-        # Sort by similarity (descending) and take top k
-        neighbors.sort.reverse.first(k)
+        # NearestNeighbor#<=> already sorts descending by similarity.
+        neighbors.sort.first(k)
       end
 
       # Find k nearest neighbors for an embedding vector.
@@ -127,8 +126,8 @@ module Kotoshu
           )
         end.compact
 
-        # Sort by similarity (descending) and take top k
-        neighbors.sort.reverse.first(k)
+        # NearestNeighbor#<=> already sorts descending by similarity.
+        neighbors.sort.first(k)
       end
 
       # Get model metadata.
