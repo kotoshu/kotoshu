@@ -15,6 +15,7 @@ module Kotoshu
       autoload :VowelSoundMatcher, "kotoshu/grammar/pattern_matchers/vowel_sound_matcher"
       autoload :PossessiveContextMatcher, "kotoshu/grammar/pattern_matchers/possessive_context_matcher"
       autoload :DoubleNegativeMatcher, "kotoshu/grammar/pattern_matchers/double_negative_matcher"
+      autoload :PhraseMatcher, "kotoshu/grammar/pattern_matchers/phrase_matcher"
     end
   end
 end

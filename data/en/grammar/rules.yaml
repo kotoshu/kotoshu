@@ -329,3 +329,79 @@ rules:
         - not...without
     message: 'Double negative detected - consider rephrasing'
     suggestion: 'Consider using a single negative'
+
+  # ==========================================================================
+  # Phrase Confusion Rules: phonetic confusions where each word is valid
+  # individually but the combination is wrong.
+  # ==========================================================================
+  - id: EN_COULD_OF
+    name: "could of → could have"
+    category: grammar
+    severity: error
+    description: |
+      "could of" is a phonetic misspelling of "could have" (the
+      contraction "could've" sounds like "could of"). The same
+      applies to should/would/must/might of.
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "could of"
+            suggestion: "could have"
+    message: '"could of" should be "could have"'
+    suggestion: 'could have'
+
+  - id: EN_SHOULD_OF
+    name: "should of → should have"
+    category: grammar
+    severity: error
+    description: |
+      "should of" is a phonetic misspelling of "should have".
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "should of"
+            suggestion: "should have"
+    message: '"should of" should be "should have"'
+    suggestion: 'should have'
+
+  - id: EN_WOULD_OF
+    name: "would of → would have"
+    category: grammar
+    severity: error
+    description: |
+      "would of" is a phonetic misspelling of "would have".
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "would of"
+            suggestion: "would have"
+    message: '"would of" should be "would have"'
+    suggestion: 'would have'
+
+  - id: EN_MUST_OF
+    name: "must of → must have"
+    category: grammar
+    severity: error
+    description: |
+      "must of" is a phonetic misspelling of "must have".
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "must of"
+            suggestion: "must have"
+    message: '"must of" should be "must have"'
+    suggestion: 'must have'
+
+  - id: EN_MIGHT_OF
+    name: "might of → might have"
+    category: grammar
+    severity: error
+    description: |
+      "might of" is a phonetic misspelling of "might have".
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "might of"
+            suggestion: "might have"
+    message: '"might of" should be "might have"'
+    suggestion: 'might have'

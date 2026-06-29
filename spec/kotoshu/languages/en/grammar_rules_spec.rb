@@ -241,4 +241,78 @@ RSpec.describe Kotoshu::Grammar::RuleEngine do
       expect(engine).to be_a(Kotoshu::Grammar::RuleEngine)
     end
   end
+
+  describe 'Phrase confusion rules (EN_*_OF)' do
+    describe '#check' do
+      it 'detects "could of" and suggests "could have"' do
+        tokens = [
+          { token: 'I', position: 0, length: 1 },
+          { token: 'could', position: 2, length: 5 },
+          { token: 'of', position: 8, length: 2 },
+          { token: 'gone', position: 11, length: 4 }
+        ]
+        errors = rule_engine.check(tokens)
+        of_errors = errors.select { |e| e[:rule_id] == 'EN_COULD_OF' }
+        expect(of_errors).not_to be_empty
+        expect(of_errors.first[:suggestion]).to eq('could have')
+      end
+
+      it 'detects "should of"' do
+        tokens = [
+          { token: 'You', position: 0, length: 3 },
+          { token: 'should', position: 4, length: 6 },
+          { token: 'of', position: 11, length: 2 },
+          { token: 'called', position: 14, length: 6 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_SHOULD_OF' }).to be true
+      end
+
+      it 'detects "would of"' do
+        tokens = [
+          { token: 'It', position: 0, length: 2 },
+          { token: 'would', position: 3, length: 5 },
+          { token: 'of', position: 9, length: 2 },
+          { token: 'worked', position: 12, length: 6 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_WOULD_OF' }).to be true
+      end
+
+      it 'detects "must of" and "might of"' do
+        tokens = [
+          { token: 'She', position: 0, length: 3 },
+          { token: 'must', position: 4, length: 4 },
+          { token: 'of', position: 9, length: 2 },
+          { token: 'left', position: 12, length: 4 },
+          { token: 'They', position: 17, length: 4 },
+          { token: 'might', position: 22, length: 5 },
+          { token: 'of', position: 28, length: 2 },
+          { token: 'arrived', position: 31, length: 7 }
+        ]
+        errors = rule_engine.check(tokens)
+        ids = errors.map { |e| e[:rule_id] }
+        expect(ids).to include('EN_MUST_OF', 'EN_MIGHT_OF')
+      end
+
+      it 'does not flag "could have"' do
+        tokens = [
+          { token: 'I', position: 0, length: 1 },
+          { token: 'could', position: 2, length: 5 },
+          { token: 'have', position: 8, length: 4 },
+          { token: 'gone', position: 13, length: 4 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.none? { |e| e[:rule_id] == 'EN_COULD_OF' }).to be true
+      end
+    end
+
+    describe 'rule loading' do
+      it 'loads all five phrase-confusion rules' do
+        %w[EN_COULD_OF EN_SHOULD_OF EN_WOULD_OF EN_MUST_OF EN_MIGHT_OF].each do |id|
+          expect(rule_engine.rule_exists?(id)).to be true
+        end
+      end
+    end
+  end
 end
