@@ -109,7 +109,13 @@ module Kotoshu
       # with `-` escaped so it can appear literally inside the pattern.
       # The check uses `match?` (which searches), so the anchors do the
       # positional work.
+      #
+      # Returns a match-all regex for nil/empty conditions so the
+      # constructor doesn't crash on those inputs (the #matches? method
+      # already short-circuits on nil/empty/`.`).
       def compile_pattern
+        return // if @condition.nil? || @condition.empty?
+
         escaped = @condition.gsub('-', '\\-')
         anchored = @anchor == :start ? "^#{escaped}" : "#{escaped}$"
         Regexp.new(anchored)
