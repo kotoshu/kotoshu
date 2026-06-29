@@ -247,7 +247,7 @@ module Kotoshu
       resource_id = "#{language}:spelling"
       if cache.available?(resource_id)
         metadata_path = cache.metadata_path_for(resource_id)
-        metadata = cache.send(:read_metadata, metadata_path)
+        metadata = cache.read_metadata(metadata_path)
         if metadata
           puts
           puts "Cache Status: Cached"
@@ -283,8 +283,8 @@ module Kotoshu
 
       # Show cache status
       if cache.available?(resource_id)
-        metadata_path = cache.send(:metadata_path_for, resource_id)
-        metadata = cache.send(:read_metadata, metadata_path)
+        metadata_path = cache.metadata_path_for(resource_id)
+        metadata = cache.read_metadata(metadata_path)
         if metadata
           puts
           puts "Cache Status: Cached"

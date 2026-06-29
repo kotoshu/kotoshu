@@ -55,6 +55,43 @@ module Kotoshu
         KELLY_LANGUAGES.include?(resource_id)
       end
 
+      # Install a local frequency file into the cache without going
+      # through the network. Mirrors {LanguageCache#install_local} for
+      # the frequency resource type — symlinks the user's file into the
+      # cache layout and writes a `local-source` metadata record so
+      # subsequent {#available?} / {#get} calls find it.
+      #
+      # @param language_code [String] ISO 639-1 language code
+      # @param path [String] Path to the local frequency.json file
+      # @param force [Boolean] Overwrite an existing install
+      # @return [Hash] { frequency_path:, metadata_path:, source: :local }
+      def install_local(language_code, path:, force: false)
+        lang_path = language_dir(language_code)
+        FileUtils.mkdir_p(lang_path)
+
+        target_frequency = File.join(lang_path, "frequency.json")
+        target_metadata = metadata_path_for(language_code)
+
+        if File.exist?(target_frequency) || File.symlink?(target_frequency)
+          raise ArgumentError, "#{target_frequency} already exists (use force: true to overwrite)" unless force
+
+          File.unlink(target_frequency)
+        end
+
+        File.symlink(File.expand_path(path), target_frequency)
+
+        write_metadata(target_metadata,
+                       "version" => Time.now.utc.iso8601,
+                       "url" => "local:#{File.expand_path(path)}",
+                       "language" => language_code,
+                       "type" => "kelly_frequency",
+                       "source" => "local",
+                       "checksum" => checksum(File.read(path)),
+                       "cached_at" => Time.now.utc.iso8601)
+
+        { frequency_path: target_frequency, metadata_path: target_metadata, source: :local }
+      end
+
       # List all cached resources.
       #
       # @return [Array<String>] List of cached language codes

@@ -83,7 +83,7 @@ module Kotoshu
         raise ArgumentError, "frequency file not found: #{frequency}" unless File.exist?(frequency)
 
         freq_cache = frequency_cache_for
-        freq_cache.install_local(lang, path: frequency, force: force) if freq_cache.respond_to?(:install_local)
+        freq_cache.install_local(lang, path: frequency, force: force)
         frequency_status = :local
       end
 
@@ -125,7 +125,7 @@ module Kotoshu
         spelling_cache_for(lang).available?("#{lang}:spelling")
       when :frequency
         fc = frequency_cache_for
-        fc.respond_to?(:supports_resource?) && fc.supports_resource?(lang) && fc.available?(lang)
+        fc.supports_resource?(lang) && fc.available?(lang)
       when :model
         model_cache_for.available?("#{lang}:onnx")
       else
@@ -179,13 +179,13 @@ module Kotoshu
 
     def setup_frequency_remote(lang, force:, strict:, config:)
       cache = frequency_cache_for(config: config)
-      return :unavailable unless cache.respond_to?(:supports_resource?) && cache.supports_resource?(lang)
+      return :unavailable unless cache.supports_resource?(lang)
 
       was_cached = cache.available?(lang)
       return :cached if was_cached && !force
 
       warn "[#{lang}] downloading frequency data..." unless quiet?
-      cache.get(lang, force_download: force) if cache.respond_to?(:get)
+      cache.get(lang, force_download: force)
       :downloaded
     rescue StandardError => e
       raise if strict
@@ -229,7 +229,7 @@ module Kotoshu
 
     def resolve_frequency_cached(lang)
       cache = frequency_cache_for
-      return nil unless cache.respond_to?(:supports_resource?) && cache.supports_resource?(lang)
+      return nil unless cache.supports_resource?(lang)
       raise ResourceNotSetupError.new(lang, "frequency") unless cache.available?(lang)
 
       begin

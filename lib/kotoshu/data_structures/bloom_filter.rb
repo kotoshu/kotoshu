@@ -31,6 +31,12 @@ module Kotoshu
       # @return [Integer] Number of items added
       attr_reader :item_count
 
+      # Read-only view of the internal bit array. Exposed so {#merge}
+      # can OR bits across two filters without poking at another
+      # instance's ivars.
+      # @return [Array<Boolean>] bit array, length == +size+
+      attr_reader :bits
+
       # Create a new Bloom filter.
       #
       # @param expected_size [Integer] Expected number of elements (default: 10_000)
@@ -97,7 +103,7 @@ module Kotoshu
         raise ArgumentError, "Cannot merge filters with different hash counts" unless other.hash_count == @hash_count
 
         @size.times do |i|
-          @bits[i] = @bits[i] || other.instance_variable_get(:@bits)[i]
+          @bits[i] = @bits[i] || other.bits[i]
         end
 
         @item_count += other.item_count

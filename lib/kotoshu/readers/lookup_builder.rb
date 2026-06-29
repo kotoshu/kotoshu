@@ -30,17 +30,22 @@ module Kotoshu
 
       # Create a new LookupBuilder from file paths.
       #
-      # @param aff_path [String] Path to the .aff file
-      # @param dic_path [String] Path to the .dic file
+      # @param aff_path [String, nil] Path to the .aff file (nil when
+      #   constructing via .from_data with pre-read aff/dic data)
+      # @param dic_path [String, nil] Path to the .dic file
       # @param encoding [String] File encoding (default: 'UTF-8')
       # @param script [Symbol] The script type for condition checking (default: :latin)
-      def initialize(aff_path, dic_path, encoding: 'UTF-8', script: :latin)
+      # @param aff_data [Hash, nil] Pre-read aff data (skips file read
+      #   in #build when provided)
+      # @param words [Array<Word>, nil] Pre-read word entries
+      def initialize(aff_path, dic_path, encoding: 'UTF-8', script: :latin,
+                     aff_data: nil, words: nil)
         @aff_path = aff_path
         @dic_path = dic_path
         @encoding = encoding
         @script = script
-        @aff_data = nil
-        @words = nil
+        @aff_data = aff_data
+        @words = words
       end
 
       # Create a new LookupBuilder from pre-read data.
@@ -49,10 +54,7 @@ module Kotoshu
       # @param words [Array<Word>] Word entries from DicReader
       # @return [LookupBuilder] A new builder instance
       def self.from_data(aff_data, words)
-        builder = new(nil, nil)
-        builder.instance_variable_set(:@aff_data, aff_data)
-        builder.instance_variable_set(:@words, words)
-        builder
+        new(nil, nil, aff_data: aff_data, words: words)
       end
 
       # Build the Lookuper instance.

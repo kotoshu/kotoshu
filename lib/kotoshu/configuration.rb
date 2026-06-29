@@ -544,7 +544,8 @@ module Kotoshu
 
         # Convert boolean strings if needed
         value = convert_schema_value(key, env_value)
-        send("#{key}=", value) if respond_to?("#{key}=")
+        setter = "#{key}="
+        public_send(setter, value) if self.class.method_defined?(setter)
       end
     end
 
@@ -555,7 +556,8 @@ module Kotoshu
       settings.each do |key, value|
         next if %i[env cli_options].include?(key)
 
-        send("#{key}=", value) if respond_to?("#{key}=")
+        setter = "#{key}="
+        public_send(setter, value) if self.class.method_defined?(setter)
       end
     end
 

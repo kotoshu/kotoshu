@@ -339,8 +339,10 @@ module Kotoshu
         when OnnxRuntime::OrtValue
           output.to_a
         else
-          # Try to convert to array
-          output.respond_to?(:to_a) ? output.to_a : Array(output)
+          # Idiomatic Array coercion: invokes to_ary / to_a when defined,
+          # otherwise wraps. Equivalent to the prior respond_to?(:to_a)
+          # branch without the duck-typing check.
+          Array(output)
         end
       end
 

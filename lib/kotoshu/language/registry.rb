@@ -182,8 +182,16 @@ module Kotoshu
           klass = get(code)
           return nil unless klass
 
-          instance = klass.instance if klass.respond_to?(:instance)
-          instance ||= klass.new
+          # Every registered language class inherits from Language::Base,
+          # which provides the .instance singleton accessor. The type
+          # bound is the contract; the respond_to? check it replaced
+          # would have silently returned a fresh instance for any
+          # stray non-Base class that happened to be registered.
+          instance = if klass.is_a?(Class) && klass <= Kotoshu::Language::Base
+                       klass.instance
+                     else
+                       klass.new
+                     end
 
           {
             code: code,

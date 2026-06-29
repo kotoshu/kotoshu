@@ -368,18 +368,6 @@ module Kotoshu
         File.write(path, JSON.pretty_generate(metadata))
       end
 
-      # Read metadata from file.
-      #
-      # @param path [String] Metadata file path
-      # @return [Hash, nil] Metadata or nil
-      def read_metadata(path)
-        return nil unless File.exist?(path)
-
-        JSON.parse(File.read(path))
-      rescue JSON::ParserError
-        nil
-      end
-
       # Check if cached file exists.
       #
       # @param metadata_path [String] Path to metadata file
@@ -676,6 +664,24 @@ module Kotoshu
           rotations: config.audit_rotations
         )
         Kotoshu::Integrity::AuditLog.new(rotation_policy: policy)
+      end
+
+      public
+
+      # Read metadata from file.
+      #
+      # Public because the CLI cache subcommand and other inspection
+      # paths consume it to display cache state without going through
+      # the full download-and-load pipeline.
+      #
+      # @param path [String] Metadata file path
+      # @return [Hash, nil] Metadata or nil
+      def read_metadata(path)
+        return nil unless File.exist?(path)
+
+        JSON.parse(File.read(path))
+      rescue JSON::ParserError
+        nil
       end
     end
   end

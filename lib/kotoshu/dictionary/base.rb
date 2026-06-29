@@ -30,6 +30,13 @@ module Kotoshu
       # @return [String, nil] The locale (e.g., "en", "en_US")
       attr_reader :locale
 
+      # @return [String, nil] On-disk path for file-backed dictionaries.
+      #   Nil for in-memory backends (e.g. Custom). Subclasses that load
+      #   from a file override this with their own +attr_reader :path+.
+      def path
+        nil
+      end
+
       # @return [Hash] Additional metadata
       attr_reader :metadata
 
