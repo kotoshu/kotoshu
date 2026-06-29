@@ -34,6 +34,15 @@ RSpec.describe Kotoshu::Analyzers::SemanticAnalyzer do
         [Kotoshu::Models::NearestNeighbor.new(word: word, similarity: 1.0,
                                               distance: 0, embedding: nil)]
       end
+
+      # EmbeddingModel#similarity calls embedding_for under the hood;
+      # context ranking uses similarity. Hand back a trivial embedding
+      # so the analyzer's context_boost path doesn't crash on the stub.
+      def embedding_for(word)
+        return nil unless @vocab.include?(word)
+
+        Kotoshu::Models::WordEmbedding.new(word, [1.0], "en", dimension: 1)
+      end
     end
   end
 
@@ -67,6 +76,80 @@ RSpec.describe Kotoshu::Analyzers::SemanticAnalyzer do
       # The stub returns a single trivial neighbor (the word itself).
       expect(corrections.length).to eq(1)
       expect(corrections.first.word).to eq("hello")
+    end
+  end
+
+  describe "#analyze with a Documents::Document" do
+    let(:document) do
+      # Two text nodes simulating the markup case:
+      #   "an " (plain) + "frend" (bold) + " world" (plain)
+      # Flattened: "an frend world"
+      # "frend" is OOV → triggers edit-distance fallback → "friend"-ish
+      # suggestions (we seed the vocab with "friend" below).
+      Kotoshu::Documents::Document.new(
+        text_nodes: [
+          Kotoshu::Documents::TextNode.new(
+            text: "an ",
+            source_range: Kotoshu::Documents::SourceRange.new(
+              start_pos: Kotoshu::Documents::SourcePosition.new(offset: 0, line: 1, column: 1),
+              end_pos: Kotoshu::Documents::SourcePosition.new(offset: 3, line: 1, column: 4)
+            ),
+            flattened_offset: 0,
+            format: :plain
+          ),
+          Kotoshu::Documents::TextNode.new(
+            text: "frend",
+            source_range: Kotoshu::Documents::SourceRange.new(
+              start_pos: Kotoshu::Documents::SourcePosition.new(offset: 7, line: 1, column: 8),
+              end_pos: Kotoshu::Documents::SourcePosition.new(offset: 17, line: 1, column: 18)
+            ),
+            flattened_offset: 3,
+            format: :bold
+          ),
+          Kotoshu::Documents::TextNode.new(
+            text: " world",
+            source_range: Kotoshu::Documents::SourceRange.new(
+              start_pos: Kotoshu::Documents::SourcePosition.new(offset: 17, line: 1, column: 18),
+              end_pos: Kotoshu::Documents::SourcePosition.new(offset: 23, line: 1, column: 24)
+            ),
+            flattened_offset: 8,
+            format: :plain
+          )
+        ],
+        source: "an **frend** world",
+        format: :markdown
+      )
+    end
+    let(:vocab) { %w[hello help held heap world ruby test example friend] }
+    let(:analyzer_with_friend) { described_class.new(model_class.new(vocab), min_similarity: 0.0) }
+
+    it "rejects a non-Document argument" do
+      expect { analyzer_with_friend.analyze("not a document") }
+        .to raise_error(ArgumentError, /must be a Kotoshu::Documents::Document/)
+    end
+
+    it "emits SemanticErrors carrying source_range from the document" do
+      errors = analyzer_with_friend.analyze(document)
+      # "an" is 2 chars; "frend" is OOV (5 chars); "world" is in vocab.
+      # Expect one error: "frend" → "friend".
+      expect(errors.length).to eq(1)
+      error = errors.first
+      expect(error.original).to eq("frend")
+      expect(error.source_range).not_to be_nil
+      # Source range matches the bold "**frend**" node (offset 7..17).
+      expect(error.source_range.start.offset).to eq(7)
+      expect(error.source_range.end.offset).to eq(17)
+    end
+
+    it "suggests the in-vocabulary friend for the frend typo" do
+      error = analyzer_with_friend.analyze(document).first
+      expect(error.suggestions.map(&:word)).to include("friend")
+    end
+
+    it "produces an error whose id is stable for the same source range" do
+      error_a = analyzer_with_friend.analyze(document).first
+      error_b = analyzer_with_friend.analyze(document).first
+      expect(error_a.id).to eq(error_b.id)
     end
   end
 end

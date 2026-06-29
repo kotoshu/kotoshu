@@ -42,64 +42,72 @@ module Kotoshu
         @min_similarity = min_similarity
       end
 
-      # Analyze a document for semantic errors.
+      # Analyze a {Kotoshu::Documents::Document} for semantic errors.
       #
-      # @param document [Document] The document to analyze
-      # @return [Array<Models::SemanticError>] List of errors found
+      # Walks every {Documents::TextNode}, tokenizes its text, and for
+      # each invalid word resolves a {Documents::SourceRange} via
+      # `document.source_range_for` so the emitted {Models::SemanticError}
+      # points at the original markup-bearing source rather than the
+      # flattened text. Context for ranking is built from the
+      # surrounding flattened text.
+      #
+      # @param document [Kotoshu::Documents::Document]
+      # @return [Array<Models::SemanticError>] Sorted by source_range
       def analyze(document)
+        unless document.is_a?(Kotoshu::Documents::Document)
+          raise ArgumentError,
+                "document must be a Kotoshu::Documents::Document"
+        end
+
         errors = []
+        flattened = document.flattened_text
 
-        # Get text nodes from document
         document.text_nodes.each do |text_node|
-          # Tokenize and check each word
-          words = tokenize_words(text_node.text)
-
-          words.each do |word|
+          tokenize_with_offsets(text_node.text).each do |word, offset_in_node|
             next if valid_word?(word)
 
-            # Detect error
-            error = detect_error(
-              word: word,
-              location: text_node.location,
-              context: document.context_for(text_node.location)
-            )
+            flattened_start = text_node.flattened_offset + offset_in_node
+            flattened_end = flattened_start + word.length
+            source_range = document.source_range_for(flattened_start, flattened_end)
+            context = build_context(flattened, flattened_start, flattened_end)
 
+            error = detect_error(word: word, source_range: source_range, context: context)
             errors << error if error
           end
         end
 
-        # Sort errors by location and confidence
         errors.sort
       end
 
       # Detect semantic error for a single word.
       #
       # @param word [String] The word to check
-      # @param location [Location] Error location
+      # @param source_range [Kotoshu::Documents::SourceRange, nil] Where
+      #   the word lives in the original source. May be nil for
+      #   word-level checks that aren't tied to a document.
       # @param context [Models::Context, nil] Context around the word
       # @return [Models::SemanticError, nil] Error object or nil if valid
-      def detect_error(word:, location:, context: nil)
+      def detect_error(word:, source_range: nil, context: nil)
         return nil if valid_word?(word)
 
-        # Get suggestions
         suggestions = suggest_corrections(word, context: context)
-
-        # Determine error type based on analysis
         error_type = classify_error(word, suggestions, context)
-
-        # Calculate confidence based on suggestions
         confidence = calculate_confidence(suggestions)
 
-        # Create error object
         Models::SemanticError.new(
-          id: generate_error_id(word, location),
-          location: location,
+          id: generate_error_id(word, source_range),
+          source_range: source_range,
           original: word,
           suggestions: suggestions,
           error_type: error_type,
           confidence: confidence,
           context: context
         )
+      rescue Models::EmptySuggestionsError
+        # Word is genuinely unknown — no close matches. Skip silently
+        # rather than crashing on the suggestions-cannot-be-empty
+        # invariant.
+        nil
       end
 
       # Suggest corrections for a word.
@@ -229,16 +237,55 @@ module Kotoshu
         prev.last
       end
 
-      # Tokenize text into words.
+      # Tokenize text into [word, offset_in_text] pairs. The offset
+      # is the 0-based character position of the word's first char
+      # within +text+. Used by {#analyze} to compute flattened offsets
+      # for source-range resolution.
+      #
+      # @param text [String]
+      # @return [Array<Array(String, Integer)>]
+      def tokenize_with_offsets(text)
+        return [] unless text
+
+        text.downcase.scan(/[a-z]+(?:['’-][a-z]+)*/i).map do |match|
+          char_offset = Regexp.last_match.offset(0).first
+          [match.downcase, char_offset]
+        end
+      end
+
+      # Tokenize text into words. Kept for backward compat with specs.
       #
       # @param text [String] Text to tokenize
       # @return [Array<String>] Words
       def tokenize_words(text)
-        return [] unless text
+        tokenize_with_offsets(text).map(&:first)
+      end
 
-        # Simple word tokenization (splits on non-word characters)
-        # In full implementation, would use language-specific tokenization
-        text.downcase.scan(/[a-z]+(?:['’-][a-z]+)*/i)
+      # Build a {Models::Context} around a flattened-text range.
+      # Slices up to 32 chars before and after the [start, end) range,
+      # rounding at whitespace so the context reads naturally.
+      #
+      # @param flattened [String]
+      # @param flattened_start [Integer]
+      # @param flattened_end [Integer]
+      # @return [Models::Context, nil] nil when the slice is empty
+      def build_context(flattened, flattened_start, flattened_end)
+        return nil if flattened.nil? || flattened.empty?
+
+        window = 32
+        before_start = [flattened_start - window, 0].max
+        after_end = [flattened_end + window, flattened.length].min
+        before = flattened[before_start...flattened_start] || ""
+        current = flattened[flattened_start...flattened_end] || ""
+        after = flattened[flattened_end...after_end] || ""
+        return nil if current.empty?
+
+        Models::Context.new(
+          before: before,
+          current: current,
+          after: after,
+          location: nil
+        )
       end
 
       # Classify error type based on word and suggestions.
@@ -343,12 +390,15 @@ module Kotoshu
       # Generate unique error ID.
       #
       # @param word [String] The error word
-      # @param location [Location] Error location
-      # @return [String] Unique ID
-      def generate_error_id(word, location)
-        # Create ID from word and location hash
-        base = "#{word}-#{location}"
-        Digest::SHA256.hexdigest(base)[0...16]
+      # @param source_range [Kotoshu::Documents::SourceRange, nil]
+      # @return [String] Truncated SHA-256 hex
+      def generate_error_id(word, source_range)
+        key = if source_range
+                "#{word}-#{source_range.start.offset}-#{source_range.end.offset}"
+              else
+                "word:#{word}"
+              end
+        Digest::SHA256.hexdigest(key)[0...16]
       end
     end
   end
