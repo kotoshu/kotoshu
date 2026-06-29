@@ -87,8 +87,8 @@ RSpec.describe Kotoshu::Documents do
         before = Kotoshu::Documents::SourcePosition.new(offset: 0, line: 1, column: 1)
         at_end = Kotoshu::Documents::SourcePosition.new(offset: 5, line: 1, column: 6)
         expect(range.contains?(inside)).to be true
-        expect(range.contains?(before)).to be true   # start inclusive
-        expect(range.contains?(at_end)).to be false   # end exclusive
+        expect(range.contains?(before)).to be true # start inclusive
+        expect(range.contains?(at_end)).to be false # end exclusive
       end
     end
 
@@ -325,6 +325,7 @@ RSpec.describe Kotoshu::Documents do
 
     describe ".from_file" do
       let(:tmpdir) { Dir.mktmpdir("kotoshu-doc-spec") }
+
       after { FileUtils.rm_rf(tmpdir) if File.exist?(tmpdir) }
 
       it "reads the file and wraps it" do
@@ -337,15 +338,15 @@ RSpec.describe Kotoshu::Documents do
 
     it "is a Document" do
       expect(described_class.new(text_nodes: [
-        Kotoshu::Documents::TextNode.new(
-          text: "x",
-          source_range: Kotoshu::Documents::SourceRange.new(
-            start_pos: Kotoshu::Documents::SourcePosition.new(offset: 0, line: 1, column: 1),
-            end_pos: Kotoshu::Documents::SourcePosition.new(offset: 1, line: 1, column: 2)
-          ),
-          flattened_offset: 0
-        )
-      ])).to be_a(Kotoshu::Documents::Document)
+                                   Kotoshu::Documents::TextNode.new(
+                                     text: "x",
+                                     source_range: Kotoshu::Documents::SourceRange.new(
+                                       start_pos: Kotoshu::Documents::SourcePosition.new(offset: 0, line: 1, column: 1),
+                                       end_pos: Kotoshu::Documents::SourcePosition.new(offset: 1, line: 1, column: 2)
+                                     ),
+                                     flattened_offset: 0
+                                   )
+                                 ])).to be_a(Kotoshu::Documents::Document)
     end
   end
 
