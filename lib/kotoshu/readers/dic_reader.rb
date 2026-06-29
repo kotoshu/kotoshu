@@ -165,34 +165,43 @@ module Kotoshu
 
       # Read the dic file and return a list of Word entries.
       #
+      # @param source [FileReader, nil] Optional file reader to use instead of creating a new one
       # @return [Array<Word>] List of word entries
-      def read
-        reader = FileReader.new(@path, @encoding)
+      def read(source = nil)
+        owned = source.nil?
+        reader = source || FileReader.new(@path, @encoding)
 
-        words = []
-        first_line = true
-        expected_count = 0
+        begin
+          words = []
+          first_line = true
+          expected_count = 0
 
-        reader.each do |_line_no, line|
-          if first_line
-            # First line is word count
-            expected_count = line.to_i
-            first_line = false
-            next
+          reader.each do |_line_no, line|
+            if first_line
+              # First line is word count
+              expected_count = line.to_i
+              first_line = false
+              next
+            end
+
+            # Skip empty lines
+            next if line.empty?
+
+            # Parse word
+            word = Word.from_line(line, flag_format: @flag_format, flag_synonyms: @flag_synonyms)
+            words << word
           end
 
-          # Skip empty lines
-          next if line.empty?
+          # Verify word count
+          # Note: We don't raise an error if count doesn't match, as some dictionaries have different formats
 
-          # Parse word
-          word = Word.from_line(line, flag_format: @flag_format, flag_synonyms: @flag_synonyms)
-          words << word
+          words
+        ensure
+          # Close the reader only when we created it. If the caller passed
+          # one in, they own its lifecycle. Without this, the underlying
+          # File handle leaks (on Windows it also blocks tempfile cleanup).
+          reader.close if owned
         end
-
-        # Verify word count
-        # Note: We don't raise an error if count doesn't match, as some dictionaries have different formats
-
-        words
       end
     end
   end
