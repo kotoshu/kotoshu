@@ -5,7 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.5.0] — 2026-06-30
+
+Tier 2.5 release. Adds the personal-dictionary CLI, completes direct
+spec coverage for every previously-untested namespace (~370 new
+examples), eliminates every `respond_to?` / `send`-to-private /
+`instance_variable_*` violation from `lib/`, and fixes a long list of
+production bugs the refactors surfaced.
 
 ### Added
 
@@ -47,6 +53,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   exposed via a reader, so callers can surface the user-facing fix
   (e.g. "Run `kotoshu cache download :en --model` to re-download").
   Existing callers that omit it see no change in the message format.
+- **Personal dictionary CLI** (`kotoshu personal SUBCOMMAND`). Thor
+  subcommand wrapping `Kotoshu::PersonalDictionary`: `add`, `remove`,
+  `list`, `import` (with `--dry-run`), `path`, and `clear` (with
+  `--yes`). Errors raise `Kotoshu::Cli::Errors::UsageError` (exit 2),
+  matching the existing CLI error contract.
+- **Direct specs for previously-untested namespaces.** ~370 new
+  examples pinning the public contract of `Integrity`, `Embeddings`,
+  `Language`, `Dictionary`, and `Cache` namespaces — each spec uses
+  real instances and tmpdir/fixture IO, never `double()`.
+- **`Kotoshu::Dictionary::Unified`** is now loadable. The class
+  was previously declared as `class Kotoshu::Dictionary`, colliding
+  with the existing `module Kotoshu::Dictionary` namespace and
+  raising `TypeError` on autoload. Renamed to `Unified` to match the
+  autoload entry. Two follow-on bugs (mismatched `Suggester.new`
+  kwargs and a custom `build_dic_structure` that produced the wrong
+  shape) fixed in the same change.
 
 ### Changed
 
@@ -61,6 +83,126 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   instead of crashing with a `TypeError` from `Array#zip` when given
   vectors of differing lengths. `nil` and empty inputs still return
   `0.0` (early-return path).
+- **Eliminated `respond_to?` across `lib/`.** Replaced every
+  occurrence with `is_a?` / `case-when` / `method_defined?` / direct
+  calls. Duck-typing via `respond_to?` hid real type errors — the
+  production bugs surfaced by this refactor (see Fixed) had been
+  silently no-op'ing for as long as the code existed.
+- **Eliminated `send` to private/protected methods** in `lib/`. The
+  `cache` CLI subcommand's `cache.send(:read_metadata, ...)` is now
+  `cache.read_metadata(...)` after promoting the method to public
+  (`public def`). `SemanticStrategy#embedding_for` was dead code that
+  called `@search.send(:get_embedding, ...)` on a method that didn't
+  exist — removed entirely.
+- **Eliminated `instance_variable_set/get` across `lib/`.**
+  `BloomFilter#merge` now reads `other.bits` (public `attr_reader`)
+  instead of `other.instance_variable_get(:@bits)`.
+  `Dictionary::PlainText` and `Dictionary::CSpell` constructors now
+  accept a `words:` keyword instead of `from_words` poking ivars via
+  `allocate` + `instance_variable_set`. `Readers::LookupBuilder`
+  gained `aff_data:` / `words:` keyword args to replace the same
+  pattern in `from_data`.
+- **Configuration dispatch is type-checked, not duck-typed.**
+  `Configuration#apply_*` previously called
+  `send("#{key}=", value) if respond_to?("#{key}=")`; now uses
+  `public_send(setter, value) if self.class.method_defined?(setter)`.
+- **`Dictionary::Base` exposes a default `path` method** returning
+  `nil` (overridden by file-backed subclasses). `Spellchecker`
+  previously guarded with `dictionary.respond_to?(:path)`; now calls
+  unconditionally.
+- **`Language::Registry.info` checks the type bound.** Was
+  `klass.respond_to?(:instance)`; now
+  `klass.is_a?(Class) && klass <= Kotoshu::Language::Base`.
+
+### Fixed
+
+- **`AuditLog#each` now iterates newest-first across current and
+  rotations.** The docstring promised newest-first but the
+  implementation yielded each file in write order (oldest line first)
+  then walked current → oldest file, producing a jumbled order. Each
+  file's lines are now read into memory and yielded in reverse before
+  walking to the next older rotation.
+- **`Embeddings::Protocol` is no longer broken.** The module declared
+  `required_methods` and `required_methods(*names)` (a reader + a
+  writer with the same name). Ruby's last-def-wins shadowed the
+  reader, so every protocol registration silently dropped its
+  arguments and `compliance_errors` returned `[]` unconditionally —
+  every class appeared to conform to every protocol. Renamed the
+  writer to `required` (and `optional_methods` → `optional`); also
+  fixed `compliance_errors` to use `klass.method_defined?` instead of
+  `klass.respond_to?` (which checks class methods, not instance
+  methods).
+- **`Embeddings::OnnxRuntimeModel` defines `loaded?`.** The protocol
+  requires `loaded?` but the class declared only `attr_reader :loaded`
+  (no question mark). `EmbeddingPipeline#stats` and `#to_s` called
+  `@model.loaded?` — would have raised `NoMethodError` on the real
+  model.
+- **`Dictionary::Base` aliases dispatch dynamically.** Ruby's `alias`
+  keyword binds to the parent method body at definition time,
+  bypassing subclass overrides. `has_word?`/`include?`/`contains?`/
+  `lookup?`/`<<`/`all_words` on a concrete subclass (e.g.,
+  `UnixWords`) would invoke the abstract `Base#lookup` /
+  `Base#add_word` and raise `NotImplementedError`. Replaced with
+  one-line method definitions that call the abstract method (which
+  then dispatches dynamically to the subclass override).
+- **`Dictionary::CSpell#add_word` no longer crashes.** Tried to
+  `@trie.insert` on a frozen `Trie` (frozen by `Builder#build`),
+  raising `FrozenError`. Aligned with `remove_word`'s existing
+  "always returns false (immutable after load)" contract.
+- **`Cache::FrequencyCache#get_frequency` no longer raises
+  `ArgumentError`.** Called `get(language_code, force_download)`
+  positionally, but `BaseCache#get` declares `force_download:` as
+  keyword. Fixed to use the keyword form.
+- **`Cache::FrequencyCache#cached_resources` no longer reports the
+  `tmp/` scratch slot.** `BaseCache#initialize` creates
+  `<cache_path>/tmp/` as a working directory; the directory-walking
+  implementation in `FrequencyCache` listed it as a cached language.
+  Added an explicit `basename != "tmp"` exclusion.
+- **`Cache::FrequencyCache#install_local` exists.** `ResourceManager`
+  called `freq_cache.install_local(...)` behind a `respond_to?` guard
+  that always returned `false`, so local frequency installs were
+  silently skipped — `setup(from:)` reported `frequency_status: :local`
+  even though no install happened. Added the method, mirroring
+  `LanguageCache#install_local` but taking a single `path:` kwarg.
+- **`PhonetTable::Rule#match?` is no longer dead code.**
+  `Algorithms::PhonetSuggest` had its own `match_rule` that
+  duplicated the rule-matching logic, ignoring `Rule#match?`
+  entirely. Consolidated into `Rule#match_length` (returning
+  `Integer|nil` — the metaphone walker needs the length to advance
+  its position) with `Rule#match?` as a boolean wrapper;
+  `PhonetSuggest#match_rule` now delegates.
+- **`DoubleNegativeMatcher` recognizes the "not only...but also"
+  correlative.** The previous check fired only on the narrow shape
+  `not [current_negative] only`, missing the actual idiom (where
+  "not" and "only" are adjacent). Replaced with a region-based
+  matcher that finds every exception phrase in the token stream and
+  suppresses any negative whose index falls inside a region. Supports
+  both `"prefix...suffix"` (open-ended) and `"literal n-gram"` (no
+  ellipsis) phrase shapes, driven by the rule's `exceptions.phrases`
+  config.
+- **`SemanticAnalyzer` no longer returns `[]` for OOV words.**
+  `suggest_corrections` called `@model.nearest_neighbors(word)`,
+  which returns `[]` for OOV inputs — but OOV is precisely what the
+  analyzer exists to handle. Added an edit-distance fallback: when
+  the model returns `[]`, walk the vocabulary and return words within
+  Levenshtein distance 2, scored by `1/(1+distance)`. Drive-by fix:
+  `Models::Suggestion.new` was called with `word:` as keyword but
+  the constructor takes `word` positional — exposed once the OOV
+  fallback actually reached the `Suggestion.new` call.
+
+### Removed
+
+- **Orphan files emptied to no-op stubs.**
+  `lib/kotoshu/embeddings/protocols.rb` (plural) had
+  `require_relative 'protocols/embedding_model'` pointing at
+  nonexistent files (loading it raised `LoadError`).
+  `lib/kotoshu/readers/readers.rb` (nested) duplicated the autoload
+  setup in `lib/kotoshu/readers.rb` with `require_relative` calls
+  (violating the project rule against `require_relative` in lib/).
+  Both reduced to documentation-only stubs; no callers were affected.
+  The real protocol definitions live in
+  `lib/kotoshu/embeddings/protocol.rb`; the real reader autoloads
+  live in `lib/kotoshu/readers.rb`.
 
 ## [0.4.0] — 2026-06-29
 
