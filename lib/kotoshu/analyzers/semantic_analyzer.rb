@@ -104,14 +104,22 @@ module Kotoshu
 
       # Suggest corrections for a word.
       #
+      # For in-vocabulary words the embedding model returns the
+      # nearest neighbors. For OOV words (the typical "misspelling"
+      # case the analyzer exists to catch) the embedding model returns
+      # +[]+ because it has no vector for the input. We fall back to
+      # an edit-distance walk over the model's vocabulary so the OOV
+      # case still produces useful candidates that the rest of the
+      # pipeline (confidence scoring, context ranking) can refine.
+      #
       # @param word [String] The misspelled word
       # @param context [Models::Context, nil] Context for context-aware suggestions
       # @return [Array<Models::Suggestion>] Suggested corrections
       def suggest_corrections(word, context: nil)
         return [] if word.nil? || word.empty?
 
-        # Get nearest neighbors from embedding model
         neighbors = @model.nearest_neighbors(word, k: @max_suggestions * 3)
+        neighbors = edit_distance_fallback(word) if neighbors.empty?
 
         # Filter by minimum similarity
         neighbors = neighbors.select { |n| n.similarity >= @min_similarity }
@@ -124,7 +132,7 @@ module Kotoshu
         # Convert to Suggestions
         neighbors.first(@max_suggestions).map do |neighbor|
           Models::Suggestion.new(
-            word: neighbor.word,
+            neighbor.word,
             confidence: neighbor.similarity,
             source: :semantic,
             metadata: {
@@ -173,6 +181,53 @@ module Kotoshu
       end
 
       private
+
+      # Fallback for OOV words: walk the model's vocabulary and return
+      # candidates within edit distance 2. Scored by 1/(1+distance) so
+      # distance-1 matches rank above distance-2 matches. Mirrors the
+      # shape {EmbeddingModel#nearest_neighbors} returns
+      # (+NearestNeighbor+ instances with +similarity+ in [0, 1]).
+      #
+      # @param word [String] OOV query word
+      # @return [Array<Models::NearestNeighbor>]
+      def edit_distance_fallback(word)
+        vocab = @model.vocabulary
+        return [] unless vocab&.any?
+
+        downcased = word.downcase
+        candidates = vocab.each_with_object([]) do |candidate, acc|
+          next if candidate == word || candidate.downcase == downcased
+
+          distance = levenshtein(downcased, candidate.downcase)
+          next unless distance.positive? && distance <= 2
+
+          acc << Models::NearestNeighbor.new(
+            word: candidate,
+            similarity: 1.0 / (1.0 + distance),
+            distance: distance,
+            embedding: nil
+          )
+        end
+
+        candidates.sort.first(@max_suggestions * 3)
+      end
+
+      # Two-row Levenshtein edit distance.
+      def levenshtein(a, b)
+        return b.length if a.empty?
+        return a.length if b.empty?
+
+        prev = (0..b.length).to_a
+        a.each_char.with_index do |achar, i|
+          curr = [i + 1]
+          b.each_char.with_index do |bchar, j|
+            cost = achar == bchar ? 0 : 1
+            curr << [curr[j] + 1, prev[j + 1] + 1, prev[j] + cost].min
+          end
+          prev = curr
+        end
+        prev.last
+      end
 
       # Tokenize text into words.
       #

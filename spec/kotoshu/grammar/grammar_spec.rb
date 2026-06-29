@@ -423,21 +423,31 @@ RSpec.describe Kotoshu::Grammar do
       end
     end
 
-    it "skips negatives that sit between 'not' and 'only'" do
-      # The exception check is `tokens[idx-1] == 'not' && tokens[idx+1] == 'only'`,
-      # which fires on the shape `not [current_negative] only`. This is a
-      # narrow shape (the real "not only... but also" idiom has 'not' and
-      # 'only' adjacent), but it's what the matcher implements. Pin the
-      # current behavior here; fixing the exception check is follow-up.
+    it "suppresses negatives inside the 'not only...but also' correlative" do
+      # "not only ... but also" — both 'not' and 'also' are negatives
+      # by is_negative?, but the construction is grammatical. Every
+      # negative between 'not only' and 'but also' (inclusive) must
+      # be suppressed.
       tokens = [
         tok("not", position: 0),
-        tok("never", position: 4),
-        tok("only", position: 11)
+        tok("only", position: 4),
+        tok("smart", position: 9),
+        tok("but", position: 14),
+        tok("also", position: 18),
+        tok("talented", position: 24)
       ]
-      # 'never' (idx 1) is between 'not' and 'only' → exception fires,
-      # 'never' is not added to negative_indices. Only 'not' (idx 0)
-      # remains — no pairs → 0 errors.
       expect(matcher.match(tokens, rule)).to eq([])
+    end
+
+    it "still fires for negatives outside an unclosed 'not only'" do
+      # 'not only' without a matching 'but also' is not the idiom;
+      # 'not' should still count as a negative.
+      tokens = [
+        tok("not", position: 0),
+        tok("only", position: 4),
+        tok("never", position: 9) # another negative in range
+      ]
+      expect(matcher.match(tokens, rule).length).to eq(1)
     end
 
     it "aggregates multiple negative pairs" do
