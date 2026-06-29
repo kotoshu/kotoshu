@@ -8,7 +8,7 @@ module Kotoshu
     # with similarity score and optional embedding reference.
     #
     # @example Creating a neighbor
-    #   neighbor = NearestNeighbor.new("hello", 0.85, embedding: emb)
+    #   neighbor = NearestNeighbor.new(word: "hello", similarity: 0.85, embedding: emb)
     #   neighbor.to_s  # => "hello [85%]"
     class NearestNeighbor
       attr_reader :word, :similarity, :distance, :embedding
@@ -17,13 +17,15 @@ module Kotoshu
       #
       # @param word [String] The suggested word
       # @param similarity [Float] Cosine similarity (0.0 to 1.0)
+      # @param distance [Float, nil] Optional precomputed distance metric
+      #   (e.g., Euclidean). Defaults to the cosine-derived distance (1 - similarity).
       # @param embedding [WordEmbedding, nil] Optional embedding reference
-      def initialize(word, similarity, embedding: nil)
+      def initialize(word:, similarity:, distance: nil, embedding: nil)
         raise ArgumentError, "Similarity must be 0-1" unless similarity.between?(0.0, 1.0)
 
         @word = word
         @similarity = similarity
-        @distance = 1.0 - similarity
+        @distance = distance || (1.0 - similarity)
         @embedding = embedding
         freeze
       end
