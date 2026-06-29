@@ -124,7 +124,7 @@ module Kotoshu
         # Convert to Suggestions
         neighbors.first(@max_suggestions).map do |neighbor|
           Models::Suggestion.new(
-            word: neighbor.word,
+            neighbor.word,
             confidence: neighbor.similarity,
             source: :semantic,
             metadata: {
