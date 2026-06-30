@@ -62,17 +62,17 @@ RSpec.describe Kotoshu::Models::Result::WordResult do
 
   describe "#initialize" do
     it "stringifies the word" do
-      result = described_class.new(:foo, correct: true)
+      result = described_class.new(word: :foo, correct: true)
       expect(result.word).to eq("foo")
     end
 
     it "accepts metadata" do
-      result = described_class.new("foo", correct: true, metadata: { lang: "en" })
+      result = described_class.new(word: "foo", correct: true, metadata: { lang: "en" })
       expect(result.metadata[:lang]).to eq("en")
     end
 
     it "defaults metadata to an empty hash" do
-      result = described_class.new("foo", correct: true)
+      result = described_class.new(word: "foo", correct: true)
       expect(result.metadata).to eq({})
     end
   end

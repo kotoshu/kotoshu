@@ -130,8 +130,8 @@ module Kotoshu
     #   result.suggestions      # => SuggestionSet with suggestions
     def check_word(word)
       if word.nil? || word.empty?
-        return Models::Result::WordResult.new("", correct: false,
-                                                  suggestions: Suggestions::SuggestionSet.empty)
+        return Models::Result::WordResult.new(word: "", correct: false,
+                                              suggestions: Suggestions::SuggestionSet.empty)
       end
 
       if correct?(word)
@@ -164,7 +164,7 @@ module Kotoshu
 
         if result.incorrect?
           errors << Models::Result::WordResult.new(
-            word,
+            word: word,
             correct: false,
             suggestions: result.suggestions,
             position: pos

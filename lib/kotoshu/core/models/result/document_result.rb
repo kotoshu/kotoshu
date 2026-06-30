@@ -14,17 +14,21 @@ module Kotoshu
         attribute :errors, WordResult, collection: true
         attribute :metadata, :hash, default: {}
 
-        def initialize(file: nil, errors: [], word_count: 0, metadata: {})
+        # Accept framework-private keywords (e.g. +lutaml_register+)
+        # from lutaml-model's +from_hash+ so the round-trip works
+        # without lutaml having to poke ivars directly.
+        def initialize(file: nil, errors: [], word_count: 0, metadata: {}, **kwargs)
           super(
             file: file,
             word_count: word_count,
             errors: errors,
-            metadata: metadata
+            metadata: metadata,
+            **kwargs
           )
         end
 
         def success?
-          errors.empty?
+          Array(errors).empty?
         end
 
         def failed?
@@ -32,7 +36,7 @@ module Kotoshu
         end
 
         def error_count
-          errors.size
+          Array(errors).size
         end
 
         def unique_error_count
