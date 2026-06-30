@@ -18,6 +18,8 @@ module Kotoshu
     autoload :Registry, "kotoshu/language/registry"
     autoload :Detector, "kotoshu/language/detector"
     autoload :LanguageIdentifier, "kotoshu/language/identifier"
+    autoload :Segmenter, "kotoshu/language/segmenter"
+    autoload :Segment, "kotoshu/language/segmenter"
     autoload :Suika, "kotoshu/language/suika"
 
     module Tokenizer
