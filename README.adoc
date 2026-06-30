@@ -970,6 +970,93 @@ kotoshu setup en --want spelling,model
 git clone https://github.com/kotoshu/dictionaries.git ~/src/kotoshu/dictionaries
 ----
 
+== Writing a Document Plugin
+
+Kotoshu ships only `Kotoshu::Documents::PlainTextDocument` for the
+plain-text case. Format-specific parsers (Markdown, AsciiDoc,
+reStructuredText, LaTeX, …) live in plugins — see the
+`kotoshu-document-plugin-boundary` design note. Kotoshu auto-discovers
+plugin files via `Gem.find_files("kotoshu_plugin/document/*.rb")` — install
+the gem and the parser registers itself on first use.
+
+A plugin has three pieces:
+
+1. *Parser class* — responds to
+   `.from_string(text, language_code:)` (and optionally
+   `.from_file(path, language_code:)`). Returns a
+   `Kotoshu::Documents::Document` whose `text_nodes` carry proper
+   `Documents::SourceRange`s.
+2. *Plugin file* — placed at
+   `lib/kotoshu_plugin/document/<format>.rb` in the gem. The file body
+   calls `Kotoshu::Documents.register(format, ParserClass)` at load
+   time.
+3. *Gem dependency* — `kotoshu` (this gem) and whatever
+   format-parsing library the parser wraps (e.g. `kramdown` for
+   Markdown, `asciidoctor` for AsciiDoc).
+
+Example skeleton (`my_markdown_parser` gem):
+
+[source,ruby]
+----
+# lib/my_markdown_parser/document_parser.rb
+module MyMarkdownParser
+  class DocumentParser
+    # Build one or more TextNodes from the Markdown AST, each
+    # carrying a SourceRange that points at the original source.
+    def self.from_string(text, language_code: nil)
+      # ... walk the AST, collect (text, source_offset) per text run,
+      # build TextNodes with SourceRanges ...
+      Kotoshu::Documents::Document.new(
+        text_nodes: nodes,
+        source: text,
+        format: :markdown,
+        language_code: language_code
+      )
+    end
+  end
+end
+----
+
+[source,ruby]
+----
+# lib/kotoshu_plugin/document/markdown.rb
+require "kotoshu"
+require "my_markdown_parser/document_parser"
+Kotoshu::Documents.register(:markdown, MyMarkdownParser::DocumentParser)
+----
+
+After installing the gem, callers get Markdown parsing for free:
+
+[source,ruby]
+----
+require "kotoshu"
+
+doc = Kotoshu::Documents.parse(source, format: :markdown,
+                              language_code: "en")
+errors = Kotoshu::Spellchecker.new(
+  resource_bundle: Kotoshu::ResourceManager.resolve(language: "en")
+).check(doc.flattened_text)
+errors.each do |error|
+  puts "#{error.source_range}: #{error.original} → #{error.recommended_suggestion}"
+end
+----
+
+The structure-aware contract: the analyzer scans
+`doc.flattened_text` (concatenation of every node's `text`), but every
+error carries a `source_range` from the original source. An editor can
+use that range to highlight the user's actual markup, not the
+stripped text. For example, on the source
+
+  I'm an **friend** of Tom
+
+a grammar error "an friend" → "a friend" carries a source_range
+pointing at the original `an **friend**` range, not the flattened
+"an friend" range.
+
+Plugin gems should publish to RubyGems with a runtime dependency on
+`kotoshu >= 0.5.0`. Format-specific parsers are the plugin's
+responsibility — kotoshu never owns document parsing.
+
 == License
 
 BSD 2-Clause — see the link:LICENSE[LICENSE] file for details.
