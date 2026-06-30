@@ -410,6 +410,73 @@ RSpec.describe Kotoshu::Documents do
         expect(described_class.parser_for(:stub_format)).to be_nil
         expect(described_class.registered_formats).to eq([])
       end
+
+      it "resets the discovery flag so the next lookup re-runs discovery" do
+        described_class.reset!
+        # parser_for triggers ensure_plugins_discovered!. With the flag
+        # reset, the lookup walks Gem.find_files again — no crash.
+        expect { described_class.parser_for(:anything) }.not_to raise_error
+      end
+
+      it "clears the discovered_formats list" do
+        described_class.reset!
+        expect(described_class.discovered_formats).to eq([])
+      end
+    end
+
+    describe ".discovered_plugin_files / .discovered_formats" do
+      let(:tmpdir) { Dir.mktmpdir("kotoshu-plugin-spec") }
+      let(:plugin_path) { File.join(tmpdir, "kotoshu_plugin", "document") }
+      let(:plugin_file) { File.join(plugin_path, "stub_format.rb") }
+
+      before do
+        # Drop a real plugin file onto a tmpdir + load path. The file
+        # body registers a parser class for :stub_format_via_file.
+        FileUtils.mkdir_p(plugin_path)
+        File.write(plugin_file, <<~RUBY)
+          # frozen_string_literal: true
+          Kotoshu::Documents.register(:stub_format_via_file, Class.new do
+            def self.from_string(text, language_code: nil)
+              Kotoshu::Documents::PlainTextDocument.from_string(text, language_code: language_code)
+            end
+          end)
+        RUBY
+
+        # Reset discovery so the next lookup re-runs.
+        described_class.reset!
+
+        # Push our tmpdir onto $LOAD_PATH so the plugin file is
+        # discoverable by Kernel#require.
+        $LOAD_PATH.unshift(tmpdir)
+
+        # Stub Gem.find_files (a framework method, not an object) to
+        # surface our plugin file. Per RSpec docs, partial mocks on
+        # module methods are the supported pattern for this.
+        allow(Gem).to receive(:find_files).and_call_original
+        allow(Gem).to receive(:find_files)
+          .with("kotoshu_plugin/document/*.rb")
+          .and_return([plugin_file])
+      end
+
+      after do
+        $LOAD_PATH.delete(tmpdir)
+        described_class.reset!
+        FileUtils.rm_rf(tmpdir)
+      end
+
+      it "discovers plugin files via Gem.find_files" do
+        expect(described_class.discovered_plugin_files).to include(plugin_file)
+      end
+
+      it "loads the plugin file and exposes its registered format" do
+        expect(described_class.parser_for(:stub_format_via_file)).not_to be_nil
+      end
+
+      it "tracks which formats came from auto-discovered plugins" do
+        # Trigger discovery by calling parser_for.
+        described_class.parser_for(:stub_format_via_file)
+        expect(described_class.discovered_formats).to include(:stub_format_via_file)
+      end
     end
   end
 end

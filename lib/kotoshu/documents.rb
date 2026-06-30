@@ -27,6 +27,8 @@ module Kotoshu
     autoload :PlainTextDocument, "kotoshu/documents/plain_text_document"
 
     @parsers = {}
+    @discovered_formats = []
+    @discovered_plugins_loaded = false
 
     class << self
       # Register a document parser for a format symbol.
@@ -47,6 +49,7 @@ module Kotoshu
       # @param format [Symbol]
       # @return [Class, nil]
       def parser_for(format)
+        ensure_plugins_discovered!
         @parsers[format.to_sym]
       end
 
@@ -54,6 +57,7 @@ module Kotoshu
       #
       # @return [Array<Symbol>]
       def registered_formats
+        ensure_plugins_discovered!
         @parsers.keys
       end
 
@@ -68,16 +72,64 @@ module Kotoshu
       # @param language_code [String, nil]
       # @return [Document]
       def parse(source, format:, language_code: nil)
+        ensure_plugins_discovered!
         parser = parser_for(format) || PlainTextDocument
         parser.from_string(source, language_code: language_code)
       end
 
+      # List every plugin file found on the load path via
+      # +Gem.find_files("kotoshu_plugin/document/*.rb")+. Each such
+      # file, when required, is expected to call {register} for the
+      # formats it provides. The list is the raw file paths; not
+      # loaded into the registry yet.
+      #
+      # @return [Array<String>]
+      def discovered_plugin_files
+        Gem.find_files("kotoshu_plugin/document/*.rb").sort
+      end
+
+      # List every format symbol that came from an auto-discovered
+      # plugin (vs. one registered explicitly at runtime). Useful for
+      # diagnostics and "which plugin registered this format?" UX.
+      #
+      # @return [Array<Symbol>]
+      def discovered_formats
+        ensure_plugins_discovered!
+        @discovered_formats.dup.freeze
+      end
+
       # Clear every registration. Test-only — production code should
-      # register once at load time.
+      # register once at load time. Also resets the discovery flag so
+      # the next lookup re-runs Gem.find_files.
       #
       # @return [void]
       def reset!
         @parsers.clear
+        @discovered_formats.clear
+        @discovered_plugins_loaded = false
+      end
+
+      private
+
+      # Walk Gem.find_files for plugin files at most once per
+      # process. Each file is +require+d; the file's body is expected
+      # to call {register}. Idempotent — re-entry is a no-op once the
+      # flag is set.
+      #
+      # The set of formats registered by each plugin file is captured
+      # by snapshotting the registry before and after the require.
+      def ensure_plugins_discovered!
+        return if @discovered_plugins_loaded
+
+        @discovered_plugins_loaded = true
+        before = @parsers.keys
+        discovered_plugin_files.each do |path|
+          require path
+        rescue StandardError, LoadError => e
+          warn "kotoshu: failed to load document plugin #{path}: #{e.message}"
+        end
+        after = @parsers.keys
+        @discovered_formats.concat(after - before)
       end
     end
   end
