@@ -18,7 +18,16 @@ module Kotoshu
         attribute :suggestions, Suggestions::Suggestion, collection: true
         attribute :metadata, :hash, default: {}
 
-        def initialize(word = "", correct:, suggestions: nil, position: nil, metadata: {})
+        # lutaml-model calls +new(**attrs)+ when deserializing via
+        # +from_hash+. The signature accepts every attribute as a
+        # keyword plus a splat for framework-private keywords (e.g.
+        # +lutaml_register+) so the round-trip works without lutaml
+        # having to poke ivars directly.
+        #
+        # +suggestions+ accepts a {Suggestions::SuggestionSet},
+        # an Array, or nil for ergonomic construction; the SuggestionSet
+        # case is unwrapped to its underlying Array.
+        def initialize(word: "", correct: true, suggestions: nil, position: nil, metadata: {}, **kwargs)
           suggestions_array =
             case suggestions
             when Suggestions::SuggestionSet then suggestions.suggestions
@@ -32,7 +41,8 @@ module Kotoshu
             correct: correct,
             position: position,
             suggestions: suggestions_array,
-            metadata: metadata
+            metadata: metadata,
+            **kwargs
           )
         end
 
@@ -91,11 +101,11 @@ module Kotoshu
         alias inspect to_s
 
         def self.correct(word, position: nil)
-          new(word, correct: true, position: position)
+          new(word: word, correct: true, position: position)
         end
 
         def self.incorrect(word, suggestions: nil, position: nil)
-          new(word, correct: false, suggestions: suggestions, position: position)
+          new(word: word, correct: false, suggestions: suggestions, position: position)
         end
       end
     end
