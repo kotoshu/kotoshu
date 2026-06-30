@@ -33,9 +33,50 @@ module Kotoshu
     class << self
       # Register a document parser for a format symbol.
       #
-      # The parser class must respond to `.from_string(text,
-      # language_code:)` and return a {Document}. Optionally also
-      # `.from_file(path, language_code:)` for file-source parsing.
+      # The parser class must respond to:
+      #
+      #   .from_string(text, language_code:) -> Documents::Document
+      #
+      # Optionally also:
+      #
+      #   .from_file(path, language_code:) -> Documents::Document
+      #
+      # ==== Parser contract ====
+      #
+      # The returned {Document}'s +text_nodes+ must each carry a
+      # {Documents::SourceRange} that points at the original
+      # markup-bearing source for that node. This is the structure-aware
+      # contract — the analyzer reads the document's flattened text
+      # to run spelling/grammar checks, but every error is reported
+      # against the original source so an editor or plugin can
+      # highlight the user's actual markup, not the stripped text.
+      #
+      # Example: for the source
+      #
+      #   "I'm an **friend** of Tom"
+      #
+      # the parser produces TextNodes whose SourceRanges cover the
+      # original range, not the flattened "I'm an friend of Tom".
+      # A grammar error "an friend" → "a friend" then carries a
+      # SourceRange pointing at "an **friend**" (the bold span plus the
+      # preceding "an ").
+      #
+      # ==== Format symbol ====
+      #
+      # +format+ is the canonical symbol callers pass to {.parse}. The
+      # gem ships +:plain+ (via {PlainTextDocument}). Plugins
+      # commonly add +:markdown+, +:asciidoc+, +:rst+, +:latex+, etc.
+      # Format symbols are global — two plugins registering the same
+      # symbol is a name clash; the last one wins.
+      #
+      # ==== Discovery ====
+      #
+      # Plugins ship a file under +kotoshu_plugin/document/*.rb+ in
+      # their gem. The first lookup of {.parser_for} / {.parse} walks
+      # +Gem.find_files+ for those files and requires each one. Each
+      # file's body is expected to call {.register} for the formats
+      # it provides. See {.discovered_plugin_files} and
+      # {.discovered_formats}.
       #
       # @param format [Symbol] e.g. :plain, :markdown, :asciidoc
       # @param parser_class [Class] responds to .from_string
