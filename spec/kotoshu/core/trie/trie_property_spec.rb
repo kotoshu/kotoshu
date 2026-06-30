@@ -15,7 +15,7 @@ require "kotoshu"
 # We use RSpec's built-in iteration (no external property-testing
 # library needed) with a fixed random seed for determinism. Each
 # property runs on multiple random input sets.
-RSpec.describe Kotoshu::Core::Trie::Trie, "property-based tests" do
+RSpec.describe Kotoshu::Core::Trie::Trie do
   # Deterministic pseudo-random generator so the suite is reproducible.
   let(:rng) { Random.new(42) }
 
