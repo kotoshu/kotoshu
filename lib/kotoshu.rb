@@ -37,6 +37,7 @@ module Kotoshu
   autoload :PersonalDictionary, "kotoshu/personal_dictionary"
   autoload :Plugins, "kotoshu/plugins"
   autoload :ProjectConfig, "kotoshu/project_config"
+  autoload :MultiLanguageChecker, "kotoshu/multi_language_checker"
   autoload :Readers, "kotoshu/readers"
   autoload :ResourceBundle, "kotoshu/resource_bundle"
   autoload :ResourceManager, "kotoshu/resource_manager"
