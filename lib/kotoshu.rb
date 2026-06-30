@@ -96,6 +96,26 @@ module Kotoshu
     Configuration.instance
   end
 
+  # Replace the global configuration. Useful for tests and for
+  # embedding kotoshu in a larger application that wants to share a
+  # Configuration across multiple Spellcheckers without each one
+  # independently touching the singleton.
+  #
+  # The argument must be a Configuration instance (type-checked so a
+  # typo doesn't silently flip the global to nil and break every
+  # downstream lookup).
+  #
+  # @param config [Configuration]
+  # @return [Configuration] the same instance, for chaining
+  #
+  # @example Inject a test-only configuration
+  #   Kotoshu.configuration = Configuration.new.tap { |c| c.cache_ttl = 1 }
+  def self.configuration=(config)
+    raise ArgumentError, "configuration must be a Configuration instance" unless config.is_a?(Configuration)
+
+    Configuration.instance = config
+  end
+
   # Default spellchecker (singleton). Uses the configured default language.
   # Cache-only — raises ResourceNotSetupError if the default language hasn't
   # been set up via Kotoshu.setup.
