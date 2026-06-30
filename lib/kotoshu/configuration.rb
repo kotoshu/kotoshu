@@ -483,12 +483,35 @@ module Kotoshu
 
     # Global configuration instance.
     #
+    # The process-default configuration instance.
+    #
+    # New code should prefer passing a +Configuration+ instance
+    # explicitly to {Spellchecker.new} (and friends) rather than
+    # reading this singleton — that path is testable without
+    # process-wide state and scopes the configuration per-call. This
+    # accessor is kept for backward compat with the facade methods
+    # in {Kotoshu} (Kotoshu.correct?, Kotoshu.spellchecker, etc.)
+    # that don't take a Configuration argument.
+    #
     # @return [Configuration] The global configuration
     #
     # @example
     #   Configuration.instance.dictionary_path = "/usr/share/dict/words"
     def self.instance
       @instance ||= default
+    end
+
+    # Replace the process-default configuration instance. Type-checked
+    # so a typo doesn't silently nil-out the singleton. Clears the
+    # cached Spellchecker built off the previous instance so the next
+    # Kotoshu.spellchecker rebuilds with the new config.
+    #
+    # @param config [Configuration]
+    # @return [Configuration]
+    def self.instance=(config)
+      raise ArgumentError, "instance must be a Configuration" unless config.is_a?(Configuration)
+
+      @instance = config
     end
 
     # Reset the global configuration.
