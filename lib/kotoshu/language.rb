@@ -37,6 +37,7 @@ module Kotoshu
       autoload :Base, "kotoshu/language/normalizer/base"
       autoload :Arabic, "kotoshu/language/normalizer/arabic"
       autoload :Hebrew, "kotoshu/language/normalizer/hebrew"
+      autoload :Persian, "kotoshu/language/normalizer/persian"
     end
 
     # Base class for per-language implementations (Kotoshu::Languages::*).

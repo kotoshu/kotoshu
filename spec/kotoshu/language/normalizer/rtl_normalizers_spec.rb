@@ -139,3 +139,32 @@ RSpec.describe Kotoshu::Language::Normalizer::Hebrew do
     end
   end
 end
+
+RSpec.describe Kotoshu::Language::Normalizer::Persian do
+  let(:normalizer) { described_class.new }
+
+  describe "#normalize" do
+    it "maps Arabic Yeh to Persian Yeh" do
+      # ي (Arabic, U+064A) → ی (Persian, U+06CC)
+      expect(normalizer.normalize("سيل")).to eq("سیل")
+    end
+
+    it "maps Arabic Kaf to Persian Kaf" do
+      # ك (Arabic, U+0643) → ک (Persian, U+06A9)
+      expect(normalizer.normalize("كتاب")).to eq("کتاب")
+    end
+
+    it "strips diacritics (inherited from Arabic)" do
+      expect(normalizer.normalize("كِتَاب")).to eq("کتاب")
+    end
+
+    it "is idempotent on already-Persian text" do
+      persian = "سلام"
+      expect(normalizer.normalize(persian)).to eq(persian)
+    end
+
+    it "returns '' for nil" do
+      expect(normalizer.normalize(nil)).to eq("")
+    end
+  end
+end
