@@ -405,3 +405,33 @@ rules:
             suggestion: "might have"
     message: '"might of" should be "might have"'
     suggestion: 'might have'
+
+  - id: EN_IN_REGARDS_TO
+    name: "in regards to → in regard to"
+    category: grammar
+    severity: suggestion
+    description: |
+      "In regards to" is non-standard. The correct form is "in regard to"
+      (singular "regard").
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "in regards to"
+            suggestion: "in regard to"
+    message: '"in regards to" should be "in regard to"'
+    suggestion: 'in regard to'
+
+  - id: EN_ASK_FOR_ADVICE
+    name: "advise vs advice"
+    category: grammar
+    severity: suggestion
+    description: |
+      "advise" is a verb; "advice" is a noun. Common phrase confusion:
+      "I need an advise" should be "I need advice".
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "an advise"
+            suggestion: "some advice"
+    message: '"an advise" should be "advice" (noun, uncountable)'
+    suggestion: 'advice'
