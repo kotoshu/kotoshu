@@ -24,5 +24,3 @@ jobs:
     uses: relaton/support/.github/workflows/release.yml@main
     with:
       next_version: ${{ github.event.inputs.next_version }}
-    secrets:
-      rubygems-api-key: ${{ secrets.KOTOSHU_CI_RUBYGEMS_API_KEY }}
