@@ -38,7 +38,7 @@ jobs:
           bundler-cache: true
 
       - name: Configure RubyGems credentials (trusted publishing via OIDC)
-        uses: rubygems/configure-rubygems-credentials@v1
+        uses: rubygems/configure-rubygems-credentials@v1.0.0
         with:
           oidc: true
 
