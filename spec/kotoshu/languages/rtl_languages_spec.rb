@@ -139,3 +139,64 @@ RSpec.describe "RTL language modules" do
     end
   end
 end
+
+RSpec.describe Kotoshu::Languages::Persian do
+  before { Kotoshu::Language::Registry.restore_autoload! }
+
+  describe "registration" do
+    it "registers fa and fa-IR" do
+      expect(Kotoshu::Language::Registry.get("fa")).to eq(described_class)
+      expect(Kotoshu::Language::Registry.get("fa-IR")).to eq(described_class)
+    end
+  end
+
+  describe "instance" do
+    subject(:instance) { described_class.instance }
+
+    it "reports script_type :arabic (Persian uses Arabic script)" do
+      expect(instance.script_type).to eq(:arabic)
+    end
+
+    it "is RTL" do
+      expect(instance.rtl?).to be true
+    end
+
+    it "uses the Persian normalizer" do
+      expect(instance.normalizer).to be_a(Kotoshu::Language::Normalizer::Persian)
+    end
+
+    it "uses a Persian Tokenizer" do
+      expect(instance.tokenizer).to be_a(described_class::Tokenizer)
+    end
+
+    it "uses Custom dictionary class" do
+      expect(instance.dictionary_class).to eq(Kotoshu::Dictionary::Custom)
+    end
+  end
+
+  describe described_class::Tokenizer do
+    let(:tokenizer) { described_class.new }
+
+    it "tokenizes Persian text by splitting on whitespace" do
+      tokens = tokenizer.tokenize("سلام دنیا")
+      expect(tokens).to include("سلام", "دنیا")
+    end
+
+    it "returns [] for nil" do
+      expect(tokenizer.tokenize(nil)).to eq([])
+    end
+
+    it "filters pure numbers" do
+      tokens = tokenizer.tokenize("12345 سلام")
+      expect(tokens).to include("سلام")
+      expect(tokens).not_to include("12345")
+    end
+  end
+
+  describe "normalization integration" do
+    it "normalizer maps Arabic Yeh to Persian Yeh" do
+      norm = described_class.instance.normalizer
+      expect(norm.normalize_word("سيل")).to eq("سیل")
+    end
+  end
+end

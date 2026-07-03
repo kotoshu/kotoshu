@@ -435,3 +435,34 @@ rules:
             suggestion: "some advice"
     message: '"an advise" should be "advice" (noun, uncountable)'
     suggestion: 'advice'
+
+  - id: EN_SUPPOSE_TO
+    name: "suppose to → supposed to"
+    category: grammar
+    severity: error
+    description: |
+      "suppose to" (without the 'd') is a common misspelling of
+      "supposed to" — the final consonant of "supposed" is silent
+      in connected speech.
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "suppose to"
+            suggestion: "supposed to"
+    message: '"suppose to" should be "supposed to"'
+    suggestion: 'supposed to'
+
+  - id: EN_USE_TO
+    name: "use to → used to"
+    category: grammar
+    severity: error
+    description: |
+      "use to" (without the 'd') is a common misspelling of
+      "used to" — same phonetic confusion as "suppose to".
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "use to"
+            suggestion: "used to"
+    message: '"use to" should be "used to"'
+    suggestion: 'used to'

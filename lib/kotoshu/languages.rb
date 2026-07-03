@@ -13,6 +13,7 @@ module Kotoshu
     autoload :German, "kotoshu/languages/de/language"
     autoload :Hebrew, "kotoshu/languages/he/language"
     autoload :Japanese, "kotoshu/languages/ja/language"
+    autoload :Persian, "kotoshu/languages/fa/language"
     autoload :Portuguese, "kotoshu/languages/pt/language"
     autoload :Russian, "kotoshu/languages/ru/language"
     autoload :Spanish, "kotoshu/languages/es/language"
