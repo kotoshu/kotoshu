@@ -355,19 +355,19 @@ RSpec.shared_examples 'a typo pattern detector' do
     context 'with missing double letters' do
       it 'detects missing double letter in middle of word' do
         # helo -> hello (missing second 'l')
-        bonus = strategy.send(:typo_pattern_bonus, 'helo', 'hello')
+        bonus = strategy.typo_pattern_bonus('helo', 'hello')
         expect(bonus).to be > 0
       end
 
       it 'detects missing double letter at end of word' do
         # see -> sees (missing 'e' is not a double letter pattern, but see -> see is)
         # Better example: wel -> well (missing second 'l' at end)
-        bonus = strategy.send(:typo_pattern_bonus, 'wel', 'well')
+        bonus = strategy.typo_pattern_bonus('wel', 'well')
         expect(bonus).to be > 0
       end
 
       it 'does not give bonus when no double letter exists' do
-        bonus = strategy.send(:typo_pattern_bonus, 'hello', 'help')
+        bonus = strategy.typo_pattern_bonus('hello', 'help')
         expect(bonus).to eq(0)
       end
     end
@@ -375,13 +375,13 @@ RSpec.shared_examples 'a typo pattern detector' do
     context 'with extra double letters' do
       it 'detects extra double letter' do
         # hello -> helllo (extra 'l' inserted)
-        bonus = strategy.send(:typo_pattern_bonus, 'hello', 'helllo')
+        bonus = strategy.typo_pattern_bonus('hello', 'helllo')
         expect(bonus).to be > 0
       end
 
       it 'does not give bonus for single deletions' do
         # hello -> hell is a deletion, not an extra double letter
-        bonus = strategy.send(:typo_pattern_bonus, 'hello', 'hell')
+        bonus = strategy.typo_pattern_bonus('hello', 'hell')
         expect(bonus).to eq(0)
       end
     end
@@ -390,7 +390,7 @@ RSpec.shared_examples 'a typo pattern detector' do
   describe '#transposition_bonus' do
     it 'detects single transposition' do
       # wrold -> world (r and o swapped)
-      bonus = strategy.send(:transposition_bonus, 'wrold', 'world')
+      bonus = strategy.transposition_bonus('wrold', 'world')
       expect(bonus).to be > 0
     end
 
@@ -398,15 +398,15 @@ RSpec.shared_examples 'a typo pattern detector' do
       # Note: The transposition_bonus algorithm counts specific adjacent swap patterns.
       # A single adjacent swap gets 200 bonus.
       # Multiple swaps are counted differently (transpositions * 100).
-      single_bonus = strategy.send(:transposition_bonus, 'wrold', 'world')
+      single_bonus = strategy.transposition_bonus('wrold', 'world')
       # 'ab' and 'ba' have no detected transpositions in this algorithm (too short)
       # Let's use a case where we get multiple transpositions
-      multiple_bonus = strategy.send(:transposition_bonus, 'wrodl', 'world')
+      multiple_bonus = strategy.transposition_bonus('wrodl', 'world')
       expect(single_bonus).to be >= multiple_bonus
     end
 
     it 'returns 0 when no transposition exists' do
-      bonus = strategy.send(:transposition_bonus, 'hello', 'help')
+      bonus = strategy.transposition_bonus('hello', 'help')
       expect(bonus).to eq(0)
     end
   end
@@ -423,18 +423,18 @@ RSpec.shared_examples 'a keyboard proximity detector' do
     context 'with QWERTY layout' do
       it 'gives low penalty for adjacent key substitutions' do
         # o -> p substitution (adjacent on QWERTY)
-        penalty = strategy.send(:keyboard_penalty, 'helo', 'help')
+        penalty = strategy.keyboard_penalty('helo', 'help')
         expect(penalty).to be < 100
       end
 
       it 'gives high penalty for distant key substitutions' do
         # a -> m substitution (far apart on keyboard)
-        penalty = strategy.send(:keyboard_penalty, 'cat', 'mat')
+        penalty = strategy.keyboard_penalty('cat', 'mat')
         expect(penalty).to be >= 100
       end
 
       it 'returns 0 when no substitutions exist' do
-        penalty = strategy.send(:keyboard_penalty, 'hello', 'hello')
+        penalty = strategy.keyboard_penalty('hello', 'hello')
         expect(penalty).to eq(0)
       end
     end
