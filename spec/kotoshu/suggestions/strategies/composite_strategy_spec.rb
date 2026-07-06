@@ -191,6 +191,20 @@ RSpec.describe Kotoshu::Suggestions::Strategies::CompositeStrategy do
       # Each entry is a real Suggestion with the strategy name as source
       expect(result.suggestions.first.source).to eq("edit_distance")
     end
+
+    it "deduplicates across strategies in a single batch (TODO 56 T5.1)" do
+      # Both stubs return "hello" — a cross-strategy duplicate.
+      a = StubStrategy.new(name: :a, words: %w[hello])
+      b = StubStrategy.new(name: :b, words: %w[hello])
+      composite = described_class.new(name: :pipeline, strategies: [a, b])
+
+      result = composite.generate(context)
+
+      expect(result.size).to eq(1)
+      # Batch merge means dedup runs once over the full candidate pool,
+      # so duplicates_removed reflects the cross-strategy total.
+      expect(result.duplicates_removed).to eq(1)
+    end
   end
 
   describe "#handles?" do

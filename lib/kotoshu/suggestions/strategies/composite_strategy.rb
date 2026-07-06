@@ -61,21 +61,19 @@ module Kotoshu
           @strategies.select { |s| s.handles?(context) }
         end
 
-        # Generate suggestions by delegating to all child strategies.
+        # Generate suggestions by delegating to all applicable strategies.
+        #
+        # Candidates are collected from every strategy first, then handed
+        # to a single SuggestionSet so dedup and ranking run once over the
+        # full pool (not as a side effect of each merge). TODO 56 T5.1.
         #
         # @param context [Context] The suggestion context
         # @return [SuggestionSet] Combined suggestions from all strategies
         def generate(context)
-          # Create result set
-          result = SuggestionSet.empty(max_size: context.max_results)
-
-          # Process each applicable strategy
-          applicable_strategies(context).each do |strategy|
-            strategy_result = strategy.generate(context)
-            result.merge!(strategy_result)
+          candidates = applicable_strategies(context).flat_map do |strategy|
+            strategy.generate(context).suggestions
           end
-
-          result
+          SuggestionSet.new(candidates, max_size: context.max_results)
         end
 
         # Check if any strategy can handle the context.
