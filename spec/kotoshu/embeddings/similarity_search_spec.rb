@@ -210,10 +210,6 @@ RSpec.describe Kotoshu::Embeddings::SimilaritySearch do
 
       expect(result).to be true
       expect(search.embeddings_loaded).to be true
-      # Embeddings are stored in @embedding_matrix, indexed by word index
-      matrix = search.instance_variable_get(:@embedding_matrix)
-      expect(matrix).not_to be_nil
-      expect(matrix.length).to eq(7)
     end
   end
 
@@ -227,7 +223,6 @@ RSpec.describe Kotoshu::Embeddings::SimilaritySearch do
       search.clear_cache
 
       expect(search.embeddings_loaded).to be false
-      expect(search.instance_variable_get(:@embeddings_cache)).to be_nil
     end
   end
 

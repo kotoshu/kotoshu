@@ -220,7 +220,7 @@ RSpec.describe Kotoshu::Dictionary do
     end
 
     describe "module-level registry" do
-      after { described_class.instance_variable_set(:@registry, nil) }
+      after { Kotoshu::Dictionary.reset_registry! }
 
       it "Kotoshu::Dictionary.register_type adds a class under a symbol" do
         klass = Class.new(described_class)

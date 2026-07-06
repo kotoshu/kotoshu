@@ -206,6 +206,10 @@ module Kotoshu
           @lookup_cache.clear
         end
 
+        def cache_size
+          @lookup_cache.size
+        end
+
         private
 
         def lookup_with_pos(word)
