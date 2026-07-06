@@ -345,4 +345,41 @@ RSpec.describe Kotoshu::Suggestions::SuggestionSet do
       expect(built.size).to eq(2)
     end
   end
+
+  describe "explicit deduplication (TODO 56 T5.1)" do
+    it "tracks the number of duplicates removed" do
+      s1 = Kotoshu::Suggestions::Suggestion.new(word: "hello", distance: 1)
+      s2 = Kotoshu::Suggestions::Suggestion.new(word: "Hello", distance: 2)
+      set = described_class.new([s1, s2], max_size: 10)
+      expect(set.duplicates_removed).to eq(1)
+      expect(set.size).to eq(1)
+    end
+
+    it "reports zero duplicates when all words are unique" do
+      s1 = Kotoshu::Suggestions::Suggestion.new(word: "hello", distance: 1)
+      s2 = Kotoshu::Suggestions::Suggestion.new(word: "world", distance: 2)
+      set = described_class.new([s1, s2], max_size: 10)
+      expect(set.duplicates_removed).to eq(0)
+      expect(set.size).to eq(2)
+    end
+
+    it "deduplicates after merge!" do
+      s1 = Kotoshu::Suggestions::Suggestion.new(word: "hello", distance: 1)
+      s2 = Kotoshu::Suggestions::Suggestion.new(word: "hello", distance: 1)
+      set_a = described_class.new([s1], max_size: 10)
+      set_b = described_class.new([s2], max_size: 10)
+      set_a.merge!(set_b)
+      expect(set_a.size).to eq(1)
+      expect(set_a.duplicates_removed).to eq(1)
+    end
+
+    it "deduplicates case-insensitively" do
+      s1 = Kotoshu::Suggestions::Suggestion.new(word: "Hello", distance: 1)
+      s2 = Kotoshu::Suggestions::Suggestion.new(word: "HELLO", distance: 1)
+      s3 = Kotoshu::Suggestions::Suggestion.new(word: "hello", distance: 1)
+      set = described_class.new([s1, s2, s3], max_size: 10)
+      expect(set.size).to eq(1)
+      expect(set.duplicates_removed).to eq(2)
+    end
+  end
 end

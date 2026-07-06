@@ -7,13 +7,16 @@ module Kotoshu
     class SuggestionSet
       include Enumerable
 
-      attr_reader :suggestions, :max_size
+      # @return [Integer] Number of duplicate suggestions removed by the
+      #   last call to {#deduplicate!}. Zero until deduplicate! runs.
+      attr_reader :suggestions, :max_size, :duplicates_removed
 
       # @param suggestions [Array<Suggestion>] Initial suggestions
       # @param max_size [Integer] Maximum number of suggestions to keep
       def initialize(suggestions = [], max_size: 10)
         @suggestions = suggestions
         @max_size = max_size
+        @duplicates_removed = 0
         sort_and_limit!
       end
 
@@ -227,12 +230,33 @@ module Kotoshu
 
       private
 
-      # Sort suggestions by combined score and limit to max_size.
-      #
-      def sort_and_limit!
+      # Sort suggestions by combined score.
+      def sort!
         @suggestions.sort!
+      end
+
+      # Remove duplicate suggestions (same word, case-insensitive).
+      # Called explicitly so the dedup is visible as a named step,
+      # not buried inside sort_and_limit as a side effect (TODO 56 T5.1).
+      # Tracks the count of removed duplicates for diagnostics.
+      def deduplicate!
+        before = @suggestions.length
         @suggestions.uniq! { |s| s.word.downcase }
+        @duplicates_removed = before - @suggestions.length
+      end
+
+      # Truncate to max_size.
+      def limit!
         @suggestions = @suggestions.first(@max_size)
+      end
+
+      # Sort, deduplicate, then limit. The canonical pipeline called
+      # after every mutation (add, concat, merge!). Each step is a
+      # named method so callers can reason about the order.
+      def sort_and_limit!
+        sort!
+        deduplicate!
+        limit!
       end
     end
   end
