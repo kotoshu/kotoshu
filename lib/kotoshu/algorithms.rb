@@ -17,5 +17,6 @@ module Kotoshu
     autoload :NgramSuggest, "kotoshu/algorithms/ngram_suggest"
     autoload :PhonetSuggest, "kotoshu/algorithms/phonet_suggest"
     autoload :Capitalization, "kotoshu/algorithms/capitalization"
+    autoload :EditDistance, "kotoshu/algorithms/edit_distance"
   end
 end
