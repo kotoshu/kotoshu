@@ -282,63 +282,63 @@ end
 # language-agnostic and should work the same regardless of the
 # keyboard layout or word frequency data.
 RSpec.shared_examples 'an edit distance calculator' do
-  let(:strategy) { described_class.new(dictionary: dictionary) }
+  let(:algorithm) { Kotoshu::Algorithms::EditDistance }
 
   describe '#edit_distance' do
     it 'calculates Levenshtein distance correctly' do
       # Identical words have distance 0
-      expect(strategy.send(:edit_distance, 'hello', 'hello')).to eq(0)
+      expect(algorithm.distance('hello', 'hello')).to eq(0)
 
       # Single character difference
-      expect(strategy.send(:edit_distance, 'hello', 'hell')).to eq(1)
-      expect(strategy.send(:edit_distance, 'hello', 'hallo')).to eq(1)
+      expect(algorithm.distance('hello', 'hell')).to eq(1)
+      expect(algorithm.distance('hello', 'hallo')).to eq(1)
 
       # Multiple character differences
-      expect(strategy.send(:edit_distance, 'hello', 'help')).to eq(2)
-      expect(strategy.send(:edit_distance, 'kitten', 'sitting')).to eq(3)
+      expect(algorithm.distance('hello', 'help')).to eq(2)
+      expect(algorithm.distance('kitten', 'sitting')).to eq(3)
     end
 
     it 'handles empty strings' do
-      expect(strategy.send(:edit_distance, '', 'hello')).to eq(5)
-      expect(strategy.send(:edit_distance, 'hello', '')).to eq(5)
-      expect(strategy.send(:edit_distance, '', '')).to eq(0)
+      expect(algorithm.distance('', 'hello')).to eq(5)
+      expect(algorithm.distance('hello', '')).to eq(5)
+      expect(algorithm.distance('', '')).to eq(0)
     end
 
     it 'handles transpositions correctly (Damerau-Levenshtein)' do
       # Transposition of adjacent characters counts as 1 operation
-      expect(strategy.send(:edit_distance, 'wrold', 'world')).to eq(1)
-      expect(strategy.send(:edit_distance, 'teh', 'the')).to eq(1)
+      expect(algorithm.distance('wrold', 'world')).to eq(1)
+      expect(algorithm.distance('teh', 'the')).to eq(1)
     end
 
     it 'calculates distance for insertions' do
-      expect(strategy.send(:edit_distance, 'helo', 'hello')).to eq(1)
-      expect(strategy.send(:edit_distance, 'cat', 'coat')).to eq(1)
+      expect(algorithm.distance('helo', 'hello')).to eq(1)
+      expect(algorithm.distance('cat', 'coat')).to eq(1)
     end
 
     it 'calculates distance for deletions' do
-      expect(strategy.send(:edit_distance, 'hello', 'helo')).to eq(1)
-      expect(strategy.send(:edit_distance, 'book', 'boo')).to eq(1)
+      expect(algorithm.distance('hello', 'helo')).to eq(1)
+      expect(algorithm.distance('book', 'boo')).to eq(1)
     end
 
     it 'calculates distance for substitutions' do
-      expect(strategy.send(:edit_distance, 'cat', 'cut')).to eq(1)
-      expect(strategy.send(:edit_distance, 'hello', 'hallo')).to eq(1)
+      expect(algorithm.distance('cat', 'cut')).to eq(1)
+      expect(algorithm.distance('hello', 'hallo')).to eq(1)
     end
   end
 
   describe '#edit_distance_with_threshold' do
     it 'returns distance when within threshold' do
-      result = strategy.send(:edit_distance_with_threshold, 'hello', 'hallo', 2)
+      result = algorithm.distance_with_threshold('hello', 'hallo', 2)
       expect(result).to eq(1)
     end
 
     it 'returns nil when exceeding threshold' do
-      result = strategy.send(:edit_distance_with_threshold, 'kitten', 'sitting', 2)
+      result = algorithm.distance_with_threshold('kitten', 'sitting', 2)
       expect(result).to be_nil
     end
 
     it 'returns 0 when threshold is 0 and words match' do
-      result = strategy.send(:edit_distance_with_threshold, 'hello', 'hello', 0)
+      result = algorithm.distance_with_threshold('hello', 'hello', 0)
       expect(result).to eq(0)
     end
   end
