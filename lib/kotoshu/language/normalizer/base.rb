@@ -78,8 +78,6 @@ module Kotoshu
           normalize(str1) == normalize(str2)
         end
 
-        protected
-
         # Strip punctuation from text.
         #
         # @param text [String] Text to strip

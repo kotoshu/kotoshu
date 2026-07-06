@@ -36,15 +36,15 @@ RSpec.describe Kotoshu::Language::Tokenizer::Base do
 
   describe "#skip_token?" do
     it "returns true for empty string" do
-      expect(test_tokenizer.send(:skip_token?, "")).to be true
+      expect(test_tokenizer.skip_token?("")).to be true
     end
 
     it "returns true for pure numbers" do
-      expect(test_tokenizer.send(:skip_token?, "123")).to be true
+      expect(test_tokenizer.skip_token?("123")).to be true
     end
 
     it "returns false for normal words" do
-      expect(test_tokenizer.send(:skip_token?, "hello")).to be false
+      expect(test_tokenizer.skip_token?("hello")).to be false
     end
   end
 

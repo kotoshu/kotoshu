@@ -95,19 +95,19 @@ RSpec.describe Kotoshu::Language::Normalizer::Base do
 
   describe "#strip_punctuation" do
     it "removes punctuation" do
-      result = normalizer.send(:strip_punctuation, "Hello, world!")
+      result = normalizer.strip_punctuation("Hello, world!")
 
       expect(result).to eq("Hello world")
     end
 
     it "preserves letters and numbers" do
-      result = normalizer.send(:strip_punctuation, "abc123")
+      result = normalizer.strip_punctuation("abc123")
 
       expect(result).to eq("abc123")
     end
 
     it "preserves whitespace" do
-      result = normalizer.send(:strip_punctuation, "hello,  world!")
+      result = normalizer.strip_punctuation("hello,  world!")
 
       expect(result).to eq("hello  world")
     end
@@ -115,13 +115,13 @@ RSpec.describe Kotoshu::Language::Normalizer::Base do
 
   describe "#remove_accents" do
     it "removes accents from characters" do
-      result = normalizer.send(:remove_accents, "café résumé")
+      result = normalizer.remove_accents("café résumé")
 
       expect(result).to eq("cafe resume")
     end
 
     it "handles German umlauts" do
-      result = normalizer.send(:remove_accents, "äöüß")
+      result = normalizer.remove_accents("äöüß")
 
       expect(result).to include("a")
       expect(result).to include("o")
@@ -129,7 +129,7 @@ RSpec.describe Kotoshu::Language::Normalizer::Base do
     end
 
     it "preserves non-accented characters" do
-      result = normalizer.send(:remove_accents, "hello")
+      result = normalizer.remove_accents("hello")
 
       expect(result).to eq("hello")
     end
@@ -139,13 +139,13 @@ RSpec.describe Kotoshu::Language::Normalizer::Base do
     it "converts curly quotes to straight" do
       # Using escape sequences for curly quotes
       text = "\u201Chello\u201D \u2018world\u2019"
-      result = normalizer.send(:normalize_quotes, text)
+      result = normalizer.normalize_quotes(text)
 
       expect(result).to eq('"hello" \'world\'')
     end
 
     it "converts backticks" do
-      result = normalizer.send(:normalize_quotes, "`hello`")
+      result = normalizer.normalize_quotes("`hello`")
 
       expect(result).to eq("'hello'")
     end
@@ -153,19 +153,19 @@ RSpec.describe Kotoshu::Language::Normalizer::Base do
 
   describe "#normalize_whitespace" do
     it "collapses multiple spaces" do
-      result = normalizer.send(:normalize_whitespace, "hello    world")
+      result = normalizer.normalize_whitespace("hello    world")
 
       expect(result).to eq("hello world")
     end
 
     it "converts various space characters" do
-      result = normalizer.send(:normalize_whitespace, "hello\u00A0world")
+      result = normalizer.normalize_whitespace("hello\u00A0world")
 
       expect(result).to eq("hello world")
     end
 
     it "strips leading and trailing" do
-      result = normalizer.send(:normalize_whitespace, "  hello world  ")
+      result = normalizer.normalize_whitespace("  hello world  ")
 
       expect(result).to eq("hello world")
     end
