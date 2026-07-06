@@ -38,7 +38,7 @@ RSpec.describe Kotoshu::Suggestions::Strategies::EditDistanceStrategy do
 
     describe '#calculate_enhanced_score' do
       it 'combines multiple scoring factors' do
-        score = strategy.send(:calculate_enhanced_score, 'helo', 'hello', 1)
+        score = strategy.calculate_enhanced_score('helo', 'hello', 1)
         expect(score).to be_a(Numeric)
         expect(score).to be > 0
       end
@@ -46,16 +46,16 @@ RSpec.describe Kotoshu::Suggestions::Strategies::EditDistanceStrategy do
       it 'gives lower score (better) for common typo patterns' do
         # helo -> hello (missing double letter) should score better than
         # helo -> help (substitution)
-        hello_score = strategy.send(:calculate_enhanced_score, 'helo', 'hello', 1)
-        help_score = strategy.send(:calculate_enhanced_score, 'helo', 'help', 1)
+        hello_score = strategy.calculate_enhanced_score('helo', 'hello', 1)
+        help_score = strategy.calculate_enhanced_score('helo', 'help', 1)
 
         expect(hello_score).to be < help_score
       end
 
       it 'penalizes length differences' do
         # Shorter words should score worse when original is longer
-        short_score = strategy.send(:calculate_enhanced_score, 'hello', 'hi', 3)
-        long_score = strategy.send(:calculate_enhanced_score, 'hello', 'helloing', 2)
+        short_score = strategy.calculate_enhanced_score('hello', 'hi', 3)
+        long_score = strategy.calculate_enhanced_score('hello', 'helloing', 2)
 
         expect(short_score).to be > long_score
       end
@@ -66,28 +66,28 @@ RSpec.describe Kotoshu::Suggestions::Strategies::EditDistanceStrategy do
       # It combines character overlap, prefix/suffix matching, and length similarity
 
       it 'returns 1.0 for identical words' do
-        similarity = strategy.send(:calculate_ngram_similarity, 'hello', 'hello')
+        similarity = strategy.calculate_ngram_similarity('hello', 'hello')
         expect(similarity).to eq(1.0)
       end
 
       it 'returns 0.0 for completely different words' do
-        similarity = strategy.send(:calculate_ngram_similarity, 'abc', 'xyz')
+        similarity = strategy.calculate_ngram_similarity('abc', 'xyz')
         expect(similarity).to eq(0.0)
       end
 
       it 'gives high similarity for words with common prefix' do
-        similarity = strategy.send(:calculate_ngram_similarity, 'hello', 'hell')
+        similarity = strategy.calculate_ngram_similarity('hello', 'hell')
         expect(similarity).to be > 0.7
       end
 
       it 'gives high similarity for words with common suffix' do
-        similarity = strategy.send(:calculate_ngram_similarity, 'hello', 'jello')
+        similarity = strategy.calculate_ngram_similarity('hello', 'jello')
         expect(similarity).to be > 0.7
       end
 
       it 'handles words with character overlap' do
         # Both 'hello' and 'help' share 'hel' prefix and 'l' character
-        similarity = strategy.send(:calculate_ngram_similarity, 'hello', 'help')
+        similarity = strategy.calculate_ngram_similarity('hello', 'help')
         expect(similarity).to be > 0.5
       end
     end

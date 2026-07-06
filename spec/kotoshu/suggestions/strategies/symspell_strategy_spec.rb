@@ -137,18 +137,18 @@ RSpec.describe Kotoshu::Suggestions::Strategies::SymSpellStrategy do
 
     it "calculates deletion distance between words" do
       # "hello" and "helo" have deletion distance 1
-      dist = strategy.send(:deletion_distance, "hello", "helo")
+      dist = strategy.deletion_distance("hello", "helo")
       expect(dist).to eq(1)
     end
 
     it "returns 0 for identical words" do
-      dist = strategy.send(:deletion_distance, "hello", "hello")
+      dist = strategy.deletion_distance("hello", "hello")
       expect(dist).to eq(0)
     end
 
     it "returns correct distance for multiple deletions" do
       # "hello" and "heo" have deletion distance 2
-      dist = strategy.send(:deletion_distance, "hello", "heo")
+      dist = strategy.deletion_distance("hello", "heo")
       expect(dist).to eq(2)
     end
   end

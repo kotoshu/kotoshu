@@ -287,6 +287,8 @@ module Kotoshu
           Algorithms::EditDistance.distance_with_threshold(str1, str2, threshold)
         end
 
+        public
+
         # Calculate enhanced score combining multiple factors.
         #
         # Lower score = better suggestion
@@ -436,6 +438,8 @@ module Kotoshu
 
           bonus
         end
+
+        private
 
         # Resolve keyboard layout using OOP registry pattern
         #
