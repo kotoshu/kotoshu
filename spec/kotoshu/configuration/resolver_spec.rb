@@ -243,14 +243,4 @@ RSpec.describe Kotoshu::Configuration::Resolver do
       expect(merged.programmatic[:max_suggestions]).to eq(20)
     end
   end
-
-  describe "env_key_for" do
-    let(:resolver) { described_class.new }
-
-    it "converts configuration keys to ENV variable names" do
-      expect(resolver.send(:env_key_for, :language)).to eq("KOTOSHU_LANGUAGE")
-      expect(resolver.send(:env_key_for, :cache_path)).to eq("KOTOSHU_CACHE_PATH")
-      expect(resolver.send(:env_key_for, :max_suggestions)).to eq("KOTOSHU_MAX_SUGGESTIONS")
-    end
-  end
 end

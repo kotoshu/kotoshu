@@ -120,7 +120,7 @@ RSpec.describe 'Foundation Component Integration' do
         tagger.tag(tokens)
 
         # Second call should use cache
-        expect { tagger.tag(tokens) }.not_to(change { tagger.instance_variable_get(:@lookup_cache).size })
+        expect { tagger.tag(tokens) }.not_to(change(tagger, :cache_size))
       end
     end
   end

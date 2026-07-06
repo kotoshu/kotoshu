@@ -232,6 +232,14 @@ module Kotoshu
       @registry ||= {}
     end
 
+    # Reset the type registry. Used by specs that register throw-away
+    # dictionary classes; not part of the runtime contract.
+    #
+    # @return [void]
+    def self.reset_registry!
+      @registry = {}
+    end
+
     # Register a dictionary type.
     #
     # @param type [Symbol] The type key
