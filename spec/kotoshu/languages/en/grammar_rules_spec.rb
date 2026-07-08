@@ -444,5 +444,44 @@ RSpec.describe Kotoshu::Grammar::RuleEngine do
         expect(capital_error[:suggestion]).to eq('Hello')
       end
     end
+
+    describe 'EN_PROPER_NOUN_CAP rule' do
+      it 'flags "monday" and suggests "Monday"' do
+        tokens = [{ token: 'monday', pos_tag: 'NOUN', position: 0, length: 6 }]
+        errors = rule_engine.check(tokens)
+        proper_errors = errors.select { |e| e[:rule_id] == 'EN_PROPER_NOUN_CAP' }
+        expect(proper_errors.length).to eq(1)
+        expect(proper_errors.first[:suggestion]).to eq('Monday')
+      end
+
+      it 'flags "english" and suggests "English"' do
+        tokens = [{ token: 'english', pos_tag: 'NOUN', position: 0, length: 7 }]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_PROPER_NOUN_CAP' && e[:suggestion] == 'English' }).to be true
+      end
+
+      it 'does NOT flag "Monday" (already capitalized)' do
+        tokens = [{ token: 'Monday', pos_tag: 'NOUN', position: 0, length: 6 }]
+        errors = rule_engine.check(tokens)
+        expect(errors.none? { |e| e[:rule_id] == 'EN_PROPER_NOUN_CAP' }).to be true
+      end
+
+      it 'does NOT flag common nouns like "apple"' do
+        tokens = [{ token: 'apple', pos_tag: 'NOUN', position: 0, length: 5 }]
+        errors = rule_engine.check(tokens)
+        expect(errors.none? { |e| e[:rule_id] == 'EN_PROPER_NOUN_CAP' }).to be true
+      end
+
+      it 'flags multiple proper nouns in a stream' do
+        tokens = [
+          { token: 'monday', pos_tag: 'NOUN', position: 0, length: 6 },
+          { token: 'is', pos_tag: 'VERB', position: 7, length: 2 },
+          { token: 'january', pos_tag: 'NOUN', position: 10, length: 7 }
+        ]
+        errors = rule_engine.check(tokens)
+        proper_errors = errors.select { |e| e[:rule_id] == 'EN_PROPER_NOUN_CAP' }
+        expect(proper_errors.length).to eq(2)
+      end
+    end
   end
 end

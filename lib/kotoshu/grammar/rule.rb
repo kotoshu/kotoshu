@@ -88,6 +88,8 @@ module Kotoshu
           PatternMatchers::PhraseMatcher.new(pattern, exceptions)
         elsif condition_types.include?('sentence_start_check')
           PatternMatchers::SentenceStartMatcher.new(pattern, exceptions)
+        elsif condition_types.include?('word_list_check')
+          PatternMatchers::WordListMatcher.new(pattern, exceptions)
         else
           PatternMatchers::BaseMatcher.new(pattern)
         end
