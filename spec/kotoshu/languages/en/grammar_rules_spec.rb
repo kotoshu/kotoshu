@@ -484,4 +484,90 @@ RSpec.describe Kotoshu::Grammar::RuleEngine do
       end
     end
   end
+
+  describe 'Confusion-phrase rules (TODO 51 Phase 2 subset)' do
+    describe 'then/than phrases' do
+      it 'flags "more then" → "more than"' do
+        tokens = [
+          { token: 'more', position: 0, length: 4 },
+          { token: 'then', position: 5, length: 4 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_MORE_THEN' }).to be true
+      end
+
+      it 'flags "less then" → "less than"' do
+        tokens = [
+          { token: 'less', position: 0, length: 4 },
+          { token: 'then', position: 5, length: 4 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_LESS_THEN' }).to be true
+      end
+
+      it 'flags "rather then" → "rather than"' do
+        tokens = [
+          { token: 'rather', position: 0, length: 6 },
+          { token: 'then', position: 7, length: 4 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_RATHER_THEN' }).to be true
+      end
+
+      it 'flags "other then" → "other than"' do
+        tokens = [
+          { token: 'other', position: 0, length: 5 },
+          { token: 'then', position: 6, length: 4 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_OTHER_THEN' }).to be true
+      end
+
+      it 'does NOT flag "more than" (correct usage)' do
+        tokens = [
+          { token: 'more', position: 0, length: 4 },
+          { token: 'than', position: 5, length: 4 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.none? { |e| e[:rule_id] == 'EN_MORE_THEN' }).to be true
+      end
+    end
+
+    describe 'common phrase confusions' do
+      it 'flags "could care less" → "couldn\'t care less"' do
+        tokens = [
+          { token: 'could', position: 0, length: 5 },
+          { token: 'care', position: 6, length: 4 },
+          { token: 'less', position: 11, length: 4 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_COULD_CARE_LESS' }).to be true
+      end
+
+      it 'flags "for free" → "free"' do
+        tokens = [
+          { token: 'for', position: 0, length: 3 },
+          { token: 'free', position: 4, length: 4 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_FOR_FREE' }).to be true
+      end
+
+      it 'flags "alot" → "a lot"' do
+        tokens = [
+          { token: 'alot', position: 0, length: 4 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_ALOT' }).to be true
+      end
+    end
+
+    describe 'rule loading' do
+      it 'loads all seven confusion-phrase rules' do
+        %w[EN_MORE_THEN EN_LESS_THEN EN_RATHER_THEN EN_OTHER_THEN EN_COULD_CARE_LESS EN_FOR_FREE EN_ALOT].each do |id|
+          expect(rule_engine.rule_exists?(id)).to be true
+        end
+      end
+    end
+  end
 end
