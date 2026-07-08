@@ -143,8 +143,21 @@ module Kotoshu
 
           # Calculate enhanced scores for all candidates
           candidates = []
+          # Length filter: edit distance cannot be less than the length
+          # difference. Skip dictionary words whose length differs from
+          # the input by more than max_dist — they can't possibly match.
+          # This is the single biggest performance win for this strategy:
+          # without it, we pay the full O(m*n) DP cost on every word in
+          # the dictionary.
+          target_length = compare_word.length
+          length_min = target_length - max_dist
+          length_max = target_length + max_dist
+
           all_words.each do |dict_word|
             next if dict_word == word
+
+            dict_len = dict_word.length
+            next if dict_len < length_min || dict_len > length_max
 
             compare_dict = case_insensitive ? dict_word.downcase : dict_word
             dist = edit_distance(compare_word, compare_dict)
