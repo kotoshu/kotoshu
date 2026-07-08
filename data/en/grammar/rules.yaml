@@ -740,3 +740,112 @@ rules:
             suggestion: "a lot"
     message: '"alot" is not a word — use "a lot"'
     suggestion: 'a lot'
+
+  - id: EN_TO_MUCH
+    name: "to much → too much"
+    category: grammar
+    severity: error
+    description: |
+      "to much" is a common confusion. The intensifier "too" (meaning
+      "excessively") is correct, not the preposition "to".
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "to much"
+            suggestion: "too much"
+    message: '"to much" should be "too much"'
+    suggestion: 'too much'
+
+  - id: EN_TO_MANY
+    name: "to many → too many"
+    category: grammar
+    severity: error
+    description: |
+      "to many" is a common confusion. The intensifier "too" is
+      correct before "many".
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "to many"
+            suggestion: "too many"
+    message: '"to many" should be "too many"'
+    suggestion: 'too many'
+
+  - id: EN_AS_FOLLOW
+    name: "as follow → as follows"
+    category: grammar
+    severity: error
+    description: |
+      "as follow" is a common confusion. The fixed expression is
+      "as follows" (always with the 's', regardless of subject
+      number).
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "as follow"
+            suggestion: "as follows"
+    message: '"as follow" should be "as follows"'
+    suggestion: 'as follows'
+
+  - id: EN_BETWEEN_YOU_AND_I
+    name: "between you and I → between you and me"
+    category: grammar
+    severity: error
+    description: |
+      "between you and I" is a common grammar error. Prepositions
+      like "between" take the objective case ("me"), not the
+      subjective ("I").
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "between you and I"
+            suggestion: "between you and me"
+    message: '"between you and I" should be "between you and me"'
+    suggestion: 'between you and me'
+
+  - id: EN_A_PART
+    name: "apart → a part (when joined with of)"
+    category: grammar
+    severity: warning
+    description: |
+      "apart of" is a common confusion. "a part of" (with space)
+      means "a member of" or "a piece of". "apart" (no space)
+      means "separated".
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "apart of"
+            suggestion: "a part of"
+    message: '"apart of" should be "a part of"'
+    suggestion: 'a part of'
+
+  - id: EN_IN_SPITE
+    name: "inspite → in spite"
+    category: grammar
+    severity: error
+    description: |
+      "inspite" is not a word. The correct spelling is "in spite"
+      (two words), as in "in spite of".
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "inspite"
+            suggestion: "in spite"
+    message: '"inspite" should be "in spite"'
+    suggestion: 'in spite'
+
+  - id: EN_ALRIGHT
+    name: "alright → all right"
+    category: grammar
+    severity: suggestion
+    description: |
+      "alright" is non-standard. The accepted form is "all right"
+      (two words). Some dictionaries now accept "alright" as
+      informal, but formal writing prefers "all right".
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "alright"
+            suggestion: "all right"
+    message: '"alright" is non-standard — consider "all right"'
+    suggestion: 'all right'
