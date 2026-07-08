@@ -562,3 +562,17 @@ rules:
               - got
         conditions:
           - type: possessive_contraction_check
+
+  - id: EN_SENTENCE_START_CAP
+    name: "Sentence start capitalization"
+    category: capitalization
+    severity: error
+    description: |
+      The first word of a sentence should be capitalized. Sentence
+      boundaries are: the start of the stream, or any token whose
+      final character is ".", "!", or "?".
+    message: "Sentences should start with a capital letter"
+    suggestion: "Capitalize the first letter"
+    patterns:
+      - conditions:
+          - type: sentence_start_check

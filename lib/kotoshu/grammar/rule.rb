@@ -86,6 +86,8 @@ module Kotoshu
           PatternMatchers::DoubleNegativeMatcher.new(pattern, exceptions)
         elsif condition_types.include?('phrase_check')
           PatternMatchers::PhraseMatcher.new(pattern, exceptions)
+        elsif condition_types.include?('sentence_start_check')
+          PatternMatchers::SentenceStartMatcher.new(pattern, exceptions)
         else
           PatternMatchers::BaseMatcher.new(pattern)
         end
