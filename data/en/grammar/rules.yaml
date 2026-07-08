@@ -630,3 +630,113 @@ rules:
               turkish: Turkish
               greek: Greek
               latin: Latin
+
+  - id: EN_MORE_THEN
+    name: "more then → more than"
+    category: grammar
+    severity: error
+    description: |
+      "more then" is a common confusion. The comparative "more"
+      takes "than" (the comparison conjunction), not "then"
+      (the time adverb).
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "more then"
+            suggestion: "more than"
+    message: '"more then" should be "more than"'
+    suggestion: 'more than'
+
+  - id: EN_LESS_THEN
+    name: "less then → less than"
+    category: grammar
+    severity: error
+    description: |
+      "less then" is a common confusion. "less" takes "than" for
+      comparison.
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "less then"
+            suggestion: "less than"
+    message: '"less then" should be "less than"'
+    suggestion: 'less than'
+
+  - id: EN_RATHER_THEN
+    name: "rather then → rather than"
+    category: grammar
+    severity: error
+    description: |
+      "rather then" is a common confusion. "rather" takes "than"
+      in preference constructions ("I would rather X than Y").
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "rather then"
+            suggestion: "rather than"
+    message: '"rather then" should be "rather than"'
+    suggestion: 'rather than'
+
+  - id: EN_OTHER_THEN
+    name: "other then → other than"
+    category: grammar
+    severity: error
+    description: |
+      "other then" is a common confusion. "other than" is the
+      correct idiom for "except for" or "apart from".
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "other then"
+            suggestion: "other than"
+    message: '"other then" should be "other than"'
+    suggestion: 'other than'
+
+  - id: EN_COULD_CARE_LESS
+    name: "could care less → couldn't care less"
+    category: grammar
+    severity: warning
+    description: |
+      "I could care less" literally means you DO care (because
+      it's possible to care less). The intended idiom is
+      "I couldn't care less" (it's impossible to care less
+      because you already care zero).
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "could care less"
+            suggestion: "couldn't care less"
+    message: "\"could care less\" should be \"couldn't care less\""
+    suggestion: "couldn't care less"
+
+  - id: EN_FOR_FREE
+    name: "for free → free"
+    category: grammar
+    severity: suggestion
+    description: |
+      "for free" is redundant — "free" already means "at no cost".
+      Prefer just "free" (e.g., "I got it free", not "I got it
+      for free").
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "for free"
+            suggestion: "free"
+    message: '"for free" is redundant — consider just "free"'
+    suggestion: 'free'
+
+  - id: EN_ALOT
+    name: "alot → a lot"
+    category: grammar
+    severity: error
+    description: |
+      "alot" is not a word. The correct spelling is "a lot"
+      (two words). "allot" (verb, to distribute) is a different
+      word.
+    patterns:
+      - conditions:
+          - type: phrase_check
+            wrong_phrase: "alot"
+            suggestion: "a lot"
+    message: '"alot" is not a word — use "a lot"'
+    suggestion: 'a lot'
