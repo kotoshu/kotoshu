@@ -257,9 +257,11 @@ module Kotoshu
 
         # Get dictionary words whose length is in [min, max].
         #
-        # For IndexedDictionary backends this uses the length-bucket
-        # index (O(buckets_in_range) instead of O(n) scan). For other
-        # backends, falls back to filtering all_words.
+        # Uses the dictionary's find_by_length_range when the backend
+        # is one that supports it (Dictionary::Base subclasses,
+        # IndexedDictionary) — both expose an index-backed
+        # implementation. Falls back to manual filtering for ad-hoc
+        # dictionary shapes (Hash, Array, Set) used in tests.
         #
         # @param context [Context] The suggestion context
         # @param min [Integer] Minimum length (inclusive)
@@ -268,7 +270,8 @@ module Kotoshu
         def dictionary_words_in_length_range(context, min:, max:)
           dictionary = context.dictionary
 
-          if indexed_dictionary?(dictionary)
+          case dictionary
+          when Kotoshu::Dictionary::Base, ::Kotoshu::Core::IndexedDictionary
             dictionary.find_by_length_range(min_length: min, max_length: max)
           else
             dictionary_words(context).select { |w| w.length >= min && w.length <= max }

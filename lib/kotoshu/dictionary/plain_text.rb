@@ -56,6 +56,7 @@ module Kotoshu
         @word_pattern = word_pattern
         @words = words ? normalize_words(words) : load_words(@path)
         @word_set = build_word_set
+        @length_index = build_length_index
 
         # Register this dictionary type
         self.class.register_type(:plain_text) unless Dictionary.registry.key?(:plain_text)
@@ -137,6 +138,16 @@ module Kotoshu
       # @return [Array<String>] All words
       def words
         @words.dup
+      end
+
+      # Return words whose length is in [min_length, max_length].
+      # Uses the length index — O(buckets) instead of O(n) scan.
+      #
+      # @param min_length [Integer] Minimum length (inclusive)
+      # @param max_length [Integer] Maximum length (inclusive)
+      # @return [Array<String>] Words in the length range
+      def find_by_length_range(min_length:, max_length:)
+        (min_length..max_length).flat_map { |len| @length_index[len] || [] }
       end
 
       # Create a dictionary from an array of words.
@@ -234,6 +245,12 @@ module Kotoshu
       # @return [Hash] Word to index mapping
       def build_word_set
         @words.each_with_index.to_h
+      end
+
+      # Build the length-bucketed index used by find_by_length_range.
+      # O(n) once at construction; queries are O(buckets_in_range).
+      def build_length_index
+        @words.group_by(&:length)
       end
 
       # Normalize an in-memory word list for storage: dup (so callers

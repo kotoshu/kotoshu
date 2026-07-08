@@ -137,6 +137,20 @@ module Kotoshu
         words
       end
 
+      # Return words whose length is in [min_length, max_length].
+      #
+      # Default implementation filters all_words. Subclasses with a
+      # length index (e.g., PlainText) override this for O(buckets)
+      # instead of O(n) lookups — important for edit-distance
+      # strategies that prune candidates by length.
+      #
+      # @param min_length [Integer] Minimum length (inclusive)
+      # @param max_length [Integer] Maximum length (inclusive)
+      # @return [Array<String>] Words in the length range
+      def find_by_length_range(min_length:, max_length:)
+        all_words.select { |w| w.length >= min_length && w.length <= max_length }
+      end
+
       # Get the number of words in the dictionary.
       #
       # @return [Integer] Word count
