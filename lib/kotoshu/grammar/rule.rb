@@ -80,6 +80,8 @@ module Kotoshu
           PatternMatchers::VowelSoundMatcher.new(pattern, exceptions)
         elsif condition_types.include?('context_check')
           PatternMatchers::PossessiveContextMatcher.new(pattern, exceptions)
+        elsif condition_types.include?('possessive_contraction_check')
+          PatternMatchers::PossessiveContractionMatcher.new(pattern, exceptions)
         elsif condition_types.include?('distance_check')
           PatternMatchers::DoubleNegativeMatcher.new(pattern, exceptions)
         elsif condition_types.include?('phrase_check')
