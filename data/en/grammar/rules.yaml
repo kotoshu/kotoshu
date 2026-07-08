@@ -576,3 +576,57 @@ rules:
     patterns:
       - conditions:
           - type: sentence_start_check
+
+  - id: EN_PROPER_NOUN_CAP
+    name: "Proper noun capitalization"
+    category: capitalization
+    severity: error
+    description: |
+      Days of the week, months, languages, and some other common
+      proper nouns must be capitalized in English.
+    message: "Proper nouns should be capitalized"
+    suggestion: "Capitalize the proper noun"
+    patterns:
+      - conditions:
+          - type: word_list_check
+            corrections:
+              # Days of the week
+              monday: Monday
+              tuesday: Tuesday
+              wednesday: Wednesday
+              thursday: Thursday
+              friday: Friday
+              saturday: Saturday
+              sunday: Sunday
+              # Months
+              january: January
+              february: February
+              march: March
+              april: April
+              june: June
+              july: July
+              august: August
+              september: September
+              october: October
+              november: November
+              december: December
+              # Languages and nationalities
+              english: English
+              spanish: Spanish
+              french: French
+              german: German
+              italian: Italian
+              russian: Russian
+              chinese: Chinese
+              japanese: Japanese
+              korean: Korean
+              arabic: Arabic
+              hebrew: Hebrew
+              hindi: Hindi
+              portuguese: Portuguese
+              dutch: Dutch
+              swedish: Swedish
+              polish: Polish
+              turkish: Turkish
+              greek: Greek
+              latin: Latin
