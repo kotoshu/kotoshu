@@ -17,6 +17,7 @@ module Kotoshu
       autoload :PossessiveContractionMatcher, "kotoshu/grammar/pattern_matchers/possessive_contraction_matcher"
       autoload :DoubleNegativeMatcher, "kotoshu/grammar/pattern_matchers/double_negative_matcher"
       autoload :PhraseMatcher, "kotoshu/grammar/pattern_matchers/phrase_matcher"
+      autoload :SentenceStartMatcher, "kotoshu/grammar/pattern_matchers/sentence_start_matcher"
     end
   end
 end

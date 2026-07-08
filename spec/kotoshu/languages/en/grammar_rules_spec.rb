@@ -43,7 +43,7 @@ RSpec.describe Kotoshu::Grammar::RuleEngine do
 
         errors = rule_engine.check(tokens)
 
-        expect(errors).to be_empty
+        expect(errors.none? { |e| e[:rule_id] == "EN_A_VS_AN" }).to be true
       end
 
       it 'accepts "a dog"' do
@@ -54,7 +54,7 @@ RSpec.describe Kotoshu::Grammar::RuleEngine do
 
         errors = rule_engine.check(tokens)
 
-        expect(errors).to be_empty
+        expect(errors.none? { |e| e[:rule_id] == "EN_A_VS_AN" }).to be true
       end
 
       it 'handles "a one-time" correctly' do
@@ -65,7 +65,7 @@ RSpec.describe Kotoshu::Grammar::RuleEngine do
 
         errors = rule_engine.check(tokens)
 
-        expect(errors).to be_empty
+        expect(errors.none? { |e| e[:rule_id] == "EN_A_VS_AN" }).to be true
       end
 
       it 'handles "an hour" correctly' do
@@ -76,7 +76,7 @@ RSpec.describe Kotoshu::Grammar::RuleEngine do
 
         errors = rule_engine.check(tokens)
 
-        expect(errors).to be_empty
+        expect(errors.none? { |e| e[:rule_id] == "EN_A_VS_AN" }).to be true
       end
 
       it 'handles "a university" correctly' do
@@ -87,7 +87,7 @@ RSpec.describe Kotoshu::Grammar::RuleEngine do
 
         errors = rule_engine.check(tokens)
 
-        expect(errors).to be_empty
+        expect(errors.none? { |e| e[:rule_id] == "EN_A_VS_AN" }).to be true
       end
     end
   end
@@ -131,7 +131,7 @@ RSpec.describe Kotoshu::Grammar::RuleEngine do
 
         errors = rule_engine.check(tokens)
 
-        expect(errors).to be_empty
+        expect(errors.none? { |e| e[:rule_id] == "EN_DOUBLE_NEGATIVE" }).to be true
       end
 
       it 'finds double negatives within reasonable distance' do
@@ -185,7 +185,7 @@ RSpec.describe Kotoshu::Grammar::RuleEngine do
 
         errors = rule_engine.check(tokens)
 
-        expect(errors).to be_empty
+        expect(errors.none? { |e| e[:rule_id] == "EN_THERE_THEIR" }).to be true
       end
 
       it 'accepts "there are"' do
@@ -196,7 +196,7 @@ RSpec.describe Kotoshu::Grammar::RuleEngine do
 
         errors = rule_engine.check(tokens)
 
-        expect(errors).to be_empty
+        expect(errors.none? { |e| e[:rule_id] == "EN_THERE_THEIR" }).to be true
       end
     end
   end
@@ -391,6 +391,57 @@ RSpec.describe Kotoshu::Grammar::RuleEngine do
         %w[EN_ITS_IT_S EN_YOUR_YOURE EN_WHOSE_WHOS].each do |id|
           expect(rule_engine.rule_exists?(id)).to be true
         end
+      end
+    end
+  end
+
+  describe 'Capitalization rules (TODO 51 Phase 3)' do
+    describe 'EN_SENTENCE_START_CAP rule' do
+      it 'flags a lowercase first word of a stream' do
+        tokens = [
+          { token: 'hello', pos_tag: 'X', position: 0, length: 5 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_SENTENCE_START_CAP' }).to be true
+      end
+
+      it 'does not flag a capitalized first word' do
+        tokens = [
+          { token: 'Hello', pos_tag: 'X', position: 0, length: 5 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.none? { |e| e[:rule_id] == 'EN_SENTENCE_START_CAP' }).to be true
+      end
+
+      it 'flags a lowercase word after a period' do
+        tokens = [
+          { token: 'Hello.', pos_tag: 'X', position: 0, length: 6 },
+          { token: 'world', pos_tag: 'X', position: 7, length: 5 }
+        ]
+        errors = rule_engine.check(tokens)
+        capital_errors = errors.select { |e| e[:rule_id] == 'EN_SENTENCE_START_CAP' }
+        expect(capital_errors.length).to eq(1)
+        expect(capital_errors.first[:position]).to eq(7)
+      end
+
+      it 'flags lowercase sentence starts across multiple sentences' do
+        tokens = [
+          { token: 'Go.', pos_tag: 'X', position: 0, length: 3 },
+          { token: 'now.', pos_tag: 'X', position: 4, length: 4 },
+          { token: 'hurry', pos_tag: 'X', position: 9, length: 5 }
+        ]
+        errors = rule_engine.check(tokens)
+        capital_errors = errors.select { |e| e[:rule_id] == 'EN_SENTENCE_START_CAP' }
+        expect(capital_errors.length).to eq(2)
+      end
+
+      it 'suggests the capitalized form' do
+        tokens = [
+          { token: 'hello', pos_tag: 'X', position: 0, length: 5 }
+        ]
+        errors = rule_engine.check(tokens)
+        capital_error = errors.find { |e| e[:rule_id] == 'EN_SENTENCE_START_CAP' }
+        expect(capital_error[:suggestion]).to eq('Hello')
       end
     end
   end
