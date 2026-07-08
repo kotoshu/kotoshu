@@ -570,4 +570,86 @@ RSpec.describe Kotoshu::Grammar::RuleEngine do
       end
     end
   end
+
+  describe 'More common confusion-phrase rules' do
+    describe 'to/too' do
+      it 'flags "to much" → "too much"' do
+        tokens = [
+          { token: 'to', position: 0, length: 2 },
+          { token: 'much', position: 3, length: 4 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_TO_MUCH' }).to be true
+      end
+
+      it 'flags "to many" → "too many"' do
+        tokens = [
+          { token: 'to', position: 0, length: 2 },
+          { token: 'many', position: 3, length: 4 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_TO_MANY' }).to be true
+      end
+
+      it 'does NOT flag "too much" (correct usage)' do
+        tokens = [
+          { token: 'too', position: 0, length: 3 },
+          { token: 'much', position: 4, length: 4 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.none? { |e| e[:rule_id] == 'EN_TO_MUCH' }).to be true
+      end
+    end
+
+    describe 'common grammar confusions' do
+      it 'flags "as follow" → "as follows"' do
+        tokens = [
+          { token: 'as', position: 0, length: 2 },
+          { token: 'follow', position: 3, length: 6 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_AS_FOLLOW' }).to be true
+      end
+
+      it 'flags "between you and I" → "between you and me"' do
+        tokens = [
+          { token: 'between', position: 0, length: 7 },
+          { token: 'you', position: 8, length: 3 },
+          { token: 'and', position: 12, length: 3 },
+          { token: 'I', position: 16, length: 1 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_BETWEEN_YOU_AND_I' }).to be true
+      end
+
+      it 'flags "apart of" → "a part of"' do
+        tokens = [
+          { token: 'apart', position: 0, length: 5 },
+          { token: 'of', position: 6, length: 2 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_A_PART' }).to be true
+      end
+
+      it 'flags "inspite" → "in spite"' do
+        tokens = [{ token: 'inspite', position: 0, length: 7 }]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_IN_SPITE' }).to be true
+      end
+
+      it 'flags "alright" → "all right"' do
+        tokens = [{ token: 'alright', position: 0, length: 7 }]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_ALRIGHT' }).to be true
+      end
+    end
+
+    describe 'rule loading' do
+      it 'loads all seven new confusion-phrase rules' do
+        %w[EN_TO_MUCH EN_TO_MANY EN_AS_FOLLOW EN_BETWEEN_YOU_AND_I EN_A_PART EN_IN_SPITE EN_ALRIGHT].each do |id|
+          expect(rule_engine.rule_exists?(id)).to be true
+        end
+      end
+    end
+  end
 end
