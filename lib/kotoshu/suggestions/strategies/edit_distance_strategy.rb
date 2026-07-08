@@ -138,9 +138,6 @@ module Kotoshu
           case_insensitive = dictionary_case_insensitive?(context)
           compare_word = case_insensitive ? word.downcase : word
 
-          # Get all dictionary words
-          all_words = dictionary_words(context)
-
           # Calculate enhanced scores for all candidates
           candidates = []
           # Length filter: edit distance cannot be less than the length
@@ -148,16 +145,18 @@ module Kotoshu
           # the input by more than max_dist — they can't possibly match.
           # This is the single biggest performance win for this strategy:
           # without it, we pay the full O(m*n) DP cost on every word in
-          # the dictionary.
+          # the dictionary. When the dictionary is an IndexedDictionary,
+          # the lookup is O(buckets_in_range) instead of O(n) scan.
           target_length = compare_word.length
           length_min = target_length - max_dist
           length_max = target_length + max_dist
 
-          all_words.each do |dict_word|
-            next if dict_word == word
+          words_to_check = dictionary_words_in_length_range(
+            context, min: length_min, max: length_max
+          )
 
-            dict_len = dict_word.length
-            next if dict_len < length_min || dict_len > length_max
+          words_to_check.each do |dict_word|
+            next if dict_word == word
 
             compare_dict = case_insensitive ? dict_word.downcase : dict_word
             # distance_with_threshold bails out early when the row
@@ -243,7 +242,7 @@ module Kotoshu
         def dictionary_words(context)
           dictionary = context.dictionary
 
-          if defined?(::Kotoshu::Core::IndexedDictionary) && dictionary.is_a?(::Kotoshu::Core::IndexedDictionary)
+          if indexed_dictionary?(dictionary)
             dictionary.all_words
           else
             case dictionary
@@ -254,6 +253,30 @@ module Kotoshu
             else Array(dictionary).flat_map(&:to_a)
             end
           end
+        end
+
+        # Get dictionary words whose length is in [min, max].
+        #
+        # For IndexedDictionary backends this uses the length-bucket
+        # index (O(buckets_in_range) instead of O(n) scan). For other
+        # backends, falls back to filtering all_words.
+        #
+        # @param context [Context] The suggestion context
+        # @param min [Integer] Minimum length (inclusive)
+        # @param max [Integer] Maximum length (inclusive)
+        # @return [Array<String>] Words in the length range
+        def dictionary_words_in_length_range(context, min:, max:)
+          dictionary = context.dictionary
+
+          if indexed_dictionary?(dictionary)
+            dictionary.find_by_length_range(min_length: min, max_length: max)
+          else
+            dictionary_words(context).select { |w| w.length >= min && w.length <= max }
+          end
+        end
+
+        def indexed_dictionary?(dictionary)
+          defined?(::Kotoshu::Core::IndexedDictionary) && dictionary.is_a?(::Kotoshu::Core::IndexedDictionary)
         end
 
         # Check if a word exists in the dictionary.
