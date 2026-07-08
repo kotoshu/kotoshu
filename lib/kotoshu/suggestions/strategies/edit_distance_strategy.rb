@@ -160,8 +160,11 @@ module Kotoshu
             next if dict_len < length_min || dict_len > length_max
 
             compare_dict = case_insensitive ? dict_word.downcase : dict_word
-            dist = edit_distance(compare_word, compare_dict)
-            next if dist > max_dist || dist <= 0
+            # distance_with_threshold bails out early when the row
+            # minimum exceeds max_dist — avoids computing the full
+            # DP for clearly-different pairs of similar-length words.
+            dist = edit_distance_with_threshold(compare_word, compare_dict, max_dist)
+            next unless dist && dist > 0
 
             # Calculate enhanced score (lower is better)
             score = calculate_enhanced_score(compare_word, compare_dict, dist)
