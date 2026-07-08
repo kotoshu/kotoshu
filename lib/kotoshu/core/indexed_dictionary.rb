@@ -21,6 +21,7 @@ module Kotoshu
           lowercase: {},          # case_insensitive: word.downcase => [positions]
           prefix: {},             # prefix => [words]
           suffix: {},             # suffix => [words]
+          length: {},             # length => [words]
           flag: {}                # flag => [words] (future: for Hunspell)
         }
         @size = 0
@@ -59,6 +60,10 @@ module Kotoshu
           @indexes[:suffix][suffix] ||= []
           @indexes[:suffix][suffix] << word
         end
+
+        # Update length index (for length-range queries — used by
+        # edit-distance strategies to prune the dictionary by length).
+        (@indexes[:length][word.length] ||= []) << word
 
         self
       end
@@ -154,7 +159,7 @@ module Kotoshu
       # @param length [Integer] The exact length
       # @return [Array<String>] Words of the given length
       def find_by_length(length)
-        all_words.select { |w| w.length == length }
+        (@indexes[:length][length] || []).dup
       end
 
       # Find words within a length range.
@@ -163,7 +168,7 @@ module Kotoshu
       # @param max_length [Integer] Maximum length
       # @return [Array<String>] Words within the length range
       def find_by_length_range(min_length:, max_length:)
-        all_words.select { |w| w.length >= min_length && w.length <= max_length }
+        (min_length..max_length).flat_map { |len| @indexes[:length][len] || [] }
       end
 
       # Get all words in the dictionary.
