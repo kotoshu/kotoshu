@@ -30,21 +30,26 @@ module Kotoshu
         # @option config [Integer] :max_distance Maximum edit distance (default: 2)
         # @option config [Integer] :max_results Maximum results to return (default: 10)
         def initialize(name: :edit_distance, language_code: 'en', keyboard_layout: nil,
-                       frequency_tiers: nil, **config)
+                       frequency_tiers: nil, frequency_provider: nil, **config)
           super(name: name, **config)
           @language_code = language_code
 
           # Use OOP registry for keyboard layout lookup
           @keyboard_layout = resolve_keyboard_layout(keyboard_layout)
 
-          # Use custom frequency tiers if provided, otherwise load from Kelly data
+          # Frequency data comes from a provider (extracted in TODO 56
+          # T5.1 step 3 Phase A) so the strategy constructor no longer
+          # performs disk IO or network access. Callers can inject a
+          # custom provider for testing.
+          @frequency_provider = frequency_provider || FrequencyProvider.new
+
+          # Use custom frequency tiers if provided, otherwise resolve
+          # lazily through the provider on first use.
           if frequency_tiers
             @frequency_tiers = frequency_tiers
             @common_words = Set.new
           else
-            # Load frequency data for the language from Kelly JSON
-            # This sets @frequency_tiers internally
-            load_frequency_data(language_code)
+            @frequency_tiers = nil
           end
         end
 
@@ -84,21 +89,28 @@ module Kotoshu
         # @param word [String] The word to check
         # @return [Integer] Frequency bonus (0-200)
         def frequency_bonus(word)
-          return 0 unless @frequency_tiers
+          tiers = frequency_tiers
+          return 0 unless tiers
 
           word_downcase = word.downcase
 
           # Top 50: 200 bonus
-          return 200 if @frequency_tiers[:top_50]&.include?(word_downcase)
+          return 200 if tiers[:top_50]&.include?(word_downcase)
 
           # Top 200: 100 bonus
-          return 100 if @frequency_tiers[:top_200]&.include?(word_downcase)
+          return 100 if tiers[:top_200]&.include?(word_downcase)
 
           # Top 1000: 50 bonus
-          return 50 if @frequency_tiers[:top_1000]&.include?(word_downcase)
+          return 50 if tiers[:top_1000]&.include?(word_downcase)
 
           # Not in common words: no bonus
           0
+        end
+
+        # Frequency tiers used for ranking. Lazy-loads from the
+        # provider on first access when not set at construction.
+        def frequency_tiers
+          @frequency_tiers ||= @frequency_provider.tiers_for(@language_code)
         end
 
         # Generate suggestions based on enhanced edit distance scoring.
@@ -454,189 +466,6 @@ module Kotoshu
             Keyboard::Registry.layout_for(@language_code)
           else
             Keyboard::Registry.layout_by_name('QWERTY')
-          end
-        end
-
-        # Load frequency data for the language.
-        #
-        # Uses a tiered approach:
-        # 1. First tries to load from local Kelly JSON files (frequency-list-kelly/data/)
-        # 2. Then tries to load from GitHub frequency.json (Phase 2)
-        # 3. Falls back to local YAML files (Phase 1)
-        # 4. Falls back to empty set if no data available
-        #
-        # This follows the Open-Closed Principle: new languages are added
-        # by creating new JSON/YAML files, not by modifying this class.
-        #
-        # @param language_code [String] ISO 639-1 language code
-        # @return [Hash{Symbol => Set}] Hash with :tiers and :metadata
-        # Load frequency data for the language.
-        #
-        # Uses a tiered approach following OOP cache pattern:
-        # 1. First tries FrequencyCache (Kelly Project from GitHub with caching)
-        # 2. Falls back to local YAML files (legacy)
-        # 3. Falls back to empty set if no data available
-        #
-        # This follows the Open-Closed Principle: new languages are added
-        # by creating new JSON files, not by modifying this class.
-        #
-        # @param language_code [String] ISO 639-1 language code
-        # @return [Hash{Symbol => Set}] Hash with :tiers and :metadata
-        def load_frequency_data(language_code)
-          # Phase 1: Try Kelly FrequencyCache (GitHub download + local caching)
-          cache_result = try_load_from_frequency_cache(language_code)
-          if cache_result && cache_result[:tiers] && cache_result[:tiers][:top_1000].any?
-            @frequency_tiers = cache_result[:tiers]
-            return @frequency_tiers
-          end
-
-          # Phase 2: Load from local YAML files (legacy)
-          yaml_data = Data::CommonWordsLoader.load(language_code)
-
-          if yaml_data[:tiers][:top_1000].any?
-            @frequency_tiers = yaml_data[:tiers]
-            return @frequency_tiers
-          end
-
-          # No data available for this language
-          @frequency_tiers = {
-            top_50: Set.new,
-            top_200: Set.new,
-            top_1000: Set.new
-          }
-          @frequency_tiers
-        end
-
-        # Try to load frequency data from FrequencyCache (OOP cache pattern).
-        #
-        # Uses FrequencyCache to download Kelly frequency lists from GitHub
-        # with automatic caching in $XDG_CACHE_HOME/kotoshu/frequency-lists/
-        #
-        # @param language_code [String] ISO 639-1 language code
-        # @return [Hash, nil] Frequency data or nil if not available
-        def try_load_from_frequency_cache(language_code)
-          cache = Cache::FrequencyCache.new
-
-          # Check if language is supported by Kelly
-          return nil unless cache.available_languages.include?(language_code)
-
-          begin
-            # Try to get from cache (will download if not cached or expired)
-            result = cache.get(language_code)
-            return result if result
-          rescue StandardError => e
-            warn "Warning: Failed to load frequency cache for #{language_code}: #{e.message}" if $VERBOSE
-          end
-
-          nil
-        end
-
-        # Deprecated: Use FrequencyCache instead.
-        # Kept for backwards compatibility during migration.
-        def try_load_from_github(language_code); end
-        def try_load_from_kelly(language_code); end
-        def try_load_kelly_local(language_code); end
-        def try_load_kelly_from_github(language_code); end
-
-        # Kelly Project frequency lists are stored in:
-        # frequency-list-kelly/data/{language_code}.json
-        #
-        # @param language_code [String] ISO 639-1 language code
-        # @return [Hash, nil] Frequency data or nil if not available
-        def try_load_from_kelly(language_code)
-          # Try local paths first
-          local_data = try_load_kelly_local(language_code)
-          return local_data if local_data
-
-          # If not found locally, try downloading from GitHub
-          try_load_kelly_from_github(language_code)
-        end
-
-        # Try to load Kelly data from local file paths.
-        #
-        # @param language_code [String] ISO 639-1 language code
-        # @return [Hash, nil] Frequency data or nil if not available
-        def try_load_kelly_local(language_code)
-          kelly_paths = [
-            # Check if we're in the kotoshu/kotoshu subdirectory
-            File.expand_path('../../../../frequency-list-kelly/data', __dir__),
-            # Check if we're in the kotoshu repo with frequency-list-kelly sibling
-            File.expand_path('../../frequency-list-kelly/data', __dir__),
-            # Check if we're in the kotoshu/lib subdirectory
-            File.expand_path('../../../frequency-list-kelly/data', __dir__),
-            # User's local kotoshu clone
-            File.expand_path('~/src/kotoshu/frequency-list-kelly/data'),
-            # Environment variable override
-            ENV.fetch('KELLY_DATA_PATH', nil)
-          ].compact.uniq
-
-          kelly_paths.each do |path|
-            potential_file = File.join(path, "#{language_code}.json")
-            if File.exist?(potential_file)
-              begin
-                return Data::CommonWordsLoader.load_from_frequency_file(potential_file)
-              rescue StandardError => e
-                warn "Warning: Failed to load local Kelly data for #{language_code}: #{e.message}" if $VERBOSE
-              end
-            end
-          end
-
-          nil
-        end
-
-        # Try to download Kelly data from GitHub.
-        #
-        # Kelly data is cached in $XDG_CACHE_HOME/kotoshu/frequency-lists/
-        #
-        # @param language_code [String] ISO 639-1 language code
-        # @return [Hash, nil] Frequency data or nil if not available
-        def try_load_kelly_from_github(language_code)
-          require 'net/http'
-          require 'fileutils'
-
-          kelly_languages = %w[ar zh en el it no ru sv]
-          return nil unless kelly_languages.include?(language_code)
-
-          # Cache in $XDG_CACHE_HOME/kotoshu/frequency-lists/ (same pattern as dictionaries)
-          cache_dir = File.join(Kotoshu::Paths.cache_path, 'frequency-lists')
-          FileUtils.mkdir_p(cache_dir)
-
-          cached_file = File.join(cache_dir, "#{language_code}.json")
-          cache_ttl = 604_800 # 7 days
-
-          # Use cached file if it exists and is recent
-          if File.exist?(cached_file)
-            file_age = Time.now - File.mtime(cached_file)
-            if file_age < cache_ttl
-              begin
-                data = Data::CommonWordsLoader.load_from_frequency_file(cached_file)
-                return data[:tiers]
-              rescue StandardError => e
-                warn "Warning: Failed to load cached Kelly data for #{language_code}: #{e.message}" if $VERBOSE
-              end
-            end
-          end
-
-          # Download from GitHub (kotoshu/frequency-list-kelly repository)
-          url = "https://raw.githubusercontent.com/kotoshu/frequency-list-kelly/main/data/#{language_code}.json"
-
-          begin
-            warn "Downloading Kelly frequency data for #{language_code} from GitHub..." if $VERBOSE
-
-            uri = URI(url)
-            response = Net::HTTP.get(uri)
-
-            # Validate JSON before saving
-            JSON.parse(response) # Validate it's valid JSON
-
-            # Save to cache
-            File.write(cached_file, response)
-
-            data = Data::CommonWordsLoader.load_from_frequency_file(cached_file)
-            data[:tiers]
-          rescue StandardError => e
-            warn "Warning: Failed to download Kelly data for #{language_code}: #{e.message}" if $VERBOSE
-            nil
           end
         end
       end

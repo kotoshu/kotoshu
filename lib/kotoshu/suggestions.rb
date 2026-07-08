@@ -4,6 +4,7 @@ module Kotoshu
   # Suggestion generation system: strategies, generator, and result types.
   module Suggestions
     autoload :Context, "kotoshu/suggestions/context"
+    autoload :FrequencyProvider, "kotoshu/suggestions/frequency_provider"
     autoload :Generator, "kotoshu/suggestions/generator"
     autoload :Pipeline, "kotoshu/suggestions/pipeline"
     autoload :Suggestion, "kotoshu/suggestions/suggestion"
