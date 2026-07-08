@@ -466,3 +466,99 @@ rules:
             suggestion: "used to"
     message: '"use to" should be "used to"'
     suggestion: 'used to'
+
+  - id: EN_ITS_IT_S
+    name: "its/it's"
+    category: confusion
+    severity: warning
+    description: |
+      "its" (no apostrophe) is the possessive pronoun — like "his"
+      or "her". "it's" (with apostrophe) is a contraction of "it is"
+      or "it has". When "its" is followed by an adjective, adverb,
+      or past participle, the writer usually meant the contraction.
+    message: "Did you mean \"it's\" (contraction of \"it is\")?"
+    suggestion: "it's"
+    patterns:
+      - context:
+          target_token: "its"
+          trigger_when_followed_by:
+            tags: [ADJ, ADV]
+            words:
+              - been
+              - going
+              - getting
+              - becoming
+              - appearing
+              - seeming
+              - looking
+              - feeling
+              - sounding
+              - tasting
+              - smelling
+        conditions:
+          - type: possessive_contraction_check
+
+  - id: EN_YOUR_YOURE
+    name: "your/you're"
+    category: confusion
+    severity: warning
+    description: |
+      "your" is the possessive pronoun. "you're" is a contraction of
+      "you are". When "your" is followed by an adjective or past
+      participle, the writer usually meant the contraction.
+    message: "Did you mean \"you're\" (contraction of \"you are\")?"
+    suggestion: "you're"
+    patterns:
+      - context:
+          target_token: "your"
+          trigger_when_followed_by:
+            tags: [ADJ, ADV]
+            words:
+              - going
+              - getting
+              - becoming
+              - coming
+              - leaving
+              - arriving
+              - doing
+              - making
+              - saying
+              - thinking
+              - feeling
+              - looking
+              - sounding
+        conditions:
+          - type: possessive_contraction_check
+
+  - id: EN_WHOSE_WHOS
+    name: "whose/who's"
+    category: confusion
+    severity: warning
+    description: |
+      "whose" is the possessive form of "who". "who's" is a
+      contraction of "who is" or "who has". When "whose" is followed
+      by a verb form, the writer usually meant the contraction.
+    message: "Did you mean \"who's\" (contraction of \"who is\")?"
+    suggestion: "who's"
+    patterns:
+      - context:
+          target_token: "whose"
+          trigger_when_followed_by:
+            tags: [VERB]
+            words:
+              - coming
+              - going
+              - here
+              - there
+              - talking
+              - speaking
+              - calling
+              - looking
+              - watching
+              - working
+              - doing
+              - making
+              - been
+              - got
+        conditions:
+          - type: possessive_contraction_check

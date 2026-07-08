@@ -315,4 +315,83 @@ RSpec.describe Kotoshu::Grammar::RuleEngine do
       end
     end
   end
+
+  describe 'Possessive / contraction rules (TODO 51 Phase 1)' do
+    describe 'EN_ITS_IT_S rule' do
+      it 'flags "its cold" (should be "it\'s cold")' do
+        tokens = [
+          { token: 'its', pos_tag: 'PRON', position: 0, length: 3 },
+          { token: 'cold', pos_tag: 'ADJ', position: 4, length: 4 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_ITS_IT_S' }).to be true
+      end
+
+      it 'flags "its been" (should be "it\'s been")' do
+        tokens = [
+          { token: 'its', pos_tag: 'PRON', position: 0, length: 3 },
+          { token: 'been', pos_tag: 'VERB', position: 4, length: 4 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_ITS_IT_S' }).to be true
+      end
+
+      it 'does not flag "its color" (possessive is correct)' do
+        tokens = [
+          { token: 'its', pos_tag: 'PRON', position: 0, length: 3 },
+          { token: 'color', pos_tag: 'NOUN', position: 4, length: 5 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.none? { |e| e[:rule_id] == 'EN_ITS_IT_S' }).to be true
+      end
+    end
+
+    describe 'EN_YOUR_YOURE rule' do
+      it 'flags "your going" (should be "you\'re going")' do
+        tokens = [
+          { token: 'your', pos_tag: 'PRON', position: 0, length: 4 },
+          { token: 'going', pos_tag: 'VERB', position: 5, length: 5 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_YOUR_YOURE' }).to be true
+      end
+
+      it 'does not flag "your jacket" (possessive is correct)' do
+        tokens = [
+          { token: 'your', pos_tag: 'PRON', position: 0, length: 4 },
+          { token: 'jacket', pos_tag: 'NOUN', position: 5, length: 6 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.none? { |e| e[:rule_id] == 'EN_YOUR_YOURE' }).to be true
+      end
+    end
+
+    describe 'EN_WHOSE_WHOS rule' do
+      it 'flags "whose coming" (should be "who\'s coming")' do
+        tokens = [
+          { token: 'whose', pos_tag: 'PRON', position: 0, length: 5 },
+          { token: 'coming', pos_tag: 'VERB', position: 6, length: 6 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.any? { |e| e[:rule_id] == 'EN_WHOSE_WHOS' }).to be true
+      end
+
+      it 'does not flag "whose book" (possessive is correct)' do
+        tokens = [
+          { token: 'whose', pos_tag: 'PRON', position: 0, length: 5 },
+          { token: 'book', pos_tag: 'NOUN', position: 6, length: 4 }
+        ]
+        errors = rule_engine.check(tokens)
+        expect(errors.none? { |e| e[:rule_id] == 'EN_WHOSE_WHOS' }).to be true
+      end
+    end
+
+    describe 'rule loading' do
+      it 'loads all three possessive/contraction rules' do
+        %w[EN_ITS_IT_S EN_YOUR_YOURE EN_WHOSE_WHOS].each do |id|
+          expect(rule_engine.rule_exists?(id)).to be true
+        end
+      end
+    end
+  end
 end
