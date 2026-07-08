@@ -5,6 +5,10 @@
 # trusted publishing from working when the secret isn't configured.
 # This standalone version uses the
 # rubygems/configure-rubygems-credentials action directly for OIDC.
+#
+# Does NOT use `gem bump` (provided by the `gemman` gem) — that
+# command isn't available in a stock rubygems install. Version
+# bumping is done inline via sed + git.
 name: release
 
 permissions:
@@ -47,24 +51,43 @@ jobs:
         run: |
           CURRENT=$(ruby -e "require './lib/kotoshu/version'; puts Kotoshu::VERSION")
           echo "current=$CURRENT" >> $GITHUB_OUTPUT
-          NEXT="${{ github.event.inputs.next_version }}"
-          if [ "$NEXT" = "skip" ]; then
+          NEXT_INPUT="${{ github.event.inputs.next_version }}"
+          if [ "$NEXT_INPUT" = "skip" ]; then
             echo "next=$CURRENT" >> $GITHUB_OUTPUT
             echo "skip_bump=true" >> $GITHUB_OUTPUT
-          elif echo "$NEXT" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+'; then
-            echo "next=$NEXT" >> $GITHUB_OUTPUT
+          elif echo "$NEXT_INPUT" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+'; then
+            echo "next=$NEXT_INPUT" >> $GITHUB_OUTPUT
             echo "skip_bump=false" >> $GITHUB_OUTPUT
           else
-            BUMPED=$(gem bump --no-commit --version "$NEXT" 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | tail -1)
-            git checkout -- lib/kotoshu/version.rb 2>/dev/null || true
+            # Semantic-bump shorthand (major/minor/patch) — compute the
+            # next version from CURRENT without depending on `gem bump`.
+            BUMPED=$(ruby -e "
+              current = '${CURRENT}'.split('.').map(&:to_i)
+              case '${NEXT_INPUT}'
+              when 'major' then current[0] += 1; current[1] = 0; current[2] = 0
+              when 'minor' then current[1] += 1; current[2] = 0
+              when 'patch' then current[2] += 1
+              else abort \"unsupported bump: ${NEXT_INPUT}\"
+              end
+              print current.join('.')
+            ")
             echo "next=$BUMPED" >> $GITHUB_OUTPUT
             echo "skip_bump=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Bump version and tag
+      - name: Bump version, commit, tag, push
         if: steps.version.outputs.skip_bump != 'true'
         run: |
-          gem bump --version ${{ steps.version.outputs.next }} --tag --push
+          NEXT="${{ steps.version.outputs.next }}"
+          # Rewrite lib/kotoshu/version.rb in place.
+          sed -i -E "s/VERSION = '[0-9.]+'/VERSION = '${NEXT}'/" lib/kotoshu/version.rb
+          git config user.name  "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git add lib/kotoshu/version.rb
+          git commit -m "chore: bump VERSION to ${NEXT} for release"
+          git tag "v${NEXT}"
+          git push origin "${{ github.ref_name }}"
+          git push origin "v${NEXT}"
 
       - name: Build gem
         run: gem build kotoshu.gemspec
