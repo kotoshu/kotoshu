@@ -105,6 +105,34 @@ module Kotoshu
         directories.map { |path| File.basename(path) }
       end
 
+      # Load cached resource data (implements abstract method).
+      #
+      # Public — this is the cache-only reader BaseCache declares
+      # publicly; resolve paths and FrequencyProvider use it to read
+      # without any download.
+      #
+      # @param language_code [String] The language code
+      # @return [Hash, nil] Loaded frequency data
+      def load_cached(language_code)
+        frequency_file = frequency_file_path(language_code)
+        metadata_path = metadata_path(language_code)
+
+        return nil unless File.exist?(frequency_file) && File.exist?(metadata_path)
+
+        metadata = read_metadata(metadata_path)
+        return nil unless metadata
+
+        # Load frequency file
+        # CommonWordsLoader autoloaded via Kotoshu::Data
+        data = Data::CommonWordsLoader.load_from_frequency_file(frequency_file)
+
+        {
+          frequency_path: frequency_file,
+          tiers: data[:tiers],
+          metadata: metadata
+        }
+      end
+
       protected
 
       # Download a specific resource (implements abstract method).
@@ -148,30 +176,6 @@ module Kotoshu
 
         # Load and return the data
         load_cached(language_code)
-      end
-
-      # Load cached resource data (implements abstract method).
-      #
-      # @param language_code [String] The language code
-      # @return [Hash, nil] Loaded frequency data
-      def load_cached(language_code)
-        frequency_file = frequency_file_path(language_code)
-        metadata_path = metadata_path(language_code)
-
-        return nil unless File.exist?(frequency_file) && File.exist?(metadata_path)
-
-        metadata = read_metadata(metadata_path)
-        return nil unless metadata
-
-        # Load frequency file
-        # CommonWordsLoader autoloaded via Kotoshu::Data
-        data = Data::CommonWordsLoader.load_from_frequency_file(frequency_file)
-
-        {
-          frequency_path: frequency_file,
-          tiers: data[:tiers],
-          metadata: metadata
-        }
       end
 
       # Get metadata file path for a resource.
