@@ -113,6 +113,7 @@ module Kotoshu
 
         @words << lookup_word
         @word_set[lookup_word] = true
+        (@length_index[lookup_word.length] ||= []) << lookup_word
 
         true
       end
@@ -129,6 +130,7 @@ module Kotoshu
 
         @word_set.delete(lookup_word)
         @words.delete(lookup_word)
+        @length_index[lookup_word.length]&.delete(lookup_word)
 
         true
       end
@@ -249,6 +251,7 @@ module Kotoshu
 
       # Build the length-bucketed index used by find_by_length_range.
       # O(n) once at construction; queries are O(buckets_in_range).
+      # add_word and remove_word maintain the buckets incrementally.
       def build_length_index
         @words.group_by(&:length)
       end

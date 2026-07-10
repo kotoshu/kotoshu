@@ -491,6 +491,24 @@ RSpec.shared_examples 'a mutable dictionary backend' do
     end
   end
 
+  describe '#find_by_length_range after mutation' do
+    it 'includes words added after construction' do
+      dict = build_dictionary(%w[cat dog])
+      dict.add_word('bird')
+
+      expect(dict.find_by_length_range(min_length: 4, max_length: 4))
+        .to include('bird')
+    end
+
+    it 'excludes words removed after construction' do
+      dict = build_dictionary(%w[cat dog bird])
+      dict.remove_word('bird')
+
+      expect(dict.find_by_length_range(min_length: 4, max_length: 4))
+        .not_to include('bird')
+    end
+  end
+
   describe '#add_word after #remove_word' do
     it 're-adds a previously removed word' do
       dict = build_dictionary(%w[apple berry])
