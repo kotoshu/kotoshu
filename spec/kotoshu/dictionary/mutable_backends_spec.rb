@@ -10,6 +10,29 @@ RSpec.describe "mutable dictionary backends" do
     end
 
     it_behaves_like "a mutable dictionary backend"
+
+    describe "suggestion generation after mutation" do
+      def suggestions_for(dict, word)
+        generator = Kotoshu::Suggestions::Generator.new(
+          dict, algorithms: [Kotoshu::Suggestions::Strategies::EditDistanceStrategy]
+        )
+        generator.generate(word).suggestions.map(&:word)
+      end
+
+      it "suggests words added after construction (Configuration custom_words path)" do
+        dict = build_dictionary(%w[cat dog bird])
+        dict.add_word("hello")
+
+        expect(suggestions_for(dict, "helo")).to include("hello")
+      end
+
+      it "never suggests removed words" do
+        dict = build_dictionary(%w[cat dog bird])
+        dict.remove_word("bird")
+
+        expect(suggestions_for(dict, "brid")).not_to include("bird")
+      end
+    end
   end
 
   describe Kotoshu::Dictionary::Custom do
