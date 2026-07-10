@@ -346,4 +346,17 @@ RSpec.describe Kotoshu::Cli::CacheCommand do
       end
     end
   end
+
+  describe "#download in offline mode" do
+    it "surfaces ResourceUnavailable (exit 3) instead of a raw error" do
+      original = Kotoshu.configuration.offline
+      Kotoshu.configuration.offline = true
+      cli = create_cli(type: "spelling")
+
+      expect { cli.download("en") }
+        .to raise_error(Kotoshu::Cli::Errors::ResourceUnavailable, /offline mode/)
+    ensure
+      Kotoshu.configuration.offline = original
+    end
+  end
 end

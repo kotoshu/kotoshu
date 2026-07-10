@@ -127,6 +127,48 @@ module Kotoshu
         end.uniq
       end
 
+      # Load cached resource data (implements abstract method).
+      #
+      # Public — this is the cache-only reader BaseCache declares
+      # publicly; resolve paths use it to read without any download.
+      #
+      # Verifies the cached model file's SHA-256 against the checksum
+      # recorded at download time. A mismatch — truncated file, disk
+      # corruption, manual edit — raises {Kotoshu::IntegrityError} with
+      # a remediation hint pointing at the cache subcommand, matching
+      # the Phase C contract of TODO.impl/38-onnx-semantic-gating.md.
+      # Caches written before checksums were recorded are accepted as
+      # "unverified" (graceful degradation).
+      #
+      # @param resource_id [String] The resource identifier
+      # @return [Hash, nil] Loaded model info
+      # @raise [Kotoshu::IntegrityError] if the cached file's checksum
+      #   does not match the recorded checksum
+      def load_cached(resource_id)
+        language = extract_language(resource_id)
+        type = extract_type(resource_id)
+        return nil unless language && type
+
+        model_info = AVAILABLE_MODELS[type.to_sym][language.to_sym]
+        return nil unless model_info
+
+        metadata_path = metadata_path_for(resource_id)
+        return nil unless File.exist?(metadata_path)
+
+        metadata = read_metadata(metadata_path)
+        return nil unless metadata
+
+        # For .gz files, the decompressed version is stored without .gz extension
+        filename = model_info[:file].sub('.gz', '')
+        model_file = File.join(resource_dir_for(resource_id), filename)
+
+        return nil unless File.exist?(model_file)
+
+        verify_cached_integrity!(resource_id, metadata, model_file)
+
+        { model_path: model_file, metadata: metadata }
+      end
+
       protected
 
       # Download a specific resource (implements abstract method).
@@ -170,45 +212,6 @@ module Kotoshu
 
           { model_path: model_file, metadata: metadata }
         end
-      end
-
-      # Load cached resource data (implements abstract method).
-      #
-      # Verifies the cached model file's SHA-256 against the checksum
-      # recorded at download time. A mismatch — truncated file, disk
-      # corruption, manual edit — raises {Kotoshu::IntegrityError} with
-      # a remediation hint pointing at the cache subcommand, matching
-      # the Phase C contract of TODO.impl/38-onnx-semantic-gating.md.
-      # Caches written before checksums were recorded are accepted as
-      # "unverified" (graceful degradation).
-      #
-      # @param resource_id [String] The resource identifier
-      # @return [Hash, nil] Loaded model info
-      # @raise [Kotoshu::IntegrityError] if the cached file's checksum
-      #   does not match the recorded checksum
-      def load_cached(resource_id)
-        language = extract_language(resource_id)
-        type = extract_type(resource_id)
-        return nil unless language && type
-
-        model_info = AVAILABLE_MODELS[type.to_sym][language.to_sym]
-        return nil unless model_info
-
-        metadata_path = metadata_path_for(resource_id)
-        return nil unless File.exist?(metadata_path)
-
-        metadata = read_metadata(metadata_path)
-        return nil unless metadata
-
-        # For .gz files, the decompressed version is stored without .gz extension
-        filename = model_info[:file].sub('.gz', '')
-        model_file = File.join(resource_dir_for(resource_id), filename)
-
-        return nil unless File.exist?(model_file)
-
-        verify_cached_integrity!(resource_id, metadata, model_file)
-
-        { model_path: model_file, metadata: metadata }
       end
 
       # Get metadata file path for a resource.

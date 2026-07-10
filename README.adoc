@@ -15,7 +15,7 @@ directory layout, SHA-256 integrity verification, SARIF output, an
 
 * Two-stage resource model — `Kotoshu.setup(:en)` then `Kotoshu.correct?("hello")`. The hot path is cache-only and raises `ResourceNotSetupError` on miss; downloads are never implicit.
 * `Kotoshu.check(text, language: "en")` / `Kotoshu.suggest("helo")` — full document check and suggestions
-* `Kotoshu.spellchecker_for(lang, strict: true)` — re-raise on optional-resource failures
+* `Kotoshu.spellchecker_for(lang)` — per-language checker resolved from the cache (`strict:` is a `Kotoshu.setup` option)
 * `kotoshu check FILE` CLI with these flags:
   ** `--language en|de|es|fr|pt|ru|auto` (default: `auto`)
   ** `--format text|json|sarif`

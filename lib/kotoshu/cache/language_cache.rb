@@ -188,6 +188,8 @@ module Kotoshu
       # @param language [String] Language code
       # @return [Hash] Dictionary paths and metadata
       def download_spelling(language)
+        raise Kotoshu::ResourceNotCachedError.new(language, "spelling") if offline?
+
         lang_path = resource_dir_for("#{language}:spelling")
         resource_id = "#{language}:spelling"
 
@@ -226,6 +228,8 @@ module Kotoshu
       # @param language [String] Language code
       # @return [Hash] Rules path and metadata
       def download_grammar(language)
+        raise Kotoshu::ResourceNotCachedError.new(language, "grammar") if offline?
+
         lang_path = resource_dir_for("#{language}:grammar")
         resource_id = "#{language}:grammar"
 
@@ -311,21 +315,6 @@ module Kotoshu
         when "frequency" then download_frequency(language)
         else raise "Unknown resource type: #{type}"
         end
-      end
-
-      # Load cached resource data (implements abstract method).
-      #
-      # @param resource_id [String] The resource identifier
-      # @return [Object, nil] Loaded resource or nil
-      def load_cached(resource_id)
-        parts = parse_resource_id(resource_id)
-        return nil unless parts
-
-        type = parts[1]
-        metadata = load_metadata_for(resource_id)
-        return nil unless metadata
-
-        load_cached_resource_by_type(resource_id, type, metadata)
       end
 
       # Load metadata for a resource.
@@ -418,6 +407,24 @@ module Kotoshu
       end
 
       public
+
+      # Load cached resource data (implements abstract method).
+      #
+      # Public — this is the cache-only reader BaseCache declares
+      # publicly; resolve paths use it to read without any download.
+      #
+      # @param resource_id [String] The resource identifier
+      # @return [Object, nil] Loaded resource or nil
+      def load_cached(resource_id)
+        parts = parse_resource_id(resource_id)
+        return nil unless parts
+
+        type = parts[1]
+        metadata = load_metadata_for(resource_id)
+        return nil unless metadata
+
+        load_cached_resource_by_type(resource_id, type, metadata)
+      end
 
       # Get metadata file path for a resource.
       #

@@ -217,7 +217,9 @@ module Kotoshu
       resource_id = "#{lang}:spelling"
       raise ResourceNotSetupError.new(lang, "spelling") unless cache.available?(resource_id)
 
-      result = cache.get(resource_id) || cache.load_cached(resource_id)
+      # Cache-only by construction: resolve must never download, so read
+      # via load_cached instead of the download-on-miss get.
+      result = cache.load_cached(resource_id)
       raise ResourceNotSetupError.new(lang, "spelling") unless result
 
       Dictionary::Hunspell.new(
@@ -233,7 +235,7 @@ module Kotoshu
       raise ResourceNotSetupError.new(lang, "frequency") unless cache.available?(lang)
 
       begin
-        cache.get(lang)
+        cache.load_cached(lang)
       rescue StandardError
         nil
       end
@@ -246,7 +248,7 @@ module Kotoshu
       raise ResourceNotSetupError.new(lang, "model") unless cache.available?(resource_id)
 
       begin
-        cache.get(resource_id)
+        cache.load_cached(resource_id)
       rescue StandardError
         nil
       end

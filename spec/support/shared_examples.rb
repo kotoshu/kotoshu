@@ -440,3 +440,95 @@ RSpec.shared_examples 'a keyboard proximity detector' do
     end
   end
 end
+
+# Contract for dictionaries whose contents can change after construction.
+# Including contexts must define `build_dictionary(words)` returning a
+# case-insensitive dictionary instance containing exactly +words+.
+RSpec.shared_examples 'a mutable dictionary backend' do
+  describe '#remove_word' do
+    it 'removes exactly the requested word across sequential removals' do
+      dict = build_dictionary(%w[apple berry cherry])
+
+      expect(dict.remove_word('apple')).to be true
+      expect(dict.remove_word('berry')).to be true
+
+      expect(dict.words).to contain_exactly('cherry')
+    end
+
+    it 'keeps words and include? consistent when removing in reverse order' do
+      dict = build_dictionary(%w[apple berry cherry])
+
+      expect(dict.remove_word('cherry')).to be true
+      expect(dict.remove_word('berry')).to be true
+
+      expect(dict.words).to contain_exactly('apple')
+      expect(dict.include?('apple')).to be true
+      expect(dict.include?('berry')).to be false
+      expect(dict.include?('cherry')).to be false
+    end
+
+    it 'returns false and leaves state untouched for an unknown word' do
+      dict = build_dictionary(%w[apple berry])
+
+      expect(dict.remove_word('durian')).to be false
+      expect(dict.words).to contain_exactly('apple', 'berry')
+    end
+
+    it 'removes case-insensitively' do
+      dict = build_dictionary(%w[apple])
+
+      expect(dict.remove_word('Apple')).to be true
+      expect(dict.include?('apple')).to be false
+      expect(dict.words).to be_empty
+    end
+
+    it 'removes every duplicate copy of a word' do
+      dict = build_dictionary(%w[apple apple berry])
+
+      expect(dict.remove_word('apple')).to be true
+      expect(dict.words).to contain_exactly('berry')
+      expect(dict.include?('apple')).to be false
+    end
+  end
+
+  describe '#find_by_length_range after mutation' do
+    it 'includes words added after construction' do
+      dict = build_dictionary(%w[cat dog])
+      dict.add_word('bird')
+
+      expect(dict.find_by_length_range(min_length: 4, max_length: 4))
+        .to include('bird')
+    end
+
+    it 'excludes words removed after construction' do
+      dict = build_dictionary(%w[cat dog bird])
+      dict.remove_word('bird')
+
+      expect(dict.find_by_length_range(min_length: 4, max_length: 4))
+        .not_to include('bird')
+    end
+  end
+
+  describe '#add_word after #remove_word' do
+    it 're-adds a previously removed word' do
+      dict = build_dictionary(%w[apple berry])
+      dict.remove_word('apple')
+
+      expect(dict.add_word('apple')).to be true
+      expect(dict.include?('apple')).to be true
+      expect(dict.words).to contain_exactly('apple', 'berry')
+    end
+
+    it 'stays consistent across interleaved add/remove sequences' do
+      dict = build_dictionary(%w[alpha beta gamma delta])
+
+      dict.remove_word('beta')
+      dict.add_word('epsilon')
+      dict.remove_word('delta')
+
+      expect(dict.words).to contain_exactly('alpha', 'gamma', 'epsilon')
+      %w[alpha gamma epsilon].each { |w| expect(dict.include?(w)).to be true }
+      %w[beta delta].each { |w| expect(dict.include?(w)).to be false }
+    end
+  end
+end

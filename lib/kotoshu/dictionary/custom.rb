@@ -84,10 +84,10 @@ module Kotoshu
         return false if word.nil? || word.empty?
 
         lookup_word = normalize_word(word)
-        return false if @word_set.key?(lookup_word)
+        return false if lookup_word.nil? || @word_set.key?(lookup_word)
 
         @words << lookup_word
-        @word_set[lookup_word] = @words.length - 1
+        @word_set[lookup_word] = true
 
         true
       end
@@ -102,8 +102,8 @@ module Kotoshu
         lookup_word = normalize_word(word)
         return false unless @word_set.key?(lookup_word)
 
-        index = @word_set.delete(lookup_word)
-        @words.delete_at(index)
+        @word_set.delete(lookup_word)
+        @words.delete(lookup_word)
 
         true
       end
@@ -182,9 +182,9 @@ module Kotoshu
 
       # Build a hash set for O(1) lookups.
       #
-      # @return [Hash] Word to index mapping
+      # @return [Hash] Word membership hash (word => true)
       def build_word_set
-        @words.each_with_index.to_h
+        @words.to_h { |word| [word, true] }
       end
 
       # Calculate Levenshtein edit distance.

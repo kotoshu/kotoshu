@@ -112,7 +112,8 @@ module Kotoshu
         return false if @word_set.key?(lookup_word)
 
         @words << lookup_word
-        @word_set[lookup_word] = @words.length - 1
+        @word_set[lookup_word] = true
+        (@length_index[lookup_word.length] ||= []) << lookup_word
 
         true
       end
@@ -127,8 +128,9 @@ module Kotoshu
         lookup_word = @case_sensitive ? word : word.downcase
         return false unless @word_set.key?(lookup_word)
 
-        index = @word_set.delete(lookup_word)
-        @words.delete_at(index)
+        @word_set.delete(lookup_word)
+        @words.delete(lookup_word)
+        @length_index[lookup_word.length]&.delete(lookup_word)
 
         true
       end
@@ -242,13 +244,14 @@ module Kotoshu
 
       # Build a hash set for O(1) lookups.
       #
-      # @return [Hash] Word to index mapping
+      # @return [Hash] Word membership hash (word => true)
       def build_word_set
-        @words.each_with_index.to_h
+        @words.to_h { |word| [word, true] }
       end
 
       # Build the length-bucketed index used by find_by_length_range.
       # O(n) once at construction; queries are O(buckets_in_range).
+      # add_word and remove_word maintain the buckets incrementally.
       def build_length_index
         @words.group_by(&:length)
       end

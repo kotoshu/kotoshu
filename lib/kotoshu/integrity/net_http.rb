@@ -12,6 +12,11 @@ module Kotoshu
     module NetHTTP
       class << self
         def get(url, redirect_limit: 3)
+          if Kotoshu.configuration.offline
+            raise HttpError,
+                  "GET #{url} refused: offline mode is enabled (KOTOSHU_OFFLINE=1)"
+          end
+
           uri = URI(url)
           raise ArgumentError, "Only http/https supported: #{url}" unless
             ["http", "https"].include?(uri.scheme)
