@@ -19,7 +19,11 @@ module Kotoshu
         top_1000: Set.new
       }.freeze
 
-      def initialize
+      # @param frequency_cache [Cache::FrequencyCache, nil] Injectable
+      #   cache instance (used by tests); defaults to a fresh
+      #   FrequencyCache per load.
+      def initialize(frequency_cache: nil)
+        @frequency_cache = frequency_cache
         @tiers_by_language = {}
       end
 
@@ -44,11 +48,16 @@ module Kotoshu
       end
 
       def try_load_from_frequency_cache(language_code)
-        cache = Cache::FrequencyCache.new
-        return nil unless cache.available_languages.include?(language_code)
+        cache = @frequency_cache || Cache::FrequencyCache.new
+        # Ask about actual cache state (TTL-aware available?), not the
+        # static supported-language list — and read cache-only. The
+        # suggestion hot path must never trigger a download; downloads
+        # happen only through explicit setup (Kotoshu.setup /
+        # kotoshu cache download).
+        return nil unless cache.available?(language_code)
 
         begin
-          cache.get(language_code)
+          cache.load_cached(language_code)
         rescue StandardError => e
           warn "Warning: Failed to load frequency cache for #{language_code}: #{e.message}" if $VERBOSE
           nil
