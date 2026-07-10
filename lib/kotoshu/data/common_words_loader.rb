@@ -59,39 +59,22 @@ module Kotoshu
           return { tiers: empty_tiers, metadata: {} } unless File.exist?(frequency_path)
 
           data = JSON.parse(File.read(frequency_path, encoding: 'UTF-8'))
-
-          # Handle Kelly format: tiers[tier_name]['words']
-          # Check if format has nested 'words' key (Kelly format)
-          has_words_key = data.dig('tiers', 'top_50', 'words')
-
-          tiers = if has_words_key
-                    # Kelly format: data['tiers']['top_50']['words']
-                    {
-                      top_50: Set.new(data.dig('tiers', 'top_50', 'words') || []),
-                      top_200: Set.new(
-                        (data.dig('tiers', 'top_50', 'words') || []) +
-                        (data.dig('tiers', 'top_200', 'words') || [])
-                      ),
-                      top_1000: Set.new(
-                        (data.dig('tiers', 'top_50', 'words') || []) +
-                        (data.dig('tiers', 'top_200', 'words') || []) +
-                        (data.dig('tiers', 'top_1000', 'words') || [])
-                      )
-                    }
-                  else
-                    # Legacy format: data['tiers']['top_50'] is array
-                    {
-                      top_50: Set.new(data.dig('tiers', 'top_50') || []),
-                      top_200: Set.new((data.dig('tiers', 'top_50') || []) + (data.dig('tiers', 'top_200') || [])),
-                      top_1000: Set.new(
-                        (data.dig('tiers', 'top_50') || []) +
-                        (data.dig('tiers', 'top_200') || []) +
-                        (data.dig('tiers', 'top_1000') || [])
-                      )
-                    }
-                  end
-
           metadata = data['metadata'] || {}
+
+          # Kelly format only: tiers[tier]['words']. The former "legacy
+          # array format" branch was dead on arrival — its own format
+          # probe raised TypeError on array input, and no producer of
+          # that format ever existed in the repo's history. Unknown
+          # shapes degrade to empty tiers instead of crashing.
+          top_50 = tier_words(data, 'top_50')
+          top_200 = tier_words(data, 'top_200')
+          top_1000 = tier_words(data, 'top_1000')
+
+          tiers = {
+            top_50: Set.new(top_50),
+            top_200: Set.new(top_50 + top_200),
+            top_1000: Set.new(top_50 + top_200 + top_1000)
+          }
 
           { tiers: tiers, metadata: metadata }
         end
@@ -145,6 +128,13 @@ module Kotoshu
             top_200: Set.new,
             top_1000: Set.new
           }
+        end
+
+        # Words for one tier of a Kelly-format frequency hash, or []
+        # when the tier is missing or not Kelly-shaped.
+        def tier_words(data, tier)
+          entry = data['tiers'].is_a?(Hash) ? data['tiers'][tier] : nil
+          entry.is_a?(Hash) && entry['words'].is_a?(Array) ? entry['words'] : []
         end
       end
     end

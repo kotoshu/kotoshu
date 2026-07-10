@@ -157,6 +157,10 @@ module Kotoshu
         else
           raise Errors::UsageError, "Unknown --type: #{type}"
         end
+      rescue Kotoshu::ResourceNotCachedError, Kotoshu::IntegrityError => e
+        # Surface resource errors (offline mode, integrity mismatches
+        # that reach this frame) as exit 3, not a raw stack trace.
+        raise Errors::ResourceUnavailable, e.message
       end
 
       desc "purge", "Remove all cached data"

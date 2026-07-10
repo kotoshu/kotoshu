@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "kotoshu/project_config"
+require "tmpdir"
 
 RSpec.describe Kotoshu::ProjectConfig do
   describe ".load" do
