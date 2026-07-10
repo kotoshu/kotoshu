@@ -59,5 +59,20 @@ RSpec.describe Kotoshu::Algorithms::EditDistance do
     it "returns nil when the distance exceeds the threshold" do
       expect(described_class.distance_with_threshold("kitten", "sitting", 2)).to be_nil
     end
+
+    it "returns nil when an empty string is farther than the threshold" do
+      expect(described_class.distance_with_threshold("", "abcdef", 2)).to be_nil
+      expect(described_class.distance_with_threshold("abcdef", "", 2)).to be_nil
+    end
+
+    it "returns the other string's length for an empty string within the threshold" do
+      expect(described_class.distance_with_threshold("", "ab", 2)).to eq(2)
+      expect(described_class.distance_with_threshold("ab", "", 3)).to eq(2)
+    end
+
+    it "returns 0 for equal strings, including two empties" do
+      expect(described_class.distance_with_threshold("", "", 0)).to eq(0)
+      expect(described_class.distance_with_threshold("hello", "hello", 3)).to eq(0)
+    end
   end
 end

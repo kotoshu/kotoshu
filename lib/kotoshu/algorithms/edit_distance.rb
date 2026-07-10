@@ -69,19 +69,22 @@ module Kotoshu
       # O(len1 * len2) Damerau-Levenshtein DP.
       #
       # Note: the full matrix is kept (not 2-row DP) because the
-      # Damerau transposition step needs d[i-1][j-1] which a 2-row
+      # Damerau transposition step needs d[i-2][j-2] which a 2-row
       # implementation doesn't retain. The early termination is the
       # primary win, not memory reduction.
       #
       # @param str1 [String] First string
       # @param str2 [String] Second string
-      # @param threshold [Integer] Maximum distance to report
+      # @param threshold [Integer] Maximum distance to report (assumed >= 0)
       # @return [Integer, nil] Distance if ≤ threshold, else nil
       def distance_with_threshold(str1, str2, threshold)
         return 0 if str1 == str2
+        # The length filter must run before the empty-string shortcuts:
+        # an empty str1 gives distance str2.length, which still has to
+        # honor the nil-above-threshold contract.
+        return nil if (str1.length - str2.length).abs > threshold
         return str2.length if str1.empty?
         return str1.length if str2.empty?
-        return nil if (str1.length - str2.length).abs > threshold
 
         len1 = str1.length
         len2 = str2.length
