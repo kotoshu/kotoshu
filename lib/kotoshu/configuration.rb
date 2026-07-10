@@ -478,7 +478,11 @@ module Kotoshu
     # @example
     #   config = Configuration.default
     def self.default
-      new(DEFAULTS.dup)
+      # No explicit settings: passing DEFAULTS here would re-apply them
+      # via apply_explicit_settings AFTER the resolver ran, clobbering
+      # every ENV-derived value (KOTOSHU_OFFLINE etc.). apply_defaults
+      # and the resolver's defaults layer already cover the defaults.
+      new
     end
 
     # Global configuration instance.

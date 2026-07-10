@@ -220,8 +220,12 @@ module Kotoshu
       #
       # @param resource_id [String] The resource identifier
       # @return [Object, nil] Downloaded resource or nil on error
+      # @raise [Kotoshu::ResourceNotCachedError] in offline mode —
+      #   only explicit paths (Kotoshu.setup, kotoshu cache download)
+      #   reach here, so fail loudly instead of silently skipping
       def download(resource_id)
         return nil unless supports_resource?(resource_id)
+        raise Kotoshu::ResourceNotCachedError.new(resource_id.to_s.split(":").first, cache_kind) if offline?
 
         resource_dir = resource_dir_for(resource_id)
         FileUtils.mkdir_p(resource_dir)
@@ -242,6 +246,26 @@ module Kotoshu
       # @abstract Subclass must implement
       def download_resource(resource_id, dest_path)
         raise NotImplementedError, "Subclass must implement"
+      end
+
+      # True when downloads are forbidden (config.offline /
+      # KOTOSHU_OFFLINE=1). Checked in #download so every cache
+      # subclass inherits the enforcement.
+      #
+      # @return [Boolean] Whether offline mode is on
+      def offline?
+        Kotoshu.configuration.offline
+      end
+
+      # Short label for error messages ("frequency", "language",
+      # "model") derived from the nearest named class — anonymous
+      # subclasses (test recorders) fall back to their parent's name.
+      #
+      # @return [String] The cache kind
+      def cache_kind
+        klass = self.class
+        klass = klass.superclass while klass && klass.name.nil?
+        klass&.name.to_s[/(\w+)Cache\z/, 1]&.downcase || "resource"
       end
 
       # Abstract: Load cached resource data.
@@ -287,6 +311,10 @@ module Kotoshu
       # @param url [String] URL to download
       # @return [String] Downloaded content
       def download_url(url)
+        # Transport-level backstop: no bytes move in offline mode even
+        # for callers that bypass #download (e.g. get_* fallbacks).
+        raise "Refusing to download #{url}: offline mode is enabled (KOTOSHU_OFFLINE=1)" if offline?
+
         uri = URI.parse(url)
 
         http = Net::HTTP.new(uri.host, uri.port)
@@ -312,6 +340,9 @@ module Kotoshu
       #   Kotoshu.configuration.download_reporter (typically nil for
       #   programmatic use, set by the CLI during setup).
       def download_file(url, dest_path, reporter: nil)
+        # Transport-level backstop, same as download_url.
+        raise "Refusing to download #{url}: offline mode is enabled (KOTOSHU_OFFLINE=1)" if offline?
+
         reporter ||= Kotoshu.configuration.download_reporter
         uri = URI.parse(url)
 
