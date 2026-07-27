@@ -297,7 +297,7 @@ module Kotoshu
     # @attr replacement [String, nil] Optional replacement
     class CompoundPattern
       attr_reader :left, :right, :replacement, :left_stem, :left_flag, :right_stem, :right_flag,
-                  :left_no_affix, :right_no_affix
+                  :left_no_affix
 
       # Create a new compound pattern.
       #
@@ -321,19 +321,49 @@ module Kotoshu
         @right_stem, sep, @right_flag = right.partition('/')
         @right_flag = nil if sep.empty?
         @right_stem = '' if @right_stem == '0'
-        @right_no_affix = @right_stem.empty? && right.start_with?('0')
+      end
+
+      # Whether this pattern also spells out a simplified compound form.
+      #
+      # @return [Boolean] True if a non-empty replacement was given
+      def replacement?
+        !@replacement.nil? && !@replacement.empty?
+      end
+
+      # How the two members are actually written when this pattern's
+      # replacement stands in for the junction between them.
+      #
+      # `foo` and `bar` under `CHECKCOMPOUNDPATTERN o b z` are written
+      # `fozar`, not `foobar`. Checks that read the word as the user typed it
+      # need this rather than the concatenation of the members.
+      #
+      # Without a replacement the members are simply written one after the
+      # other, so that is what this returns.
+      #
+      # @param left_text [String] Surface text of the left member
+      # @param right_text [String] Surface text of the right member
+      # @return [String] The simplified spelling
+      def surface(left_text, right_text)
+        return left_text + right_text unless replacement?
+
+        left_text.delete_suffix(@left_stem) + @replacement + right_text.delete_prefix(@right_stem)
       end
 
       # Check if this pattern matches the given left and right parts.
       #
-      # @param left_part [AffixForm] Left part with stem, flags, is_base?
-      # @param right_part [AffixForm] Right part with stem, flags, is_base?
+      # A leading "0" on the left side means "the surface text at the
+      # junction is the bare dictionary root". That is a text comparison,
+      # not an "are any affixes attached" question: a zero-width affix
+      # leaves the text identical to the root and still counts as
+      # unmodified. German and Dutch both rely on that distinction.
+      #
+      # @param left_part [AffixForm] Left part with text, stem, flags
+      # @param right_part [AffixForm] Right part with stem, flags
       # @return [Boolean] True if matches
       def match?(left_part, right_part)
         return false unless left_part.stem.end_with?(@left_stem)
         return false unless right_part.stem.start_with?(@right_stem)
-        return false if @left_no_affix && left_part.is_base?
-        return false if @right_no_affix && right_part.is_base?
+        return false if @left_no_affix && left_part.text != left_part.stem
         return false if @left_flag && !left_part.flags.include?(@left_flag)
         return false if @right_flag && !right_part.flags.include?(@right_flag)
 

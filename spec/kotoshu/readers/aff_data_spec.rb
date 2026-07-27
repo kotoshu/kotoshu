@@ -323,51 +323,92 @@ RSpec.describe Kotoshu::Readers do
       it "marks left_no_affix when the left side is exactly 0" do
         cp = described_class.new("0", "0")
         expect(cp.left_no_affix).to be true
-        expect(cp.right_no_affix).to be true
+      end
+
+      it "reports whether a replacement was given" do
+        expect(described_class.new("aa", "bb", "cc").replacement?).to be true
+        expect(described_class.new("aa", "bb").replacement?).to be false
+        expect(described_class.new("aa", "bb", "").replacement?).to be false
+      end
+    end
+
+    describe "#surface" do
+      it "writes the two members the way the replacement spells them" do
+        cp = described_class.new("o", "b", "z")
+        expect(cp.surface("foo", "bar")).to eq("fozar")
+      end
+
+      it "honors flags on either side when trimming the stems" do
+        cp = described_class.new("o/X", "b/Y", "z")
+        expect(cp.surface("boo", "ban")).to eq("bozan")
+      end
+
+      it "handles an empty stem on either side" do
+        cp = described_class.new("0", "", "-")
+        expect(cp.surface("foo", "bar")).to eq("foo-bar")
       end
     end
 
     describe "#match?" do
-      # Build minimal double-free stubs via Struct.
-      Form = Struct.new(:stem, :flags, :is_base?, keyword_init: true)
+      # #match? is handed real AffixForms by Lookuper, so build real ones
+      # here rather than a stand-in: a stub could not reproduce the case the
+      # "0" rule turns on, where a zero-width affix leaves text == stem while
+      # is_base? is already false.
+      def form(stem, affix: nil, flags: Set.new)
+        suffix = affix && { affix: affix, flags: [], flag: "Z" }
+        Kotoshu::Algorithms::Lookup::AffixForm.new(
+          "#{stem}#{affix}", stem,
+          suffix: suffix,
+          in_dictionary: { stem: stem, flags: flags }
+        )
+      end
 
       it "matches when left stem ends in left_stem and right stem starts with right_stem" do
         cp = described_class.new("aa", "bb")
-        left = Form.new(stem: "aaa", flags: Set.new, is_base?: true)
-        right = Form.new(stem: "bbb", flags: Set.new, is_base?: true)
-        expect(cp.match?(left, right)).to be true
+        expect(cp.match?(form("aaa"), form("bbb"))).to be true
       end
 
       it "rejects when left stem does not end in left_stem" do
         cp = described_class.new("aa", "bb")
-        left = Form.new(stem: "xxx", flags: Set.new, is_base?: true)
-        right = Form.new(stem: "bbb", flags: Set.new, is_base?: true)
-        expect(cp.match?(left, right)).to be false
+        expect(cp.match?(form("xxx"), form("bbb"))).to be false
       end
 
       it "rejects when right stem does not start with right_stem" do
         cp = described_class.new("aa", "bb")
-        left = Form.new(stem: "aaa", flags: Set.new, is_base?: true)
-        right = Form.new(stem: "xxx", flags: Set.new, is_base?: true)
-        expect(cp.match?(left, right)).to be false
+        expect(cp.match?(form("aaa"), form("xxx"))).to be false
       end
 
       it "enforces the left_flag requirement when present" do
         cp = described_class.new("aa/X", "bb")
-        left_with = Form.new(stem: "aaa", flags: Set.new(["X"]), is_base?: true)
-        left_without = Form.new(stem: "aaa", flags: Set.new(["Y"]), is_base?: true)
-        right = Form.new(stem: "bbb", flags: Set.new, is_base?: true)
-        expect(cp.match?(left_with, right)).to be true
-        expect(cp.match?(left_without, right)).to be false
+        expect(cp.match?(form("aaa", flags: Set.new(["X"])), form("bbb"))).to be true
+        expect(cp.match?(form("aaa", flags: Set.new(["Y"])), form("bbb"))).to be false
       end
 
-      it "rejects base-form left parts when left_no_affix is set" do
-        cp = described_class.new("0", "bb")
-        base = Form.new(stem: "x", flags: Set.new, is_base?: true)
-        affixed = Form.new(stem: "x", flags: Set.new, is_base?: false)
-        right = Form.new(stem: "bbb", flags: Set.new, is_base?: true)
-        expect(cp.match?(base, right)).to be false
-        expect(cp.match?(affixed, right)).to be true
+      it "enforces the right_flag requirement when present" do
+        cp = described_class.new("aa", "bb/Y")
+        expect(cp.match?(form("aaa"), form("bbb", flags: Set.new(["Y"])))).to be true
+        expect(cp.match?(form("aaa"), form("bbb", flags: Set.new(["X"])))).to be false
+      end
+
+      context "when the left side is 0" do
+        let(:cp) { described_class.new("0", "bb") }
+
+        it "matches a left part whose surface text is the bare root" do
+          expect(cp.match?(form("x"), form("bbb"))).to be true
+        end
+
+        it "rejects a left part an affix has rewritten" do
+          expect(cp.match?(form("x", affix: "s"), form("bbb"))).to be false
+        end
+
+        # The case is_base? gets wrong: an affix is attached, so is_base? is
+        # false, but it adds nothing so the surface text is still the bare
+        # root. Dutch and German both reach compound forms this way.
+        it "matches a left part carrying only a zero-width affix" do
+          zero_width = form("x", affix: "")
+          expect(zero_width.is_base?).to be false
+          expect(cp.match?(zero_width, form("bbb"))).to be true
+        end
       end
     end
   end

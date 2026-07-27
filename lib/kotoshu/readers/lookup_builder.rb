@@ -202,7 +202,7 @@ module Kotoshu
         aff[:CHECKCOMPOUNDDUP] = aff_data['CHECKCOMPOUNDDUP']
         aff[:CHECKCOMPOUNDREP] = aff_data['CHECKCOMPOUNDREP']
         aff[:CHECKCOMPOUNDTRIPLE] = aff_data['CHECKCOMPOUNDTRIPLE']
-        aff[:CHECKCOMPOUNDPATTERN] = build_compound_patterns(aff_data['CHECKCOMPOUNDPATTERN'])
+        aff[:CHECKCOMPOUNDPATTERN] = aff_data['CHECKCOMPOUNDPATTERN'] || []
         aff[:SIMPLIFIEDTRIPLE] = aff_data['SIMPLIFIEDTRIPLE']
 
         # Other directives
@@ -409,20 +409,6 @@ module Kotoshu
             flags: rule.flags,
             full_match: ->(flag_sets) { rule.fullmatch(flag_sets) },
             partial_match: ->(flag_sets) { rule.partial_match(flag_sets) }
-          }
-        end
-      end
-
-      # Build compound patterns array.
-      #
-      # @param patterns [Array<CompoundPattern>] List of compound patterns
-      # @return [Array<Hash>] Array of compound pattern hashes
-      def build_compound_patterns(patterns)
-        return [] if patterns.nil? || patterns.empty?
-
-        patterns.map do |pattern|
-          {
-            match: ->(left, right) { pattern.match?(left, right) }
           }
         end
       end

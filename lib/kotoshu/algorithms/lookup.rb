@@ -16,6 +16,9 @@ module Kotoshu
     #
     # To follow algorithm details, start reading from Lookup.call method.
     module Lookup
+      autoload :AffixForm, "kotoshu/algorithms/lookup/affix_form"
+      autoload :CompoundForm, "kotoshu/algorithms/lookup/compound_form"
+
       NUMBER_REGEXP = /^\d+(\.\d+)?$/
 
       # Position of word part in compound word.
@@ -26,142 +29,6 @@ module Kotoshu
         BEGIN_POS = :begin
         MIDDLE = :middle
         END_POS = :end
-      end
-
-      # AffixForm is a hypothesis of how some word might be split into
-      # stem, suffixes and prefixes.
-      #
-      # It always has full text and stem, and may have up to two suffixes
-      # and up to two prefixes.
-      #
-      # The following is always true (considering absent affixes as empty):
-      #   prefix + prefix2 + stem + suffix2 + suffix = text
-      #
-      # prefix2/suffix2 are "secondary", so if the word has only one suffix,
-      # it is stored in suffix and suffix2 is nil.
-      class AffixForm
-        # @return [String] Full word text
-        attr_reader :text
-
-        # @return [String] Stem (word without affixes)
-        attr_reader :stem
-
-        # @return [Hash, nil] Prefix affix data
-        attr_reader :prefix
-
-        # @return [Hash, nil] Suffix affix data
-        attr_reader :suffix
-
-        # @return [Hash, nil] Secondary prefix affix data
-        attr_reader :prefix2
-
-        # @return [Hash, nil] Secondary suffix affix data
-        attr_reader :suffix2
-
-        # @return [Hash, nil] Dictionary entry for stem
-        attr_reader :in_dictionary
-
-        def initialize(text, stem,
-                       prefix: nil, suffix: nil,
-                       prefix2: nil, suffix2: nil,
-                       in_dictionary: nil)
-          @text = text
-          @stem = stem
-          @prefix = prefix
-          @suffix = suffix
-          @prefix2 = prefix2
-          @suffix2 = suffix2
-          @in_dictionary = in_dictionary
-        end
-
-        # Create a copy with changes.
-        #
-        # @param changes [Hash] Changes to apply
-        # @return [AffixForm] New affix form with changes applied
-        def replace(**changes)
-          self.class.new(
-            changes.fetch(:text, @text),
-            changes.fetch(:stem, @stem),
-            prefix: changes.fetch(:prefix, @prefix),
-            suffix: changes.fetch(:suffix, @suffix),
-            prefix2: changes.fetch(:prefix2, @prefix2),
-            suffix2: changes.fetch(:suffix2, @suffix2),
-            in_dictionary: changes.fetch(:in_dictionary, @in_dictionary)
-          )
-        end
-
-        # Check if this form has any affixes.
-        #
-        # @return [Boolean]
-        def has_affixes?
-          !@suffix.nil? || !@prefix.nil?
-        end
-
-        # Check if this is a base form (no affixes).
-        #
-        # @return [Boolean]
-        def is_base?
-          !has_affixes?
-        end
-
-        # Get all flags from stem and affixes.
-        #
-        # @return [Set<String>] Combined flags
-        def flags
-          flags = @in_dictionary ? Set.new(@in_dictionary[:flags] || []) : Set.new
-          flags.merge(@prefix[:flags] || []) if @prefix
-          flags.merge(@suffix[:flags] || []) if @suffix
-          flags
-        end
-
-        # Get all affixes (excluding nils).
-        #
-        # @return [Array<Hash>] List of affix data
-        def all_affixes
-          [@prefix2, @prefix, @suffix, @suffix2].compact
-        end
-
-        # String representation.
-        #
-        # @return [String]
-        def to_s
-          return @text if is_base?
-
-          parts = []
-          parts << @prefix.inspect if @prefix
-          parts << @prefix2.inspect if @prefix2
-          parts << @stem
-          parts << @suffix2.inspect if @suffix2
-          parts << @suffix.inspect if @suffix
-
-          "AffixForm(#{@text} = #{parts.join(' + ')})"
-        end
-
-        alias inspect to_s
-      end
-
-      # CompoundForm is a hypothesis of how some word could be split into
-      # several AffixForms (word parts with their own stems and possible affixes).
-      #
-      # Typically, only first part is allowed to have prefix, and only last
-      # part is allowed to have suffix, but there are languages where middle
-      # parts can have affixes too, specified by special flags.
-      class CompoundForm
-        # @return [Array<AffixForm>] Parts of the compound word
-        attr_reader :parts
-
-        def initialize(parts)
-          @parts = parts
-        end
-
-        # String representation.
-        #
-        # @return [String]
-        def to_s
-          "CompoundForm(#{@parts.map(&:to_s).join(' + ')})"
-        end
-
-        alias inspect to_s
       end
 
       # Main word correctness lookup class.
@@ -745,6 +612,8 @@ module Kotoshu
             return !all_flags.include?(@aff[:ONLYINCOMPOUND])
           end
 
+          return false if compoundpos == CompoundPos::END_POS && barred_from_compound_end?(form)
+
           # Compound: must carry COMPOUNDFLAG or the position-specific flag.
           # ONLYINCOMPOUND is allowed here (it just means "not valid outside
           # compounds") — the compound position flag is what authorizes the
@@ -758,6 +627,26 @@ module Kotoshu
             all_flags.include?(@aff[:COMPOUNDEND])
 
           false
+        end
+
+        # Whether a suffix stops this form from closing a compound.
+        #
+        # A suffix signed ONLYINCOMPOUND joins one compound member to the
+        # next, so it cannot be the thing that closes the compound. Signing
+        # it COMPOUNDEND as well says it may: German reaches its compound-end
+        # forms exactly that way, through suffixes carrying both flags.
+        #
+        # @param form [AffixForm] Form being placed at the compound end
+        # @return [Boolean] Whether a suffix bars it from ending the compound
+        def barred_from_compound_end?(form)
+          only_in_compound = @aff[:ONLYINCOMPOUND]
+          return false unless only_in_compound
+
+          compound_end = @aff[:COMPOUNDEND]
+          form.suffixes.any? do |suffix|
+            flags = suffix[:flags] || []
+            flags.include?(only_in_compound) && !(compound_end && flags.include?(compound_end))
+          end
         end
 
         # Generate compound forms by flags.
@@ -796,8 +685,10 @@ module Kotoshu
             end
           end
 
-          # Check compounding limits
-          return if word_rest.length < compound_min * 2
+          # Check compounding limits. A replacement stands in for two members
+          # at once, so the surface word can be shorter than the parts it
+          # spells — the length floor only holds when none is in play.
+          return if replacement_patterns.empty? && word_rest.length < compound_min * 2
           return if compound_word_max && depth >= compound_word_max
 
           compoundpos = depth.zero? ? CompoundPos::BEGIN_POS : CompoundPos::MIDDLE
@@ -808,37 +699,95 @@ module Kotoshu
           # produce_affix_forms blocks all suffixes inside compounds.
           prefix_flags = compoundpos == CompoundPos::BEGIN_POS ? [] : permit_flags
 
-          # Try all possible split positions
+          each_compound_junction(word_rest, compound_min) do |left, right, surface, pattern|
+            affix_forms_internal(left, captype: captype, allow_nosuggest: allow_nosuggest,
+                                       compoundpos: compoundpos,
+                                       prefix_flags: prefix_flags,
+                                       suffix_flags: permit_flags,
+                                       forbidden_flags: forbidden_flags) do |form|
+              compounds_by_flags(right, captype: captype, depth: depth + 1,
+                                        allow_nosuggest: allow_nosuggest) do |partial|
+                next if pattern && !pattern.match?(form, partial.parts.first)
+
+                part = surface ? form.replace(text: surface) : form
+                yield CompoundForm.new([part, *partial.parts],
+                                       [pattern, *partial.junction_patterns])
+              end
+            end
+          end
+        end
+
+        # CHECKCOMPOUNDPATTERN entries that spell a simplified compound form.
+        #
+        # @return [Array<Readers::CompoundPattern>] Patterns with a replacement
+        def replacement_patterns
+          @replacement_patterns ||= (@aff[:CHECKCOMPOUNDPATTERN] || []).select(&:replacement?)
+        end
+
+        # Every cut of the word worth trying as a compound boundary.
+        #
+        # Yields `(left, right, surface, pattern)` rather than an object: this
+        # is the innermost loop of the whole checker, and one allocation per
+        # split position is measurable on deeply compounding languages.
+        #
+        # `surface` is the text to record on the left member when it differs
+        # from the text looked up, and `pattern` is set only for a cut a
+        # CHECKCOMPOUNDPATTERN replacement rebuilt. Both are nil for the
+        # ordinary case, which is nearly all of them.
+        #
+        # Most cuts are plain: COMPOUNDMIN characters have to sit either side,
+        # so only offsets between those bounds can yield a member. Two
+        # directives spell a junction differently from the members it joins
+        # and contribute cuts whose members are rebuilt rather than sliced —
+        # SIMPLIFIEDTRIPLE gives the left member back its elided letter, and
+        # a CHECKCOMPOUNDPATTERN replacement expands its shorthand into the
+        # two members it stands for.
+        #
+        # @param word_rest [String] Remaining word being split
+        # @param compound_min [Integer] COMPOUNDMIN
+        # @yield [String, String, String, nil, Readers::CompoundPattern, nil]
+        def each_compound_junction(word_rest, compound_min)
+          simplified_triple = @aff[:SIMPLIFIEDTRIPLE]
+
           (compound_min...(word_rest.length - compound_min + 1)).each do |pos|
             beg = word_rest[0...pos]
             rest = word_rest[pos..]
+            yield beg, rest, nil, nil
 
-            # Check if beg is a valid word at this position
-            affix_forms_internal(beg, captype: captype, allow_nosuggest: allow_nosuggest,
-                                      compoundpos: compoundpos,
-                                      prefix_flags: prefix_flags,
-                                      suffix_flags: permit_flags,
-                                      forbidden_flags: forbidden_flags) do |form|
-              # Recursively check rest
-              compounds_by_flags(rest, captype: captype, depth: depth + 1,
-                                       allow_nosuggest: allow_nosuggest) do |partial|
-                yield CompoundForm.new([form, *partial.parts])
-              end
+            if simplified_triple && !beg.empty? && !rest.empty? && beg[-1] == rest[0]
+              yield beg + beg[-1], rest, beg, nil
             end
+          end
 
-            # SIMPLIFIEDTRIPLE handling
-            if aff[:SIMPLIFIEDTRIPLE] && !beg.empty? && !rest.empty? && beg[-1] == rest[0]
-              affix_forms_internal(beg + beg[-1], captype: captype, allow_nosuggest: allow_nosuggest,
-                                                  compoundpos: compoundpos,
-                                                  prefix_flags: prefix_flags,
-                                                  suffix_flags: permit_flags,
-                                                  forbidden_flags: forbidden_flags) do |form|
-                compounds_by_flags(rest, captype: captype, depth: depth + 1,
-                                         allow_nosuggest: allow_nosuggest) do |partial|
-                  yield CompoundForm.new([form.replace(text: beg), *partial.parts])
-                end
-              end
+          replacement_patterns.each do |pattern|
+            each_replacement_junction(word_rest, pattern, compound_min) do |left, right|
+              yield left, right, nil, pattern
             end
+          end
+        end
+
+        # Cuts produced by one pattern's replacement.
+        #
+        # The replacement is a literal, so only the offsets where it actually
+        # occurs can produce a member — searching for it beats walking every
+        # offset and asking. COMPOUNDMIN is applied to the rebuilt members,
+        # which is the whole point: "fozar" is five characters but stands for
+        # two three-character words.
+        #
+        # @param word_rest [String] Remaining word being split
+        # @param pattern [Readers::CompoundPattern] Pattern with a replacement
+        # @param compound_min [Integer] COMPOUNDMIN
+        # @yield [String, String] Left and right member of each cut
+        def each_replacement_junction(word_rest, pattern, compound_min)
+          replacement = pattern.replacement
+          width = replacement.length
+          pos = word_rest.index(replacement)
+
+          while pos
+            left = word_rest[0...pos] + pattern.left_stem
+            right = pattern.right_stem + word_rest[(pos + width)..]
+            yield left, right if left.length >= compound_min && right.length >= compound_min
+            pos = word_rest.index(replacement, pos + 1)
           end
         end
 
@@ -918,12 +867,14 @@ module Kotoshu
           end
 
           # Check all adjacent pairs
-          compound.parts.each_with_index do |left_paradigm, idx|
-            break if idx >= compound.parts.length - 1
-
+          compound.parts.each_cons(2).with_index do |(left_paradigm, right_paradigm), idx|
             left = left_paradigm.text
-            right_paradigm = compound.parts[idx + 1]
             right = right_paradigm.text
+            junction_pattern = compound.junction_pattern(idx)
+            # What the user actually typed across this junction. A
+            # replacement writes the two members as something shorter, and
+            # checks that read the word as written must see that spelling.
+            surface = junction_pattern ? junction_pattern.surface(left, right) : left + right
 
             # COMPOUNDFORBIDFLAG check
             if aff[:COMPOUNDFORBIDFLAG] && @dic[:has_flag]&.call(left, aff[:COMPOUNDFORBIDFLAG])
@@ -938,7 +889,7 @@ module Kotoshu
 
             # CHECKCOMPOUNDREP check
             if aff[:CHECKCOMPOUNDREP] && aff[:REP]
-              Kotoshu::Algorithms::Permutations.replchars(left + right, aff[:REP]) do |candidate|
+              Kotoshu::Algorithms::Permutations.replchars(surface, aff[:REP]) do |candidate|
                 if candidate.is_a?(String) &&
                     affix_forms_internal(candidate, captype: captype, allow_nosuggest: true).any?
                   return true
@@ -961,10 +912,11 @@ module Kotoshu
               end
             end
 
-            # CHECKCOMPOUNDPATTERN check
-            if aff[:CHECKCOMPOUNDPATTERN] && aff[:CHECKCOMPOUNDPATTERN].any? do |pattern|
-              pattern[:match]&.call(left_paradigm, right_paradigm)
-            end
+            # CHECKCOMPOUNDPATTERN check. A junction the pattern's own
+            # replacement built is exempt — the pattern describes the very
+            # spelling that replacement exists to permit.
+            if !compound.simplified_junction?(idx) &&
+                (aff[:CHECKCOMPOUNDPATTERN] || []).any? { |p| p.match?(left_paradigm, right_paradigm) }
               return true
             end
 
