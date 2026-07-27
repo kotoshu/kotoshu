@@ -226,6 +226,32 @@ RSpec.describe Kotoshu::Algorithms::Lookup do
       compound = described_class.new([part])
       expect(compound.to_s).to eq("CompoundForm(foo)")
     end
+
+    it "reports no simplified junctions by default" do
+      part_a = Kotoshu::Algorithms::Lookup::AffixForm.new("foo", "foo")
+      part_b = Kotoshu::Algorithms::Lookup::AffixForm.new("bar", "bar")
+      compound = described_class.new([part_a, part_b])
+      expect(compound.simplified_junction?(0)).to be(false)
+    end
+
+    it "reports the junctions a pattern replacement built" do
+      pattern = Kotoshu::Readers::CompoundPattern.new("o", "b", "z")
+      part_a = Kotoshu::Algorithms::Lookup::AffixForm.new("foo", "foo")
+      part_b = Kotoshu::Algorithms::Lookup::AffixForm.new("bar", "bar")
+      part_c = Kotoshu::Algorithms::Lookup::AffixForm.new("baz", "baz")
+      compound = described_class.new([part_a, part_b, part_c], [pattern, nil])
+      expect(compound.simplified_junction?(0)).to be(true)
+      expect(compound.simplified_junction?(1)).to be(false)
+      expect(compound.junction_pattern(0)).to be(pattern)
+      expect(compound.junction_pattern(1)).to be_nil
+    end
+
+    it "treats a junction past the recorded list as ordinary" do
+      part_a = Kotoshu::Algorithms::Lookup::AffixForm.new("foo", "foo")
+      part_b = Kotoshu::Algorithms::Lookup::AffixForm.new("bar", "bar")
+      compound = described_class.new([part_a, part_b])
+      expect(compound.simplified_junction?(5)).to be(false)
+    end
   end
 
   # ---- Lookuper end-to-end against real LookupBuilder-built data -----------
@@ -506,6 +532,38 @@ RSpec.describe Kotoshu::Algorithms::Lookup do
         lookuper = build(minimal_aff, [word("cat")])
         expect(lookuper.call("dog")).to be false
       end
+    end
+  end
+
+  # A CHECKCOMPOUNDPATTERN replacement rewrites the boundary between two
+  # members, so the word as written is shorter than the parts it stands for.
+  # Both specs below pin a place where that distinction matters.
+  describe "CHECKCOMPOUNDPATTERN replacement, end to end" do
+    fixtures = File.expand_path("../../fixtures/compound_replacement", __dir__)
+
+    def dictionary(dir, name)
+      Kotoshu::Dictionary::Hunspell.new(dic_path: File.join(dir, "#{name}.dic"),
+                                        aff_path: File.join(dir, "#{name}.aff"),
+                                        language_code: "en")
+    end
+
+    it "bounds COMPOUNDMIN by the rebuilt members, not the surface word" do
+      # "fozar" is 5 chars and COMPOUNDMIN is 3, so the surface word cannot
+      # be split — but it stands for "foo" + "bar", which both clear the bound.
+      dict = dictionary(fixtures, "cmin3")
+      expect(dict.lookup("fozar")).to be true
+    end
+
+    it "still forbids the unsimplified spelling the pattern rejects" do
+      dict = dictionary(fixtures, "cmin3")
+      expect(dict.lookup("foobar")).to be false
+    end
+
+    it "runs CHECKCOMPOUNDREP against the surface spelling" do
+      # REP rewrites "foobar", which is what the members concatenate to but
+      # not what the user typed. "fozar" contains no such match.
+      dict = dictionary(fixtures, "rep")
+      expect(dict.lookup("fozar")).to be true
     end
   end
 end
