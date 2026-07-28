@@ -353,7 +353,14 @@ module Kotoshu
       def surface(left_text, right_text)
         return left_text + right_text unless replacement?
 
-        left_text.delete_suffix(@left_stem) + @replacement + right_text.delete_prefix(@right_stem)
+        # Trim by length, not by content. Hunspell builds the members by
+        # splicing the two stems in at fixed offsets (affixmgr.cxx:1684), so
+        # undoing it is a matter of position. Matching on the text instead
+        # fails whenever a stem is not literal — a "." wildcard on the right,
+        # or a leading "0" on the left, would trim nothing or trim a real
+        # character that happened to look like the stem.
+        left_text[0...(left_text.length - @left_stem.length)].to_s +
+          @replacement + right_text[@right_stem.length..].to_s
       end
 
       # Check if this pattern matches the given left and right parts.

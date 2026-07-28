@@ -348,8 +348,15 @@ RSpec.describe Kotoshu::Readers do
       end
 
       it "handles an empty stem on either side" do
-        cp = described_class.new("0", "", "-")
+        cp = described_class.new("/X", "", "-")
         expect(cp.surface("foo", "bar")).to eq("foo-bar")
+      end
+
+      it "trims each stem by length, not by matching its text" do
+        # Hunspell splices the stems in at fixed offsets, so undoing it is a
+        # matter of position. A "." wildcard never matches its own text.
+        cp = described_class.new("o", "b.d", "z")
+        expect(cp.surface("foo", "bxd")).to eq("foz")
       end
     end
 
