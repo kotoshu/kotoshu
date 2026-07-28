@@ -897,14 +897,18 @@ module Kotoshu
               end
             end
 
-            # CHECKCOMPOUNDTRIPLE check
-            if aff[:CHECKCOMPOUNDTRIPLE] && ((left[-2..] + right[0]).chars.uniq.length == 1 ||
+            # CHECKCOMPOUNDTRIPLE check. Hunspell guards this with
+            # `scpd == 0`: a replacement rewrote the seam, so the letters
+            # meeting here are ones the reader never typed.
+            if aff[:CHECKCOMPOUNDTRIPLE] && !junction_pattern &&
+                ((left[-2..] + right[0]).chars.uniq.length == 1 ||
                   (left[-1] + right[0..1]).chars.uniq.length == 1)
               return true
             end
 
-            # CHECKCOMPOUNDCASE check
-            if aff[:CHECKCOMPOUNDCASE]
+            # CHECKCOMPOUNDCASE check, guarded the same way and for the same
+            # reason as CHECKCOMPOUNDTRIPLE above.
+            if aff[:CHECKCOMPOUNDCASE] && !junction_pattern
               right_c = right[0]
               left_c = left[-1]
               if (right_c == right_c.upcase || left_c == left_c.upcase) && right_c != '-' && left_c != '-'
