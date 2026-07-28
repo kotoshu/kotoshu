@@ -858,30 +858,6 @@ module Kotoshu
               return true
             end
 
-            # Check if "left right" exists as a single dictionary entry.
-            # Skipped at a rebuilt seam: these two members were never written
-            # side by side, so a space between them is not a spelling the
-            # reader could have meant. The same word is also tried as an
-            # ordinary split, which is where a genuine word pair surfaces.
-            if !junction_pattern &&
-                affix_forms_internal("#{left} #{right}", captype: captype, allow_nosuggest: true).any?
-              return true
-            end
-
-            # CHECKCOMPOUNDREP check
-            if aff[:CHECKCOMPOUNDREP] && aff[:REP]
-              # What the user actually typed across this junction: a
-              # replacement writes the two members as something shorter, and
-              # REP reads the word as written.
-              surface = junction_pattern ? junction_pattern.surface(left, right) : left + right
-              Kotoshu::Algorithms::Permutations.replchars(surface, aff[:REP]) do |candidate|
-                if candidate.is_a?(String) &&
-                    affix_forms_internal(candidate, captype: captype, allow_nosuggest: true).any?
-                  return true
-                end
-              end
-            end
-
             # CHECKCOMPOUNDTRIPLE check. Hunspell guards this with
             # `scpd == 0`: a replacement rewrote the seam, so the letters
             # meeting here are ones the reader never typed.
@@ -915,7 +891,131 @@ module Kotoshu
             end
           end
 
+          bad_remainder?(compound, captype)
+        end
+
+        # CHECKCOMPOUNDREP over every run of adjacent members, plus the
+        # word-pair check over the whole compound.
+        #
+        # Hunspell reaches both ends of the compound by two different routes.
+        # compound_check recurses on what is left of the word, so each level
+        # sees a suffix (cpdrep_check at affixmgr.cxx:1979); and it also calls
+        # cpdrep_check with a prefix length, `i + rv->blen`, at :2147. Between
+        # them every contiguous run of members gets checked, which is what
+        # this reproduces directly.
+        #
+        # Both routes are load-bearing. ph2's "rootforbiddenroot" is caught
+        # by the suffix "forbiddenroot", which reads as the entry "forbidden
+        # root". checkcompoundrep's "szervízkocsi" is caught by the prefix
+        # "szervíz", which REP rewrites to "szerviz". Checking only one end
+        # lets the other through.
+        #
+        # The word-pair check needs no such treatment: it tries a space at
+        # every position, so running it once on the whole compound already
+        # covers every seam inside it.
+        #
+        # @param compound [CompoundForm] Compound to check
+        # @param captype [Symbol] Capitalization type
+        # @return [Boolean]
+        def bad_remainder?(compound, captype)
+          return true if typical_fault_in_any_run?(compound, captype)
+
+          written_as_word_pair?(written_run(compound, 0, compound.parts.length - 1), captype)
+        end
+
+        # @param compound [CompoundForm] Compound to check
+        # @param captype [Symbol] Capitalization type
+        # @return [Boolean] Whether any run reads as a mistyped single word
+        def typical_fault_in_any_run?(compound, captype)
+          return false unless @aff[:CHECKCOMPOUNDREP] && @aff[:REP]
+
+          runs_of_members(compound).any? { |run| typical_fault?(run, captype) }
+        end
+
+        # Every contiguous run of two or more members, as written.
+        #
+        # @param compound [CompoundForm] Compound being checked
+        # @return [Array<String>] Each run's surface spelling
+        def runs_of_members(compound)
+          last_index = compound.parts.length - 1
+
+          (0...last_index).flat_map do |first|
+            ((first + 1)..last_index).map { |last| written_run(compound, first, last) }
+          end
+        end
+
+        # How a run of members is actually spelled.
+        #
+        # Members join end to end, except where a CHECKCOMPOUNDPATTERN
+        # replacement rewrote the seam — there the pattern decides, and the
+        # result is shorter than the parts it stands for. These checks read
+        # the word as the user typed it, so they need this rather than a
+        # plain join.
+        #
+        # @param compound [CompoundForm] Compound being checked
+        # @param first [Integer] Index of the first member in the run
+        # @param last [Integer] Index of the last member in the run
+        # @return [String] The run's surface spelling
+        def written_run(compound, first, last)
+          text = compound.parts[first].text
+
+          ((first + 1)..last).each do |index|
+            right = compound.parts[index].text
+            pattern = compound.junction_pattern(index - 1)
+            text = pattern ? pattern.surface(text, right) : text + right
+          end
+
+          text
+        end
+
+        # Is this run a single word someone mistyped?
+        #
+        # Ported from cpdrep_check (affixmgr.cxx:1286): every REP pattern is
+        # tried at every occurrence.
+        #
+        # @param word [String] The run as written
+        # @param captype [Symbol] Capitalization type
+        # @return [Boolean]
+        def typical_fault?(word, captype)
+          Kotoshu::Algorithms::Permutations.replchars(word, @aff[:REP]) do |candidate|
+            if candidate.is_a?(String) &&
+                affix_forms_internal(candidate, captype: captype, allow_nosuggest: true).any?
+              return true
+            end
+          end
           false
+        end
+
+        # Does any dictionary entry contain a space?
+        #
+        # If none does, no space-separated candidate can ever be found, so
+        # the scan below cannot succeed and is skipped outright. Nearly every
+        # dictionary takes this path.
+        #
+        # @return [Boolean]
+        def dictionary_has_word_pairs?
+          return @dictionary_has_word_pairs unless @dictionary_has_word_pairs.nil?
+
+          @dictionary_has_word_pairs =
+            (@dic[:words] || []).any? { |entry| entry[:stem].include?(' ') }
+        end
+
+        # Is the compound just two words run together?
+        #
+        # Ported from cpdwordpair_check (affixmgr.cxx:2196): a space is tried
+        # at every position, not only where two members happen to meet.
+        #
+        # @param word [String] The remainder as written
+        # @param captype [Symbol] Capitalization type
+        # @return [Boolean]
+        def written_as_word_pair?(word, captype)
+          return false if word.length <= 2
+          return false unless dictionary_has_word_pairs?
+
+          (1...word.length).any? do |i|
+            affix_forms_internal("#{word[0, i]} #{word[i..]}", captype: captype,
+                                                               allow_nosuggest: true).any?
+          end
         end
       end
     end
