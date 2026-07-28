@@ -314,15 +314,19 @@ RSpec.describe Kotoshu::Readers do
         expect(cp.left_flag).to be_nil
       end
 
-      it "normalizes a bare 0 stem to empty string" do
+      it "keeps both sides literal, as Hunspell's parser does" do
+        # parse_checkcpdtable stores the text verbatim; only cpdpat_check
+        # gives the left side's leading zero a meaning, and the right side
+        # never gets one.
         cp = described_class.new("0", "0")
-        expect(cp.left_stem).to eq("")
-        expect(cp.right_stem).to eq("")
+        expect(cp.left_stem).to eq("0")
+        expect(cp.right_stem).to eq("0")
       end
 
-      it "marks left_no_affix when the left side is exactly 0" do
-        cp = described_class.new("0", "0")
-        expect(cp.left_no_affix).to be true
+      it "marks left_no_affix from the left side's leading zero" do
+        expect(described_class.new("0", "bb").left_no_affix).to be true
+        expect(described_class.new("0/B", "bb").left_no_affix).to be true
+        expect(described_class.new("aa", "bb").left_no_affix).to be false
       end
 
       it "reports whether a replacement was given" do
@@ -390,6 +394,21 @@ RSpec.describe Kotoshu::Readers do
         expect(cp.match?(form("aaa"), form("bbb", flags: Set.new(["X"])))).to be false
       end
 
+      it "matches the right side against its text, not its stem" do
+        # Hunspell matches pattern2 against the surface at the seam.
+        cp = described_class.new("aa", "un")
+        prefixed = Kotoshu::Algorithms::Lookup::AffixForm.new(
+          "unbb", "bb", prefix: { affix: "un", flags: [], flag: "P" }
+        )
+        expect(cp.match?(form("aaa"), prefixed)).to be true
+      end
+
+      it "keeps a right-side 0 literal" do
+        cp = described_class.new("aa", "0")
+        expect(cp.match?(form("aaa"), form("0x"))).to be true
+        expect(cp.match?(form("aaa"), form("yz"))).to be false
+      end
+
       context "when the left side is 0" do
         let(:cp) { described_class.new("0", "bb") }
 
@@ -404,6 +423,15 @@ RSpec.describe Kotoshu::Readers do
         # The case is_base? gets wrong: an affix is attached, so is_base? is
         # false, but it adds nothing so the surface text is still the bare
         # root. Dutch and German both reach compound forms this way.
+        it "matches a left part whose prefix leaves the root running into the seam" do
+          # Hunspell compares the last r1->blen characters before the seam
+          # with the root, so a prefix does not disturb the match.
+          prefixed = Kotoshu::Algorithms::Lookup::AffixForm.new(
+            "unx", "x", prefix: { affix: "un", flags: [], flag: "P" }
+          )
+          expect(cp.match?(prefixed, form("bbb"))).to be true
+        end
+
         it "matches a left part carrying only a zero-width affix" do
           zero_width = form("x", affix: "")
           expect(zero_width.is_base?).to be false

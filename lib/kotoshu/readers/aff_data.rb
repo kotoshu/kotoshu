@@ -301,6 +301,12 @@ module Kotoshu
 
       # Create a new compound pattern.
       #
+      # Mirrors Hunspell's parse_checkcpdtable: each side is the literal text
+      # up to an optional "/flag", and neither side is rewritten at parse
+      # time. In particular a "0" stays a "0" — cpdpat_check is what gives
+      # the left side's leading zero its meaning, and the right side never
+      # gets one.
+      #
       # @param left [String] Left side pattern
       # @param right [String] Right side pattern
       # @param replacement [String, nil] Optional replacement
@@ -309,18 +315,16 @@ module Kotoshu
         @right = right
         @replacement = replacement
 
-        # Parse left side. The separator from partition('/') distinguishes
-        # "no slash" (no flag specified → nil, so the matcher skips the
-        # flag check) from a slash with an empty flag.
+        # The separator from partition('/') distinguishes "no slash" (no flag
+        # specified → nil, so the matcher skips the flag check) from a slash
+        # with an empty flag.
         @left_stem, sep, @left_flag = left.partition('/')
         @left_flag = nil if sep.empty?
-        @left_stem = '' if @left_stem == '0'
-        @left_no_affix = @left_stem.empty? && left.start_with?('0')
+        # Hunspell tests only the first character (`pattern[0] == '0'`).
+        @left_no_affix = @left_stem.start_with?('0')
 
-        # Parse right side
         @right_stem, sep, @right_flag = right.partition('/')
         @right_flag = nil if sep.empty?
-        @right_stem = '' if @right_stem == '0'
       end
 
       # Whether this pattern also spells out a simplified compound form.
@@ -351,23 +355,36 @@ module Kotoshu
 
       # Check if this pattern matches the given left and right parts.
       #
-      # A leading "0" on the left side means "the surface text at the
-      # junction is the bare dictionary root". That is a text comparison,
-      # not an "are any affixes attached" question: a zero-width affix
-      # leaves the text identical to the root and still counts as
-      # unmodified. German and Dutch both rely on that distinction.
+      # Ported from Hunspell's cpdpat_check. Both sides are matched against
+      # the members as written, not against their stems: the pattern
+      # describes the seam the reader sees.
+      #
+      # The left side has three readings, in Hunspell's order:
+      # empty means "only the flags matter"; a leading "0" means "the text
+      # running into the seam is the bare dictionary root", which a
+      # zero-width affix still satisfies; anything else is literal text the
+      # left member must end with.
       #
       # @param left_part [AffixForm] Left part with text, stem, flags
-      # @param right_part [AffixForm] Right part with stem, flags
+      # @param right_part [AffixForm] Right part with text, flags
       # @return [Boolean] True if matches
       def match?(left_part, right_part)
-        return false unless left_part.stem.end_with?(@left_stem)
-        return false unless right_part.stem.start_with?(@right_stem)
-        return false if @left_no_affix && left_part.text != left_part.stem
+        return false unless right_part.text.start_with?(@right_stem)
         return false if @left_flag && !left_part.flags.include?(@left_flag)
         return false if @right_flag && !right_part.flags.include?(@right_flag)
 
-        true
+        left_matches?(left_part)
+      end
+
+      private
+
+      # @param left_part [AffixForm] Left part of the junction
+      # @return [Boolean] Whether the left side's text condition holds
+      def left_matches?(left_part)
+        return true if @left_stem.empty?
+        return left_part.text.end_with?(left_part.stem) if @left_no_affix
+
+        left_part.text.end_with?(@left_stem)
       end
     end
 

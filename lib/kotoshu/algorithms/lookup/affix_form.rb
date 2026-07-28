@@ -86,7 +86,13 @@ module Kotoshu
           [@suffix, @suffix2].compact
         end
 
-        # Get all flags from stem and affixes.
+        # Flags the form carries: the dictionary entry's, plus those of the
+        # outermost prefix and suffix.
+        #
+        # Secondary affixes are deliberately excluded, matching Spylls. A
+        # secondary affix sits between the stem and the affix that was
+        # stripped last; its flags gate that stripping (see #desuffix's
+        # required_flags) rather than describing the finished word.
         #
         # @return [Set<String>] Combined flags
         def flags

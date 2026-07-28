@@ -153,6 +153,16 @@ RSpec.describe Kotoshu::Algorithms::Lookup do
         expect(form.flags).to contain_exactly("N", "V")
       end
 
+      it "excludes secondary affix flags, matching Spylls" do
+        # Pinned deliberately: a secondary affix's flags gate the stripping
+        # step, they are not flags the finished word carries.
+        sec = { affix: "ed", flags: Set.new(["Q"]), flag: "Q" }
+        form = described_class.new("spelling", "spell",
+                                   suffix: suffix_data, suffix2: sec,
+                                   in_dictionary: dict_entry)
+        expect(form.flags).to contain_exactly("N", "V")
+      end
+
       it "returns an empty set when in_dictionary is nil" do
         form = described_class.new("spell", "spell")
         expect(form.flags).to eq(Set.new)
@@ -557,6 +567,31 @@ RSpec.describe Kotoshu::Algorithms::Lookup do
     it "still forbids the unsimplified spelling the pattern rejects" do
       dict = dictionary(fixtures, "cmin3")
       expect(dict.lookup("foobar")).to be false
+    end
+
+    it "treats a right-side 0 as a literal, not a wildcard" do
+      # Hunspell's cpdpat_check matches the right side with isSubset, which
+      # has no 0 handling — only the left side's leading zero is special.
+      dict = dictionary(fixtures, "rightzero")
+      expect(dict.lookup("ba0x")).to be false
+      expect(dict.lookup("bayz")).to be true
+    end
+
+    it "does not apply CHECKCOMPOUNDTRIPLE to a seam a replacement rebuilt" do
+      # Hunspell guards the triple test with `scpd == 0`: the tripled letters
+      # exist only in the reconstruction, never in what was typed.
+      dict = dictionary(fixtures, "cpdtriple")
+      expect(dict.lookup("fozor")).to be true
+    end
+
+    it "still applies CHECKCOMPOUNDTRIPLE to an ordinary seam" do
+      dict = dictionary(fixtures, "cpdtriple")
+      expect(dict.lookup("foooor")).to be false
+    end
+
+    it "does not apply CHECKCOMPOUNDCASE to a seam a replacement rebuilt" do
+      dict = dictionary(fixtures, "cpdcase")
+      expect(dict.lookup("fozar")).to be true
     end
 
     it "runs CHECKCOMPOUNDREP against the surface spelling" do
