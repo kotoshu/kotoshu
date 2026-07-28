@@ -36,15 +36,6 @@ module Kotoshu
           @junction_patterns[index]
         end
 
-        # Whether the junction after part `index` came from a
-        # CHECKCOMPOUNDPATTERN replacement.
-        #
-        # @param index [Integer] Index of the part left of the junction
-        # @return [Boolean]
-        def simplified_junction?(index)
-          !@junction_patterns[index].nil?
-        end
-
         # String representation.
         #
         # @return [String]

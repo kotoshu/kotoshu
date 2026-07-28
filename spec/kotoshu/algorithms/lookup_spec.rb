@@ -237,11 +237,11 @@ RSpec.describe Kotoshu::Algorithms::Lookup do
       expect(compound.to_s).to eq("CompoundForm(foo)")
     end
 
-    it "reports no simplified junctions by default" do
+    it "reports no junction pattern by default" do
       part_a = Kotoshu::Algorithms::Lookup::AffixForm.new("foo", "foo")
       part_b = Kotoshu::Algorithms::Lookup::AffixForm.new("bar", "bar")
       compound = described_class.new([part_a, part_b])
-      expect(compound.simplified_junction?(0)).to be(false)
+      expect(compound.junction_pattern(0)).to be_nil
     end
 
     it "reports the junctions a pattern replacement built" do
@@ -250,8 +250,6 @@ RSpec.describe Kotoshu::Algorithms::Lookup do
       part_b = Kotoshu::Algorithms::Lookup::AffixForm.new("bar", "bar")
       part_c = Kotoshu::Algorithms::Lookup::AffixForm.new("baz", "baz")
       compound = described_class.new([part_a, part_b, part_c], [pattern, nil])
-      expect(compound.simplified_junction?(0)).to be(true)
-      expect(compound.simplified_junction?(1)).to be(false)
       expect(compound.junction_pattern(0)).to be(pattern)
       expect(compound.junction_pattern(1)).to be_nil
     end
@@ -260,7 +258,7 @@ RSpec.describe Kotoshu::Algorithms::Lookup do
       part_a = Kotoshu::Algorithms::Lookup::AffixForm.new("foo", "foo")
       part_b = Kotoshu::Algorithms::Lookup::AffixForm.new("bar", "bar")
       compound = described_class.new([part_a, part_b])
-      expect(compound.simplified_junction?(5)).to be(false)
+      expect(compound.junction_pattern(5)).to be_nil
     end
   end
 
@@ -557,10 +555,19 @@ RSpec.describe Kotoshu::Algorithms::Lookup do
                                         language_code: "en")
     end
 
-    it "bounds COMPOUNDMIN by the rebuilt members, not the surface word" do
-      # "fozar" is 5 chars and COMPOUNDMIN is 3, so the surface word cannot
-      # be split — but it stands for "foo" + "bar", which both clear the bound.
+    it "bounds COMPOUNDMIN by the surface word, as Hunspell does" do
+      # "fozar" stands for "foo" + "bar", which both clear COMPOUNDMIN 3.
+      # Hunspell still rejects it: setcminmax fixes the split window from the
+      # word as written (affixmgr.cxx:1644) before the replacement loop runs,
+      # and 5 characters leave no legal cut. hunspell.5 documents the
+      # consequence — COMPOUNDMIN "doesn't work correctly with the compound
+      # word alternation, so it may need to set COMPOUNDMIN to lower value".
       dict = dictionary(fixtures, "cmin3")
+      expect(dict.lookup("fozar")).to be false
+    end
+
+    it "accepts the same word once COMPOUNDMIN leaves room for the cut" do
+      dict = dictionary(fixtures, "cmin1")
       expect(dict.lookup("fozar")).to be true
     end
 
@@ -577,6 +584,14 @@ RSpec.describe Kotoshu::Algorithms::Lookup do
       expect(dict.lookup("bayz")).to be true
     end
 
+    it "treats . in the right side as a single-character wildcard" do
+      # Hunspell matches the right side with isSubset, a shared affix-key
+      # helper in which "." matches any one character.
+      dict = dictionary(fixtures, "rightdot")
+      expect(dict.lookup("babxd")).to be false
+      expect(dict.lookup("babyy")).to be true
+    end
+
     it "does not apply CHECKCOMPOUNDTRIPLE to a seam a replacement rebuilt" do
       # Hunspell guards the triple test with `scpd == 0`: the tripled letters
       # exist only in the reconstruction, never in what was typed.
@@ -591,6 +606,13 @@ RSpec.describe Kotoshu::Algorithms::Lookup do
 
     it "does not apply CHECKCOMPOUNDCASE to a seam a replacement rebuilt" do
       dict = dictionary(fixtures, "cpdcase")
+      expect(dict.lookup("fozar")).to be true
+    end
+
+    it "does not treat a rebuilt seam as a written word pair" do
+      # The dictionary holds "foo bar". The members reconstruct to exactly
+      # that, but the reader typed "fozar", which has no such space-split.
+      dict = dictionary(fixtures, "wordpair")
       expect(dict.lookup("fozar")).to be true
     end
 

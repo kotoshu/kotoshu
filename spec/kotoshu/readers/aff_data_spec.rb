@@ -403,6 +403,18 @@ RSpec.describe Kotoshu::Readers do
         expect(cp.match?(form("aaa"), prefixed)).to be true
       end
 
+      it "treats . in the right side as a single-character wildcard" do
+        cp = described_class.new("aa", "b.d")
+        expect(cp.match?(form("aaa"), form("bxd"))).to be true
+        expect(cp.match?(form("aaa"), form("byd"))).to be true
+        expect(cp.match?(form("aaa"), form("byy"))).to be false
+      end
+
+      it "requires the right member to be at least as long as the pattern" do
+        cp = described_class.new("aa", "b.d")
+        expect(cp.match?(form("aaa"), form("bx"))).to be false
+      end
+
       it "keeps a right-side 0 literal" do
         cp = described_class.new("aa", "0")
         expect(cp.match?(form("aaa"), form("0x"))).to be true

@@ -325,6 +325,9 @@ module Kotoshu
 
         @right_stem, sep, @right_flag = right.partition('/')
         @right_flag = nil if sep.empty?
+        # isSubset treats "." as a single-character wildcard. Precomputed so
+        # the overwhelmingly common literal case stays a plain start_with?.
+        @right_wildcard = @right_stem.include?('.')
       end
 
       # Whether this pattern also spells out a simplified compound form.
@@ -369,7 +372,7 @@ module Kotoshu
       # @param right_part [AffixForm] Right part with text, flags
       # @return [Boolean] True if matches
       def match?(left_part, right_part)
-        return false unless right_part.text.start_with?(@right_stem)
+        return false unless right_matches?(right_part.text)
         return false if @left_flag && !left_part.flags.include?(@left_flag)
         return false if @right_flag && !right_part.flags.include?(@right_flag)
 
@@ -377,6 +380,20 @@ module Kotoshu
       end
 
       private
+
+      # Hunspell matches the right side with isSubset, a shared affix-key
+      # helper in which "." stands for any one character. The behaviour is
+      # undocumented for this directive and absent from Spylls, but it is
+      # what the reference implementation does.
+      #
+      # @param text [String] Surface text of the right member
+      # @return [Boolean] Whether the right side's text condition holds
+      def right_matches?(text)
+        return text.start_with?(@right_stem) unless @right_wildcard
+        return false if text.length < @right_stem.length
+
+        @right_stem.each_char.with_index.all? { |char, i| char == '.' || char == text[i] }
+      end
 
       # @param left_part [AffixForm] Left part of the junction
       # @return [Boolean] Whether the left side's text condition holds
