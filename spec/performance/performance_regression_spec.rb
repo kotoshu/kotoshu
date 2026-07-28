@@ -133,7 +133,8 @@ RSpec.describe "Performance Regression Tests", :performance, :slow do
     it "keeps the pathological compound fixture bounded" do
       # 23 digits over a dictionary of digit strings with COMPOUNDMIN 1 —
       # Hunspell caps this with a time limit Kotoshu does not implement, so
-      # this spec is the only thing standing between a change and a hang.
+      # this timeout is what turns a hang into a failure. It only runs
+      # under SLOW_TESTS=1, so it guards the nightly run, not every push.
       dict = hunspell(fixtures, "timelimit")
 
       # Timeout, not a measured threshold: if the compound search stops

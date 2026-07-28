@@ -16,6 +16,7 @@ module Kotoshu
     #
     # To follow algorithm details, start reading from Lookup.call method.
     module Lookup
+      autoload :CompoundChecks, "kotoshu/algorithms/lookup/compound_checks"
       autoload :AffixForm, "kotoshu/algorithms/lookup/affix_form"
       autoload :CompoundForm, "kotoshu/algorithms/lookup/compound_form"
 
@@ -48,6 +49,8 @@ module Kotoshu
       #   # AffixForm(spells = spells)
       #   # AffixForm(spells = spell + Suffix(s: S×, on [[^sxzhy]]$))
       class Lookuper
+        include CompoundChecks
+
         # @return [Hash] Aff data structure (from aff file)
         attr_reader :aff
 
@@ -635,7 +638,8 @@ module Kotoshu
         # is barred at the compound end only when it carries ONLYINCOMPOUND
         # and nothing else rescues it. Two things do. A zero-width suffix is
         # handled by a separate branch upstream that has no such guard, and
-        # a crossed prefix (`ppfx`) is an explicit exemption — that is how
+        # a prefix on the form is an explicit exemption (`ppfx` upstream).
+        # That is how
         # German reaches "Arbeitscomputern", through its decapitalising
         # prefix rather than through any compound-position flag.
         #
@@ -747,7 +751,8 @@ module Kotoshu
         #
         # @param word_rest [String] Remaining word being split
         # @param compound_min [Integer] COMPOUNDMIN
-        # @yield [String, String, String, nil, Readers::CompoundPattern, nil]
+        # @yield [String, String, String, Readers::CompoundPattern] Left
+        #   member, remaining text, surface text or nil, pattern or nil
         def each_compound_junction(word_rest, compound_min)
           simplified_triple = @aff[:SIMPLIFIEDTRIPLE]
           patterns = replacement_patterns
@@ -828,193 +833,6 @@ module Kotoshu
                 yield CompoundForm.new([AffixForm.new(beg, beg), *partial.parts])
               end
             end
-          end
-        end
-
-        # Check if compound form has any issues.
-        #
-        # @param compound [CompoundForm] Compound to check
-        # @param captype [Symbol] Capitalization type
-        # @return [Boolean] Whether compound is bad
-        def is_bad_compound(compound, captype)
-          aff = @aff
-
-          # FORCEUCASE check
-          if aff[:FORCEUCASE] && ![Capitalization::Type::ALL,
-                                   Capitalization::Type::INIT].include?(captype) && @dic[:has_flag]&.call(
-                                     compound.parts.last.text, aff[:FORCEUCASE]
-                                   )
-            return true
-          end
-
-          # Check all adjacent pairs
-          compound.parts.each_cons(2).with_index do |(left_paradigm, right_paradigm), idx|
-            left = left_paradigm.text
-            right = right_paradigm.text
-            junction_pattern = compound.junction_pattern(idx)
-
-            # COMPOUNDFORBIDFLAG check
-            if aff[:COMPOUNDFORBIDFLAG] && @dic[:has_flag]&.call(left, aff[:COMPOUNDFORBIDFLAG])
-              return true
-            end
-
-            # CHECKCOMPOUNDTRIPLE check. Hunspell guards this with
-            # `scpd == 0`: a replacement rewrote the seam, so the letters
-            # meeting here are ones the reader never typed.
-            if aff[:CHECKCOMPOUNDTRIPLE] && !junction_pattern &&
-                ((left[-2..] + right[0]).chars.uniq.length == 1 ||
-                  (left[-1] + right[0..1]).chars.uniq.length == 1)
-              return true
-            end
-
-            # CHECKCOMPOUNDCASE check, guarded the same way and for the same
-            # reason as CHECKCOMPOUNDTRIPLE above.
-            if aff[:CHECKCOMPOUNDCASE] && !junction_pattern
-              right_c = right[0]
-              left_c = left[-1]
-              if (right_c == right_c.upcase || left_c == left_c.upcase) && right_c != '-' && left_c != '-'
-                return true
-              end
-            end
-
-            # CHECKCOMPOUNDPATTERN check. A junction the pattern's own
-            # replacement built is exempt — the pattern describes the very
-            # spelling that replacement exists to permit.
-            if !junction_pattern &&
-                (aff[:CHECKCOMPOUNDPATTERN] || []).any? { |p| p.match?(left_paradigm, right_paradigm) }
-              return true
-            end
-
-            # CHECKCOMPOUNDDUP check
-            if aff[:CHECKCOMPOUNDDUP] && left == right && idx == compound.parts.length - 2
-              return true
-            end
-          end
-
-          bad_remainder?(compound, captype)
-        end
-
-        # CHECKCOMPOUNDREP over every run of adjacent members, plus the
-        # word-pair check over the whole compound.
-        #
-        # Hunspell reaches both ends of the compound by two different routes.
-        # compound_check recurses on what is left of the word, so each level
-        # sees a suffix (cpdrep_check at affixmgr.cxx:1979); and it also calls
-        # cpdrep_check with a prefix length, `i + rv->blen`, at :2147. Between
-        # them every contiguous run of members gets checked, which is what
-        # this reproduces directly.
-        #
-        # Both routes are load-bearing. ph2's "rootforbiddenroot" is caught
-        # by the suffix "forbiddenroot", which reads as the entry "forbidden
-        # root". checkcompoundrep's "szervízkocsi" is caught by the prefix
-        # "szervíz", which REP rewrites to "szerviz". Checking only one end
-        # lets the other through.
-        #
-        # The word-pair check needs no such treatment: it tries a space at
-        # every position, so running it once on the whole compound already
-        # covers every seam inside it.
-        #
-        # @param compound [CompoundForm] Compound to check
-        # @param captype [Symbol] Capitalization type
-        # @return [Boolean]
-        def bad_remainder?(compound, captype)
-          return true if typical_fault_in_any_run?(compound, captype)
-
-          written_as_word_pair?(written_run(compound, 0, compound.parts.length - 1), captype)
-        end
-
-        # @param compound [CompoundForm] Compound to check
-        # @param captype [Symbol] Capitalization type
-        # @return [Boolean] Whether any run reads as a mistyped single word
-        def typical_fault_in_any_run?(compound, captype)
-          return false unless @aff[:CHECKCOMPOUNDREP] && @aff[:REP]
-
-          runs_of_members(compound).any? { |run| typical_fault?(run, captype) }
-        end
-
-        # Every contiguous run of two or more members, as written.
-        #
-        # @param compound [CompoundForm] Compound being checked
-        # @return [Array<String>] Each run's surface spelling
-        def runs_of_members(compound)
-          last_index = compound.parts.length - 1
-
-          (0...last_index).flat_map do |first|
-            ((first + 1)..last_index).map { |last| written_run(compound, first, last) }
-          end
-        end
-
-        # How a run of members is actually spelled.
-        #
-        # Members join end to end, except where a CHECKCOMPOUNDPATTERN
-        # replacement rewrote the seam — there the pattern decides, and the
-        # result is shorter than the parts it stands for. These checks read
-        # the word as the user typed it, so they need this rather than a
-        # plain join.
-        #
-        # @param compound [CompoundForm] Compound being checked
-        # @param first [Integer] Index of the first member in the run
-        # @param last [Integer] Index of the last member in the run
-        # @return [String] The run's surface spelling
-        def written_run(compound, first, last)
-          text = compound.parts[first].text
-
-          ((first + 1)..last).each do |index|
-            right = compound.parts[index].text
-            pattern = compound.junction_pattern(index - 1)
-            text = pattern ? pattern.surface(text, right) : text + right
-          end
-
-          text
-        end
-
-        # Is this run a single word someone mistyped?
-        #
-        # Ported from cpdrep_check (affixmgr.cxx:1286): every REP pattern is
-        # tried at every occurrence.
-        #
-        # @param word [String] The run as written
-        # @param captype [Symbol] Capitalization type
-        # @return [Boolean]
-        def typical_fault?(word, captype)
-          Kotoshu::Algorithms::Permutations.replchars(word, @aff[:REP]) do |candidate|
-            if candidate.is_a?(String) &&
-                affix_forms_internal(candidate, captype: captype, allow_nosuggest: true).any?
-              return true
-            end
-          end
-          false
-        end
-
-        # Does any dictionary entry contain a space?
-        #
-        # If none does, no space-separated candidate can ever be found, so
-        # the scan below cannot succeed and is skipped outright. Nearly every
-        # dictionary takes this path.
-        #
-        # @return [Boolean]
-        def dictionary_has_word_pairs?
-          return @dictionary_has_word_pairs unless @dictionary_has_word_pairs.nil?
-
-          @dictionary_has_word_pairs =
-            (@dic[:words] || []).any? { |entry| entry[:stem].include?(' ') }
-        end
-
-        # Is the compound just two words run together?
-        #
-        # Ported from cpdwordpair_check (affixmgr.cxx:2196): a space is tried
-        # at every position, not only where two members happen to meet.
-        #
-        # @param word [String] The remainder as written
-        # @param captype [Symbol] Capitalization type
-        # @return [Boolean]
-        def written_as_word_pair?(word, captype)
-          return false if word.length <= 2
-          return false unless dictionary_has_word_pairs?
-
-          (1...word.length).any? do |i|
-            affix_forms_internal("#{word[0, i]} #{word[i..]}", captype: captype,
-                                                               allow_nosuggest: true).any?
           end
         end
       end

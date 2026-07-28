@@ -616,6 +616,13 @@ RSpec.describe Kotoshu::Algorithms::Lookup do
       expect(dict.lookup("fozar")).to be true
     end
 
+    it "does not choke when a member is a single character" do
+      # The triple check reaches two characters back. A one-letter member has
+      # nothing there, and Hunspell bounds-checks before looking.
+      dict = dictionary(fixtures, "shortmember")
+      expect { dict.lookup("abb") }.not_to raise_error
+    end
+
     it "runs CHECKCOMPOUNDREP against the surface spelling" do
       # REP rewrites "foobar", which is what the members concatenate to but
       # not what the user typed. "fozar" contains no such match.
