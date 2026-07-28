@@ -631,21 +631,23 @@ module Kotoshu
 
         # Whether a suffix stops this form from closing a compound.
         #
-        # A suffix signed ONLYINCOMPOUND joins one compound member to the
-        # next, so it cannot be the thing that closes the compound. Signing
-        # it COMPOUNDEND as well says it may: German reaches its compound-end
-        # forms exactly that way, through suffixes carrying both flags.
+        # Ported from Hunspell's suffix_check (affixmgr.cxx:2832): a suffix
+        # is barred at the compound end only when it carries ONLYINCOMPOUND
+        # and nothing else rescues it. Two things do. A zero-width suffix is
+        # handled by a separate branch upstream that has no such guard, and
+        # a crossed prefix (`ppfx`) is an explicit exemption — that is how
+        # German reaches "Arbeitscomputern", through its decapitalising
+        # prefix rather than through any compound-position flag.
         #
         # @param form [AffixForm] Form being placed at the compound end
         # @return [Boolean] Whether a suffix bars it from ending the compound
         def barred_from_compound_end?(form)
           only_in_compound = @aff[:ONLYINCOMPOUND]
           return false unless only_in_compound
+          return false if form.prefix
 
-          compound_end = @aff[:COMPOUNDEND]
           form.suffixes.any? do |suffix|
-            flags = suffix[:flags] || []
-            flags.include?(only_in_compound) && !(compound_end && flags.include?(compound_end))
+            !suffix[:affix].to_s.empty? && (suffix[:flags] || []).include?(only_in_compound)
           end
         end
 
@@ -685,10 +687,8 @@ module Kotoshu
             end
           end
 
-          # Check compounding limits. A replacement stands in for two members
-          # at once, so the surface word can be shorter than the parts it
-          # spells — the length floor only holds when none is in play.
-          return if replacement_patterns.empty? && word_rest.length < compound_min * 2
+          # Check compounding limits
+          return if word_rest.length < compound_min * 2
           return if compound_word_max && depth >= compound_word_max
 
           compoundpos = depth.zero? ? CompoundPos::BEGIN_POS : CompoundPos::MIDDLE
@@ -699,7 +699,7 @@ module Kotoshu
           # produce_affix_forms blocks all suffixes inside compounds.
           prefix_flags = compoundpos == CompoundPos::BEGIN_POS ? [] : permit_flags
 
-          each_compound_junction(word_rest, compound_min) do |left, right, surface, pattern|
+          each_compound_junction(word_rest, compound_min) do |left, right, left_text, pattern|
             affix_forms_internal(left, captype: captype, allow_nosuggest: allow_nosuggest,
                                        compoundpos: compoundpos,
                                        prefix_flags: prefix_flags,
@@ -709,7 +709,7 @@ module Kotoshu
                                         allow_nosuggest: allow_nosuggest) do |partial|
                 next if pattern && !pattern.match?(form, partial.parts.first)
 
-                part = surface ? form.replace(text: surface) : form
+                part = left_text ? form.replace(text: left_text) : form
                 yield CompoundForm.new([part, *partial.parts],
                                        [pattern, *partial.junction_patterns])
               end
@@ -726,28 +726,31 @@ module Kotoshu
 
         # Every cut of the word worth trying as a compound boundary.
         #
-        # Yields `(left, right, surface, pattern)` rather than an object: this
-        # is the innermost loop of the whole checker, and one allocation per
-        # split position is measurable on deeply compounding languages.
+        # Yields `(left, right, left_text, pattern)` rather than an object:
+        # this is the innermost loop of the whole checker, and one allocation
+        # per split position is measurable on deeply compounding languages.
         #
-        # `surface` is the text to record on the left member when it differs
-        # from the text looked up, and `pattern` is set only for a cut a
-        # CHECKCOMPOUNDPATTERN replacement rebuilt. Both are nil for the
-        # ordinary case, which is nearly all of them.
+        # `left_text` is the text to record on the left member when it
+        # differs from the text looked up, and `pattern` is set only for a
+        # cut a CHECKCOMPOUNDPATTERN replacement rebuilt. Both are nil for
+        # the ordinary case, which is nearly all of them.
         #
-        # Most cuts are plain: COMPOUNDMIN characters have to sit either side,
-        # so only offsets between those bounds can yield a member. Two
-        # directives spell a junction differently from the members it joins
-        # and contribute cuts whose members are rebuilt rather than sliced —
-        # SIMPLIFIEDTRIPLE gives the left member back its elided letter, and
-        # a CHECKCOMPOUNDPATTERN replacement expands its shorthand into the
-        # two members it stands for.
+        # The window is COMPOUNDMIN either side of the cut, measured on the
+        # word as written. Hunspell fixes it the same way, before it tries
+        # any replacement (setcminmax at affixmgr.cxx:1644, the replacement
+        # loop nested inside at :1660). A replacement can therefore stand for
+        # members longer than the text it replaced, which is why hunspell.5
+        # warns that COMPOUNDMIN "doesn't work correctly with the compound
+        # word alternation, so it may need to set COMPOUNDMIN to lower
+        # value". Matching that quirk beats being quietly more permissive
+        # than the dictionaries were written against.
         #
         # @param word_rest [String] Remaining word being split
         # @param compound_min [Integer] COMPOUNDMIN
         # @yield [String, String, String, nil, Readers::CompoundPattern, nil]
         def each_compound_junction(word_rest, compound_min)
           simplified_triple = @aff[:SIMPLIFIEDTRIPLE]
+          patterns = replacement_patterns
 
           (compound_min...(word_rest.length - compound_min + 1)).each do |pos|
             beg = word_rest[0...pos]
@@ -757,37 +760,15 @@ module Kotoshu
             if simplified_triple && !beg.empty? && !rest.empty? && beg[-1] == rest[0]
               yield beg + beg[-1], rest, beg, nil
             end
-          end
 
-          replacement_patterns.each do |pattern|
-            each_replacement_junction(word_rest, pattern, compound_min) do |left, right|
-              yield left, right, nil, pattern
+            patterns.each do |pattern|
+              replacement = pattern.replacement
+              next unless word_rest[pos, replacement.length] == replacement
+
+              yield beg + pattern.left_stem,
+                    pattern.right_stem + word_rest[(pos + replacement.length)..],
+                    nil, pattern
             end
-          end
-        end
-
-        # Cuts produced by one pattern's replacement.
-        #
-        # The replacement is a literal, so only the offsets where it actually
-        # occurs can produce a member — searching for it beats walking every
-        # offset and asking. COMPOUNDMIN is applied to the rebuilt members,
-        # which is the whole point: "fozar" is five characters but stands for
-        # two three-character words.
-        #
-        # @param word_rest [String] Remaining word being split
-        # @param pattern [Readers::CompoundPattern] Pattern with a replacement
-        # @param compound_min [Integer] COMPOUNDMIN
-        # @yield [String, String] Left and right member of each cut
-        def each_replacement_junction(word_rest, pattern, compound_min)
-          replacement = pattern.replacement
-          width = replacement.length
-          pos = word_rest.index(replacement)
-
-          while pos
-            left = word_rest[0...pos] + pattern.left_stem
-            right = pattern.right_stem + word_rest[(pos + width)..]
-            yield left, right if left.length >= compound_min && right.length >= compound_min
-            pos = word_rest.index(replacement, pos + 1)
           end
         end
 
@@ -871,24 +852,28 @@ module Kotoshu
             left = left_paradigm.text
             right = right_paradigm.text
             junction_pattern = compound.junction_pattern(idx)
-            # What the user actually typed across this junction. A
-            # replacement writes the two members as something shorter, and
-            # checks that read the word as written must see that spelling.
-            surface = junction_pattern ? junction_pattern.surface(left, right) : left + right
 
             # COMPOUNDFORBIDFLAG check
             if aff[:COMPOUNDFORBIDFLAG] && @dic[:has_flag]&.call(left, aff[:COMPOUNDFORBIDFLAG])
               return true
             end
 
-            # Check if "left right" exists as single dictionary entry
-            joined = left + ' ' + right
-            if affix_forms_internal(joined, captype: captype, allow_nosuggest: true).any?
+            # Check if "left right" exists as a single dictionary entry.
+            # Skipped at a rebuilt seam: these two members were never written
+            # side by side, so a space between them is not a spelling the
+            # reader could have meant. The same word is also tried as an
+            # ordinary split, which is where a genuine word pair surfaces.
+            if !junction_pattern &&
+                affix_forms_internal("#{left} #{right}", captype: captype, allow_nosuggest: true).any?
               return true
             end
 
             # CHECKCOMPOUNDREP check
             if aff[:CHECKCOMPOUNDREP] && aff[:REP]
+              # What the user actually typed across this junction: a
+              # replacement writes the two members as something shorter, and
+              # REP reads the word as written.
+              surface = junction_pattern ? junction_pattern.surface(left, right) : left + right
               Kotoshu::Algorithms::Permutations.replchars(surface, aff[:REP]) do |candidate|
                 if candidate.is_a?(String) &&
                     affix_forms_internal(candidate, captype: captype, allow_nosuggest: true).any?
@@ -919,7 +904,7 @@ module Kotoshu
             # CHECKCOMPOUNDPATTERN check. A junction the pattern's own
             # replacement built is exempt — the pattern describes the very
             # spelling that replacement exists to permit.
-            if !compound.simplified_junction?(idx) &&
+            if !junction_pattern &&
                 (aff[:CHECKCOMPOUNDPATTERN] || []).any? { |p| p.match?(left_paradigm, right_paradigm) }
               return true
             end
