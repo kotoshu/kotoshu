@@ -102,6 +102,11 @@ under `kotoshu/` per the five-repo workspace model:
 | 63 | [Web playground (WASM)](63-web-playground-wasm.md) | Browser playground at `kotoshu.github.io/playground/` |
 | 64 | [HTTP API & SDKs](64-http-api-and-sdks.md) | Self-hostable server + Python / JS / Go SDKs for non-Ruby stacks |
 
+Plan 67 is the **delivery train** that publishes 65/66: tiered models
+(mini/fluency/full) through the models repo's registry + releases, the
+kotoshu-rs bootstrap and port, and the Ruby / WASM / Python access
+libraries — [67-kotoshu-rs-and-access-libraries.md](67-kotoshu-rs-and-access-libraries.md).
+
 Dependency order across the ecosystem track:
 
 ```
