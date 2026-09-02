@@ -110,7 +110,11 @@ libraries — [67-kotoshu-rs-and-access-libraries.md](67-kotoshu-rs-and-access-l
 Plan 68 is the **research adoption plan** (2026-09-02 SOTA survey):
 what modern GEC/embedding/quantization research and frontier-model
 training techniques Kotoshu adopts, adapts, or rejects —
-[68-sota-adoption.md](68-sota-adoption.md).
+[68-sota-adoption.md](68-sota-adoption.md). Its adopt-now items are
+executed by plans
+[69 (keyboard typo eval + corpus benchmark)](69-sota-typo-eval.md),
+[70 (confidence cascade)](70-sota-confidence-cascade.md), and
+[71 (nested single-artifact experiment)](71-sota-nested-model.md).
 
 Dependency order across the ecosystem track:
 
