@@ -67,6 +67,13 @@ module Kotoshu
         end
       end
 
+      # Record a skipped semantic rerank (confidence cascade skip).
+      def record_semantic_cascade_skip
+        @mutex.synchronize do
+          @metrics[:semantic_cascade_skips] += 1
+        end
+      end
+
       # Get current metrics statistics.
       #
       # @return [Hash] Current statistics with computed averages
@@ -94,6 +101,8 @@ module Kotoshu
             suggestions_generated: 0,
             suggestion_times: [],
 
+            semantic_cascade_skips: 0,
+
             started_at: Time.now
           }
         end
@@ -116,6 +125,7 @@ module Kotoshu
         lines << "#{prefix}.suggestion_requests:#{s[:suggestion_requests]}|c"
         lines << "#{prefix}.suggestions_generated:#{s[:suggestions_generated]}|c"
         lines << "#{prefix}.avg_suggestion_time:#{s[:avg_suggestion_time]}|ms"
+        lines << "#{prefix}.semantic_cascade_skips:#{s[:semantic_cascade_skips]}|c"
 
         lines.join("\n")
       end
@@ -163,6 +173,10 @@ module Kotoshu
         lines << "# TYPE kotoshu_avg_suggestion_time gauge"
         lines << "kotoshu_avg_suggestion_time #{s[:avg_suggestion_time]}"
 
+        lines << "# HELP kotoshu_semantic_cascade_skips Number of semantic reranks skipped by the confidence cascade"
+        lines << "# TYPE kotoshu_semantic_cascade_skips counter"
+        lines << "kotoshu_semantic_cascade_skips #{s[:semantic_cascade_skips]}"
+
         lines.join("\n")
       end
 
@@ -203,6 +217,8 @@ module Kotoshu
                                          0
                                        end,
           avg_suggestion_time: avg_suggestion.round(3),
+
+          semantic_cascade_skips: @metrics[:semantic_cascade_skips],
 
           uptime_seconds: (Time.now - @metrics[:started_at]).round(2)
         }

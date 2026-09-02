@@ -230,6 +230,12 @@ RSpec.describe Kotoshu::Suggestions::Strategies::BaseStrategy do
     end
   end
 
+  describe "#skip_when_confident?" do
+    it "is false by default (only opt-in rerankers are cascade-skippable)" do
+      expect(described_class.new(name: :x).skip_when_confident?).to be false
+    end
+  end
+
   describe "#to_s / #inspect" do
     it "includes class name, name, and enabled flag" do
       strategy = described_class.new(name: :edit_distance, enabled: true)

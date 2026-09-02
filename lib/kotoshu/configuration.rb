@@ -191,6 +191,12 @@ module Kotoshu
         default: "en",
         description: "Fallback language when detection is inconclusive",
         type: String
+      },
+      semantic_cascade_threshold: {
+        env: "KOTOSHU_SEMANTIC_CASCADE_THRESHOLD",
+        default: 1.0,
+        description: "Skip semantic reranking when composite confidence is already at or above this (1.0 = always rerank)",
+        type: Float
       }
     }.freeze
 
@@ -209,7 +215,8 @@ module Kotoshu
       dictionaries_path: nil, # Path to dictionaries directory (for grammar rules)
       offline: false,
       default_language: "en",
-      resource_pin: "main"
+      resource_pin: "main",
+      semantic_cascade_threshold: 1.0
     }.freeze
 
     # @return [String, nil] Path to the dictionary file
@@ -256,6 +263,10 @@ module Kotoshu
 
     # @return [String] Branch/tag/commit pinned for resource downloads
     attr_accessor :resource_pin
+
+    # @return [Float] Confidence at or above which the semantic rerank
+    #   is skipped (1.0 = always rerank; see Suggestions::SemanticCascade)
+    attr_accessor :semantic_cascade_threshold
 
     # @return [String, nil] Path to cache directory
     attr_accessor :cache_path
@@ -445,7 +456,8 @@ module Kotoshu
         models_pin: @models_pin,
         auto_download: @auto_download,
         cache_ttl: @cache_ttl,
-        max_cache_size: @max_cache_size
+        max_cache_size: @max_cache_size,
+        semantic_cascade_threshold: @semantic_cascade_threshold
       }
     end
 
@@ -555,7 +567,8 @@ module Kotoshu
       @max_cache_size = SCHEMA[:max_cache_size][:default]
       @audit_max_bytes = SCHEMA[:audit_max_bytes][:default]
       @audit_rotations = SCHEMA[:audit_rotations][:default]
-      @resource_pin = SCHEMA[:resource_pin][:default]
+      @resource_pin = DEFAULTS[:resource_pin]
+      @semantic_cascade_threshold = DEFAULTS[:semantic_cascade_threshold]
     end
 
     # Apply resolved values from the resolver (ENV, defaults).
@@ -586,6 +599,11 @@ module Kotoshu
 
     # Convert a value based on schema type.
     #
+    # ENV values arrive as Strings; the schema type declares the target.
+    # Class comparisons use ==, not `case`/`===`: `case Integer; when
+    # Integer` never matches because Class#=== tests instance-of while
+    # the schema stores the class itself.
+    #
     # @param key [Symbol] The configuration key
     # @param value [Object] The value to convert
     # @return [Object] The converted value
@@ -593,12 +611,14 @@ module Kotoshu
       schema = SCHEMA[key]
       return value if schema.nil? || value.nil?
 
-      case schema[:type]
-      when :boolean
+      type = schema[:type]
+      if type == :boolean
         parse_boolean(value)
-      when Integer
+      elsif type == Integer
         value.is_a?(Integer) ? value : value.to_i
-      when Symbol
+      elsif type == Float
+        value.is_a?(Float) ? value : value.to_f
+      elsif type == Symbol
         value.is_a?(Symbol) ? value : value.to_sym
       else
         value

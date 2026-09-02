@@ -103,6 +103,15 @@ module Kotoshu
           true
         end
 
+        # The confidence cascade may skip this strategy: the ONNX
+        # rerank runs only when the traditional strategies are not
+        # already confident (see {SemanticCascade}).
+        #
+        # @return [Boolean]
+        def skip_when_confident?
+          true
+        end
+
         # Compute semantic similarity between two words.
         #
         # @param word1 [String] First word
