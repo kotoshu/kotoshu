@@ -107,6 +107,11 @@ Plan 67 is the **delivery train** that publishes 65/66: tiered models
 kotoshu-rs bootstrap and port, and the Ruby / WASM / Python access
 libraries — [67-kotoshu-rs-and-access-libraries.md](67-kotoshu-rs-and-access-libraries.md).
 
+Plan 68 is the **research adoption plan** (2026-09-02 SOTA survey):
+what modern GEC/embedding/quantization research and frontier-model
+training techniques Kotoshu adopts, adapts, or rejects —
+[68-sota-adoption.md](68-sota-adoption.md).
+
 Dependency order across the ecosystem track:
 
 ```
