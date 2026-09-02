@@ -15,6 +15,8 @@ module Kotoshu
   #   Kotoshu::Metrics.stats
   #   # => { lookups: 1, cache_hits: 0, cache_misses: 1, ... }
   module Metrics
+    autoload :Collector, "kotoshu/metrics_collector"
+
     class << self
       # Enable metrics collection.
       def enable
@@ -70,6 +72,15 @@ module Kotoshu
         return unless enabled?
 
         collector&.record_suggestions(word, count: count, time: time)
+      end
+
+      # Record a skipped semantic rerank (confidence cascade): the
+      # traditional strategies were already confident, so the semantic
+      # rerank was not run (TODO.impl/70).
+      def record_semantic_cascade_skip
+        return unless enabled?
+
+        collector&.record_semantic_cascade_skip
       end
 
       # Get current metrics statistics.

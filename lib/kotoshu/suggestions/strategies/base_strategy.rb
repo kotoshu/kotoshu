@@ -96,6 +96,16 @@ module Kotoshu
           !dictionary_lookup(context, context.word)
         end
 
+        # Whether the confidence cascade may skip this strategy when
+        # the traditional strategies are already confident about the
+        # word (see {Suggestions::SemanticCascade}). Only expensive,
+        # optional rerankers (e.g. {SemanticStrategy}) opt in.
+        #
+        # @return [Boolean]
+        def skip_when_confident?
+          false
+        end
+
         # Create a suggestion from a word.
         #
         # @param word [String] The suggested word

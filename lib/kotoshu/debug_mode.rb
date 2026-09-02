@@ -18,6 +18,8 @@ module Kotoshu
   # @example Disable debug mode
   #   Kotoshu::Debug.disable
   module Debug
+    autoload :Logger, "kotoshu/debug_logger"
+
     class << self
       # Enable debug mode.
       #

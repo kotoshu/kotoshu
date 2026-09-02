@@ -42,6 +42,15 @@ RSpec.describe Kotoshu::Suggestions::Strategies::SemanticStrategy do
     end
   end
 
+  describe "#skip_when_confident?" do
+    it "opts in to the confidence cascade (skippable when traditional is confident)" do
+      # "xx" has no cached model, so construction needs no ONNX and no
+      # network — the predicate is pure configuration.
+      strategy = described_class.new(language_code: "xx")
+      expect(strategy.skip_when_confident?).to be true
+    end
+  end
+
   describe "#generate" do
     context "when ONNX model is not available" do
       let(:strategy) { described_class.new(language_code: "xx") }

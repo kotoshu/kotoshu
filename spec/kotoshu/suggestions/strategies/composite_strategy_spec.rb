@@ -46,6 +46,54 @@ RSpec.describe Kotoshu::Suggestions::Strategies::CompositeStrategy do
     end
   end
 
+  # Traditional strategy whose top candidate confidence is a knob, so
+  # cascade specs can pin exact skip/no-skip boundaries.
+  class FixedConfidenceStrategy < Kotoshu::Suggestions::Strategies::BaseStrategy
+    def initialize(confidence:)
+      super(name: :fixed_confidence)
+      @confidence = confidence
+    end
+
+    def handles?(_context)
+      true
+    end
+
+    def generate(context)
+      Kotoshu::Suggestions::SuggestionSet.new(
+        [create_suggestion("certain", confidence: @confidence)],
+        max_size: context.max_results
+      )
+    end
+  end
+
+  # Real rerank-shaped strategy that records every invocation, so
+  # specs assert on behavior (was the rerank run?) rather than mock
+  # interactions. Mirrors SemanticStrategy's skip_when_confident? opt-in.
+  class CountingRerankStrategy < Kotoshu::Suggestions::Strategies::BaseStrategy
+    def initialize
+      super(name: :counting_rerank)
+      @invocations = []
+    end
+
+    attr_reader :invocations
+
+    def handles?(_context)
+      true
+    end
+
+    def skip_when_confident?
+      true
+    end
+
+    def generate(context)
+      @invocations << context.word
+      Kotoshu::Suggestions::SuggestionSet.new(
+        [create_suggestion("reranked", confidence: 0.99)],
+        max_size: context.max_results
+      )
+    end
+  end
+
   describe "#initialize" do
     it "accepts a name keyword and exposes it via #name" do
       composite = described_class.new(name: :pipeline)
@@ -204,6 +252,158 @@ RSpec.describe Kotoshu::Suggestions::Strategies::CompositeStrategy do
       # Batch merge means dedup runs once over the full candidate pool,
       # so duplicates_removed reflects the cross-strategy total.
       expect(result.duplicates_removed).to eq(1)
+    end
+  end
+
+  describe "confidence cascade" do
+    # The cascade skips skippable strategies (skip_when_confident?,
+    # i.e. the semantic rerank) when the traditional pool is already
+    # confident. See Suggestions::SemanticCascade and TODO.impl/70.
+
+    def composite_with(traditional:, rerank:, threshold: nil)
+      described_class.new(
+        name: :pipeline,
+        strategies: [traditional, rerank],
+        semantic_cascade_threshold: threshold
+      )
+    end
+
+    it "runs the rerank at the default threshold even for confidence 1.0" do
+      # Composite confidence legitimately reaches exactly 1.0, so the
+      # default threshold is the always-rerank sentinel — never skips.
+      traditional = FixedConfidenceStrategy.new(confidence: 1.0)
+      rerank = CountingRerankStrategy.new
+      composite = composite_with(
+        traditional: traditional, rerank: rerank, threshold: 1.0
+      )
+
+      result = composite.generate(context)
+
+      expect(rerank.invocations).to eq(["helo"])
+      expect(result.include?("reranked")).to be true
+    end
+
+    it "follows the process Configuration when no threshold kwarg is given" do
+      Kotoshu.configuration.semantic_cascade_threshold = 0.0
+      begin
+        traditional = FixedConfidenceStrategy.new(confidence: 0.5)
+        rerank = CountingRerankStrategy.new
+        composite = described_class.new(
+          name: :pipeline, strategies: [traditional, rerank]
+        )
+
+        composite.generate(context)
+
+        expect(rerank.invocations).to be_empty
+      ensure
+        Kotoshu::Configuration.reset
+      end
+    end
+
+    context "at threshold 0.0 (never rerank)" do
+      it "skips the rerank whenever the traditional pool has candidates" do
+        traditional = FixedConfidenceStrategy.new(confidence: 0.1)
+        rerank = CountingRerankStrategy.new
+        composite = composite_with(
+          traditional: traditional, rerank: rerank, threshold: 0.0
+        )
+
+        result = composite.generate(context)
+
+        expect(rerank.invocations).to be_empty
+        expect(result.to_words).to eq(["certain"])
+      end
+
+      it "still runs the rerank when the traditional pool is empty" do
+        traditional = StubStrategy.new(name: :empty, words: [])
+        rerank = CountingRerankStrategy.new
+        composite = composite_with(
+          traditional: traditional, rerank: rerank, threshold: 0.0
+        )
+
+        result = composite.generate(context)
+
+        expect(rerank.invocations).to eq(["helo"])
+        expect(result.to_words).to eq(["reranked"])
+      end
+    end
+
+    context "at a mid threshold" do
+      it "skips exactly when the top traditional confidence is at or above it" do
+        at_threshold = FixedConfidenceStrategy.new(confidence: 0.9)
+        below_threshold = FixedConfidenceStrategy.new(confidence: 0.89)
+
+        skipped = CountingRerankStrategy.new
+        composite_with(
+          traditional: at_threshold, rerank: skipped, threshold: 0.9
+        ).generate(context)
+        expect(skipped.invocations).to be_empty
+
+        ran = CountingRerankStrategy.new
+        composite_with(
+          traditional: below_threshold, rerank: ran, threshold: 0.9
+        ).generate(context)
+        expect(ran.invocations).to eq(["helo"])
+      end
+
+      it "merges rerank candidates into the pool when not skipped" do
+        traditional = FixedConfidenceStrategy.new(confidence: 0.5)
+        rerank = CountingRerankStrategy.new
+        composite = composite_with(
+          traditional: traditional, rerank: rerank, threshold: 0.9
+        )
+
+        result = composite.generate(context)
+
+        expect(rerank.invocations).to eq(["helo"])
+        expect(result.to_words).to contain_exactly("certain", "reranked")
+      end
+    end
+
+    describe "debug metrics" do
+      after { Kotoshu::Metrics.disable }
+
+      it "counts skips as semantic_cascade_skips" do
+        Kotoshu::Metrics.enable
+
+        traditional = FixedConfidenceStrategy.new(confidence: 1.0)
+        rerank = CountingRerankStrategy.new
+        composite = composite_with(
+          traditional: traditional, rerank: rerank, threshold: 0.9
+        )
+        2.times { composite.generate(context) }
+
+        expect(Kotoshu::Metrics.stats[:semantic_cascade_skips]).to eq(2)
+      end
+
+      it "does not count when the rerank runs" do
+        Kotoshu::Metrics.enable
+
+        traditional = FixedConfidenceStrategy.new(confidence: 0.5)
+        rerank = CountingRerankStrategy.new
+        composite = composite_with(
+          traditional: traditional, rerank: rerank, threshold: 0.9
+        )
+        composite.generate(context)
+
+        expect(Kotoshu::Metrics.stats[:semantic_cascade_skips]).to eq(0)
+      end
+
+      it "exports the counter in StatsD and Prometheus formats" do
+        Kotoshu::Metrics.enable
+
+        traditional = FixedConfidenceStrategy.new(confidence: 1.0)
+        rerank = CountingRerankStrategy.new
+        composite = composite_with(
+          traditional: traditional, rerank: rerank, threshold: 0.9
+        )
+        composite.generate(context)
+
+        expect(Kotoshu::Metrics.to_statsd)
+          .to include("kotoshu.semantic_cascade_skips:1|c")
+        expect(Kotoshu::Metrics.to_prometheus)
+          .to include("kotoshu_semantic_cascade_skips 1")
+      end
     end
   end
 

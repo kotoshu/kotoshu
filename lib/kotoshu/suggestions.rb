@@ -7,6 +7,7 @@ module Kotoshu
     autoload :FrequencyProvider, "kotoshu/suggestions/frequency_provider"
     autoload :Generator, "kotoshu/suggestions/generator"
     autoload :Pipeline, "kotoshu/suggestions/pipeline"
+    autoload :SemanticCascade, "kotoshu/suggestions/semantic_cascade"
     autoload :Suggestion, "kotoshu/suggestions/suggestion"
     autoload :SuggestionSet, "kotoshu/suggestions/suggestion_set"
 
