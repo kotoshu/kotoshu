@@ -40,6 +40,16 @@ RSpec.describe Kotoshu::Embeddings::Vocabulary do
         described_class.new(language_code: language_code, word_to_index: {})
       end.to raise_error(ArgumentError, /cannot be empty/)
     end
+
+    it "raises a clear error when values are not integer indices" do
+      # This is the shape that surfaces when a wrapped vocab.json document
+      # is mistaken for a flat word-to-index map.
+      drifted = { "hello" => 0, "word_to_idx" => { "world" => 1 } }
+
+      expect do
+        described_class.new(language_code: language_code, word_to_index: drifted)
+      end.to raise_error(ArgumentError, /must map words to Integer indices/)
+    end
   end
 
   describe ".from_file" do
@@ -69,6 +79,22 @@ RSpec.describe Kotoshu::Embeddings::Vocabulary do
       vocab = described_class.from_file(vocab_file.path, language_code: "en")
       expect(vocab.size).to eq(3)
       expect(vocab.lookup("hello")).to eq(0)
+    end
+
+    it "loads vocabulary from JSON file (wrapped word_to_idx format)" do
+      # Shape written by scripts/fasttext_to_onnx.py save_vocabulary and
+      # shipped by the models-fasttext-onnx repository.
+      data = {
+        "vocab_size" => 3,
+        "word_to_idx" => { "hello" => 0, "world" => 1, "test" => 2 }
+      }
+      File.write(vocab_file.path, JSON.generate(data))
+
+      vocab = described_class.from_file(vocab_file.path, language_code: "en")
+      expect(vocab.size).to eq(3)
+      expect(vocab.lookup("hello")).to eq(0)
+      expect(vocab.lookup("test")).to eq(2)
+      expect(vocab.get_word(1)).to eq("world")
     end
 
     it "auto-detects language from filename" do

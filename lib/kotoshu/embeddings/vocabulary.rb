@@ -49,6 +49,12 @@ module Kotoshu
         # Build reverse index (index -> word)
         @index_to_word = Array.new(@word_to_index.size)
         @word_to_index.each do |word, index|
+          unless index.is_a?(Integer)
+            raise ArgumentError,
+                  "word_to_index must map words to Integer indices " \
+                  "(#{word.inspect} => #{index.inspect})"
+          end
+
           @index_to_word[index] = word if index < @index_to_word.size
         end
         @index_to_word.freeze
@@ -143,7 +149,7 @@ module Kotoshu
 
         case data
         when Hash
-          word_to_index = data.transform_keys(&:freeze).freeze
+          word_to_index = word_to_index_from_document(data)
         when Array
           word_to_index = {}
           data.each_with_index do |word, index|
@@ -155,6 +161,24 @@ module Kotoshu
         end
 
         new(language_code: language_code, word_to_index: word_to_index)
+      end
+
+      # Normalize a parsed vocab.json document into a flat word-to-index hash.
+      #
+      # Two Hash shapes exist in the wild: a flat `{ "hello" => 0 }` map, and
+      # the wrapped `{ "vocab_size" => N, "word_to_idx" => { ... } }` document
+      # written by `scripts/fasttext_to_onnx.py` `save_vocabulary` and shipped
+      # by the models-fasttext-onnx repository. Both are accepted here so
+      # every vocab.json generation reads back regardless of which tool
+      # wrote it.
+      #
+      # @param document [Hash{String => Object}] Parsed JSON document
+      # @return [Hash{String => Integer}] Flat word-to-index mapping
+      def self.word_to_index_from_document(document)
+        inner = document['word_to_idx']
+        document = inner if inner.is_a?(Hash)
+
+        document.transform_keys(&:freeze)
       end
 
       # Create vocabulary from Array of words
