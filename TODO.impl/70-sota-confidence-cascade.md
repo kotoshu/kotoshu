@@ -48,4 +48,12 @@ dictionary is certain.
 
 ## Status
 
-_Planning._
+**Implemented (2026-09-03, gem PR #98 merged).** semantic_cascade_
+threshold in the SCHEMA (env automatic), Suggestions::SemanticCascade
+decision object with the 1.0 never-skip sentinel (composite confidence
+legitimately reaches exactly 1.0 - documented in ALWAYS_RERANK),
+semantic_cascade_skips counters in metrics + verbose. Drive-by fixes:
+dead convert_schema_value Integer/Float branches (ENV never converted),
+missing Metrics::Collector / Debug::Logger autoloads. 97 examples
+green, rubocop clean. Tuning guidance pending plan 69 corpus numbers
+now committed in the models repo.

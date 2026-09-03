@@ -54,4 +54,10 @@ already on disk).
 
 ## Status
 
-_Planning._
+**Experiment complete (2026-09-03, models PR #6 merged).** build_
+nested.py + check_nested_parity.py; 18/18 EXACT array + metric parity
+against the keyboard-aware reports. Recommendation recorded in
+nested.summary.json: separate tiers stay the default (mini-only users
+would pay ~10x); nested ships as an optional all-in-one if adopted.
+Adoption (registry view_of field + resolver support) remains an owner
+decision - deliberately not taken.
