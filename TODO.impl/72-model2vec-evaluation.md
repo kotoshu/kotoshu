@@ -38,5 +38,12 @@ teacher's license).
 
 ## Status
 
-_Planning._ Evaluation executing in parallel (2026-09-03); see
-models-repo branch.
+**Evaluated (2026-09-03): REJECT on data** (models PR #7). The only
+size-compliant candidate (potion-base-2M, 7.6 MB) wins 0/9 languages
+(en top-5 0.241 vs fluency 0.252); the 129 MB potion-base-32M manages
+one marginal English edge and loses everywhere else. Structural
+blocker: Potion is English-only WordPiece - eight of nine languages
+are not coverable. Licenses were clean; the rejection is on merit.
+Side-result: our fastText tiers beat the current static-embedding SOTA
+on our own task. C1 closed - revisit only if a genuinely multilingual
+static model appears under the size cap.
