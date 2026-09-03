@@ -194,3 +194,39 @@ T3+ release.
 - **Blocked by:** T1 (`TODO.impl/36`) and T2 (`TODO.impl/37`) — the
   baseline must be green before adding features.
 - **Blocks:** nothing. This is the long horizon.
+
+## Status (reconciled 2026-09-03)
+
+Verified shipped, with evidence:
+
+- **T3.6 Personal dictionary** — `kotoshu personal add/remove/list/
+  import/path/clear` all exist (lib/kotoshu/cli/personal_command.rb,
+  wired in cli.rb) and are documented on the site (docs/cli).
+- **T5.3 Result models on lutaml-model** — shipped in the 0.3.0
+  migration (per plan 36 history); `to_hash`/`from_hash` framework
+  paths in use.
+- **T4.2 CI** — workflows exist (rake matrix on 3.3/3.4/4.0 ×
+  ubuntu/macOS/windows); the network-test job is red on main
+  (pre-existing, tracked separately). Do not treat CI-green as done.
+- **T6.1 LSP** — shipped as the separate gem kotoshu-lsp 0.1.0
+  (github.com/kotoshu/kotoshu-lsp); superseded by the ecosystem track
+  (plans 60-64, all implemented).
+- **T6.2 Web playground** — live at kotoshu.org/playground against
+  kotoshu-server; the WASM variant in this item is superseded by
+  kotoshu-rs P4 (gem plan 66) — in flight 2026-09-03.
+
+Still backlog (unverified or not started):
+
+- T3.1 CJK (superseded by TODO.impl/54-cjk-support.md and the 9-model
+  corpus now shipped for ja/ko/zh), T3.2 RTL (superseded by 55), T3.3
+  grammar expansion (superseded by 51), T3.4/T3.5 document plugins and
+  multi-language documents (50/52/53).
+- T4.1 performance pass (benchmark baselines), T4.3 property tests,
+  T4.4 documentation pass (partially superseded by the 2026-09 docs
+  work on the site and README tiers).
+- T5.1 strategy MECE refactor, T5.2 configuration-as-data
+  (58 tracks the design), T5.4 plugin formalization.
+- T6.3 dictionary editor GUI — untouched.
+
+This file remains the long-horizon index; promote items to their own
+plans (as 50-59 already did) when they become priority.
