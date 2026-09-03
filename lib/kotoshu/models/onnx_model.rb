@@ -68,6 +68,8 @@ module Kotoshu
 
         # Lazy load session
         @session = nil
+        @input_name = nil
+        @output_name = nil
         @loaded = false
       end
 
@@ -90,7 +92,12 @@ module Kotoshu
         end
 
         require 'json'
-        vocabulary = JSON.parse(File.read(vocab_path))
+        # The vocab sibling ships in the wrapped {"vocab_size", "word_to_idx"}
+        # shape (written by fasttext_to_onnx.py); normalize it to a flat
+        # word-to-index map via the shared Vocabulary parser.
+        vocabulary = Embeddings::Vocabulary.word_to_index_from_document(
+          JSON.parse(File.read(vocab_path))
+        )
 
         # Load metadata
         metadata_path = onnx_path.sub('.onnx', '.metadata.json')
@@ -226,39 +233,26 @@ module Kotoshu
       def get_embedding_vector(index)
         ensure_session_loaded
 
-        result = @session.run(
-          ['embeddings'],
-          { word_indices: [index].pack('q<') } # Pack int64 as little-endian
-        )
+        # The converted FastText graph takes a single int64 index (shape
+        # [1]) and emits one float32 vector.
+        result = @session.run([@output_name], { @input_name => [index] })
 
-        # Unpack float32 array
-        result.first.unpack('e*')
+        Array(result.first).map(&:to_f)
       end
 
       # Get embeddings for multiple indices.
       #
+      # The graph accepts exactly one index per run, so batches are
+      # executed as sequential single lookups.
+      #
       # @param indices [Array<Integer>] Word indices
       # @return [Array<Array<Float>>] Embedding vectors
       def batch_get_embeddings(indices)
-        ensure_session_loaded
-
         valid_indices = indices.compact
 
         return [] if valid_indices.empty?
 
-        # Pack indices as int64 array
-        input_data = valid_indices.pack('q<*')
-
-        result = @session.run(
-          ['embeddings'],
-          { word_indices: input_data }
-        )
-
-        # Unpack float32 matrix
-        vectors = result.first.unpack('e*')
-        chunk_size = @dimension
-
-        vectors.each_slice(chunk_size).to_a
+        valid_indices.map { |index| get_embedding_vector(index) }
       end
 
       # Find nearest neighbors using pre-loaded embedding matrix.
@@ -310,7 +304,12 @@ module Kotoshu
 
         raise OnnxUnavailable unless ONNX_LOADED
 
-        @session = OnnxRuntime::Session.new(@onnx_path)
+        # The class is InferenceSession (OnnxRuntime::Session does not
+        # exist); input/output names come from the graph — the
+        # fasttext_to_onnx converter emits "word_index"/"embedding".
+        @session = OnnxRuntime::InferenceSession.new(@onnx_path)
+        @input_name = @session.inputs.first[:name] || 'word_index'
+        @output_name = @session.outputs.first[:name] || 'embedding'
         @loaded = true
       end
 
