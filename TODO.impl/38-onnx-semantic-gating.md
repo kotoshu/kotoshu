@@ -153,3 +153,66 @@ Document findings; address in T3 if scope creep risks the release.
 - **Blocked by:** nothing.
 - **Blocks:** `TODO.impl/39-tier3-and-beyond.md` (the grammar / CJK
   work uses the embedding pipeline; the gating must be solid first).
+
+## Status (re-audited 2026-09-03)
+
+Done long ago: Phase A gating (`spec_helper.rb` `:onnx` exclusion,
+`ONNX_TESTS=1` opt-in documented in CLAUDE.md), Phase D unit specs
+(`embeddings/vocabulary_spec`, `similarity_engine_spec`, `lru_cache_spec`,
+`models/models_spec`), Phase E e2e spec (`spec/kotoshu/semantic_e2e_spec.rb`,
+tagged `:onnx` with skip guards).
+
+Verified today:
+
+- Phase B: `KOTOSHU_NO_ONNX=1 bundle exec rspec --tag ~network --tag ~onnx`
+  → 3285 examples, 0 failures (one extra skip: the new load-failure spec
+  correctly skips when the runtime is off). `SemanticStrategy` empty-return
+  still only warns at construction (`warn … if $VERBOSE`); there is no
+  debug-log infrastructure in the gem — left as-is (building one is out of
+  scope for this residue pass).
+
+Fixed today (branch `fix/plan36-38-residue`):
+
+- **vocab.json format drift** (the live 5 failures in
+  `semantic_strategy_spec`): the models repo / `fasttext_to_onnx.py` ship
+  vocab.json as `{"vocab_size", "word_to_idx"}`; `Embeddings::Vocabulary`
+  and `Models::OnnxModel.from_file` only parsed flat maps, so
+  `SemanticStrategy.new(language_code: "en")` crashed in
+  `Vocabulary#initialize` (`TypeError` via `Hash#<`). Both loaders now
+  share `Vocabulary.word_to_index_from_document` (flat, wrapped, and array
+  shapes); `Vocabulary#initialize` raises a clear ArgumentError for
+  non-Integer index values instead of the cryptic TypeError.
+- **LFS pointer corruption** (Phase C root cause):
+  `raw.githubusercontent.com` serves 134-byte LFS pointer stubs for the
+  LFS-tracked `*.onnx`; the legacy full-tier download cached a stub and
+  recorded the stub's own sha256, so checksum verification passed forever
+  and the runtime died with a raw `OnnxRuntime::Error: Protobuf parsing
+  failed`. Fixes: `SourceRegistry` fetches `:model` from
+  `media.githubusercontent.com/media` (LFS host; custom mirrors untouched),
+  `ModelCache` refuses pointer stubs at download time and at
+  `verify_cached_integrity!` (purges stub + metadata, raises an error
+  pointing at `kotoshu cache download :{lang} --model`), and
+  `Embeddings::OnnxRuntimeModel#load!` wraps session-creation failures in
+  the same actionable `Kotoshu::Error`.
+- **`Models::OnnxModel` session rot** (previously masked by the vocab
+  crash): `OnnxRuntime::Session` (nonexistent class) →
+  `OnnxRuntime::InferenceSession` with graph-detected IO names
+  (`word_index`/`embedding`); tensor I/O now uses real values instead of
+  `pack('q<')`/`unpack('e*')` byte surgery; batching executes sequential
+  single lookups (the converted graph's input is fixed shape [1]).
+- **Spec drift**: strategy config examples no longer construct against the
+  developer's real `en` cache (use `xx`, per the file's own convention —
+  construction could otherwise trigger a 120MB download mid-spec);
+  identical-word similarity compared with float tolerance; removed the
+  stale `#embedding_for` describe (that API lives on the model, not the
+  strategy). New direct specs: `models/onnx_model_spec` (both vocab shapes),
+  `embeddings/onnx_runtime_model_spec` (actionable corrupt-model error).
+
+`ONNX_TESTS=1 bundle exec rspec` on the semantic specs: 32 examples,
+0 failures against the real cached English model.
+
+Remains (noted, not blocking): `Embeddings::OnnxRuntimeModel`'s
+`run_batch_inference` feeds >1 indices to a fixed-shape-[1] graph, so
+multi-index `get_embeddings` / `preload_embeddings!` fail at runtime; the
+live single-lookup path is unaffected. Belongs with the tiered-model work
+(plans 39/67).

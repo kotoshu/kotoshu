@@ -115,3 +115,20 @@ existing `algorithms/` specs.
 - **Blocked by:** nothing.
 - **Blocks:** `TODO.impl/37-hunspell-correctness-tier2.md` (the next
   tier of Hunspell-fixture work).
+
+## Status (audited 2026-09-03, gem is 0.6.x)
+
+All clusters were closed long ago at 0.3.1 (commit `364a8fa`) or since;
+re-audited against main today — nothing in this plan still reproduced.
+
+| Cluster | State |
+|---|---|
+| 1 walking_skeleton `suggestions.words` | Done at 0.3.1 (`map(&:word)`); spec green today. |
+| 2 walking_skeleton `to_h` → `to_hash` | Done at 0.3.1; spec green today. |
+| 3 semantic_strategy_spec gating | Gating wired in `spec_helper.rb`; done at 0.3.1. (A different, later failure in this file — vocab.json format drift — was fixed today under plan 38.) |
+| 4 read_aff REP/MAP/PFX/flag bugs | Fixed long ago; 7/7 examples green today. kotoshu-rs subsequently ported these parsers against 1315 conformance vectors exported from this gem. |
+| 5 Arabic detection | Still `pending` as planned (upstream LID gap); suite green. |
+| 6 symspell benchmark | Green today; no `:slow` change needed. |
+| Phase D 0.3.1 release | Shipped long ago (gem is now 0.6.x). Versioning/release decisions remain owner-only. |
+
+Nothing remains open in this plan.
