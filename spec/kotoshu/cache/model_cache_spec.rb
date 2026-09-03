@@ -105,6 +105,39 @@ RSpec.describe Kotoshu::Cache::ModelCache do
       expect { cache.get(resource_id) }.not_to raise_error
     end
 
+    it "raises IntegrityError when the cached file is a Git LFS pointer stub" do
+      # raw.githubusercontent serves LFS pointer stubs for LFS-tracked
+      # .onnx files; the legacy download path once recorded the pointer's
+      # own sha256 as the checksum, so the checksum check passes. The
+      # pointer must be detected by content, not by checksum.
+      pointer = "version https://git-lfs.github.com/spec/v1\n" \
+                "oid sha256:#{'a' * 64}\nsize 120000415\n"
+      write_cached_model(checksum: Digest::SHA256.hexdigest(pointer))
+      File.write(model_path, pointer, mode: "wb")
+
+      expect { cache.get(resource_id) }
+        .to raise_error(Kotoshu::Error, /Git LFS pointer/i)
+    end
+
+    it "points the LFS-pointer error at the cache download subcommand and purges the stub" do
+      pointer = "version https://git-lfs.github.com/spec/v1\n" \
+                "oid sha256:#{'b' * 64}\nsize 120000415\n"
+      write_cached_model(checksum: Digest::SHA256.hexdigest(pointer))
+      File.write(model_path, pointer, mode: "wb")
+
+      error = nil
+      begin
+        cache.get(resource_id)
+      rescue Kotoshu::Error => e
+        error = e
+      end
+
+      expect(error.message).to include("kotoshu cache download :#{language} --model")
+      # The corrupt bytes are removed so the next get re-downloads.
+      expect(File.exist?(model_path)).to be false
+      expect(File.exist?(metadata_path)).to be false
+    end
+
     it "returns nil when the resource is not in AVAILABLE_MODELS" do
       expect(cache.get("xx:onnx")).to be_nil
     end
