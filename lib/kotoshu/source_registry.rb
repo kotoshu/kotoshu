@@ -13,9 +13,14 @@ module Kotoshu
   #   registry.url_for(:spelling, lang: "en", ext: "aff")
   #   # => "https://raw.githubusercontent.com/kotoshu/dictionaries/v1/en/spelling/index.aff"
   class SourceRegistry
-    Source = Struct.new(:repo, :default_pin, :template, keyword_init: true)
+    Source = Struct.new(:repo, :default_pin, :template, :lfs, keyword_init: true)
 
     DEFAULT_BASE_URL = "https://raw.githubusercontent.com/kotoshu"
+
+    # Host serving Git-LFS object content. raw.githubusercontent.com serves
+    # the 134-byte pointer stub for LFS-tracked files, so LFS sources
+    # (*.onnx in models-fasttext-onnx) must be fetched from here.
+    MEDIA_BASE_URL = "https://media.githubusercontent.com/media/kotoshu"
 
     # @return [Hash<Symbol, Source>]
     SOURCES = {
@@ -30,7 +35,8 @@ module Kotoshu
       freq_manifest: Source.new(repo: "frequency-list-kelly", default_pin: "main",
                                 template: "frequency-list-kelly/%<pin>s/manifest.json"),
       model: Source.new(repo: "models-fasttext-onnx", default_pin: "main",
-                        template: "models-fasttext-onnx/%<pin>s/models/%<lang>s/fasttext.%<lang>s.onnx"),
+                        template: "models-fasttext-onnx/%<pin>s/models/%<lang>s/fasttext.%<lang>s.onnx",
+                        lfs: true),
       model_vocab: Source.new(repo: "models-fasttext-onnx", default_pin: "main",
                               template: "models-fasttext-onnx/%<pin>s/models/%<lang>s/fasttext.%<lang>s.vocab.json"),
       model_manifest: Source.new(repo: "models-fasttext-onnx", default_pin: "main",
@@ -59,7 +65,7 @@ module Kotoshu
         raise ArgumentError, "unknown source: #{source_key.inspect}"
       end
       path = source.template % { pin: pin_for(source), lang: lang, ext: ext }
-      "#{@base_url}/#{path}"
+      "#{base_for(source)}/#{path}"
     end
 
     # @param source_key [Symbol]
@@ -79,6 +85,15 @@ module Kotoshu
 
     def pin_for(source)
       @pins.fetch(source.repo, source.default_pin)
+    end
+
+    # Base URL for a source. LFS-tracked content is only served by the
+    # media host — but only when we are on the default GitHub host; a
+    # custom mirror base is left alone (the mirror resolves LFS itself).
+    def base_for(source)
+      return MEDIA_BASE_URL if source.lfs && @base_url == DEFAULT_BASE_URL
+
+      @base_url
     end
   end
 end
