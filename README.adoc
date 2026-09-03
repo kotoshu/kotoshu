@@ -320,6 +320,76 @@ https://github.com/kotoshu/models-fasttext-onnx[`kotoshu/models-fasttext-onnx']
 repo. The CLI downloads pre-converted artifacts; users do not run
 conversion locally.
 
+[[model-tiers]]
+=== Model tiers
+
+ONNX models come in three tiers, published by
+https://github.com/kotoshu/models-fasttext-onnx[models-fasttext-onnx]
+in a resource registry under stable ids (`kotoshu://models/{lang}/{tier}`):
+
+[cols="1,2,3"]
+|===
+|Tier |Approx. size |What it is
+
+|`full`
+|~120 MB
+|Unquantized, ~100k-word vocabulary. The same artifact and cache layout
+as before tiers existed.
+
+|`fluency`
+|~15-18 MB
+|int8-quantized, reduced vocabulary (~50k-60k words).
+
+|`mini`
+|~3 MB
+|int8-quantized, 10k-word vocabulary.
+|===
+
+Tiered downloads are verified: the model bytes are fetched from the
+registry entry's primary URL, falling back to its mirror, with the vocab
+sibling downloaded alongside; the SHA-256 is checked against the
+registry entry before the model is accepted into the cache.
+
+.Picking a tier
+[example]
+====
+[source,ruby]
+----
+# One-time setup at a specific tier
+Kotoshu.setup(:en, want: %i[model], tier: :fluency)
+
+# Resolve stays cache-only: the requested tier must already be cached,
+# otherwise ResourceNotSetupError is raised (no download, no fallback
+# to another tier)
+Kotoshu.resolve(language: :en, want: %i[spelling model], tier: :fluency)
+
+# "Is this tier cached?" (tier: :any asks whether any tier is cached)
+Kotoshu.setup?(:en, resource: :model, tier: :mini)
+----
+
+[source,bash]
+----
+kotoshu setup en --model --tier mini
+----
+====
+
+`tier: :any` on resolve maps to the *single* cached tier. It resolves
+when exactly one tier is cached and raises otherwise: with no tier
+cached it raises `ResourceNotSetupError`, and with several it raises
+`Kotoshu::ResourceResolutionError` listing them. That listing uses the
+fixed order `mini`, `fluency`, `full` — a reporting order for
+deterministic error messages, not a fallback chain; tiers are never
+silently substituted for one another.
+
+The default tier is `full`. Override it per call with `tier:`, or set
+it globally via the `model_tier` configuration option (environment
+variable `KOTOSHU_MODEL_TIER`; one of `full`, `fluency`, `mini`):
+
+[source,bash]
+----
+KOTOSHU_MODEL_TIER=mini kotoshu setup en --model
+----
+
 [[interactive-mode]]
 [[interactive-mode]]
 == Interactive Mode
