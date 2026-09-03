@@ -91,8 +91,8 @@ RSpec.describe 'Unit: Hunspell AFF Reader' do
       expect(result['SFX']['zx'][0].flag).to eq('zx')
       expect(result['SFX']['zx'][0].flags).to contain_exactly('g?', '1G', '09')
       expect(result['NOSUGGEST']).to eq('1G')
-      expect(result['AF']['1']).to contain_exactly('A', 'B')
-      expect(result['AF']['2']).to contain_exactly('B', 'C')
+      expect(result['AF']['1']).to contain_exactly('AB')
+      expect(result['AF']['2']).to contain_exactly('BC')
     end
   end
 
