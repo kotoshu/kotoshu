@@ -58,6 +58,13 @@ module Kotoshu
       # through the registry (TODO.impl/67 M1).
       TIERS = %i[full fluency mini].freeze
 
+      # First line of a Git LFS pointer stub — what raw.githubusercontent.com
+      # serves for LFS-tracked files (*.onnx) instead of the object content.
+      # Used to detect pointer-stub downloads/caches by content: the legacy
+      # download path records the checksum of whatever it downloaded, so a
+      # pointer stub passes checksum verification forever.
+      LFS_POINTER_PREFIX = "version https://git-lfs.github.com/spec/v1"
+
       # Deterministic tier preference order, smallest footprint first.
       # This is NOT a fallback chain — tiers are never silently
       # substituted. It only fixes the ordering in which cached tiers
@@ -606,6 +613,16 @@ module Kotoshu
         raise last_error
       end
 
+      # Whether a file is a Git LFS pointer stub rather than real content.
+      # Reads only the first line's prefix, so it stays cheap on 120MB models.
+      def lfs_pointer?(path)
+        File.open(path, "rb") do |f|
+          f.read(LFS_POINTER_PREFIX.bytesize) == LFS_POINTER_PREFIX
+        end
+      rescue StandardError
+        false
+      end
+
       # Verify downloaded model bytes against the registry's sha256.
       # Corrupt bytes are removed from disk before raising so the next
       # attempt re-downloads (same contract as BaseCache#verify_and_audit).
@@ -667,6 +684,21 @@ module Kotoshu
       # @raise [Kotoshu::IntegrityError] if checksums do not match
       #
       def verify_cached_integrity!(resource_id, metadata, model_file)
+        if lfs_pointer?(model_file)
+          # Content, not checksum, betrays the stub: the legacy download
+          # path recorded the pointer's own sha256. Purge both files so
+          # the next get re-downloads (same contract as the tiered path).
+          File.delete(model_file)
+          metadata_file = metadata_path_for(resource_id)
+          File.delete(metadata_file) if File.exist?(metadata_file)
+          raise Kotoshu::Error,
+                "Integrity verification failed for #{resource_id}: cached model " \
+                "#{File.basename(model_file)} is a Git LFS pointer stub, not " \
+                "model content (raw.githubusercontent.com serves pointer stubs " \
+                "for LFS-tracked .onnx files). Run " \
+                "`kotoshu cache download :#{extract_language(resource_id)} --model` to re-download."
+        end
+
         expected = metadata["checksum"]
         return unless expected
 
@@ -890,6 +922,13 @@ module Kotoshu
           # Verify the downloaded file
           unless File.exist?(onnx_file) && File.size(onnx_file).positive?
             raise "Download failed: empty file"
+          end
+
+          # raw.githubusercontent.com serves LFS pointer stubs for
+          # LFS-tracked .onnx files; refuse one so the fallback path runs
+          # instead of poisoning the cache with a stub.
+          if lfs_pointer?(onnx_file)
+            raise "downloaded a Git LFS pointer stub instead of model bytes from #{url}"
           end
 
           # Pull the matching vocab.json so OnnxModel.from_file can resolve

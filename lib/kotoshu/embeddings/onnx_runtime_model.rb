@@ -78,7 +78,17 @@ module Kotoshu
                 "ONNX file not found: #{@onnx_path}"
         end
 
-        @session = OnnxRuntime::InferenceSession.new(@onnx_path)
+        begin
+          @session = OnnxRuntime::InferenceSession.new(@onnx_path)
+        rescue OnnxRuntime::Error => e
+          # Phase C of TODO.impl/38: a corrupt/truncated cached model must
+          # surface as an actionable error, not a raw "Protobuf parsing
+          # failed".
+          raise Kotoshu::Error,
+                "ONNX model failed to load (#{e.message}): #{@onnx_path}. " \
+                "The cached model may be corrupt or truncated — re-download " \
+                "it with `kotoshu cache download :#{@language_code} --model`."
+        end
 
         # Detect input/output names
         @input_name = detect_input_name

@@ -26,10 +26,13 @@ RSpec.describe Kotoshu::SourceRegistry do
       )
     end
 
-    it "builds model URL with main pin" do
+    it "builds model URL with main pin via the Git-LFS media host" do
       registry = described_class.new
+      # *.onnx is LFS-tracked in models-fasttext-onnx: raw.githubusercontent
+      # serves the 134-byte pointer stub, so the model must be fetched from
+      # the media host (vocab.json is plain git and stays on raw).
       expect(registry.url_for(:model, lang: "ja")).to eq(
-        "https://raw.githubusercontent.com/kotoshu/models-fasttext-onnx/main/models/ja/fasttext.ja.onnx"
+        "https://media.githubusercontent.com/media/kotoshu/models-fasttext-onnx/main/models/ja/fasttext.ja.onnx"
       )
     end
 
@@ -70,6 +73,15 @@ RSpec.describe Kotoshu::SourceRegistry do
     it "leaves other repos on their default pin when only one is overridden" do
       registry = described_class.new(pins: { "dictionaries" => "feature-branch" })
       expect(registry.url_for(:model, lang: "en")).to include("models-fasttext-onnx/main/")
+    end
+
+    it "keeps a custom mirror base for LFS model sources" do
+      # A mirror is responsible for resolving LFS itself; only the default
+      # GitHub raw host is swapped for the media host.
+      registry = described_class.new(base_url: "https://mirror.example.com/kotoshu")
+      expect(registry.url_for(:model, lang: "ja")).to eq(
+        "https://mirror.example.com/kotoshu/models-fasttext-onnx/main/models/ja/fasttext.ja.onnx"
+      )
     end
 
     it "accepts symbol keys in the pins hash" do
