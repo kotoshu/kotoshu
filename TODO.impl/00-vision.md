@@ -115,6 +115,12 @@ executed by plans
 [69 (keyboard typo eval + corpus benchmark)](69-sota-typo-eval.md),
 [70 (confidence cascade)](70-sota-confidence-cascade.md), and
 [71 (nested single-artifact experiment)](71-sota-nested-model.md).
+The remaining SOTA items are planned as
+[72 (Model2Vec evaluation)](72-model2vec-evaluation.md),
+[73 (RL-trained reranker, gated)](73-rl-reranker.md),
+[74 (distilled reranker, gated)](74-distilled-reranker.md),
+[75 (LLM-as-evaluator)](75-llm-evaluator.md), and
+[76 (optional external LLM backend, gated on demand)](76-optional-llm-backend.md).
 
 Dependency order across the ecosystem track:
 
