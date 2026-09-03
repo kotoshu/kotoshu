@@ -600,5 +600,45 @@ RSpec.describe Kotoshu::Dictionary do
         expect(dict.suggester).to eq(dict.suggester)
       end
     end
+
+    describe "AF flag aliases under FLAG num" do
+      # Regression: AF entry values must be decoded with the dictionary's
+      # FLAG format (spylls: Context.parse_flags). Parsing them as single
+      # chars turned "AF 999,54321" into the flags 9, 5, 4, 3, 2, 1 and a
+      # comma, so no affixed form of "foo" was ever found.
+      it "resolves numeric aliases through affixes and cross-products" do
+        Dir.mktmpdir do |dir|
+          aff_path = File.join(dir, "numalias.aff")
+          dic_path = File.join(dir, "numalias.dic")
+          File.write(aff_path, <<~AFF)
+            FLAG num
+
+            AF 4
+            AF 999,54321
+            AF 214
+            AF 216
+            AF 214,216
+
+            SFX 999 Y 1
+            SFX 999 0 s/4 .
+
+            SFX 214 Y 1
+            SFX 214 0 bar .
+
+            SFX 216 Y 1
+            SFX 216 0 baz .
+
+            PFX 54321 Y 1
+            PFX 54321 0 un .
+          AFF
+          File.write(dic_path, "1\nfoo/1\n")
+
+          dict = described_class.new(aff_path: aff_path, dic_path: dic_path, language_code: "en")
+          %w[foo foos foosbar foosbaz unfoo unfoos unfoosbar unfoosbaz].each do |word|
+            expect(dict.lookup(word)).to be_truthy, "expected #{word} to be found"
+          end
+        end
+      end
+    end
   end
 end

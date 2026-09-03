@@ -255,10 +255,11 @@ module Kotoshu
           count = value&.to_i || 0
           result = {}
           read_array(reader, count).each_with_index do |parts, i|
-            # AF directives always use single-character flags (short format)
-            # regardless of the main FLAG format
-            flags = parts.first.chars
-            result[(i + 1).to_s] = flags.to_set
+            # AF entries are decoded with the dictionary's FLAG format
+            # (spylls: Context.parse_flags on the entry value). With
+            # `FLAG num`, "AF 214,216" defines the two flags 214 and 216;
+            # with `FLAG long`, "AF g?1G" defines the two flags g? and 1G.
+            result[(i + 1).to_s] = parse_flags(parts.first).to_set
           end
           return result
         end

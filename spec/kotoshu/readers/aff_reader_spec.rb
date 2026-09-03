@@ -328,6 +328,96 @@ RSpec.describe Kotoshu::Readers::AffReader do
       expect(result["AF"]["1"]).to contain_exactly("A", "B", "C")
       expect(result["AF"]["2"]).to contain_exactly("D", "E")
     end
+
+    it "decodes AF values with the active FLAG format (num)" do
+      # spylls: Context.parse_flags on the AF entry — with FLAG num,
+      # "AF 214,216" defines the two flags 214 and 216.
+      content = <<~AFF
+        FLAG num
+
+        AF 2
+        AF 214,216
+        AF 54321
+      AFF
+      result = read_aff(content)
+      expect(result["AF"]["1"]).to contain_exactly("214", "216")
+      expect(result["AF"]["2"]).to contain_exactly("54321")
+    end
+
+    it "decodes AF values with the active FLAG format (long)" do
+      content = <<~AFF
+        FLAG long
+
+        AF 2
+        AF g?1G
+        AF 09zx
+      AFF
+      result = read_aff(content)
+      expect(result["AF"]["1"]).to contain_exactly("g?", "1G")
+      expect(result["AF"]["2"]).to contain_exactly("09", "zx")
+    end
+
+    it "decodes AF values with the active FLAG format (UTF-8)" do
+      content = <<~AFF
+        FLAG UTF-8
+
+        AF 1
+        AF ÖüÜ
+      AFF
+      result = read_aff(content)
+      expect(result["AF"]["1"]).to contain_exactly("Ö", "ü", "Ü")
+    end
+
+    it "does not alias-substitute AF values while the AF table is being built" do
+      # During the AF directive read the synonym table is still empty, so a
+      # numeric AF entry under FLAG num decodes as a literal flag, not as an
+      # alias index (spylls: flag_synonyms is falsy during AF reading).
+      content = <<~AFF
+        FLAG num
+
+        AF 1
+        AF 999
+      AFF
+      result = read_aff(content)
+      expect(result["AF"]["1"]).to contain_exactly("999")
+    end
+  end
+
+  describe "flag format edge cases (spylls parity)" do
+    it "FLAG long drops a trailing odd character from a flag run" do
+      # spylls: FLAG_LONG_REGEXP.findall(r'..') floors an odd-length run the
+      # same way — the trailing character is discarded, not padded.
+      content = <<~AFF
+        FLAG long
+
+        SFX zx Y 1
+        SFX zx 0 s/g?1G09X .
+      AFF
+      result = read_aff(content)
+      expect(result["SFX"]["zx"][0].flags).to contain_exactly("g?", "1G", "09")
+    end
+
+    it "FLAG num splits a flag run into digit runs" do
+      content = <<~AFF
+        FLAG num
+
+        SFX 999 Y 1
+        SFX 999 0 s/214,216,54321 .
+      AFF
+      result = read_aff(content)
+      expect(result["SFX"]["999"][0].flags).to contain_exactly("214", "216", "54321")
+    end
+
+    it "FLAG UTF-8 decodes multi-byte flags as whole characters" do
+      content = <<~AFF
+        FLAG UTF-8
+
+        SFX A Y 1
+        SFX A 0 s/Ö𐏑 .
+      AFF
+      result = read_aff(content)
+      expect(result["SFX"]["A"][0].flags).to contain_exactly("Ö", "𐏑")
+    end
   end
 
   describe "lines that are not directives" do
