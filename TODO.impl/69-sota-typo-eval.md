@@ -63,4 +63,12 @@ plan 06.
 
 ## Status
 
-_Planning._
+**Implemented (2026-09-03, models PR #5 merged).** eval/noise.py ships
+layout-neighbor slips (QWERTY/QWERTZ/AZERTY/JCUKEN mirrored from the
+gem layouts, diacritics included), Hangul jamo decomposition and
+curated CJK confusion sets, transposition fallback; deterministic. All
+18 reports regenerated under the harder typos - gates pass, no ladder
+climbs; de/fluency corrected to 50k (the 60k was small-n noise).
+GitHub Typo Corpus bench live (official S3 dead; Wayback snapshot with
+self-pinned sha256); top-5 full-tier baselines 0.13 (ja) - 0.60 (ko).
+Part of release v1.0.1.
