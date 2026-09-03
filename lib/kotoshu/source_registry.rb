@@ -34,7 +34,9 @@ module Kotoshu
       model_vocab: Source.new(repo: "models-fasttext-onnx", default_pin: "main",
                               template: "models-fasttext-onnx/%<pin>s/models/%<lang>s/fasttext.%<lang>s.vocab.json"),
       model_manifest: Source.new(repo: "models-fasttext-onnx", default_pin: "main",
-                                 template: "models-fasttext-onnx/%<pin>s/manifest.json")
+                                 template: "models-fasttext-onnx/%<pin>s/manifest.json"),
+      model_registry: Source.new(repo: "models-fasttext-onnx", default_pin: "main",
+                                 template: "models-fasttext-onnx/%<pin>s/registry.json")
     }.freeze
 
     # @param base_url [String] GitHub raw root, no trailing slash.

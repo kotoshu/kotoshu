@@ -21,6 +21,7 @@ module Kotoshu
     autoload :LanguageCache, "kotoshu/cache/language_cache"
     autoload :LookupCache, "kotoshu/cache/lookup_cache"
     autoload :ModelCache, "kotoshu/cache/model_cache"
+    autoload :ModelRegistry, "kotoshu/cache/model_registry"
     autoload :SuggestionCache, "kotoshu/cache/suggestion_cache"
 
     class << self

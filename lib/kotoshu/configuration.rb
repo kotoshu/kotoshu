@@ -96,6 +96,12 @@ module Kotoshu
         description: "Branch/tag/commit pinned for kotoshu/models-fasttext-onnx",
         type: String
       },
+      model_tier: {
+        env: "KOTOSHU_MODEL_TIER",
+        default: "full",
+        description: "Model tier used when none is given (full, fluency, or mini)",
+        type: String
+      },
       auto_download: {
         env: "KOTOSHU_AUTO_DOWNLOAD",
         default: true,
@@ -295,6 +301,13 @@ module Kotoshu
     # @return [String] Branch/tag/commit pinned for model downloads
     attr_accessor :models_pin
 
+    # @return [String] Model tier used when a setup/resolve call omits
+    #   `tier:` — "full" (preserves the pre-tier behavior), "fluency",
+    #   or "mini". Validated against Cache::ModelCache::TIERS at use
+    #   time; the default tier itself is an owner decision (plan 67
+    #   gates), so it stays "full" until changed deliberately.
+    attr_accessor :model_tier
+
     # @return [#start,#update,#maybe_report_periodic,#finish,nil]
     #   Optional progress reporter for downloads. Typically set by the
     #   CLI (Cli::ProgressReporter) for human-facing setup runs; nil
@@ -454,6 +467,7 @@ module Kotoshu
         dictionaries_pin: @dictionaries_pin,
         frequency_pin: @frequency_pin,
         models_pin: @models_pin,
+        model_tier: @model_tier,
         auto_download: @auto_download,
         cache_ttl: @cache_ttl,
         max_cache_size: @max_cache_size,
@@ -561,6 +575,7 @@ module Kotoshu
       @dictionaries_pin = SCHEMA[:dictionaries_pin][:default]
       @frequency_pin = SCHEMA[:frequency_pin][:default]
       @models_pin = SCHEMA[:models_pin][:default]
+      @model_tier = SCHEMA[:model_tier][:default]
       @download_reporter = nil
       @auto_download = SCHEMA[:auto_download][:default]
       @cache_ttl = SCHEMA[:cache_ttl][:default]

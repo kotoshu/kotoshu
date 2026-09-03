@@ -52,6 +52,35 @@ module Kotoshu
         }
       }.freeze
 
+      # Model tiers published by kotoshu/models-fasttext-onnx (registry
+      # ids `kotoshu://models/{lang}/{tier}`). `full` is today's layout
+      # and behavior; `fluency` and `mini` are the tiered tiers resolved
+      # through the registry (TODO.impl/67 M1).
+      TIERS = %i[full fluency mini].freeze
+
+      # Deterministic tier preference order, smallest footprint first.
+      # This is NOT a fallback chain — tiers are never silently
+      # substituted. It only fixes the ordering in which cached tiers
+      # are reported (e.g. ambiguity errors from `tier: :any`), so
+      # output is stable across machines and runs.
+      TIER_PREFERENCE = %i[mini fluency full].freeze
+
+      # Normalize and validate a tier name.
+      #
+      # @param tier [String, Symbol] "full", "fluency", or "mini"
+      # @return [Symbol] the normalized tier symbol
+      # @raise [ArgumentError] for any other value (covers config
+      #   `model_tier` / `KOTOSHU_MODEL_TIER` and caller typos)
+      def self.normalize_tier(tier)
+        symbol = tier.to_s.downcase.strip.to_sym
+        unless TIERS.include?(symbol)
+          raise ArgumentError,
+                "unknown model tier #{tier.inspect} (expected one of: #{TIERS.join(', ')})"
+        end
+
+        symbol
+      end
+
       # Get or download FastText model for a language.
       #
       # @param language_code [String] ISO 639-1 language code
@@ -74,6 +103,142 @@ module Kotoshu
         result = get(resource_id, force_download: force_download)
 
         result&.dig(:model_path)
+      end
+
+      # ---- Tier-aware model resources (TODO.impl/67 M1) ----
+
+      # Resource identifier for a (language, tier) model.
+      #
+      # The `full` tier maps to today's two-part id ("{lang}:onnx") and
+      # therefore to today's on-disk layout — backwards compatible.
+      # `fluency`/`mini` get a third path segment so tiers coexist:
+      #
+      #   models/{lang}/models/onnx/                # full (unchanged)
+      #   models/{lang}/models/onnx/mini/           # mini
+      #   models/{lang}/models/onnx/fluency/        # fluency
+      #
+      # @param language_code [String] ISO 639-1 language code
+      # @param tier [String, Symbol] one of {TIERS}
+      # @return [String] resource id ("en:onnx" or "en:onnx:mini")
+      def tier_resource_id(language_code, tier)
+        tier = self.class.normalize_tier(tier)
+        lang = language_code.to_s
+        tier == :full ? "#{lang}:onnx" : "#{lang}:onnx:#{tier}"
+      end
+
+      # Whether a resource id carries a tier segment ("{lang}:onnx:{tier}").
+      #
+      # @param resource_id [String] resource identifier
+      # @return [Boolean] true for well-formed tiered ids
+      def tiered_resource_id?(resource_id)
+        parts = resource_id.to_s.split(":")
+        return false unless parts.size == 3
+
+        _lang, type, tier = parts
+        type == "onnx" && TIERS.include?(tier.to_sym)
+      end
+
+      # Tier of a tiered resource id ("en:onnx:mini" -> :mini).
+      # Returns nil for legacy two-part ids.
+      #
+      # @param resource_id [String] resource identifier
+      # @return [Symbol, nil]
+      def tier_from_resource_id(resource_id)
+        return nil unless tiered_resource_id?(resource_id)
+
+        resource_id.split(":")[2].to_sym
+      end
+
+      # Model tiers currently cached for a language (disk-only lookup;
+      # never touches the network, so it is resolve-safe).
+      #
+      # The legacy layout (`{lang}/models/onnx/`) counts as :full.
+      #
+      # @param language_code [String] ISO 639-1 language code
+      # @return [Array<Symbol>] cached tiers in {TIER_PREFERENCE} order
+      def cached_tiers(language_code)
+        lang = language_code.to_s
+        onnx_dir = File.join(@cache_path, lang, "models", "onnx")
+        TIER_PREFERENCE.select do |tier|
+          dir = tier == :full ? onnx_dir : File.join(onnx_dir, tier.to_s)
+          File.exist?(File.join(dir, "metadata.json"))
+        end
+      end
+
+      # Look up the registry entry for a (language, tier) model.
+      #
+      # Reads the cached registry.json; downloads it once (per cache
+      # instance) when absent or stale — unless offline mode is active,
+      # in which case a stale cached copy is reused and a missing one
+      # raises instead of ever hitting the network.
+      #
+      # @param language_code [String] ISO 639-1 language code
+      # @param tier [String, Symbol] one of {TIERS}
+      # @param force [Boolean] re-fetch the registry first
+      # @return [ModelRegistry::Resource, nil] nil when the registry has
+      #   no entry for the pair
+      # @raise [Kotoshu::Error] when offline with no cached registry
+      def registry_entry_for(language_code, tier, force: false)
+        registry(force: force)&.find(language_code.to_s, tier.to_s)
+      end
+
+      # Download and verify a tiered model from the registry.
+      #
+      # Downloads `urls.primary`, falling back to `urls.mirror`, plus the
+      # vocab sibling; verifies the model's SHA-256 against the registry
+      # entry before accepting it into the cache. Unlike {#get}, download
+      # failures and checksum mismatches RAISE rather than degrading to
+      # nil — setup callers rely on that to report :unavailable.
+      #
+      # @param language_code [String] ISO 639-1 language code
+      # @param tier [String, Symbol] "mini" or "fluency" (":full" is
+      #   delegated to the legacy download path)
+      # @param force_download [Boolean] re-fetch the registry first
+      # @return [Hash] { model_path:, metadata:, vocab_path? }
+      # @raise [Kotoshu::Error] no registry entry / offline without cache
+      # @raise [Kotoshu::IntegrityError] SHA-256 mismatch (corrupt bytes
+      #   are removed before raising)
+      def download_tiered_model(language_code, tier:, force_download: false)
+        tier = self.class.normalize_tier(tier)
+        lang = language_code.to_s
+        return get("#{lang}:onnx", force_download: force_download) if tier == :full
+
+        entry = registry_entry_for(lang, tier, force: force_download)
+        unless entry
+          raise Kotoshu::Error,
+                "no registry entry for #{ModelRegistry::Resource.id_for(lang, tier)}"
+        end
+
+        resource_id = tier_resource_id(lang, tier)
+        dest_path = resource_dir_for(resource_id)
+        FileUtils.mkdir_p(dest_path)
+
+        filename = filename_from_url(entry.urls.primary)
+        model_file = File.join(dest_path, filename)
+        used_url = download_primary_or_mirror!(entry, model_file)
+
+        verify_registry_sha256!(entry, model_file, resource_id, used_url)
+
+        vocab_path = download_tiered_vocab(entry, dest_path)
+
+        metadata = {
+          version: entry.version,
+          url: used_url,
+          language: lang,
+          type: "onnx",
+          tier: tier.to_s,
+          file: filename,
+          checksum: entry.sha256,
+          registry_id: ModelRegistry::Resource.id_for(lang, tier),
+          size_bytes: entry.size_bytes,
+          cached_at: Time.now.utc.iso8601,
+          source: "registry"
+        }
+        write_metadata(File.join(dest_path, "metadata.json"), metadata)
+
+        result = { model_path: model_file, metadata: metadata }
+        result[:vocab_path] = vocab_path if vocab_path
+        result
       end
 
       # Get available model types for a language.
@@ -109,6 +274,8 @@ module Kotoshu
       # @param resource_id [String] The resource identifier (e.g., "en:fasttext")
       # @return [Boolean] True if supported
       def supports_resource?(resource_id)
+        return true if tiered_resource_id?(resource_id)
+
         parts = resource_id.split(":")
         return false unless parts.size == 2
 
@@ -118,12 +285,20 @@ module Kotoshu
 
       # List all cached resources.
       #
+      # Tiered entries appear as "{lang}:onnx:{tier}"; the registry
+      # storage directory is not a model resource and is skipped.
+      #
       # @return [Array<String>] List of cached resource identifiers
       def cached_resources
-        Dir.glob(File.join(@cache_path, "**", "metadata.json")).map do |path|
-          relative = Pathname.new(path).relative_path_to(Pathname.new(@cache_path))
+        Dir.glob(File.join(@cache_path, "**", "metadata.json")).filter_map do |path|
+          relative = Pathname.new(path).relative_path_from(Pathname.new(@cache_path))
           parts = relative.to_s.split("/")
-          "#{parts[0]}:#{parts[2]}" # language:model_type
+          next if parts.first == "registry" # registry storage, not a model
+
+          case parts.length
+          when 4 then "#{parts[0]}:#{parts[2]}" # lang/models/type/metadata.json (full)
+          when 5 then "#{parts[0]}:#{parts[2]}:#{parts[3]}" # lang/models/type/tier/metadata.json
+          end
         end.uniq
       end
 
@@ -135,6 +310,22 @@ module Kotoshu
       # @param dest_path [String] Destination directory
       # @return [Hash] Downloaded model info
       def download_resource(resource_id, dest_path)
+        if tiered_resource_id?(resource_id)
+          download_tiered_model(extract_language(resource_id),
+                                tier: tier_from_resource_id(resource_id))
+        else
+          download_legacy_resource(resource_id, dest_path)
+        end
+      end
+
+      # Download a legacy (untiered) resource: FastText .vec or the
+      # full-tier ONNX from the pinned git tree. This is today's
+      # behavior, unchanged.
+      #
+      # @param resource_id [String] The resource identifier
+      # @param dest_path [String] Destination directory
+      # @return [Hash] Downloaded model info
+      def download_legacy_resource(resource_id, dest_path)
         language = extract_language(resource_id)
         type = extract_type(resource_id)
         return nil unless language && type
@@ -187,6 +378,8 @@ module Kotoshu
       # @raise [Kotoshu::IntegrityError] if the cached file's checksum
       #   does not match the recorded checksum
       def load_cached(resource_id)
+        return load_tiered_cached(resource_id) if tiered_resource_id?(resource_id)
+
         language = extract_language(resource_id)
         type = extract_type(resource_id)
         return nil unless language && type
@@ -211,21 +404,50 @@ module Kotoshu
         { model_path: model_file, metadata: metadata }
       end
 
+      # Load a cached tiered model. The file recorded in metadata.json is
+      # verified against the checksum recorded at download time (which,
+      # for registry downloads, is the registry's sha256).
+      #
+      # @param resource_id [String] Tiered resource identifier
+      # @return [Hash, nil] Loaded model info
+      def load_tiered_cached(resource_id)
+        metadata_path = metadata_path_for(resource_id)
+        return nil unless File.exist?(metadata_path)
+
+        metadata = read_metadata(metadata_path)
+        return nil unless metadata
+
+        model_file = File.join(resource_dir_for(resource_id), metadata["file"].to_s)
+        return nil unless File.exist?(model_file) && File.size(model_file).positive?
+
+        verify_cached_integrity!(resource_id, metadata, model_file)
+
+        result = { model_path: model_file, metadata: metadata }
+        vocab = File.join(resource_dir_for(resource_id), "fasttext.#{extract_language(resource_id)}.#{tier_from_resource_id(resource_id)}.vocab.json")
+        result[:vocab_path] = vocab if File.exist?(vocab)
+        result
+      end
+
       # Get metadata file path for a resource.
       #
       # @param resource_id [String] The resource identifier
       # @return [String] Metadata file path
       def metadata_path_for(resource_id)
-        language = extract_language(resource_id)
-        type = extract_type(resource_id)
-        File.join(@cache_path, language, "models", type, "metadata.json")
+        File.join(resource_dir_for(resource_id), "metadata.json")
       end
 
-      # Get resource directory path.
+      # Get resource directory path. Tiered ids nest under the onnx dir
+      # (`{lang}/models/onnx/{tier}`); everything else keeps today's
+      # layout (`{lang}/models/{type}`).
       #
       # @param resource_id [String] The resource identifier
       # @return [String] Resource directory path
       def resource_dir_for(resource_id)
+        if tiered_resource_id?(resource_id)
+          language, _type, tier = resource_id.split(":")
+          return File.join(@cache_path, language, "models", "onnx", tier)
+        end
+
         language = extract_language(resource_id)
         type = extract_type(resource_id)
         File.join(@cache_path, language, "models", type)
@@ -236,6 +458,14 @@ module Kotoshu
       # @param resource_id [String] The resource identifier
       # @return [Boolean] True if all files exist
       def resource_files_exist?(resource_id)
+        if tiered_resource_id?(resource_id)
+          metadata = read_metadata(metadata_path_for(resource_id))
+          return false unless metadata
+
+          model_file = File.join(resource_dir_for(resource_id), metadata["file"].to_s)
+          return File.exist?(model_file) && File.size(model_file).positive?
+        end
+
         language = extract_language(resource_id)
         type = extract_type(resource_id)
         return false unless language && type
@@ -250,6 +480,179 @@ module Kotoshu
       end
 
       private
+
+      # Parse resource identifier into components. Tiered model ids
+      # carry a third segment ("en:onnx:mini"); all others stay
+      # two-part. Overridden from BaseCache so {#extract_language}
+      # works for tiered ids.
+      #
+      # @param resource_id [String] The resource identifier
+      # @return [Array<String>, nil] Array of parts or nil if invalid
+      def parse_resource_id(resource_id)
+        parts = resource_id.to_s.split(":")
+        return nil unless [2, 3].include?(parts.size)
+
+        parts
+      end
+
+      # ---- Registry storage ----
+      #
+      # registry.json is downloaded ONCE per cache instance (and reused
+      # across setups while fresh). Its bytes are stored under the cache
+      # dir with a metadata.json recording their own sha256, so a
+      # corrupted or tampered registry is detected and re-fetched rather
+      # than trusted. Offline mode (KOTOSHU_OFFLINE=1) never fetches:
+      # a cached copy — even a stale one — is used, and a missing one
+      # raises. Resolve never reaches this code at all (cache-only).
+
+      # The parsed registry, fetched from cache or network at most once
+      # per cache instance.
+      #
+      # @param force [Boolean] re-fetch even if a fresh copy is cached
+      # @return [ModelRegistry]
+      # @raise [Kotoshu::Error] offline with no cached registry
+      def registry(force: false)
+        return @registry = load_registry(force: true) if force
+
+        @registry ||= load_registry(force: false)
+      end
+
+      def load_registry(force:)
+        cached = force ? nil : read_cached_registry
+        return cached if cached && !expired?(registry_metadata_path)
+
+        if offline?
+          return cached if cached
+
+          raise Kotoshu::Error,
+                "offline mode (KOTOSHU_OFFLINE=1) and no cached registry at " \
+                "#{registry_path}; run once online or copy registry.json there"
+        end
+
+        fetch_registry
+      end
+
+      # Read and sha-verify the cached registry. Returns nil when the
+      # bytes are absent, unparsable, or fail their recorded checksum.
+      def read_cached_registry
+        return nil unless File.exist?(registry_path) && File.exist?(registry_metadata_path)
+
+        bytes = File.read(registry_path)
+        metadata = read_metadata(registry_metadata_path)
+        expected = metadata && metadata["sha256"]
+        return nil unless expected
+        return nil unless Digest::SHA256.hexdigest(bytes) == expected
+
+        ModelRegistry.from_json(bytes)
+      rescue StandardError
+        nil
+      end
+
+      def fetch_registry
+        url = @source_registry.url_for(:model_registry)
+        bytes = Kotoshu::Integrity::NetHTTP.get(url)
+        raise Kotoshu::Error, "registry not found at #{url}" if bytes.nil?
+
+        begin
+          model = ModelRegistry.from_json(bytes)
+        rescue StandardError => e
+          raise Kotoshu::IntegrityError.new(
+            "registry.json",
+            expected: "<valid registry JSON>",
+            actual: "<parse error: #{e.message}>",
+            url: url
+          )
+        end
+
+        FileUtils.mkdir_p(File.dirname(registry_path))
+        File.write(registry_path, bytes)
+        write_metadata(registry_metadata_path,
+                       "url" => url,
+                       "sha256" => Digest::SHA256.hexdigest(bytes),
+                       "cached_at" => Time.now.utc.iso8601)
+        model
+      end
+
+      def registry_path
+        File.join(@cache_path, "registry", "registry.json")
+      end
+
+      def registry_metadata_path
+        File.join(@cache_path, "registry", "metadata.json")
+      end
+
+      def offline?
+        Kotoshu.configuration.offline
+      end
+
+      # ---- Tiered download helpers ----
+
+      # Download from urls.primary, falling back to urls.mirror. Partial
+      # bytes from a failed attempt are removed first. Returns the URL
+      # that succeeded; re-raises the last error when both fail.
+      def download_primary_or_mirror!(entry, model_file)
+        urls = [entry.urls.primary, entry.urls.mirror].compact.uniq
+        last_error = nil
+        urls.each do |url|
+          File.delete(model_file) if File.exist?(model_file)
+          download_file(url, model_file)
+          return url
+        rescue StandardError => e
+          last_error = e
+          warn "  download failed (#{url}): #{e.message}" if $VERBOSE
+        end
+
+        File.delete(model_file) if File.exist?(model_file)
+        raise last_error
+      end
+
+      # Verify downloaded model bytes against the registry's sha256.
+      # Corrupt bytes are removed from disk before raising so the next
+      # attempt re-downloads (same contract as BaseCache#verify_and_audit).
+      def verify_registry_sha256!(entry, model_file, resource_id, url)
+        actual = Digest::SHA256.file(model_file).hexdigest
+        if actual == entry.sha256
+          @audit_log.record(
+            url: url, status: "verified", size: File.size(model_file),
+            sha256: actual, manifest_sha256: entry.sha256, resource_id: resource_id
+          )
+          return
+        end
+
+        @audit_log.record(
+          url: url, status: "mismatch", size: File.size(model_file),
+          sha256: actual, manifest_sha256: entry.sha256, resource_id: resource_id
+        )
+        File.delete(model_file)
+        raise Kotoshu::IntegrityError.new(
+          resource_id,
+          expected: entry.sha256,
+          actual: actual,
+          url: url,
+          remediation: "Run `kotoshu setup #{extract_language(resource_id)} --model` to re-download."
+        )
+      end
+
+      # Pull the vocab sibling for a tiered model. Missing vocab is a
+      # warning, not a failure (mirrors the legacy full-tier behavior).
+      def download_tiered_vocab(entry, dest_path)
+        return nil if entry.vocab_url.to_s.empty?
+
+        vocab_file = File.join(dest_path, filename_from_url(entry.vocab_url))
+        begin
+          download_file(entry.vocab_url, vocab_file)
+          vocab_file
+        rescue StandardError => e
+          warn "  vocab.json unavailable: #{e.message}" if $VERBOSE
+          nil
+        end
+      end
+
+      # Basename of a URL's path, e.g.
+      # "https://h/fasttext.en.mini.onnx" => "fasttext.en.mini.onnx".
+      def filename_from_url(url)
+        File.basename(URI.parse(url.to_s).path)
+      end
 
       # Verify a cached model file's SHA-256 against the checksum
       # recorded in its metadata. Raises {Kotoshu::IntegrityError} on
