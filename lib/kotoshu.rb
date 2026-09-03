@@ -153,6 +153,8 @@ module Kotoshu
   #
   # @param language [String, Symbol, nil] Language code; if nil, uses default
   # @param want [Array<Symbol>] Resource types (default: [:spelling])
+  # @param tier [Symbol, nil] Model tier to resolve (:full default,
+  #   :fluency, :mini, or :any for "the single cached tier")
   # @return [ResourceBundle] Resolved bundle
   # @raise [ResourceNotSetupError] if the language hasn't been set up
   #
@@ -160,12 +162,12 @@ module Kotoshu
   #   Kotoshu.setup(:en)
   #   bundle = Kotoshu.resolve(language: "en")
   #   bundle.dictionary  # => #<Dictionary::Hunspell ...>
-  def self.resolve(language: nil, want: nil)
+  def self.resolve(language: nil, want: nil, tier: nil)
     lang = language || configuration.default_language
     raise ResourceNotSetupError.new(lang || "default", "spelling") if lang.nil?
 
     want_param = want || ResourceManager::DEFAULT_WANT
-    ResourceManager.resolve(language: lang, want: want_param)
+    ResourceManager.resolve(language: lang, want: want_param, tier: tier)
   end
 
   # ---- Stage 1: Setup ----
@@ -177,6 +179,8 @@ module Kotoshu
   # @param want [Array<Symbol>] Resource types to fetch (default: [:spelling])
   # @param force [Boolean] Re-fetch even if already cached
   # @param strict [Boolean] Re-raise on optional-resource failure
+  # @param tier [Symbol, String] Model tier when want includes :model
+  #   (:full default, :fluency, :mini)
   # @param aff [String, nil] Path to local .aff file (single-language only)
   # @param dic [String, nil] Path to local .dic file (single-language only)
   # @param from [String, nil] Directory containing local .aff/.dic (single-language only)
@@ -186,6 +190,7 @@ module Kotoshu
   # @example Download from kotoshu/dictionaries
   #   Kotoshu.setup(:en)                                 # spelling only
   #   Kotoshu.setup(:en, want: %i[spelling frequency])   # spelling + frequency
+  #   Kotoshu.setup(:en, want: %i[model], tier: :mini)   # mini-tier model
   #   Kotoshu.setup(:en, :de, :fr)                       # multiple languages
   #
   # @example Register local files (user already has hunspell dicts)
@@ -209,6 +214,8 @@ module Kotoshu
   #
   # @param language [String, Symbol] Language code
   # @param resource [Symbol, nil] :spelling, :frequency, :model, or nil for any
+  # @param tier [Symbol, nil] Model tier to check (:full, :fluency, :mini,
+  #   or :any for "any tier cached"); only meaningful with resource: :model
   # @return [Boolean] True if the resource is cached and available
   #
   # @example
@@ -216,8 +223,11 @@ module Kotoshu
   #   Kotoshu.setup?(:en)              # => true
   #   Kotoshu.setup?(:en, :spelling)   # => true
   #   Kotoshu.setup?(:en, :frequency)  # => false (not set up)
-  def self.setup?(language, resource = nil)
-    ResourceManager.setup?(language, resource: resource)
+  #   Kotoshu.setup?(:en, resource: :model, tier: :mini)  # => false
+  def self.setup?(language, resource = nil, tier: nil, **options)
+    # The resource may be given positionally (legacy) or as a keyword.
+    resource = options.fetch(:resource, resource)
+    ResourceManager.setup?(language, resource: resource, tier: tier)
   end
 
   # List languages that have been set up.
