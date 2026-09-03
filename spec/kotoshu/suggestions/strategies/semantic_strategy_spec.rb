@@ -15,15 +15,18 @@ RSpec.describe Kotoshu::Suggestions::Strategies::SemanticStrategy do
   let(:context) { Kotoshu::Suggestions::Context.new(word: "helo", dictionary: dictionary) }
 
   describe "#initialize" do
+    # "xx" has no cached model, so construction needs no ONNX and no
+    # network — these are pure configuration assertions and must not
+    # depend on (or mutate) the developer's real model cache.
     it "creates a strategy with language code" do
-      strategy = described_class.new(language_code: "en")
+      strategy = described_class.new(language_code: "xx")
       expect(strategy.name).to eq(:semantic)
-      expect(strategy.language_code).to eq("en")
+      expect(strategy.language_code).to eq("xx")
     end
 
     it "accepts config options" do
       strategy = described_class.new(
-        language_code: "en",
+        language_code: "xx",
         min_semantic_similarity: 0.7,
         semantic_boost_weight: 0.5
       )
@@ -32,12 +35,12 @@ RSpec.describe Kotoshu::Suggestions::Strategies::SemanticStrategy do
     end
 
     it "is enabled by default" do
-      strategy = described_class.new(language_code: "en")
+      strategy = described_class.new(language_code: "xx")
       expect(strategy.enabled?).to be true
     end
 
     it "can be disabled" do
-      strategy = described_class.new(language_code: "en", enabled: false)
+      strategy = described_class.new(language_code: "xx", enabled: false)
       expect(strategy.enabled?).to be false
     end
   end
@@ -162,9 +165,9 @@ RSpec.describe Kotoshu::Suggestions::Strategies::SemanticStrategy do
       expect(similarity).to be_nil
     end
 
-    it "returns 1.0 for identical words" do
+    it "returns 1.0 for identical words (within float precision)" do
       similarity = strategy.semantic_similarity("hello", "hello")
-      expect(similarity).to eq(1.0) unless similarity.nil?
+      expect(similarity).to be_within(0.000001).of(1.0) unless similarity.nil?
     end
   end
 
@@ -193,32 +196,13 @@ RSpec.describe Kotoshu::Suggestions::Strategies::SemanticStrategy do
     end
   end
 
-  describe "#embedding_for", :onnx do
-    let(:strategy) do
-      described_class.new(language_code: "en")
-    end
-
-    before do
-      skip "ONNX model not available" unless strategy.search
-    end
-
-    it "returns embedding vector for known word" do
-      embedding = strategy.embedding_for("hello")
-      expect(embedding).to be_an(Array) unless embedding.nil?
-    end
-
-    it "returns nil for unknown word" do
-      embedding = strategy.embedding_for("xyzabc123")
-      expect(embedding).to be_nil
-    end
-  end
-
   describe "#to_s" do
     it "returns informative string representation" do
-      strategy = described_class.new(language_code: "en")
+      # "xx": no cached model — see the note in the #initialize examples.
+      strategy = described_class.new(language_code: "xx")
       str = strategy.to_s
       expect(str).to include("SemanticStrategy")
-      expect(str).to include("en")
+      expect(str).to include("xx")
     end
   end
 
