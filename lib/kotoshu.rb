@@ -18,6 +18,7 @@ module Kotoshu
   autoload :Commands, "kotoshu/commands"
   autoload :Components, "kotoshu/components"
   autoload :Configuration, "kotoshu/configuration"
+  autoload :ConformanceExporter, "kotoshu/conformance_exporter"
   autoload :Core, "kotoshu/core"
   autoload :Data, "kotoshu/data"
   autoload :DataStructures, "kotoshu/data_structures"
