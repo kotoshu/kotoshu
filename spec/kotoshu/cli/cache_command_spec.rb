@@ -95,17 +95,40 @@ RSpec.describe Kotoshu::Cli::CacheCommand do
   end
 
   describe "#download" do
+    # The documented contract: an unreachable dictionary source surfaces
+    # as DictionaryNotFoundError from `cache download`. The unreachable
+    # source is injected the same way language_cache_spec does it — a
+    # url_base pointing at a non-resolving host — via the create_cache
+    # override pattern the #evict specs below also use. Dispatch goes
+    # through .start so Thor applies the declared method_option defaults
+    # ("without --type" really runs the default spelling path).
+    let(:cli_class) do
+      cache_path = temp_dir
+      Class.new(described_class) do
+        no_commands do
+          define_method(:create_cache) do
+            Kotoshu::Cache::LanguageCache.new(
+              cache_path: cache_path,
+              url_base: "https://invalid-url-that-does-not-exist.local"
+            )
+          end
+        end
+      end
+    end
+
     context "without --type flag" do
       it "raises DictionaryNotFoundError when no network", :network do
-        cli = create_cli(verbose: true)
-        expect { cli.download("en") }.to raise_error(Kotoshu::DictionaryNotFoundError)
+        expect do
+          cli_class.start(["download", "en", "--cache-path", temp_dir.to_s])
+        end.to raise_error(Kotoshu::DictionaryNotFoundError)
       end
     end
 
     context "with --type flag" do
       it "raises DictionaryNotFoundError when no network", :network do
-        cli = create_cli(type: "grammar", verbose: true)
-        expect { cli.download("en") }.to raise_error(Kotoshu::DictionaryNotFoundError)
+        expect do
+          cli_class.start(["download", "en", "--type", "grammar", "--cache-path", temp_dir.to_s])
+        end.to raise_error(Kotoshu::DictionaryNotFoundError)
       end
     end
   end

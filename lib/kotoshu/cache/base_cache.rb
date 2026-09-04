@@ -47,7 +47,10 @@ module Kotoshu
       # Create a new cache.
       #
       # @param cache_path [String] Path to cache directory
-      # @param url_base [String] Base URL for downloads (deprecated; pass source_registry instead)
+      # @param url_base [String] Base URL for downloads (deprecated; pass source_registry instead).
+      #   When given, it still controls where downloads come from: the
+      #   registry is derived from it so the deprecated parameter keeps
+      #   its documented meaning.
       # @param cache_ttl [Integer] Cache TTL in seconds
       # @param github_url [String] GitHub repository URL
       # @param resource_pin [String] Branch/tag/commit for URL templates (deprecated; use source_registry)
@@ -59,7 +62,7 @@ module Kotoshu
                      resource_pin: nil, manifest_url: nil, audit_log: nil,
                      source_registry: nil, max_cache_size: nil)
         @cache_path = cache_path || default_cache_path
-        @source_registry = source_registry || default_source_registry
+        @source_registry = source_registry || source_registry_for(url_base)
         @url_base = url_base || @source_registry.base_url
         @cache_ttl = cache_ttl || default_cache_ttl
         @github_url = github_url || default_github_url
@@ -220,6 +223,10 @@ module Kotoshu
       #
       # @param resource_id [String] The resource identifier
       # @return [Object, nil] Downloaded resource or nil on error
+      # @raise [Kotoshu::DictionaryNotFoundError] when the fetch fails
+      #   (unreachable source, HTTP error); the documented cache API
+      #   boundary raises the public error class rather than leaking
+      #   transport errors
       def download(resource_id)
         return nil unless supports_resource?(resource_id)
 
@@ -228,6 +235,8 @@ module Kotoshu
 
         begin
           download_resource(resource_id, resource_dir)
+        rescue Kotoshu::DictionaryNotFoundError
+          raise
         rescue StandardError => e
           warn "Error downloading #{resource_id}: #{e.message}" if $VERBOSE
           nil
@@ -284,8 +293,13 @@ module Kotoshu
 
       # Download content from a URL.
       #
+      # Fetch failures — unreachable host, transport errors, HTTP error
+      # statuses — are mapped to {Kotoshu::DictionaryNotFoundError} so
+      # callers see the documented public error at the cache boundary.
+      #
       # @param url [String] URL to download
       # @return [String] Downloaded content
+      # @raise [Kotoshu::DictionaryNotFoundError] when the fetch fails
       def download_url(url)
         uri = URI.parse(url)
 
@@ -298,9 +312,25 @@ module Kotoshu
 
         response = http.request(request)
 
-        raise "Failed to download #{url}: #{response.code} #{response.message}" unless response.is_a?(Net::HTTPSuccess)
+        unless response.is_a?(Net::HTTPSuccess)
+          raise download_failure(url, "#{response.code} #{response.message}")
+        end
 
         response.body
+      rescue SocketError, Errno::ECONNRESET, Errno::ECONNREFUSED, Errno::EHOSTUNREACH,
+             Errno::ENETUNREACH, Errno::ETIMEDOUT, Net::OpenTimeout, Net::ReadTimeout,
+             Net::ProtocolError, EOFError, OpenSSL::SSL::SSLError => e
+        raise download_failure(url, "#{e.class}: #{e.message}")
+      end
+
+      # Build the public error for a failed fetch. The URL is stored as
+      # the error's #path so callers can report which source failed.
+      #
+      # @param url [String] URL that could not be fetched
+      # @param reason [String] Human-readable failure reason
+      # @return [Kotoshu::DictionaryNotFoundError]
+      def download_failure(url, reason)
+        Kotoshu::DictionaryNotFoundError.new(url, "Failed to download #{url}: #{reason}")
       end
 
       # Download a file to disk, streaming in chunks.
@@ -624,6 +654,19 @@ module Kotoshu
       # @return [Kotoshu::SourceRegistry]
       def default_source_registry
         Kotoshu::Configuration.instance.source_registry
+      end
+
+      # Registry for an explicitly-passed url_base. The deprecated
+      # `url_base:` constructor parameter predates SourceRegistry; when
+      # it is given it must still drive downloads, so derive a registry
+      # rooted at that base instead of silently ignoring it.
+      #
+      # @param url_base [String, nil] Explicit base URL from the caller
+      # @return [Kotoshu::SourceRegistry]
+      def source_registry_for(url_base)
+        return default_source_registry unless url_base
+
+        Kotoshu::SourceRegistry.new(base_url: url_base)
       end
 
       # Default GitHub URL.

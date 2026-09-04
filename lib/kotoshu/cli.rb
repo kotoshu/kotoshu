@@ -514,12 +514,23 @@ module Kotoshu
         end
       end
 
+      # Documented machine-readable shape (see CHANGELOG): top-level
+      # `success`/`wordCount`/`errorCount`/`uniqueErrorCount`/`errors`/
+      # `source`. The derived top-level keys are composed here in the
+      # presenter; each error element serializes through lutaml-model
+      # (WordResult) so no hand-rolled model serialization exists.
       def format_as_json(result, source)
         require "json"
 
-        output = Kotoshu::Models::Result::DocumentResult.as_json(result)
-        output["source"] = source
-        JSON.pretty_generate(output)
+        payload = {
+          "success" => result.success?,
+          "wordCount" => result.word_count,
+          "errorCount" => result.error_count,
+          "uniqueErrorCount" => result.unique_error_count,
+          "errors" => result.errors.map { |err| Models::Result::WordResult.as_json(err) },
+          "source" => source
+        }
+        JSON.pretty_generate(payload)
       end
 
       def format_as_sarif(result, source)

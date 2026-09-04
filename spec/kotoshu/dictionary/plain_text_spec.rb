@@ -18,8 +18,10 @@ RSpec.describe Kotoshu::Dictionary::PlainText, "# Walking Skeleton - PlainText D
     end
 
     it "loads words from URL (Webster's dictionary)", :network do
+      # kotoshu/dictionaries ships on the `v1` branch (the same pin the
+      # gem's SourceRegistry uses); the old `main` URLs 404.
       dictionary = Kotoshu::Dictionary::PlainText.new(
-        "https://raw.githubusercontent.com/kotoshu/dictionaries/main/unix-words/web2.txt",
+        "https://raw.githubusercontent.com/kotoshu/dictionaries/v1/unix-words/web2.txt",
         language_code: "en-US"
       )
 
@@ -30,7 +32,7 @@ RSpec.describe Kotoshu::Dictionary::PlainText, "# Walking Skeleton - PlainText D
 
     it "loads words with affix flags (web2a)", :network do
       dictionary = Kotoshu::Dictionary::PlainText.new(
-        "https://raw.githubusercontent.com/kotoshu/dictionaries/main/unix-words/web2a.txt",
+        "https://raw.githubusercontent.com/kotoshu/dictionaries/v1/unix-words/web2a.txt",
         language_code: "en-US"
       )
 
