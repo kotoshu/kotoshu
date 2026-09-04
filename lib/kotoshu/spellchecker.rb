@@ -26,6 +26,11 @@ module Kotoshu
     # @return [ResourceBundle, nil] The resource bundle if provided
     attr_reader :resource_bundle
 
+    # @return [NativeBackend, nil] The native engine, when backend
+    #   selection activated one (see Configuration#backend /
+    #   KOTOSHU_BACKEND). Nil means every call runs the pure-Ruby engine.
+    attr_reader :native_backend
+
     # Create a new spellchecker.
     #
     # @param dictionary [Dictionary::Base, nil] The dictionary (optional)
@@ -76,6 +81,16 @@ module Kotoshu
         max_suggestions: max_suggestions,
         algorithms: @config.suggestion_algorithms
       )
+
+      # Backend selection (plan 66): when active, correct?/suggest run on
+      # the native engine; everything else keeps using @generator. The
+      # generator is always built — the native backend is an accelerator,
+      # never a replacement for the Ruby engine's non-hot-path surface.
+      @native_backend = NativeBackend.resolve(
+        dictionary: dict,
+        backend: @config.backend,
+        max_suggestions: max_suggestions
+      )
     end
 
     # Check if a word is spelled correctly.
@@ -88,6 +103,8 @@ module Kotoshu
     #   spellchecker.correct?("helo")   # => false
     def correct?(word)
       return false if word.nil? || word.empty?
+
+      return @native_backend.correct?(word) if @native_backend
 
       @generator.correct?(word)
     end
@@ -111,6 +128,8 @@ module Kotoshu
     #   suggestions.to_words  # => ["hello", "help", "held", ...]
     def suggest(word, max_suggestions: nil)
       return Suggestions::SuggestionSet.empty if word.nil? || word.empty?
+
+      return @native_backend.suggest(word, max_suggestions: max_suggestions) if @native_backend
 
       @generator.generate(word, max_suggestions: max_suggestions)
     end
@@ -270,6 +289,11 @@ module Kotoshu
         dict,
         max_suggestions: @config.max_suggestions,
         algorithms: @config.suggestion_algorithms
+      )
+      @native_backend = NativeBackend.resolve(
+        dictionary: dict,
+        backend: @config.backend,
+        max_suggestions: @config.max_suggestions
       )
 
       self

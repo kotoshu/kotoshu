@@ -25,6 +25,9 @@ group :development, :test do
   gem "asciidoctor", "~> 2.0"
   gem "benchmark", "~> 0.4"
   gem "benchmark-ips", "~> 2.12"
+  # rake compile for the Rust extension ext/kotoshu_native (rb_sys; the
+  # rb_sys runtime dependency itself comes from kotoshu.gemspec).
+  gem "rake-compiler", "~> 1.2"
   gem "rspec", "~> 3.12"
   gem "rspec-mocks", "~> 3.12"
   gem "rspec-parameterized", "~> 1.0"
