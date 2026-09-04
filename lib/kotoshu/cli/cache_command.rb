@@ -185,53 +185,59 @@ module Kotoshu
         puts "  Grammar: #{resource_status(cache, language, 'grammar')}"
       end
 
-      # Construct a LanguageCache honoring the --cache_path option.
-      #
-      # Public so specs can substitute a cache with a temp directory.
-      def create_cache
-        opts = {}
-        opts[:cache_path] = options[:cache_path] if options[:cache_path]
-        Cache::LanguageCache.new(**opts)
-      end
+      # Helper methods, not CLI subcommands. Declared inside no_commands
+      # so Thor does not treat them as commands — otherwise it prints a
+      # `[WARNING]` at load time which pollutes machine-readable output
+      # of other subcommands (`check --format json`, SARIF, etc.).
+      no_commands do
+        # Construct a LanguageCache honoring the --cache_path option.
+        #
+        # Public so specs can substitute a cache with a temp directory.
+        def create_cache
+          opts = {}
+          opts[:cache_path] = options[:cache_path] if options[:cache_path]
+          Cache::LanguageCache.new(**opts)
+        end
 
-      # Format bytes as a human-readable string with one decimal place.
-      #
-      # @param bytes [Integer, nil] Bytes
-      # @return [String] Formatted string
-      def format_bytes(bytes)
-        return "0 B" if bytes.nil? || bytes.zero?
+        # Format bytes as a human-readable string with one decimal place.
+        #
+        # @param bytes [Integer, nil] Bytes
+        # @return [String] Formatted string
+        def format_bytes(bytes)
+          return "0 B" if bytes.nil? || bytes.zero?
 
-        units = %w[B KB MB GB TB]
-        exp = [Math.log(bytes, 1024).floor, units.size - 1].min
-        "#{format('%.1f', bytes.to_f / (1024**exp))} #{units[exp]}"
-      end
+          units = %w[B KB MB GB TB]
+          exp = [Math.log(bytes, 1024).floor, units.size - 1].min
+          "#{format('%.1f', bytes.to_f / (1024**exp))} #{units[exp]}"
+        end
 
-      # Human-readable "time ago" string for an ISO8601 timestamp.
-      #
-      # @param iso_time [String, nil] ISO8601 timestamp
-      # @return [String] Time ago string
-      def time_ago(iso_time)
-        return "unknown" unless iso_time
+        # Human-readable "time ago" string for an ISO8601 timestamp.
+        #
+        # @param iso_time [String, nil] ISO8601 timestamp
+        # @return [String] Time ago string
+        def time_ago(iso_time)
+          return "unknown" unless iso_time
 
-        time = Time.iso8601(iso_time)
-        seconds = Time.now - time
+          time = Time.iso8601(iso_time)
+          seconds = Time.now - time
 
-        return "just now" if seconds < 60
+          return "just now" if seconds < 60
 
-        minutes = (seconds / 60).to_i
-        return "#{minutes}m ago" if minutes < 60
+          minutes = (seconds / 60).to_i
+          return "#{minutes}m ago" if minutes < 60
 
-        hours = (minutes / 60).to_i
-        return "#{hours}h ago" if hours < 24
+          hours = (minutes / 60).to_i
+          return "#{hours}h ago" if hours < 24
 
-        days = (hours / 24).to_i
-        return "#{days}d ago" if days < 30
+          days = (hours / 24).to_i
+          return "#{days}d ago" if days < 30
 
-        months = (days / 30).to_i
-        return "#{months}mo ago" if months < 12
+          months = (days / 30).to_i
+          return "#{months}mo ago" if months < 12
 
-        years = (months / 12).to_i
-        "#{years}y ago"
+          years = (months / 12).to_i
+          "#{years}y ago"
+        end
       end
 
       private
