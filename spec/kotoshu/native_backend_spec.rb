@@ -38,8 +38,15 @@ RSpec.describe Kotoshu::NativeBackend do
       end
 
       it "fails loudly under native" do
-        expect { described_class.resolve(dictionary: custom_dictionary, backend: "native") }
-          .to raise_error(Kotoshu::Native::Unavailable, /only loads Hunspell dictionaries/)
+        # Without the built extension the availability guard fires first,
+        # which is equally loud; with it built, the dictionary check does.
+        if Kotoshu::Native.available?
+          expect { described_class.resolve(dictionary: custom_dictionary, backend: "native") }
+            .to raise_error(Kotoshu::Native::Unavailable, /only loads Hunspell dictionaries/)
+        else
+          expect { described_class.resolve(dictionary: custom_dictionary, backend: "native") }
+            .to raise_error(Kotoshu::Native::Unavailable, /extension is not available/)
+        end
       end
     end
 
