@@ -415,6 +415,10 @@ module Kotoshu
 
       # Build compound patterns array.
       #
+      # Each entry carries the {CompoundPattern} domain object (the lookup
+      # algorithm needs its replacement text and boundary flags for the
+      # CHECKCOMPOUNDPATTERN-with-replacement path) plus a `match` lambda.
+      #
       # @param patterns [Array<CompoundPattern>] List of compound patterns
       # @return [Array<Hash>] Array of compound pattern hashes
       def build_compound_patterns(patterns)
@@ -422,6 +426,7 @@ module Kotoshu
 
         patterns.map do |pattern|
           {
+            pattern: pattern,
             match: ->(left, right) { pattern.match?(left, right) }
           }
         end

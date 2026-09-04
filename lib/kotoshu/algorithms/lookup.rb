@@ -152,6 +152,30 @@ module Kotoshu
 
         def initialize(parts)
           @parts = parts
+          @waived_boundaries = []
+        end
+
+        # Boundary indices (between parts[idx] and parts[idx + 1]) for
+        # which is_bad_compound skips its boundary checks.
+        #
+        # A boundary reconstructed from a CHECKCOMPOUNDPATTERN replacement
+        # (the compound surface text contains the pattern's replacement
+        # string instead of endchars+beginchars) is exempt from the
+        # CHECKCOMPOUNDPATTERN/CHECKCOMPOUNDTRIPLE/CHECKCOMPOUNDCASE
+        # vetoes — see AffixMgr::compound_check in affixmgr.cxx, where the
+        # `scpd` retry skips those checks for the reconstructed boundary.
+        #
+        # @return [Array<Integer>] Waived boundary indices
+        def waived_boundaries
+          @waived_boundaries
+        end
+
+        # Mark the boundary between parts[idx] and parts[idx + 1] as waived.
+        #
+        # @param idx [Integer] Boundary index
+        # @return [void]
+        def waive_boundary(idx)
+          @waived_boundaries << idx
         end
 
         # String representation.
@@ -745,6 +769,16 @@ module Kotoshu
             return !all_flags.include?(@aff[:ONLYINCOMPOUND])
           end
 
+          # A fogemorpheme (suffix carrying ONLYINCOMPOUND) may open or sit
+          # inside a compound, but never close it. Hunspell's suffix_check
+          # rejects a suffix whose continuation flags carry ONLYINCOMPOUND
+          # at the compound end (`in_compound != IN_CPD_END || ppfx || ...`,
+          # affixmgr.cxx) — unless the same form also has a prefix.
+          if compoundpos == CompoundPos::END_POS && @aff[:ONLYINCOMPOUND] && form.suffix &&
+              !form.prefix && (form.suffix[:flags] || []).include?(@aff[:ONLYINCOMPOUND])
+            return false
+          end
+
           # Compound: must carry COMPOUNDFLAG or the position-specific flag.
           # ONLYINCOMPOUND is allowed here (it just means "not valid outside
           # compounds") — the compound position flag is what authorizes the
@@ -784,6 +818,14 @@ module Kotoshu
           forbidden_flags = compound_forbid_flag ? [compound_forbid_flag] : []
           permit_flags = compound_permit_flag ? [compound_permit_flag] : []
 
+          # CHECKCOMPOUNDPATTERN entries with a replacement string (the
+          # third field): `endchars[/flag] beginchars[/flag] replacement`.
+          # Hunspell calls these "simplified compound patterns" — see the
+          # `scpd` loop in AffixMgr::compound_check (affixmgr.cxx).
+          replacement_patterns = (aff[:CHECKCOMPOUNDPATTERN] || []).filter_map do |entry|
+            entry[:pattern]
+          end.select(&:replacement)
+
           # Check if rest can be compound end. At END position, suffixes are
           # always allowed (compoundpos=END_POS in produce_affix_forms), but
           # prefixes still need COMPOUNDPERMITFLAG.
@@ -822,7 +864,41 @@ module Kotoshu
               # Recursively check rest
               compounds_by_flags(rest, captype: captype, depth: depth + 1,
                                        allow_nosuggest: allow_nosuggest) do |partial|
-                yield CompoundForm.new([form, *partial.parts])
+                yield splice_compound(form, partial)
+              end
+            end
+
+            # CHECKCOMPOUNDPATTERN with replacement: the surface word may
+            # contain the pattern's replacement string at the boundary
+            # instead of endchars+beginchars. With
+            # `CHECKCOMPOUNDPATTERN o b z`, "fozar" is a compound of
+            # "fo"+"o" = foo and "b"+"ar" = bar. The first word must carry
+            # the pattern's left flag (if any) and the word right after the
+            # boundary the right flag (if any); the regular boundary checks
+            # are waived for this pair (waived boundary 0).
+            replacement_patterns.each do |pattern|
+              replacement = pattern.replacement
+              next unless word_rest[pos, replacement.length] == replacement
+
+              beg2 = word_rest[0...pos] + pattern.left_stem
+              rest2 = pattern.right_stem + word_rest[(pos + replacement.length)..]
+
+              affix_forms_internal(beg2, captype: captype, allow_nosuggest: allow_nosuggest,
+                                         compoundpos: compoundpos,
+                                         prefix_flags: prefix_flags,
+                                         suffix_flags: permit_flags,
+                                         forbidden_flags: forbidden_flags) do |form|
+                next if pattern.left_flag && !form.flags.include?(pattern.left_flag)
+
+                compounds_by_flags(rest2, captype: captype, depth: depth + 1,
+                                          allow_nosuggest: allow_nosuggest) do |partial|
+                  second = partial.parts.first
+                  next if pattern.right_flag && !second.flags.include?(pattern.right_flag)
+
+                  compound = splice_compound(form, partial)
+                  compound.waive_boundary(0)
+                  yield compound
+                end
               end
             end
 
@@ -835,11 +911,25 @@ module Kotoshu
                                                   forbidden_flags: forbidden_flags) do |form|
                 compounds_by_flags(rest, captype: captype, depth: depth + 1,
                                          allow_nosuggest: allow_nosuggest) do |partial|
-                  yield CompoundForm.new([form.replace(text: beg), *partial.parts])
+                  yield splice_compound(form.replace(text: beg), partial)
                 end
               end
             end
           end
+        end
+
+        # Splice a leading part onto a partial compound.
+        #
+        # The partial's waived boundary indices refer to its own parts, so
+        # they shift by one once a new first part is prepended.
+        #
+        # @param form [AffixForm] First part of the resulting compound
+        # @param partial [CompoundForm] Compound for the rest of the word
+        # @return [CompoundForm] Combined compound
+        def splice_compound(form, partial)
+          compound = CompoundForm.new([form, *partial.parts])
+          partial.waived_boundaries.each { |idx| compound.waive_boundary(idx + 1) }
+          compound
         end
 
         # Generate compound forms by rules.
@@ -946,14 +1036,20 @@ module Kotoshu
               end
             end
 
+            # The checks below are waived at boundaries reconstructed from a
+            # CHECKCOMPOUNDPATTERN replacement (Hunspell skips the triple,
+            # case and compound-pattern checks when the `scpd` retry is
+            # active — see compound_check in affixmgr.cxx).
+            waived = compound.waived_boundaries.include?(idx)
+
             # CHECKCOMPOUNDTRIPLE check
-            if aff[:CHECKCOMPOUNDTRIPLE] && ((left[-2..] + right[0]).chars.uniq.length == 1 ||
+            if !waived && aff[:CHECKCOMPOUNDTRIPLE] && ((left[-2..] + right[0]).chars.uniq.length == 1 ||
                   (left[-1] + right[0..1]).chars.uniq.length == 1)
               return true
             end
 
             # CHECKCOMPOUNDCASE check
-            if aff[:CHECKCOMPOUNDCASE]
+            if !waived && aff[:CHECKCOMPOUNDCASE]
               right_c = right[0]
               left_c = left[-1]
               if (right_c == right_c.upcase || left_c == left_c.upcase) && right_c != '-' && left_c != '-'
@@ -962,7 +1058,7 @@ module Kotoshu
             end
 
             # CHECKCOMPOUNDPATTERN check
-            if aff[:CHECKCOMPOUNDPATTERN] && aff[:CHECKCOMPOUNDPATTERN].any? do |pattern|
+            if !waived && aff[:CHECKCOMPOUNDPATTERN] && aff[:CHECKCOMPOUNDPATTERN].any? do |pattern|
               pattern[:match]&.call(left_paradigm, right_paradigm)
             end
               return true

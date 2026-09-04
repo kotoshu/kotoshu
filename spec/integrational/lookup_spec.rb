@@ -196,7 +196,7 @@ RSpec.describe 'Integrational Lookup Tests', :integrational do
       end
     end
 
-    it 'passes onlyincompound2 lookup tests', pending: 'replacement in pattern' do
+    it 'passes onlyincompound2 lookup tests' do
       result = run_lookup_tests('onlyincompound2')
       expect(result[:good_failures]).to be_empty, "Good words not found: #{result[:good_failures].join(', ')}"
       expect(result[:bad_failures]).to be_empty, "Bad words found: #{result[:bad_failures].join(', ')}"
@@ -228,7 +228,7 @@ RSpec.describe 'Integrational Lookup Tests', :integrational do
     end
 
     %w[checkcompoundpattern2 checkcompoundpattern3 checkcompoundpattern4].each do |name|
-      it "passes #{name} lookup tests", pending: 'replacement in pattern' do
+      it "passes #{name} lookup tests" do
         result = run_lookup_tests(name)
         expect(result[:good_failures]).to be_empty, "Good words not found: #{result[:good_failures].join(', ')}"
         expect(result[:bad_failures]).to be_empty, "Bad words found: #{result[:bad_failures].join(', ')}"

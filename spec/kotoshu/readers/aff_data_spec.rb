@@ -328,8 +328,9 @@ RSpec.describe Kotoshu::Readers do
     end
 
     describe "#match?" do
-      # Build minimal double-free stubs via Struct.
-      Form = Struct.new(:stem, :flags, :is_base?, keyword_init: true)
+      # Build minimal double-free stubs via Struct. `text` is the part's
+      # surface form (what the "0"/zero-affix pattern matches against).
+      Form = Struct.new(:stem, :text, :flags, :is_base?, keyword_init: true)
 
       it "matches when left stem ends in left_stem and right stem starts with right_stem" do
         cp = described_class.new("aa", "bb")
@@ -361,13 +362,34 @@ RSpec.describe Kotoshu::Readers do
         expect(cp.match?(left_without, right)).to be false
       end
 
-      it "rejects base-form left parts when left_no_affix is set" do
+      # Hunspell semantics for a "0" (zero-affix) endchars field: the
+      # pattern matches a part whose stem appears VERBATIM at the compound
+      # boundary — i.e. the surface text ends with the stem. A part with a
+      # real suffix ("pseudos" from stem "pseudo") does not match; a part
+      # with an empty-add suffix (text == stem) still does, mirroring
+      # AffixMgr::cpdpat_check's strncmp of the stem at the boundary.
+      it "matches '0' left patterns when the text ends with the stem" do
         cp = described_class.new("0", "bb")
-        base = Form.new(stem: "x", flags: Set.new, is_base?: true)
-        affixed = Form.new(stem: "x", flags: Set.new, is_base?: false)
         right = Form.new(stem: "bbb", flags: Set.new, is_base?: true)
-        expect(cp.match?(base, right)).to be false
-        expect(cp.match?(affixed, right)).to be true
+
+        bare = Form.new(stem: "x", text: "x", flags: Set.new, is_base?: true)
+        empty_add_suffix = Form.new(stem: "x", text: "x", flags: Set.new, is_base?: false)
+        suffixed = Form.new(stem: "x", text: "xs", flags: Set.new, is_base?: false)
+
+        expect(cp.match?(bare, right)).to be true
+        expect(cp.match?(empty_add_suffix, right)).to be true
+        expect(cp.match?(suffixed, right)).to be false
+      end
+
+      it "matches '0' right patterns when the text starts with the stem" do
+        cp = described_class.new("aa", "0")
+        left = Form.new(stem: "aaa", flags: Set.new, is_base?: true)
+
+        bare = Form.new(stem: "bbb", text: "bbb", flags: Set.new, is_base?: true)
+        prefixed = Form.new(stem: "bbb", text: "Xbbb", flags: Set.new, is_base?: false)
+
+        expect(cp.match?(left, bare)).to be true
+        expect(cp.match?(left, prefixed)).to be false
       end
     end
   end

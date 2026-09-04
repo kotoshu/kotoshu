@@ -226,6 +226,19 @@ RSpec.describe Kotoshu::Algorithms::Lookup do
       compound = described_class.new([part])
       expect(compound.to_s).to eq("CompoundForm(foo)")
     end
+
+    it "starts with no waived boundaries" do
+      part = Kotoshu::Algorithms::Lookup::AffixForm.new("foo", "foo")
+      expect(described_class.new([part]).waived_boundaries).to eq([])
+    end
+
+    it "records waived boundary indices" do
+      part_a = Kotoshu::Algorithms::Lookup::AffixForm.new("foo", "foo")
+      part_b = Kotoshu::Algorithms::Lookup::AffixForm.new("bar", "bar")
+      compound = described_class.new([part_a, part_b])
+      compound.waive_boundary(0)
+      expect(compound.waived_boundaries).to eq([0])
+    end
   end
 
   # ---- Lookuper end-to-end against real LookupBuilder-built data -----------
@@ -416,6 +429,83 @@ RSpec.describe Kotoshu::Algorithms::Lookup do
         aff = minimal_aff("NOSUGGEST" => "NS")
         lookuper = build(aff, [word("secret", flags: Set.new(["NS"]))])
         expect(lookuper.correct?("secret")).to be true
+      end
+    end
+
+    describe "#correct? (CHECKCOMPOUNDPATTERN with replacement)" do
+      # Mirrors the checkcompoundpattern2 fixture: `o b z` and `oo ba u`
+      # forbid the foo|bar boundary but accept the modified surface forms
+      # "fozar" (foo+bar with ob→z) and "fur" (with ooba→u).
+      def replacement_aff(patterns)
+        minimal_aff("COMPOUNDFLAG" => "A",
+                    "COMPOUNDMIN" => 1,
+                    "CHECKCOMPOUNDPATTERN" => patterns)
+      end
+
+      it "accepts a compound whose boundary carries the replacement text" do
+        patterns = [Kotoshu::Readers::CompoundPattern.new("o", "b", "z"),
+                    Kotoshu::Readers::CompoundPattern.new("oo", "ba", "u")]
+        lookuper = build(replacement_aff(patterns), [word("foo", flags: Set.new(["A"])),
+                                                     word("bar", flags: Set.new(["A"]))])
+        expect(lookuper.correct?("barfoo")).to be true
+        expect(lookuper.correct?("fozar")).to be true
+        expect(lookuper.correct?("fur")).to be true
+      end
+
+      it "still forbids the unmodified boundary" do
+        patterns = [Kotoshu::Readers::CompoundPattern.new("o", "b", "z"),
+                    Kotoshu::Readers::CompoundPattern.new("oo", "ba", "u")]
+        lookuper = build(replacement_aff(patterns), [word("foo", flags: Set.new(["A"])),
+                                                     word("bar", flags: Set.new(["A"]))])
+        expect(lookuper.correct?("foobar")).to be false
+      end
+
+      it "enforces the pattern's boundary flags on the reconstructed parts" do
+        # Mirrors checkcompoundpattern3: only boo (X) + ban (Y) may join
+        # through the "z" replacement.
+        patterns = [Kotoshu::Readers::CompoundPattern.new("o/X", "b/Y", "z")]
+        lookuper = build(replacement_aff(patterns),
+                         [word("foo", flags: Set.new(["A"])),
+                          word("boo", flags: Set.new(%w[A X])),
+                          word("bar", flags: Set.new(["A"])),
+                          word("ban", flags: Set.new(%w[A Y]))])
+        expect(lookuper.correct?("bozan")).to be true
+        expect(lookuper.correct?("booban")).to be false
+        # foo lacks X, so its boundary can not be reconstructed via z.
+        expect(lookuper.correct?("fozar")).to be false
+      end
+    end
+
+    describe "#correct? (fogemorphemes — ONLYINCOMPOUND on a suffix)" do
+      # Mirrors the onlyincompound2 fixture: pseudo takes suffix B ("s",
+      # flags O+P). The suffixed form may open a compound but never close
+      # it, and `CHECKCOMPOUNDPATTERN 0/B /A` forbids the bare stem.
+      def fogemorpheme_lookuper
+        sfx_b = affix(flag: "B", add: "s", flags: Set.new(%w[O P]))
+        aff = minimal_aff("COMPOUNDFLAG" => "A",
+                          "COMPOUNDMIN" => 1,
+                          "COMPOUNDPERMITFLAG" => "P",
+                          "ONLYINCOMPOUND" => "O",
+                          "SFX" => { "B" => [sfx_b] },
+                          "CHECKCOMPOUNDPATTERN" => [Kotoshu::Readers::CompoundPattern.new("0/B", "/A")])
+        build(aff, [word("foo", flags: Set.new(["A"])),
+                    word("pseudo", flags: Set.new(%w[A B]))])
+      end
+
+      it "accepts the fogemorpheme opening a compound" do
+        expect(fogemorpheme_lookuper.correct?("pseudosfoo")).to be true
+      end
+
+      it "rejects the fogemorpheme closing a compound" do
+        expect(fogemorpheme_lookuper.correct?("foopseudos")).to be false
+      end
+
+      it "rejects the bare stem inside a compound via a 0-pattern" do
+        expect(fogemorpheme_lookuper.correct?("pseudofoo")).to be false
+      end
+
+      it "rejects the fogemorpheme as a standalone word" do
+        expect(fogemorpheme_lookuper.correct?("pseudos")).to be false
       end
     end
 

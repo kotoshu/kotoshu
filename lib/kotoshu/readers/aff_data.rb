@@ -312,6 +312,15 @@ module Kotoshu
         # Parse left side. The separator from partition('/') distinguishes
         # "no slash" (no flag specified → nil, so the matcher skips the
         # flag check) from a slash with an empty flag.
+        #
+        # A "0" text part means the part must be the unaffixed stem at the
+        # compound boundary (Hunspell manual, CHECKCOMPOUNDPATTERN): see
+        # AffixMgr::cpdpat_check in affixmgr.cxx, where a "0" pattern
+        # requires the dictionary stem to appear verbatim right before the
+        # boundary (`strncmp(word + pos - blen, r1->word, blen) == 0`).
+        # Note this is about the stem TEXT, not about affixes: an affix with
+        # an empty add-string leaves the text equal to the stem and still
+        # matches (relevant for opentaal_cpdpat2's flag-only suffixes).
         @left_stem, sep, @left_flag = left.partition('/')
         @left_flag = nil if sep.empty?
         @left_stem = '' if @left_stem == '0'
@@ -332,8 +341,11 @@ module Kotoshu
       def match?(left_part, right_part)
         return false unless left_part.stem.end_with?(@left_stem)
         return false unless right_part.stem.start_with?(@right_stem)
-        return false if @left_no_affix && left_part.is_base?
-        return false if @right_no_affix && right_part.is_base?
+        # "0" endchars/beginchars: the stem must appear unmodified at the
+        # boundary (see initialize) — an affix that changes the surface
+        # text breaks the match, an empty-add affix does not.
+        return false if @left_no_affix && !left_part.text.end_with?(left_part.stem)
+        return false if @right_no_affix && !right_part.text.start_with?(right_part.stem)
         return false if @left_flag && !left_part.flags.include?(@left_flag)
         return false if @right_flag && !right_part.flags.include?(@right_flag)
 
