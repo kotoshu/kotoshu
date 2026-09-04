@@ -270,5 +270,35 @@ RSpec.describe 'Integrational Suggestion Tests', :integrational do
         }
       end
     end
+
+    # Non-BMP suggestions.
+    #
+    # The .sug encodes hunspell's 2011 "fix suggestions for non-BMP UTF-8
+    # input" behavior (both single-deletion candidates, no space split).
+    # We (and spylls 0.1.0, which ships the fixture but leaves
+    # `report('utf8_nonbmp')` commented out of its test suite) produce
+    # ["𐏒𐏒", "𐏑 𐏒𐏒"] instead: the delete-first candidate "𐏒𐏑" is missing
+    # and a space-split suggestion appears. Matching the fixture needs
+    # the newer-hunspell non-BMP edit handling (extraction operates on
+    # full characters, suppressing the space split when both deletions
+    # already match); current hunspell master does not reproduce the
+    # .wrong side of this fixture either (it accepts 𐏑𐏒𐏒 as correct).
+    # Both .wrong lines are the same word, so one pending entry covers
+    # them; hypothesis: port the 2011 non-BMP suggestmgr fixes.
+    it 'passes utf8_nonbmp suggestion tests' do
+      result = run_suggestion_tests('utf8_nonbmp', pending_words: ['𐏑𐏒𐏒'])
+      failures = result[:results].reject { |r| r[:match] || r[:pending] }
+      expect(failures).to be_empty, lambda {
+        failures.map { |f| "#{f[:word]}: expected #{f[:expected]}, got #{f[:got]}" }.join("\n")
+      }
+    end
+
+    it 'passes opentaal_keepcase suggestion tests' do
+      result = run_suggestion_tests('opentaal_keepcase')
+      failures = result[:results].reject { |r| r[:match] || r[:pending] }
+      expect(failures).to be_empty, lambda {
+        failures.map { |f| "#{f[:word]}: expected #{f[:expected]}, got #{f[:got]}" }.join("\n")
+      }
+    end
   end
 end
