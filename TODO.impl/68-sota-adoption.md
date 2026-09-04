@@ -138,3 +138,12 @@ requiring network in eval CI — all owner decisions.
 **Adopted 2026-09-02.** Items A1–A4 promote to models-repo execution;
 B1–B3 fold into plan 66 P3; C/D items remain gated. Research brief
 preserved above for provenance.
+
+**B1 evaluated (2026-09-03, models PR #11): DO NOT SHIP.** int4-group128
+hits 16.2 MB (7.4x under full) and clears rank_corr on all 9 languages,
+but top1_agreement fails the 0.95 fluency gate on 8 of 9 (ru only
+passer) - 4-bit noise flips 1-2 typo probes per language. Implementation
+verified exact (ORT round-trip 0.0), so the format itself loses;
+int8-per-row stays. Untried levers recorded in eval/reports/int4.
+summary.json. The third eval-driven rejection of the campaign (after
+SVD dim-reduction and Model2Vec).
