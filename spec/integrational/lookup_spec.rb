@@ -344,7 +344,18 @@ RSpec.describe 'Integrational Lookup Tests', :integrational do
       end
     end
 
-    it 'passes hu lookup tests', pending: 'Hungarian is hard!' do
+    # Hungarian exercises four directives we do not implement yet:
+    # COMPOUNDSYLLABLE (majomkenyérfaág = 4 parts but <= 6 syllables is
+    # legal; iskolatejakció/majomkenyérfavirág must be rejected), the
+    # LANG_hu "moving rule" (forróvíz-tartály legal via SFX S "ó/Y+"
+    # despite forró/F!), CHECKCOMPOUNDREP (devonkor rejected via
+    # REP kor _kor), and COMPOUNDFORBIDFLAG on suffix-generated forms
+    # (forróvíz rejected). See hunspell affixmgr.cxx compound_check
+    # (COMPOUNDSYLLABLE/numdefcpd + LANG_hu sections).
+    # Additionally, lookup of hu words is environment-sensitive (results
+    # vary with unrelated stdout writes/dictionary-construction order in
+    # the same process) — a shared-state bug worth its own investigation.
+    it 'passes hu lookup tests', pending: 'Hungarian is hard! (COMPOUNDSYLLABLE, LANG_hu moving rule, CHECKCOMPOUNDREP, COMPOUNDFORBIDFLAG)' do
       result = run_lookup_tests('hu')
       expect(result[:good_failures]).to be_empty, "Good words not found: #{result[:good_failures].join(', ')}"
       expect(result[:bad_failures]).to be_empty, "Bad words found: #{result[:bad_failures].join(', ')}"
@@ -367,6 +378,24 @@ RSpec.describe 'Integrational Lookup Tests', :integrational do
 
     # Bug report tests
     %w[1592880 1975530 2970240 2970242 2999225 i35725 i53643 i54633 i54980 i58202].each do |name|
+      it "passes #{name} lookup tests" do
+        result = run_lookup_tests(name)
+        expect(result[:good_failures]).to be_empty, "Good words not found: #{result[:good_failures].join(', ')}"
+        expect(result[:bad_failures]).to be_empty, "Bad words found: #{result[:bad_failures].join(', ')}"
+      end
+    end
+
+    # Bug-report fixtures with only a .wrong list (no .good): every
+    # listed word must be rejected.
+    #
+    # * 1706659 — COMPOUNDRULE parts must carry the rule flags
+    #   (arbeitsfarbig must not match rule "vw": farbig lacks w).
+    # * digits_in_words — ONLYINCOMPOUND forbids the bare suffix
+    #   "-jährig" while COMPOUNDRULE a*b accepts "1-jährig".
+    # * i68568/i68568utf — capitalization of prefixed words
+    #   (Sant'Elia; only the exact and the all-caps forms are valid).
+    # * arabic — tatweel (U+0640) is not in the dictionary.
+    %w[1706659 digits_in_words i68568 i68568utf arabic].each do |name|
       it "passes #{name} lookup tests" do
         result = run_lookup_tests(name)
         expect(result[:good_failures]).to be_empty, "Good words not found: #{result[:good_failures].join(', ')}"

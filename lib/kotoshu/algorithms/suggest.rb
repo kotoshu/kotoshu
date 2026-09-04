@@ -233,59 +233,28 @@ module Kotoshu
 
           # Process each capitalization variant
           variants.each_with_index do |variant, idx|
-            # If different from original and is good, suggest it
-            if idx.positive? && is_good_suggestion.call(variant)
-              handle_found(
-                Suggestion.new(variant, 'case'),
-                word: word,
-                captype: captype,
-                is_forbidden: is_forbidden,
-                handled: handled, &block
-              )
-            end
-
-            # Generate and check edits (non-compound first)
-            nocompound = false
-
-            edit_suggestions(variant, compounds: false, limit: MAXSUGGESTIONS) do |suggestion|
-              handle_found(
-                suggestion,
+            collected, stop, _nocompound, good_edits =
+              collect_variant_suggestions(
+                variant, idx,
                 word: word,
                 captype: captype,
                 is_forbidden: is_forbidden,
                 handled: handled,
-                check_inclusion: false
-              ) do |handled_suggestion|
-                yield handled_suggestion
+                is_good_suggestion: is_good_suggestion
+              )
+            good_edits_found ||= good_edits
 
-                kind = handled_suggestion.kind
-                good_edits_found = true if GOOD_EDITS.include?(kind)
-                nocompound = true if %w[uppercase replchars mapchars].include?(kind)
-
-                # If we found a spaceword that's in the dictionary as a whole,
-                # that's the only suggestion we need
-                return if kind == 'spaceword'
-              end
+            # Upstream Hunspell (hunspell.cxx suggest_internal, the
+            # HUHCAP/HUHINITCAP "aNew -> a New" loop) reorders the
+            # suggestions of the lowercased pass so that space-containing
+            # ones come first — in front of everything yielded so far,
+            # including the lowercased form itself.
+            if idx.positive? && [Capitalization::Type::HUH, Capitalization::Type::HUHINIT].include?(captype)
+              collected = move_space_splits_to_front(collected, word)
             end
 
-            # Generate compound suggestions if not excluded
-            unless nocompound
-              limit = @aff[:MAXCPDSUGS] || MAXSUGGESTIONS
-              edit_suggestions(variant, compounds: true, limit: limit) do |suggestion|
-                handle_found(
-                  suggestion,
-                  word: word,
-                  captype: captype,
-                  is_forbidden: is_forbidden,
-                  handled: handled,
-                  check_inclusion: false
-                ) do |handled_suggestion|
-                  yield handled_suggestion
-                  kind = handled_suggestion.kind
-                  good_edits_found = true if GOOD_EDITS.include?(kind)
-                end
-              end
-            end
+            collected.each(&block)
+            return if stop
           end
 
           # Skip ngram/phonetic if we found good edits
@@ -508,6 +477,129 @@ module Kotoshu
           try_chars.include?('-') || try_chars.include?('a')
         end
 
+        # Collect every valid suggestion of one capitalization variant.
+        #
+        # Buffers instead of yielding so the caller can reorder the pass
+        # (see move_space_splits_to_front) before emitting it. Mirrors
+        # the per-variant part of Hunspell's suggest flow: the lowercased
+        # form itself first (if valid), then the non-compound edit pass,
+        # then the compound edit pass — the latter skipped after a "good"
+        # edit (uppercase/replchars/mapchars) or a dictionary word-pair
+        # spaceword, which ends the whole search.
+        #
+        # @param variant [String] Capitalization variant to process
+        # @param idx [Integer] Index of the variant (0 = as typed)
+        # @param word [String] Original misspelled word
+        # @param captype [Symbol] Capitalization type of the original word
+        # @param is_forbidden [Proc] Function to check if word is forbidden
+        # @param handled [Set<String>] Already suggested words
+        # @param is_good_suggestion [Proc] Function to check a candidate
+        # @return [Array<Array<Suggestion>, Boolean, Boolean, Boolean>]
+        #   Collected suggestions, stop flag, nocompound flag, good-edits
+        #   flag — in that order
+        def collect_variant_suggestions(variant, idx, word:, captype:, is_forbidden:, handled:,
+                                         is_good_suggestion:)
+          collected = []
+          stop = false
+          nocompound = false
+          good_edits = false
+
+          # If different from original and is good, suggest it
+          if idx.positive? && is_good_suggestion.call(variant)
+            handle_found(
+              Suggestion.new(variant, 'case'),
+              word: word,
+              captype: captype,
+              is_forbidden: is_forbidden,
+              handled: handled
+            ) do |handled_suggestion|
+              collected << handled_suggestion
+            end
+          end
+
+          # Generate and check edits (non-compound first)
+          edit_suggestions(variant, compounds: false, limit: MAXSUGGESTIONS) do |suggestion|
+            handle_found(
+              suggestion,
+              word: word,
+              captype: captype,
+              is_forbidden: is_forbidden,
+              handled: handled,
+              check_inclusion: false
+            ) do |handled_suggestion|
+              next if stop
+
+              collected << handled_suggestion
+
+              kind = handled_suggestion.kind
+              good_edits = true if GOOD_EDITS.include?(kind)
+              nocompound = true if %w[uppercase replchars mapchars].include?(kind)
+
+              # If we found a spaceword that's in the dictionary as a whole,
+              # that's the only suggestion we need
+              stop = true if kind == 'spaceword'
+            end
+          end
+
+          # Generate compound suggestions if not excluded
+          unless nocompound || stop
+            limit = @aff[:MAXCPDSUGS] || MAXSUGGESTIONS
+            edit_suggestions(variant, compounds: true, limit: limit) do |suggestion|
+              handle_found(
+                suggestion,
+                word: word,
+                captype: captype,
+                is_forbidden: is_forbidden,
+                handled: handled,
+                check_inclusion: false
+              ) do |handled_suggestion|
+                collected << handled_suggestion
+                good_edits = true if GOOD_EDITS.include?(handled_suggestion.kind)
+              end
+            end
+          end
+
+          [collected, stop, nocompound, good_edits]
+        end
+
+        # Move space-containing suggestions to the front of the pass.
+        #
+        # Ported from Hunspell's "aNew -> a New" loop in the HUHCAP/
+        # HUHINITCAP branch of suggest_internal (hunspell.cxx): a
+        # suggestion from the lowercased pass that contains a space moves
+        # to the front when the part after the space differs from the
+        # input's corresponding suffix. Spylls does not port this; the
+        # opentaal_keepcase fixture (word-TV -> "word -tv, word-tv, word")
+        # encodes it.
+        #
+        # Hunspell erases each matching suggestion and inserts it at the
+        # begin position in a single forward sweep, so with several
+        # matches the last one ends up first — mirrored here by reversing.
+        #
+        # @param suggestions [Array<Suggestion>] Suggestions of one variant pass
+        # @param word [String] The original misspelled word
+        # @return [Array<Suggestion>] Reordered suggestions
+        def move_space_splits_to_front(suggestions, word)
+          moving = []
+          result = []
+
+          suggestions.each do |s|
+            pos = s.text.index(' ')
+            second = pos ? s.text[(pos + 1)..] : nil
+            moves = !second.nil? &&
+              second.length < word.length &&
+              word[word.length - second.length, second.length] != second
+
+            if moves
+              moving << s
+            else
+              result << s
+            end
+          end
+
+          moving.reverse + result
+        end
+
         private
 
         # Handle a found suggestion with proper capitalization and validation.
@@ -554,6 +646,16 @@ module Kotoshu
 
           # Skip if already seen
           return if handled.include?(text)
+
+          # Never suggest the misspelling itself. Hunspell works on the
+          # lowercased variant and re-cases results at the end, so no
+          # candidate can round-trip back to the (invalid) input. Our
+          # capitalization coercion can do exactly that — e.g.
+          # opentaal_keepcase's "tv-word" coerced to INITCAP reproduces
+          # the misspelling "Tv-word" — so drop a candidate identical to
+          # the input, unless the input is itself correctly spelled (a
+          # suggest() call on a valid word may echo it).
+          return if text == word && !@lookup.good_forms(word, capitalization: true, allow_nosuggest: false).any?
 
           # Skip if subsumed by existing suggestion
           if check_inclusion && handled.any? { |prev| text.downcase.include?(prev.downcase) }

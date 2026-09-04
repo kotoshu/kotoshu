@@ -299,6 +299,46 @@ RSpec.describe Kotoshu::Algorithms::Suggest do
       end
     end
 
+    describe "#call — never suggests the misspelling itself" do
+      # Upstream Hunspell structurally cannot offer the input word verbatim:
+      # it works on the lowercased variant and re-cases results at the very
+      # end, so a candidate that round-trips back to the (invalid) input
+      # never appears. Our coercion path could: capitalization coercion can
+      # fold a valid lowercase form back into the misspelling —
+      # opentaal_keepcase's "Tv-word" is valid as "tv-word" (BREAK splits it
+      # into KEEPCASE "tv-" + "word") but coercing it to INITCAP reproduces
+      # the misspelling. A candidate identical to the input is dropped
+      # unless the input is itself a correctly spelled word.
+      it "drops the coerced form when it reproduces the input verbatim" do
+        dictionary = read_dictionary("opentaal_keepcase")
+        expect(dictionary.suggest("Tv-word")).not_to include("Tv-word")
+      end
+
+      it "still yields the input when it is a correctly spelled word" do
+        suggester = build_suggester(minimal_aff, [word("cat")])
+        expect(suggester.call("cat").to_a).to include("cat")
+      end
+    end
+
+    describe "#call — HUHCAP space-suggestion ordering" do
+      # Upstream Hunspell (hunspell.cxx suggest_internal, HUHCAP/HUHINITCAP
+      # branch — the "aNew -> a New" loop) moves space-containing
+      # suggestions produced by the lowercased pass to the FRONT of the
+      # list when the part after the space differs from the input's
+      # corresponding suffix. Spylls does not port the move; the
+      # opentaal_keepcase fixture (word-TV -> "word -tv, word-tv, word")
+      # encodes it.
+      it "places the space-split suggestion before the case edit" do
+        suggester = build_suggester(minimal_aff, [word("wordtv"), word("word"), word("tv")])
+        results = suggester.call("wordTV").to_a
+        # The HUH capital-restore also fires: the input's "T" is copied to
+        # the split boundary, as in Hunspell's aNew -> "a New" handling.
+        expect(results).to include("wordtv")
+        expect(results).to include("word Tv")
+        expect(results.index("word Tv")).to be < results.index("wordtv")
+      end
+    end
+
     describe "#suggestions" do
       it "returns an Enumerator without a block" do
         suggester = build_suggester(minimal_aff, [word("cat")])
