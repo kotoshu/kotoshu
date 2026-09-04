@@ -180,3 +180,24 @@ remains "fix the bug, don't reshape the code".
 - New languages beyond what the fixtures cover. That's T3.
 - Grammar engine. That's T3 (`TODO.impl/39-tier3-and-beyond.md`).
 - ONNX semantic path correctness. That's `TODO.impl/38-onnx-semantic-gating.md`.
+
+## Phase log (2026-09-04)
+
+- **2A** — gem PR #104: AF alias values decode with the active FLAG
+  format (real FLAG-num bug; other hypotheses audited stale). Rust
+  re-synced same day (kotoshu-rs PR #4); vectors unchanged.
+- **2B** — resolved via the owner collaborator PR #94 (HassanAkbar):
+  CHECKCOMPOUNDPATTERN replacement support ported from Hunspell +
+  compound checks module refactor + dedicated fixtures + perf spec;
+  merged by rebase after its stale-base failures cleared against
+  post-#106 main. A parallel independent implementation remains on
+  branch fix/t2-phase2b-compounding for reference.
+- **2C** — gem PR #111: dot-split casing + INITCAP ngram-root skip
+  ported from hunspell suggestmgr (spylls never had them); the three
+  silently-excused pendings now pass for real. Full fixture dump:
+  exactly 3 vectors changed, zero collateral.
+- Conformance vectors regenerated on post-#94 main: 2630 lines,
+  ~13 vectors changed (replacement fixtures now produce corrected
+  outputs). kotoshu-rs re-sync (this pack + the behavior ports) is
+  the follow-up once 2D lands.
+
