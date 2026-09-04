@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] — 2026-09-05
+
+The universal-kotoshu cut (plan 65's roadmap milestone): tiered
+models, the Rust core, and the native extension.
+
+### Added
+
+- **Model tiers** — `full` (~120 MB) / `fluency` (~15 MB, the new
+  default) / `mini` (~3 MB), resolved through the models repo's
+  registry (`kotoshu://models/{lang}/{tier}`) with sha256-verified
+  primary→mirror→vocab downloads; `KOTOSHU_MODEL_TIER`, `setup
+  LANG --model --tier`, and a tier-less legacy-cache bridge.
+- **Native extension** (`ext/kotoshu_native`, optional Rust
+  accelerator): `KOTOSHU_BACKEND=ruby|native|auto` (default ruby;
+  pure-Ruby installs unchanged), `Kotoshu::Native.available?`, and
+  `rake kotoshu:conformance:compare` — 2630 vectors, zero divergences
+  between the Ruby and Rust engines.
+- **Conformance export** — `rake kotoshu:conformance:export` freezes
+  engine behavior as golden vectors (2630 lines) consumed by
+  kotoshu-rs CI.
+- **Confidence cascade** — `semantic_cascade_threshold`
+  (`KOTOSHU_SEMANTIC_CASCADE_THRESHOLD`): skip the ONNX rerank when
+  the composite strategies are already confident.
+- Hunspell correctness: CHECKCOMPOUNDPATTERN replacement support,
+  dot-split casing, INITCAP ngram-root skip, AF alias flag-format
+  parsing, and a long tail of fixture fixes (integrational suite
+  176 examples, 0 failures, 1 documented pending).
+
+### Fixed
+
+- Model downloads cached 134-byte LFS pointer stubs whose own sha256
+  verified forever — the model source now fetches from the media host
+  and rejects stubs at download and verify.
+- `Embeddings::Vocabulary` crashed on the shipped wrapped vocab
+  format; shared normalizer added.
+- `Models::OnnxModel` used a nonexistent ONNX Runtime API and wrong
+  IO names — rewritten against `InferenceSession`.
+- CLI JSON output restored to the documented camelCase contract;
+  `DictionaryNotFoundError` mapping restored at the cache boundary.
+
 ## [0.5.0] — 2026-06-30
 
 Tier 2.5 release. Adds the personal-dictionary CLI, completes direct
