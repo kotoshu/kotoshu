@@ -242,6 +242,63 @@ RSpec.describe Kotoshu::Algorithms::Suggest do
       end
     end
 
+    describe "#call — dot-separated mixed-case misspellings" do
+      # Upstream Hunspell (hunspell.cxx suggest_internal, HUHCAP/HUHINITCAP
+      # branch: "something.The -> something. The") splits after the first '.'
+      # when the post-dot part is INITCAP-cased. Spylls does not port this;
+      # the sug/sugutf fixtures (permanent.Vacation) encode the behavior.
+      it "inserts a space after the dot when the post-dot part is INITCAP" do
+        suggester = build_suggester(minimal_aff, [word("permanent"), word("Vacation")])
+        expect(suggester.call("permanent.Vacation").to_a).to eq(["permanent. Vacation"])
+      end
+
+      it "puts the dot-split suggestion first" do
+        suggester = build_suggester(minimal_aff,
+                                    [word("permanent"), word("Vacation"), word("permanents")])
+        results = suggester.call("permanent.Vacation").to_a
+        expect(results.first).to eq("permanent. Vacation")
+      end
+
+      it "also splits HUHINIT misspellings (upstream HUHINITCAP falls through)" do
+        # Real hunspell: "& Permanent.Vacation 1 0: Permanent. Vacation"
+        suggester = build_suggester(minimal_aff, [word("permanent"), word("Vacation")])
+        expect(suggester.call("Permanent.Vacation").to_a).to eq(["Permanent. Vacation"])
+      end
+
+      it "does not split when the post-dot part is not INITCAP" do
+        suggester = build_suggester(minimal_aff, [word("permanent"), word("vacation")])
+        expect(suggester.call("permanent.VACATION").to_a).not_to include("permanent. VACATION")
+        expect(suggester.call("permanent.vacation").to_a).not_to include("permanent. vacation")
+      end
+    end
+
+    describe "#call — ngram INITCAP root skip" do
+      # Upstream Hunspell (suggestmgr.cxx ngsuggest "skip exceptions") does
+      # not use capitalized dictionary words as ngram roots when the
+      # misspelling is all lowercase — a missing Shift press is the edit
+      # phase's job (badcharkey case toggle). This is what makes keepcase's
+      # `bar` -> `Bar, baz.` work: "Bar" is skipped as a root so the lone
+      # questionable guess "baz." is yielded. Spylls lacks the skip.
+      it "yields the questionable ngram guess alongside the case-fixed edit" do
+        suggester = build_suggester(minimal_aff, [word("Bar"), word("baz.")])
+        expect(suggester.call("bar").to_a).to eq(["Bar", "baz."])
+      end
+
+      it "still ngram-suggests capitalized words for non-lowercase misspellings" do
+        # "Ghandi" is INITCAP, so the skip does not apply.
+        suggester = build_suggester(minimal_aff, [word("Gandhi")])
+        expect(suggester.call("Ghandi").to_a).to include("Gandhi")
+      end
+
+      it "keeps capitalized words as ngram roots for German dictionaries" do
+        # LANG de selects GermanCasing; upstream exempts LANG_de from the
+        # skip because regular German nouns are capitalized.
+        aff = minimal_aff("LANG" => "de_DE")
+        suggester = build_suggester(aff, [word("Bar"), word("baz.")])
+        expect(suggester.call("bar").to_a).to eq(["Bar"])
+      end
+    end
+
     describe "#suggestions" do
       it "returns an Enumerator without a block" do
         suggester = build_suggester(minimal_aff, [word("cat")])

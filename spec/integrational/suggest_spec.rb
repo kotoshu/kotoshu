@@ -108,7 +108,7 @@ RSpec.describe 'Integrational Suggestion Tests', :integrational do
   # Suggest Base
   describe 'Suggest Base' do
     it 'passes sug suggestion tests' do
-      result = run_suggestion_tests('sug', pending_words: ['permanent.Vacation'])
+      result = run_suggestion_tests('sug')
       failures = result[:results].reject { |r| r[:match] || r[:pending] }
       expect(failures).to be_empty, lambda {
         failures.map { |f| "#{f[:word]}: expected #{f[:expected]}, got #{f[:got]}" }.join("\n")
@@ -116,7 +116,7 @@ RSpec.describe 'Integrational Suggestion Tests', :integrational do
     end
 
     it 'passes sugutf suggestion tests' do
-      result = run_suggestion_tests('sugutf', pending_words: ['permanent.Vacation'])
+      result = run_suggestion_tests('sugutf')
       failures = result[:results].reject { |r| r[:match] || r[:pending] }
       expect(failures).to be_empty, lambda {
         failures.map { |f| "#{f[:word]}: expected #{f[:expected]}, got #{f[:got]}" }.join("\n")
@@ -166,7 +166,7 @@ RSpec.describe 'Integrational Suggestion Tests', :integrational do
     end
 
     it 'passes keepcase suggestion tests' do
-      result = run_suggestion_tests('keepcase', pending_words: ['bar'])
+      result = run_suggestion_tests('keepcase')
       failures = result[:results].reject { |r| r[:match] || r[:pending] }
       expect(failures).to be_empty, lambda {
         failures.map { |f| "#{f[:word]}: expected #{f[:expected]}, got #{f[:got]}" }.join("\n")
