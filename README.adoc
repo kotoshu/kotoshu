@@ -381,7 +381,9 @@ fixed order `mini`, `fluency`, `full` — a reporting order for
 deterministic error messages, not a fallback chain; tiers are never
 silently substituted for one another.
 
-The default tier is `full`. Override it per call with `tier:`, or set
+The default tier is `fluency` (~15 MB, near-lossless; owner decision
+2026-09-04) — caches written under the old `full` default keep working
+via the tier-less legacy bridge. Override it per call with `tier:`, or set
 it globally via the `model_tier` configuration option (environment
 variable `KOTOSHU_MODEL_TIER`; one of `full`, `fluency`, `mini`):
 

@@ -98,8 +98,8 @@ module Kotoshu
       },
       model_tier: {
         env: "KOTOSHU_MODEL_TIER",
-        default: "full",
-        description: "Model tier used when none is given (full, fluency, or mini)",
+        default: "fluency",
+        description: "Model tier used when none is given (fluency, full, or mini)",
         type: String
       },
       auto_download: {
@@ -317,10 +317,12 @@ module Kotoshu
     attr_accessor :models_pin
 
     # @return [String] Model tier used when a setup/resolve call omits
-    #   `tier:` — "full" (preserves the pre-tier behavior), "fluency",
-    #   or "mini". Validated against Cache::ModelCache::TIERS at use
-    #   time; the default tier itself is an owner decision (plan 67
-    #   gates), so it stays "full" until changed deliberately.
+    #   `tier:` — "fluency" (the medium tier, ~15 MB; owner decision
+    #   2026-09-04), "full" (maximum accuracy, ~120 MB), or "mini"
+    #   (light/edge, ~3 MB). Validated against
+    #   Cache::ModelCache::TIERS at use time; ResourceManager#resolve
+    #   bridges legacy single-tier caches to this default (see its
+    #   tier-less fallback contract).
     attr_accessor :model_tier
 
     # @return [#start,#update,#maybe_report_periodic,#finish,nil]

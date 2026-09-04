@@ -85,8 +85,8 @@ RSpec.describe Kotoshu::ResourceManager do
   end
 
   describe "configuration default" do
-    it "defaults model_tier to \"full\" (today's behavior; default change is an owner decision)" do
-      expect(Kotoshu::Configuration.instance.model_tier).to eq("full")
+    it "defaults model_tier to \"fluency\" (owner decision 2026-09-04; light/medium default)" do
+      expect(Kotoshu::Configuration.instance.model_tier).to eq("fluency")
     end
 
     it "picks up KOTOSHU_MODEL_TIER from the environment automatically" do
@@ -128,11 +128,11 @@ RSpec.describe Kotoshu::ResourceManager do
       end
     end
 
-    it "raises for a missing full tier exactly like today" do
+    it "raises for a missing configured tier when no model is cached" do
       expect do
         described_class.resolve(language: "en", want: %i[model])
       end.to raise_error(Kotoshu::ResourceNotSetupError) do |err|
-        expect(err.resource_type).to eq("model")
+        expect(err.resource_type).to start_with("model")
       end
     end
 
@@ -222,7 +222,15 @@ RSpec.describe Kotoshu::ResourceManager do
       expect(result.model_tier).to eq(:fluency)
     end
 
-    it "defaults to the configured tier (:full) when tier is omitted" do
+    it "defaults to the configured tier (:fluency) when tier is omitted" do
+      seed_tiered_model("en", :fluency)
+
+      result = described_class.setup(:en, want: %i[model])
+      expect(result.model).to eq(:cached)
+      expect(result.model_tier).to eq(:fluency)
+    end
+
+    it "bridges a legacy single-tier full cache on a tier-less setup" do
       seed_full_model("en")
 
       result = described_class.setup(:en, want: %i[model])
