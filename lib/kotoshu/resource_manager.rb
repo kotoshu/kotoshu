@@ -100,9 +100,18 @@ module Kotoshu
     # ---- Stage 2: resolve (cache-only) ----
     #
     # `tier:` selects which cached model tier to resolve. Default: the
-    # configured `model_tier` ("full"). A missing tier raises
-    # ResourceNotSetupError exactly like any other unset resource —
-    # resolve never downloads and never falls back to another tier.
+    # configured `model_tier` ("fluency" — owner decision 2026-09-04).
+    # A missing tier raises ResourceNotSetupError exactly like any
+    # other unset resource — resolve never downloads.
+    #
+    # Tier-less fallback (legacy-cache bridge): when `tier:` is NOT
+    # given and the configured tier is not cached, exactly one cached
+    # tier satisfies the request. Caches written before the fluency
+    # default hold the legacy `full` layout; without this bridge a
+    # tier-less resolve would raise for them. An explicit `tier:`
+    # never falls back, and zero or multiple cached tiers raise the
+    # missing-tier error for the configured tier.
+    #
     # `tier: :any` (explicit opt-in only) maps to the single cached
     # tier; with zero or multiple cached tiers it raises.
     def resolve(language:, want: DEFAULT_WANT, tier: nil)
@@ -111,7 +120,11 @@ module Kotoshu
 
       spelling_dict = want.include?(:spelling) ? resolve_spelling_cached(lang) : nil
       frequency_data = want.include?(:frequency) ? resolve_frequency_cached(lang) : nil
-      model = want.include?(:model) ? resolve_model_cached(lang, tier: effective_tier) : nil
+      model = if want.include?(:model)
+                resolve_model_cached(lang, tier: effective_tier, from_default: tier.nil?)
+              else
+                nil
+              end
 
       ResourceBundle.new(
         language: lang,
@@ -137,7 +150,11 @@ module Kotoshu
       when :model
         cache = model_cache_for
         if tier.nil?
-          cache.available?(cache.tier_resource_id(lang, effective_tier(nil)))
+          # Mirrors the tier-less resolve contract: the configured
+          # tier counts, and so does exactly one cached tier of any
+          # kind (legacy single-tier caches).
+          cache.available?(cache.tier_resource_id(lang, effective_tier(nil))) ||
+            cache.cached_tiers(lang).size == 1
         elsif tier.to_sym == :any
           cache.cached_tiers(lang).any?
         else
@@ -182,7 +199,12 @@ module Kotoshu
 
       if want.include?(:model)
         model_tier = effective_tier(tier, config: config)
-        model_status = setup_model_remote(lang, want: want, force: force, strict: strict, config: config, tier: model_tier)
+        model_status = setup_model_remote(lang, want: want, force: force, strict: strict, config: config,
+                                                tier: model_tier, from_default: tier.nil?)
+        if model_status == :cached
+          model_tier = setup_model_remote_satisfied_tier(lang, config: config, requested: model_tier,
+                                                               from_default: tier.nil?)
+        end
       end
 
       SetupResult.new(
@@ -212,6 +234,18 @@ module Kotoshu
       :unavailable
     end
 
+    # The tier a :cached status actually satisfied: the requested tier
+    # when it is cached, else the single cached tier the tier-less
+    # bridge matched. SetupResult reports the truth, not the request.
+    def setup_model_remote_satisfied_tier(lang, config:, requested:, from_default:)
+      cache = model_cache_for(config: config)
+      requested = Cache::ModelCache.normalize_tier(requested)
+      return requested if cache.available?(cache.tier_resource_id(lang, requested))
+
+      cached = cache.cached_tiers(lang) if from_default
+      cached&.size == 1 ? cached.first : requested
+    end
+
     # Set up the ONNX model for `lang` at `tier`.
     #
     # full: today's behavior, byte for byte — AVAILABLE_MODELS gate,
@@ -220,7 +254,7 @@ module Kotoshu
     # registry entry. In both cases a cached model short-circuits to
     # :cached BEFORE any registry consultation, so offline hosts with
     # a warm cache (but no cached registry) still work.
-    def setup_model_remote(lang, want:, force:, strict:, config:, tier: :full)
+    def setup_model_remote(lang, want:, force:, strict:, config:, tier: :full, from_default: false)
       tier = Cache::ModelCache.normalize_tier(tier)
       cache = model_cache_for(config: config)
       resource_id = cache.tier_resource_id(lang, tier)
@@ -231,6 +265,18 @@ module Kotoshu
 
       was_cached = cache.available?(resource_id)
       return :cached if was_cached && !force
+
+      # Tier-less bridge (mirrors resolve_model_cached): a cache written
+      # before the fluency default holds only the legacy full layout;
+      # its owner never named a tier. Exactly one cached tier satisfies
+      # the request; explicit tiers never fall back.
+      if from_default && !force
+        cached_tiers = cache.cached_tiers(lang)
+        if cached_tiers.size == 1
+          legacy_id = cache.tier_resource_id(lang, cached_tiers.first)
+          return :cached if cache.available?(legacy_id)
+        end
+      end
 
       if tier != :full && cache.registry_entry_for(lang, tier).nil?
         warn "[#{lang}] no registry entry for tier #{tier}; available: #{tiers_for_language(cache, lang).join(', ')}" unless quiet?
@@ -285,7 +331,15 @@ module Kotoshu
     # tiers raise (deterministic: ambiguity errors list tiers in
     # Cache::ModelCache::TIER_PREFERENCE order — mini, fluency, full —
     # which is a reporting order, not a fallback chain).
-    def resolve_model_cached(lang, tier: :full)
+    #
+    # `from_default` marks a tier-less call (the tier came from the
+    # configuration, not an argument). For those calls only, a missing
+    # configured tier falls back to the single cached tier: caches
+    # written before the fluency default (owner decision 2026-09-04)
+    # hold the legacy full layout, and their owners never asked for a
+    # tier by name. Zero or multiple cached tiers keep the normal
+    # missing-tier error. Explicit tiers and :any never fall back.
+    def resolve_model_cached(lang, tier: :full, from_default: false)
       cache = model_cache_for
       return nil unless model_language_supported?(lang, cache)
 
@@ -305,7 +359,15 @@ module Kotoshu
         end
       end
 
-      resolve_tier_cached(lang, Cache::ModelCache.normalize_tier(tier), cache)
+      requested = Cache::ModelCache.normalize_tier(tier)
+      return resolve_tier_cached(lang, requested, cache) if cache.available?(cache.tier_resource_id(lang, requested))
+
+      if from_default
+        cached = cache.cached_tiers(lang)
+        return resolve_tier_cached(lang, cached.first, cache) if cached.size == 1
+      end
+
+      resolve_tier_cached(lang, requested, cache)
     end
 
     def resolve_tier_cached(lang, tier, cache)
@@ -328,8 +390,8 @@ module Kotoshu
     end
 
     # The tier a tier-less call means: an explicit argument wins, then
-    # the configured `model_tier` (default "full" — an owner decision
-    # per plan 67's gates, not tooling's to change).
+    # the configured `model_tier` (default "fluency" — owner decision
+    # 2026-09-04; "full" and "mini" are explicit opt-ins).
     def effective_tier(tier, config: nil)
       return :any if tier && tier.to_sym == :any
 

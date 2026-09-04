@@ -106,7 +106,7 @@ Order = blast-radius ascending, value descending:
 
 | Decision | Milestone |
 |---|---|
-| Registry/tier **default tier** (bandwidth vs accuracy) | M1 |
+| Registry/tier **default tier** (bandwidth vs accuracy) | M1 — **DECIDED 2026-09-04: `fluency`** (owner instruction: light/medium default; legacy caches bridged) |
 | Models **release tag & versions** | M2, every release |
 | kotoshu-rs **crate versions, MSRV**, release-plz first release | M3+ |
 | Ruby ext gem version; python/js package versions | M5 |
