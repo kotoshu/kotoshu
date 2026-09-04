@@ -224,6 +224,11 @@ module Kotoshu
             end
           end
 
+          # Dot-separated mixed-case misspelling: "something.The" is
+          # suggested as "something. The" (see try_dotsplit_suggestion).
+          try_dotsplit_suggestion(word, captype,
+                                  is_forbidden: is_forbidden, handled: handled, &block)
+
           good_edits_found = false
 
           # Process each capitalization variant
@@ -312,7 +317,7 @@ module Kotoshu
           if @aff[:MAXNGRAMSUGS]&.positive?
             limit = @aff[:MAXNGRAMSUGS]
             ngrams_seen = 0
-            ngram_suggestions(word, handled: handled) do |sug|
+            ngram_suggestions(word, captype: captype, handled: handled) do |sug|
               handle_found(
                 Suggestion.new(sug, 'ngram'),
                 word: word,
@@ -458,16 +463,17 @@ module Kotoshu
         # Generate ngram-based suggestions.
         #
         # @param word [String] Misspelled word
+        # @param captype [Symbol] Capitalization type of the misspelled word
         # @param handled [Set<String>] Already suggested words
         # @yield [String] Each ngram suggestion
-        def ngram_suggestions(word, handled:, &block)
+        def ngram_suggestions(word, captype:, handled:, &block)
           return unless @aff[:MAXNGRAMSUGS]&.positive?
 
           known_lower = handled.map(&:downcase).to_set
 
           NgramSuggest.suggest(
             word.downcase,
-            dictionary_words: @words_for_ngram,
+            dictionary_words: ngram_candidate_words(captype),
             prefixes: @aff[:prefixes_by_flag] || {},
             suffixes: @aff[:suffixes_by_flag] || {},
             known: known_lower,
@@ -556,6 +562,79 @@ module Kotoshu
 
           handled.add(text)
           yield suggestion.replace(text: text)
+        end
+
+        # Suggest inserting a space after the first dot of a mixed-case
+        # misspelling: "something.The" -> "something. The".
+        #
+        # Upstream Hunspell (hunspell.cxx suggest_internal, the
+        # HUHCAP/HUHINITCAP branch) finds the first '.' in the word and,
+        # when the part after it is INITCAP-cased, inserts a space after
+        # the dot and pushes the result to the FRONT of the suggestion
+        # list (insert_sug). Spylls does not port this rule; we mirror
+        # Hunspell because the sug/sugutf fixtures encode it.
+        # (Suggestion 2C marked for kotoshu-rs re-sync.)
+        #
+        # @param word [String] Misspelled word
+        # @param captype [Symbol] Capitalization type of the misspelled word
+        # @param is_forbidden [Proc] Function to check if a word is forbidden
+        # @param handled [Set<String>] Already suggested words
+        # @yield [Suggestion] The dot-split suggestion, if valid
+        def try_dotsplit_suggestion(word, captype, is_forbidden:, handled:, &block)
+          return unless [Capitalization::Type::HUH, Capitalization::Type::HUHINIT].include?(captype)
+
+          dot_pos = word.index('.')
+          return unless dot_pos
+
+          postdot = word[(dot_pos + 1)..]
+          return unless @aff[:casing].guess(postdot) == Capitalization::Type::INIT
+
+          candidate = word.dup
+          candidate.insert(dot_pos + 1, ' ')
+          handle_found(
+            Suggestion.new(candidate, 'dotsplit'),
+            word: word,
+            captype: captype,
+            is_forbidden: is_forbidden,
+            handled: handled, &block
+          )
+        end
+
+        # Ngram root candidate pool for a misspelling of the given captype.
+        #
+        # Upstream Hunspell (suggestmgr.cxx ngsuggest, "skip exceptions")
+        # refuses capitalized dictionary words as ngram roots when the
+        # misspelling itself is all lowercase: a missing Shift press is the
+        # edit phase's job (badcharkey's case toggle), and letting INITCAP
+        # stems into the ngram ranking buries every other candidate behind
+        # their +2000 case-match bonus. Exceptions, mirrored from the same
+        # guard: dictionaries with a PHONE table, German dictionaries
+        # (regular nouns are capitalized there), and words carrying `ph:`
+        # phonetic hints (H_OPT_PHON).
+        #
+        # Spylls does not port this skip; the keepcase fixture (`bar` ->
+        # `Bar, baz.`) encodes it. (Suggestion 2C marked for kotoshu-rs
+        # re-sync.)
+        #
+        # @param captype [Symbol] Capitalization type of the misspelling
+        # @return [Array<Hash>] Dictionary words usable as ngram roots
+        def ngram_candidate_words(captype)
+          return @words_for_ngram unless captype == Capitalization::Type::NO
+          return @words_for_ngram if @aff[:PHONE]
+          return @words_for_ngram if @aff[:casing].is_a?(Capitalization::GermanCasing)
+
+          @words_for_ngram.reject { |entry| initcap_ngram_root?(entry) }
+        end
+
+        # Whether a dictionary entry is an INITCAP stem without `ph:` hints.
+        #
+        # @param entry [Hash] Dictionary word entry
+        # @return [Boolean]
+        def initcap_ngram_root?(entry)
+          return false if entry[:alt_spellings]&.any?
+
+          stem = entry[:stem].to_s
+          @aff[:casing].guess(stem) == Capitalization::Type::INIT
         end
 
         # Check if suggestion's stem carries the KEEPCASE flag.
