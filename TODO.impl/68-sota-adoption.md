@@ -144,6 +144,9 @@ hits 16.2 MB (7.4x under full) and clears rank_corr on all 9 languages,
 but top1_agreement fails the 0.95 fluency gate on 8 of 9 (ru only
 passer) - 4-bit noise flips 1-2 typo probes per language. Implementation
 verified exact (ORT round-trip 0.0), so the format itself loses;
-int8-per-row stays. Untried levers recorded in eval/reports/int4.
-summary.json. The third eval-driven rejection of the campaign (after
+int8-per-row stays. The levers were then exhausted (models PR #12): half-away rounding is
+a provable no-op, group-size shrink helps monotonically on ja but
+asymptotes below the gate (en pinned at 0.90), and the mixed
+int4-mini fallback fails on de. B1 closed - int8-per-row is the
+final answer. The third eval-driven rejection of the campaign (after
 SVD dim-reduction and Model2Vec).
