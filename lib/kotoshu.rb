@@ -19,6 +19,7 @@ module Kotoshu
   autoload :Components, "kotoshu/components"
   autoload :Configuration, "kotoshu/configuration"
   autoload :ConformanceExporter, "kotoshu/conformance_exporter"
+  autoload :ConformanceRunner, "kotoshu/conformance_runner"
   autoload :Core, "kotoshu/core"
   autoload :Data, "kotoshu/data"
   autoload :DataStructures, "kotoshu/data_structures"
@@ -39,6 +40,10 @@ module Kotoshu
   autoload :Plugins, "kotoshu/plugins"
   autoload :ProjectConfig, "kotoshu/project_config"
   autoload :MultiLanguageChecker, "kotoshu/multi_language_checker"
+  # Native engine (Rust extension loader + adapter; plan 66). Required via
+  # autoload so a missing extension can never break `require "kotoshu"`.
+  autoload :Native, "kotoshu/native"
+  autoload :NativeBackend, "kotoshu/native_backend"
   autoload :Readers, "kotoshu/readers"
   autoload :ResourceBundle, "kotoshu/resource_bundle"
   autoload :ResourceManager, "kotoshu/resource_manager"

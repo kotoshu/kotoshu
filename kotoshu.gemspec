@@ -30,17 +30,35 @@ Gem::Specification.new do |spec|
   spec.files = IO.popen(%w[git ls-files -z], chdir: __dir__, err: IO::NULL) do |ls|
     ls.readlines("\x0", chomp: true).reject do |f|
       (f == gemspec) ||
-        f.start_with?(*%w[bin/ test/ spec/ features/ .git .github appveyor Gemfile])
+        f.start_with?(*%w[bin/ test/ spec/ features/ .git .github appveyor Gemfile]) ||
+        # Rust extension build state (parsanol policy: never ship binaries
+        # or build artifacts, only the ext sources).
+        f.start_with?(*%w[ext/kotoshu_native/target ext/kotoshu_native/.rb-sys])
     end
   end
+  # Belt and braces: even if a built library somehow lands in git, never
+  # package it (mirrors parsanol-ruby).
+  spec.files.reject! { |f| f =~ /\.(dll|so|dylib|lib|bundle)\Z/ }
   spec.bindir = "exe"
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
+
+  # Rust extension (plan 66 / P4b): optional native accelerator over the
+  # kotoshu-rs core. Installing without a pre-existing Rust toolchain is
+  # handled by rb_sys exactly like parsanol-ruby: when RubyGems invokes the
+  # extconf and cargo is missing, rb_sys bootstraps a rustup toolchain
+  # into the extension build directory; if the build still does not
+  # produce the extension, the pure-Ruby engine is the complete fallback
+  # (Kotoshu::Native.available? stays false).
+  spec.extensions = ["ext/kotoshu_native/extconf.rb"]
 
   # Runtime dependencies
   spec.add_dependency "thor", "~> 1.0"
   spec.add_dependency "rubyzip", "~> 2.3"
   spec.add_dependency "lutaml-model", "~> 0.8"
+
+  # Required to build the Rust extension (parsanol policy).
+  spec.add_dependency "rb_sys", "~> 0.9"
 
   # Optional: suika is soft-required for Japanese morphological analysis.
   # Not declared here so `gem install kotoshu` succeeds on slim/minimal

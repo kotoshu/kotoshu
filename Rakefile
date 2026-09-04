@@ -11,6 +11,26 @@ RuboCop::RakeTask.new
 
 task default: %i[spec rubocop]
 
+# Conformance failure reporters (kept as lambdas so nothing leaks into
+# Object from the Rakefile).
+report_failures = lambda do |failures, label = nil|
+  failures.first(10).each do |failure|
+    prefix = label ? "[#{label}] " : ""
+    puts "#{prefix}##{failure.index} #{failure.kind} #{failure.input.inspect} " \
+         "on #{failure.dictionary}: expected #{failure.expected.inspect}, got #{failure.actual.inspect}"
+  end
+  puts "... and #{failures.size - 10} more" if failures.size > 10
+end
+
+report_divergences = lambda do |divergences|
+  divergences.first(10).each do |divergence|
+    puts "[divergence] ##{divergence.index} #{divergence.kind} #{divergence.input.inspect} " \
+         "on #{divergence.dictionary}: ruby #{divergence.expected.inspect}, " \
+         "native #{divergence.actual.inspect}"
+  end
+  puts "... and #{divergences.size - 10} more" if divergences.size > 10
+end
+
 namespace :kotoshu do
   namespace :conformance do
     desc <<~DESC
@@ -34,6 +54,62 @@ namespace :kotoshu do
         result.skipped_corpora.each { |id, reason| puts "  #{id}: #{reason}" }
       end
       result.skipped_words.each { |(id, word), reason| puts "  Skipped word #{id} #{word.inspect}: #{reason}" }
+    end
+
+    desc <<~DESC
+      Replay conformance/vectors.jsonl through the pure-Ruby engine \
+      (plan 66 dual-backend suite). Every vector must reproduce its frozen \
+      expectation; exits nonzero on any mismatch.
+    DESC
+    task :ruby do
+      require "kotoshu"
+      result = Kotoshu::ConformanceRunner.new.run(backend: :ruby)
+      puts "ruby backend: #{result.row_count} vectors, #{result.failures.size} failures"
+      report_failures.call(result.failures)
+      abort "kotoshu:conformance:ruby: #{result.failures.size} of #{result.row_count} vectors diverged" unless result.ok?
+    end
+
+    desc <<~DESC
+      Replay conformance/vectors.jsonl through the native (Rust) engine \
+      (plan 66 dual-backend suite). Requires the extension to be built \
+      (rake compile); exits nonzero on any mismatch.
+    DESC
+    task :native do
+      require "kotoshu"
+      unless Kotoshu::Native.available?
+        abort "kotoshu:conformance:native requires the native extension -- run `rake compile` first"
+      end
+
+      result = Kotoshu::ConformanceRunner.new.run(backend: :native)
+      puts "native backend: #{result.row_count} vectors, #{result.failures.size} failures"
+      report_failures.call(result.failures)
+      abort "kotoshu:conformance:native: #{result.failures.size} of #{result.row_count} vectors diverged" unless result.ok?
+    end
+
+    desc <<~DESC
+      Run the conformance vectors through BOTH backends and diff every row \
+      (plan 66 acceptance: zero diffs). Also fails when either backend \
+      diverges from the frozen expectations. Requires the extension \
+      (rake compile).
+    DESC
+    task :compare do
+      require "kotoshu"
+      unless Kotoshu::Native.available?
+        abort "kotoshu:conformance:compare requires the native extension -- run `rake compile` first"
+      end
+
+      result = Kotoshu::ConformanceRunner.new.compare
+      puts "compare: #{result.ruby.row_count} vectors -- ruby failures: " \
+           "#{result.ruby.failures.size}, native failures: #{result.native.failures.size}, " \
+           "backend divergences: #{result.divergences.size}"
+      report_failures.call(result.ruby.failures, "ruby")
+      report_failures.call(result.native.failures, "native")
+      report_divergences.call(result.divergences)
+      unless result.ok?
+        abort "kotoshu:conformance:compare: backends diverged " \
+              "(ruby #{result.ruby.failures.size}, native #{result.native.failures.size}, " \
+              "cross #{result.divergences.size} of #{result.ruby.row_count})"
+      end
     end
   end
 end

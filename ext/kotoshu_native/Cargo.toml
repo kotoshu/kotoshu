@@ -1,0 +1,37 @@
+# Kotoshu native extension (plan 66 / TODO.impl 05, P4b).
+#
+# A deliberately thin cdylib shim over the kotoshu-rs core: the only Rust
+# code here is the #[magnus::init] forwarding to kotoshu::ffi::ruby::init,
+# exactly like tests/ruby_ext in kotoshu-rs (the reference shim P4a shipped)
+# and like parsanol-ruby's ext/parsanol_native (the blueprint this layout
+# mirrors). All engine code lives in the core crate.
+#
+# The kotoshu dependency tracks kotoshu-rs main via git so any checkout
+# builds. Pinning to a release tag (or a crates.io version once published)
+# is a release decision reserved to the owner (plan 05: first releases and
+# versions are owner decisions).
+#
+# Version line: 0.0.0 mirrors kotoshu-rs' tests/ruby_ext reference shim; the
+# gem and core version lines are independent (parsanol policy) and both are
+# owner decisions. Never published as a crate.
+[package]
+name = "kotoshu_native"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# rb-sys for the Ruby C API; global-allocator for correct allocator behavior
+# on Windows (parsanol carries the same flag).
+rb-sys = { version = "0.9.124", features = ["global-allocator"] }
+
+# magnus for the Ruby bindings — released 0.8 line from crates.io (P4a
+# policy; parsanol's [patch.crates-io] git revs exist for Ruby 4.0 support
+# and are a documented relax trigger for the P4 gate, not adopted here).
+magnus = "0.8"
+
+# The engine. Feature "ruby" turns on ffi::ruby (magnus bindings).
+kotoshu = { git = "https://github.com/kotoshu/kotoshu-rs", branch = "main", features = ["ruby"] }

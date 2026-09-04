@@ -30,3 +30,13 @@ Gemfile.lock
 # OS
 .DS_Store
 Thumbs.db
+
+
+# Rust extension build output (ext/kotoshu_native)
+/ext/kotoshu_native/target/
+/ext/kotoshu_native/.rb-sys/
+
+# Rust workspace build output (root target/; rb_sys redirects there)
+/target/
+# Built extension staged for require by rake compile
+/lib/kotoshu/kotoshu_native.bundle

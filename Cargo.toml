@@ -1,0 +1,15 @@
+# Kotoshu gem Rust workspace (plan 66 / P4b) — mirrors parsanol-ruby's
+# root Cargo.toml: rb_sys's compile task runs `cargo metadata` from the gem
+# root, so the extension crate must be reachable through a root manifest.
+[workspace]
+resolver = "2"
+members = ["ext/kotoshu_native"]
+
+# Release profile follows the kotoshu-rs workspace policy (plan 66): fat
+# LTO and single codegen unit so the shipped accelerator is as fast as the
+# core's own optimized builds. Local development builds use the dev profile
+# via RB_SYS_CARGO_PROFILE (see ext/kotoshu_native/extconf.rb).
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1

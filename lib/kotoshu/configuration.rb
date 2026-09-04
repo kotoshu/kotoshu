@@ -203,6 +203,12 @@ module Kotoshu
         default: 1.0,
         description: "Skip semantic reranking when composite confidence is already at or above this (1.0 = always rerank)",
         type: Float
+      },
+      backend: {
+        env: "KOTOSHU_BACKEND",
+        default: "ruby",
+        description: "Engine backend for correct?/suggest (ruby, native, or auto)",
+        type: String
       }
     }.freeze
 
@@ -222,7 +228,8 @@ module Kotoshu
       offline: false,
       default_language: "en",
       resource_pin: "main",
-      semantic_cascade_threshold: 1.0
+      semantic_cascade_threshold: 1.0,
+      backend: "ruby"
     }.freeze
 
     # @return [String, nil] Path to the dictionary file
@@ -273,6 +280,14 @@ module Kotoshu
     # @return [Float] Confidence at or above which the semantic rerank
     #   is skipped (1.0 = always rerank; see Suggestions::SemanticCascade)
     attr_accessor :semantic_cascade_threshold
+
+    # @return [String] Engine backend for correct?/suggest — "ruby"
+    #   (pure Ruby, default), "native" (Rust extension; raises
+    #   Native::Unavailable when it cannot serve), or "auto" (native when
+    #   the extension is loaded and the dictionary is a file-backed
+    #   Hunspell, else pure Ruby). Env: KOTOSHU_BACKEND. See
+    #   NativeBackend for the boundary — the semantic path stays Ruby.
+    attr_accessor :backend
 
     # @return [String, nil] Path to cache directory
     attr_accessor :cache_path
@@ -471,7 +486,8 @@ module Kotoshu
         auto_download: @auto_download,
         cache_ttl: @cache_ttl,
         max_cache_size: @max_cache_size,
-        semantic_cascade_threshold: @semantic_cascade_threshold
+        semantic_cascade_threshold: @semantic_cascade_threshold,
+        backend: @backend
       }
     end
 
@@ -584,6 +600,7 @@ module Kotoshu
       @audit_rotations = SCHEMA[:audit_rotations][:default]
       @resource_pin = DEFAULTS[:resource_pin]
       @semantic_cascade_threshold = DEFAULTS[:semantic_cascade_threshold]
+      @backend = DEFAULTS[:backend]
     end
 
     # Apply resolved values from the resolver (ENV, defaults).

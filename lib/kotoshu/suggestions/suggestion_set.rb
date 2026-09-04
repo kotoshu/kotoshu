@@ -13,11 +13,18 @@ module Kotoshu
 
       # @param suggestions [Array<Suggestion>] Initial suggestions
       # @param max_size [Integer] Maximum number of suggestions to keep
-      def initialize(suggestions = [], max_size: 10)
+      # @param ranked [Boolean] When true, the producer already ranked,
+      #   deduplicated, and limited these suggestions and the set adopts
+      #   their order verbatim (only truncation to +max_size+ applies).
+      #   Used by producers whose ranking is conformance-frozen — the
+      #   native engine (NativeBackend), whose tie order can depend on
+      #   ranking signals (e.g. ngram scores) not carried on the Suggestion
+      #   objects themselves; re-sorting here would permute those ties.
+      def initialize(suggestions = [], max_size: 10, ranked: false)
         @suggestions = suggestions
         @max_size = max_size
         @duplicates_removed = 0
-        sort_and_limit!
+        ranked ? limit! : sort_and_limit!
       end
 
       # Add a suggestion to the set.
