@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "kotoshu"
+
 module Kotoshu
   # Jekyll integration (plan 89, item 4). Soft dependency: jekyll is
   # NOT in kotoshu.gemspec; the generator soft-requires it exactly

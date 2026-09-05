@@ -26,6 +26,11 @@ module Kotoshu
     SOURCES = {
       spelling: Source.new(repo: "dictionaries", default_pin: "v1",
                            template: "dictionaries/%<pin>s/%<lang>s/spelling/index.%<ext>s"),
+      # Flat layout: only en ships under the spelling/ sublayout; the
+      # staged languages sit at {lang}/index.*. The cache layer tries
+      # spelling first and falls back to this.
+      spelling_flat: Source.new(repo: "dictionaries", default_pin: "v1",
+                                template: "dictionaries/%<pin>s/%<lang>s/index.%<ext>s"),
       grammar: Source.new(repo: "dictionaries", default_pin: "v1",
                           template: "dictionaries/%<pin>s/%<lang>s/grammar/rules.yaml"),
       dict_manifest: Source.new(repo: "dictionaries", default_pin: "v1",

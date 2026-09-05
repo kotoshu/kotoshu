@@ -79,9 +79,19 @@ module Kotoshu
         self
       end
 
-      # Entries recorded for +file+.
+      # Entries recorded for +file+. Paths compare canonically — a
+      # baseline recorded as `docs/a.md` matches a check run over
+      # `./docs/a.md` and vice versa — so walking `.` and explicit
+      # paths share one baseline file.
       def entries_for(file)
-        entries.select { |entry| entry.file == file }
+        target = self.class.canonical_path(file)
+        entries.select { |entry| self.class.canonical_path(entry.file) == target }
+      end
+
+      # @return [String] path with a leading `./` stripped and
+      #   duplicate separators collapsed; absolute paths unchanged.
+      def self.canonical_path(path)
+        path.to_s.delete_prefix('./').gsub(%r{//+}, "/")
       end
 
       # Apply the baseline to +result+ (checked +file+): errors with
@@ -127,7 +137,7 @@ module Kotoshu
 
         Application.new(
           result: Models::Result::DocumentResult.new(
-            file: result.file,
+            file: self.class.canonical_path(result.file),
             errors: kept,
             suppressed_errors: suppressed,
             word_count: result.word_count,

@@ -193,22 +193,37 @@ module Kotoshu
       #
       # @param language [String] Language code
       # @return [Hash] Dictionary paths and metadata
+      # Fetch one spelling file, preferring the spelling/ sublayout and
+      # falling back to the flat {lang}/index.{ext} layout. Returns the
+      # URL that actually served the bytes alongside the content.
+      def fetch_spelling_file(language, ext)
+        primary = @source_registry.url_for(:spelling, lang: language, ext: ext)
+        begin
+          content = download_url(primary)
+          return [primary, content] if content
+        rescue Kotoshu::DictionaryNotFoundError
+          nil # fall through to the flat layout
+        end
+
+        flat = @source_registry.url_for(:spelling_flat, lang: language, ext: ext)
+        [flat, download_url(flat)]
+      end
+
       def download_spelling(language)
         lang_path = resource_dir_for("#{language}:spelling")
         resource_id = "#{language}:spelling"
 
-        # Download index.aff
-        aff_url = @source_registry.url_for(:spelling, lang: language, ext: "aff")
-        aff_content = download_url(aff_url)
+        # Download index.aff / index.dic. Only `en` ships under the
+        # spelling/ sublayout upstream; staged languages sit flat at
+        # {lang}/index.* — try the sublayout first, fall back to flat.
+        aff_url, aff_content = fetch_spelling_file(language, "aff")
         verify_and_audit(url: aff_url,
                          relative_path: "#{language}/spelling/index.aff",
                          content: aff_content,
                          resource_id: resource_id)
         File.binwrite(File.join(lang_path, "index.aff"), aff_content)
 
-        # Download index.dic
-        dic_url = @source_registry.url_for(:spelling, lang: language, ext: "dic")
-        dic_content = download_url(dic_url)
+        dic_url, dic_content = fetch_spelling_file(language, "dic")
         verify_and_audit(url: dic_url,
                          relative_path: "#{language}/spelling/index.dic",
                          content: dic_content,
