@@ -80,4 +80,17 @@ mirrored to the media host per plan 07's distribution map.
 
 ## Status
 
-**Pending.**
+**Implemented (2026-09-05, models PR #13 + tag v1.1.0).** 13 of 16
+batch-one candidates shipped: ca cs da el hu it nl pl ro sv tr uk vi
+— 22 languages x 3 tiers, 66 registry resources, 134 release assets.
+All tiers passed the gates unweakened (fluency rank_corr 0.9999,
+top1 0.9583-1.0000). noise.py grew QWERTY/QWERTZ supplements plus
+curated Turkish-Q / Ukrainian JCUKEN / Greek-phonetic grids; a
+pre-existing release_notes.py crash on null tier mirrors was fixed
+in passing. Released registry byte-identical to committed (local
+rebuild reproduces CI sha256).
+
+Dropped from batch 1 (no dictionaries-repo aff/dic): fi, no, id —
+`no` exists only as nb/nn; an owner mapping decision for a v1.2.
+Site truth updated (MODEL_LANGUAGES + news entry, site PR #4); the
+gem needed no change (registry-driven).
