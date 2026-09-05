@@ -45,6 +45,11 @@ module Kotoshu
       # root, so each matcher sees paths relative to its own
       # directory (gitignore scoping).
       #
+      # Selection and ignore matching use forward-slash relative
+      # paths (the gitignore/glob convention), independent of the
+      # platforms path separator; returned file paths are
+      # platform-native.
+      #
       # @param directory [String] current absolute directory
       # @param relative [Array<String>] path segments below the root
       # @param matchers [Array<[IgnoreMatcher, Integer]>] ancestor
@@ -66,7 +71,7 @@ module Kotoshu
             next if DEFAULT_SKIP_DIRS.include?(entry)
 
             files.concat(walk(path, entry_relative, matchers))
-          elsif selected?(entry, File.join(*entry_relative))
+          elsif selected?(entry, entry_relative.join("/"))
             files << path
           end
         end
@@ -82,7 +87,7 @@ module Kotoshu
       # @return [Boolean]
       def ignored_by_any?(matchers, entry_relative, directory)
         matchers.any? do |matcher, depth|
-          scoped = File.join(*entry_relative[depth..])
+          scoped = entry_relative[depth..].join("/")
           matcher.ignored?(scoped, directory: directory)
         end
       end
