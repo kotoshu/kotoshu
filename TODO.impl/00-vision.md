@@ -135,6 +135,21 @@ closing the verified user gaps after all channels went live.
 | 81 | [Editor reach](81-editor-reach.md) | kotoshu-lsp shipped but no VS Code package; no pre-commit hook (supersedes 61 remainder) |
 | 82 | [Document ignores + baselines](82-doc-formats-and-ignores.md) | No inline suppressions; no CI baseline freeze |
 
+Plans 83–89 are **wave 2** (2026-09-05, owner re-ask after the wave-1
+ship): driving models toward full intersection coverage, making the
+22 model languages full-feature, semantic reranking in the browser,
+and the site/docs truth that follows.
+
+| # | Plan | Gap it closes |
+|---|---|---|
+| 83 | [Models batch 2](83-models-batch-2.md) | ar/fa/he have modules but no models; ~50 more intersection languages; fi/id dictionary sourcing |
+| 84 | [Language modules + keyboards wave 2](84-language-modules-wave2.md) | 13 model languages lack gem modules; 11 keyboard layouts missing |
+| 85 | [Wasm model API](85-wasm-model-api.md) | Browser semantic reranking — no model API on the wasm surface, CORS distribution gap |
+| 86 | [Site truth wave 2](86-site-truth-wave2.md) | Ignores/baselines undocumented; no Windows page; wrong personal.dic path in CLI docs; playground breadth |
+| 87 | [LSP personal dictionary](87-lsp-personal-dictionary.md) | Server never reads personal.dic — add-to-dictionary appears broken |
+| 88 | [CLI directory mode](88-cli-directory-mode.md) | No tree checking — the actual CI workflow |
+| 89 | [Framework integrations](89-framework-integrations-exec.md) | Executes plan 62: Rails validator, RSpec matcher, Rake/Jekyll tasks |
+
 Dependency order across the ecosystem track:
 
 ```
