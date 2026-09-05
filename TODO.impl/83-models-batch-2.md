@@ -43,4 +43,14 @@
 
 ## Status
 
-**Pending.**
+**Implemented (2026-09-05, models PR #14 + tag v1.2.0).** 22 -> 54
+languages (32 shipped: fa he ar id hy hr bg sr sk mn lt ka ne nn sl
+mk lv et tk la gl eu cy eo is lb fy br ga gd oc ia), 162 registry
+resources rev 3, 326 assets, byte-identity proven. ar/id
+dictionaries sourced with verified licenses (dictionaries PRs #1-#3,
+that repo's default branch is v1). Gates never weakened. DROPS:
+nds (ISO 639-2-only vs the two-letter schema contract - owner spec
+decision), fi (no license-clear upstream - hard gate), fo rw ie fur
+tlh (no fastText CC vectors). BACKLOG EMPTY: every dictionaries
+language FastText can serve ships. Owner proposal pending: no->nb/nn
+(cc.no as Bokmal-labeled nb + gem resolves no->nb).
