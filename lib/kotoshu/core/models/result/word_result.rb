@@ -12,11 +12,21 @@ module Kotoshu
       # (filtering by source, confidence, distance), wrap with
       # {Suggestions::SuggestionSet} via +#to_suggestion_set+.
       class WordResult < Lutaml::Model::Serializable
+        # What absorbed a suppressed misspelling (plan 82): an inline
+        # `kotoshu:disable-*` directive or a baseline entry.
+        SUPPRESSED_BY_INLINE = "inline"
+        SUPPRESSED_BY_BASELINE = "baseline"
         attribute :word, :string, default: ""
         attribute :correct, :boolean, default: true
         attribute :position, :integer
         attribute :suggestions, Suggestions::Suggestion, collection: true
         attribute :metadata, :hash, default: {}
+        # Suppression bookkeeping: a suppressed word is a real misspelling
+        # absorbed by an inline ignore directive or a baseline entry.
+        # Suppressed errors leave DocumentResult#errors and surface via
+        # DocumentResult#suppressed_errors.
+        attribute :suppressed, :boolean, default: false
+        attribute :suppressed_by, :string
 
         # lutaml-model calls +new(**attrs)+ when deserializing via
         # +from_hash+. The signature accepts every attribute as a
@@ -27,7 +37,7 @@ module Kotoshu
         # +suggestions+ accepts a {Suggestions::SuggestionSet},
         # an Array, or nil for ergonomic construction; the SuggestionSet
         # case is unwrapped to its underlying Array.
-        def initialize(word: "", correct: true, suggestions: nil, position: nil, metadata: {}, **kwargs)
+        def initialize(word: "", correct: true, suggestions: nil, position: nil, metadata: {}, suppressed: false, suppressed_by: nil, **kwargs)
           suggestions_array =
             case suggestions
             when Suggestions::SuggestionSet then suggestions.suggestions
@@ -42,6 +52,8 @@ module Kotoshu
             position: position,
             suggestions: suggestions_array,
             metadata: metadata,
+            suppressed: suppressed,
+            suppressed_by: suppressed_by,
             **kwargs
           )
         end
@@ -52,6 +64,12 @@ module Kotoshu
 
         def incorrect?
           !correct
+        end
+
+        # True when an inline directive or a baseline absorbed this
+        # misspelling (see +suppressed_by+).
+        def suppressed?
+          suppressed
         end
 
         def has_suggestions?

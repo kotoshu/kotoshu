@@ -173,29 +173,34 @@ module Kotoshu
     def check(text)
       return Models::Result::DocumentResult.success if text.nil? || text.empty?
 
+      # Inline ignore directives (plan 82): suppressed errors move into
+      # suppressed_errors instead of failing the check. The :auto profile
+      # recognizes bare, Markdown HTML-comment, and AsciiDoc // directives
+      # because the facade sees raw text without a format parser.
       words = tokenize(text)
+      suppressions = Documents::Suppressions.scan(text, format: :auto)
       errors = []
-      position = 0
-
-      words.each do |word_data|
-        word, pos = word_data
+      suppressed_errors = []
+      words.each do |word, pos|
         result = check_word(word)
+        next if result.correct?
 
-        if result.incorrect?
-          errors << Models::Result::WordResult.new(
-            word: word,
-            correct: false,
-            suggestions: result.suggestions,
-            position: pos
-          )
-        end
-
-        position = pos
+        line = Documents::SourcePosition.line_for_offset(text, pos)
+        suppressed = suppressions.any? { |s| s.applies_to?(line, word: word) }
+        entry = Models::Result::WordResult.new(
+          word: word,
+          correct: false,
+          suggestions: result.suggestions,
+          position: pos,
+          suppressed: suppressed,
+          suppressed_by: (Models::Result::WordResult::SUPPRESSED_BY_INLINE if suppressed)
+        )
+        (suppressed ? suppressed_errors : errors) << entry
       end
-
       Models::Result::DocumentResult.new(
         file: nil,
         errors: errors,
+        suppressed_errors: suppressed_errors,
         word_count: words.size
       )
     end

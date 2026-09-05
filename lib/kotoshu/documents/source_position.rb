@@ -29,6 +29,14 @@ module Kotoshu
         [offset, line, column] <=> [other.offset, other.line, other.column]
       end
 
+      # 1-based line number of the character at +offset+ in +text+.
+      # Offsets past the end clamp to the last line; a nil offset
+      # counts as the first line.
+      def self.line_for_offset(text, offset)
+        clamped = [offset.to_i, 0].max.clamp(0, [text.length - 1, 0].max)
+        text[0, clamped].count("\n") + 1
+      end
+
       def to_s
         "line #{line}, column #{column} (offset #{offset})"
       end

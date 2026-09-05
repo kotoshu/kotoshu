@@ -25,6 +25,7 @@ module Kotoshu
     autoload :TextNode, "kotoshu/documents/text_node"
     autoload :Document, "kotoshu/documents/document"
     autoload :PlainTextDocument, "kotoshu/documents/plain_text_document"
+    autoload :Suppressions, "kotoshu/documents/suppressions"
 
     @parsers = {}
     @discovered_formats = []

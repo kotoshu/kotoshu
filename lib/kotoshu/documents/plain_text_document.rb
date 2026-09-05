@@ -16,7 +16,9 @@ module Kotoshu
       # @param text [String]
       # @param language_code [String, nil]
       # @return [PlainTextDocument]
-      def self.from_string(text, language_code: nil)
+      # +suppressions+ defaults to scanning the text for bare
+      # directives (plan 82); pass [] to attach none.
+      def self.from_string(text, language_code: nil, suppressions: nil)
         text ||= ""
         range = source_range_for_string(text, 0)
         new(
@@ -24,7 +26,8 @@ module Kotoshu
                                     flattened_offset: 0, format: :plain, metadata: {})],
           source: text,
           format: :plain,
-          language_code: language_code
+          language_code: language_code,
+          suppressions: suppressions
         )
       end
 

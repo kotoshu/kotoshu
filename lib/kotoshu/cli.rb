@@ -61,6 +61,7 @@ module Kotoshu
     autoload :PersonalCommand, "kotoshu/cli/personal_command"
     autoload :InteractiveReviewer, "kotoshu/cli/interactive_reviewer"
     autoload :BatchReporter, "kotoshu/cli/batch_reporter"
+    autoload :BaselineCommand, "kotoshu/cli/baseline_command"
     autoload :AutoSetup, "kotoshu/cli/auto_setup"
     autoload :StatusReport, "kotoshu/cli/status_report"
     autoload :LanguageResolver, "kotoshu/cli/language_resolver"
@@ -117,16 +118,23 @@ module Kotoshu
           2 — usage error (bad flags, file not found)
           3 — language not set up (run `kotoshu setup LANG`)
       DESC
+      method_option :baseline,
+                    type: :string,
+                    desc: "Baseline JSON file — errors it covers pass, only new errors fail (see `kotoshu baseline init`)"
+      method_option :show_suppressed,
+                    type: :boolean,
+                    default: false,
+                    desc: "List entries suppressed by inline directives or the baseline"
       def check(target = nil)
         apply_configuration!
-
         text, source = read_target(target)
         result = run_check(text)
-        display_result(result, source)
+        application = apply_baseline(result, source)
+        result = application.result if application
+        display_result(result, source, application: application)
         interactive_review(result, source) if options[:interactive] && result.failed?
         exit 1 if result.failed?
       end
-
       desc "setup [LANGUAGE] [LANGUAGE ...]", "Set up languages (download or register local files)"
       long_desc <<~DESC
         Stage 1 of the two-stage model. Downloads spelling/frequency/model
@@ -263,6 +271,8 @@ module Kotoshu
 
       desc "completions SUBCOMMAND", "Emit shell completion scripts"
       subcommand "completions", CompletionsCommand
+      desc "baseline SUBCOMMAND", "CI baseline management (see `check --baseline`)"
+      subcommand "baseline", BaselineCommand
 
       desc "status", "Show setup, cache, and runtime status"
       long_desc <<~DESC
@@ -421,6 +431,22 @@ module Kotoshu
         JSON.pretty_generate(payload)
       end
 
+      # Load the --baseline file and apply it to +result+ (count-based
+      # semantics; see Kotoshu::Baseline). Returns nil when no baseline
+      # was given.
+      def apply_baseline(result, source)
+        path = options[:baseline]
+        return nil unless path
+
+        raise Errors::UsageError, "Baseline file not found: #{path}" unless File.exist?(path)
+
+        Kotoshu::Baseline::Store.load(path).apply(result, file: source)
+      rescue Errors::UsageError
+        raise
+      rescue StandardError => e
+        raise Errors::UsageError, "Invalid baseline file #{path}: #{e.message}"
+      end
+
       def read_target(target)
         if target.nil?
           [$stdin.read, "<stdin>"]
@@ -485,22 +511,23 @@ module Kotoshu
         langs.each { |lang| puts "  #{lang}" }
       end
 
-      def display_result(result, source)
+      def display_result(result, source, application: nil)
         case options[:format]
         when "json"
-          puts format_as_json(result, source)
+          puts format_as_json(result, source, application: application)
         when "sarif"
-          puts format_as_sarif(result, source)
+          puts format_as_sarif(result, source, application: application,
+                                               include_suppressed: options[:show_suppressed])
         else
-          puts format_as_text(result, source)
+          puts format_as_text(result, source, application: application)
         end
       end
 
-      def format_as_text(result, source)
+      def format_as_text(result, source, application: nil)
+        lines = []
         if result.success?
-          "OK #{source} (#{result.word_count} words, no errors)"
+          lines << "OK #{source} (#{result.word_count} words, no errors)"
         else
-          lines = []
           lines << "FAIL #{source} (#{result.error_count} errors)"
           result.each_error do |error|
             suggestions_str = if error.has_suggestions?
@@ -510,8 +537,21 @@ module Kotoshu
                               end
             lines << "  #{error.word}#{suggestions_str}"
           end
-          lines.join("\n")
         end
+        if application && application.suppressed_count.positive?
+          lines << "#{application.suppressed_count} error(s) suppressed by baseline"
+        end
+        if application && application.stale_count.positive?
+          noun = application.stale_count == 1 ? "entry" : "entries"
+          lines << "Baseline: #{application.stale_count} stale #{noun} (no longer present) - " \
+                   "refresh with `kotoshu baseline init`"
+        end
+        if options[:show_suppressed] && result.suppressed_count.positive?
+          result.suppressed_errors.each do |error|
+            lines << "  suppressed [#{error.suppressed_by}]: #{error.word}"
+          end
+        end
+        lines.join("\n")
       end
 
       # Documented machine-readable shape (see CHANGELOG): top-level
@@ -519,46 +559,42 @@ module Kotoshu
       # `source`. The derived top-level keys are composed here in the
       # presenter; each error element serializes through lutaml-model
       # (WordResult) so no hand-rolled model serialization exists.
-      def format_as_json(result, source)
+      def format_as_json(result, source, application: nil)
         require "json"
-
         payload = {
           "success" => result.success?,
           "wordCount" => result.word_count,
           "errorCount" => result.error_count,
           "uniqueErrorCount" => result.unique_error_count,
           "errors" => result.errors.map { |err| Models::Result::WordResult.as_json(err) },
+          "suppressedCount" => result.suppressed_count,
+          "suppressedErrors" => result.suppressed_errors.map do |err|
+            Models::Result::WordResult.as_json(err)
+          end,
           "source" => source
         }
+        if application
+          payload["baseline"] = {
+            "suppressedCount" => application.suppressed_count,
+            "staleCount" => application.stale_count
+          }
+        end
         JSON.pretty_generate(payload)
       end
 
-      def format_as_sarif(result, source)
+      def format_as_sarif(result, source, application: nil, include_suppressed: false)
         require "json"
-
-        results = result.errors.map do |err|
-          suggestions = err.top_suggestions(3)
-          suggestion_text = suggestions.empty? ? "" : " Suggestions: #{suggestions.join(', ')}"
-          {
-            "ruleId" => "kotoshu/spelling",
-            "level" => "warning",
-            "message" => {
-              "text" => "'#{err.word}' is not in the dictionary.#{suggestion_text}"
-            },
-            "locations" => [
-              {
-                "physicalLocation" => {
-                  "artifactLocation" => { "uri" => source_for_sarif(source) },
-                  "region" => {
-                    "charOffset" => err.position || 0,
-                    "charLength" => err.word.length
-                  }
-                }
-              }
-            ]
-          }
+        results = result.errors.map { |err| sarif_result_for(err, source, level: "warning") }
+        if application
+          result.suppressed_errors
+            .select { |err| err.suppressed_by == Models::Result::WordResult::SUPPRESSED_BY_BASELINE }
+            .each { |err| results << sarif_result_for(err, source, level: "note", suppressed_by: "baseline") }
         end
-
+        if include_suppressed
+          result.suppressed_errors
+            .select { |err| err.suppressed_by == Models::Result::WordResult::SUPPRESSED_BY_INLINE }
+            .each { |err| results << sarif_result_for(err, source, level: "note", suppressed_by: "inline") }
+        end
         sarif = {
           "version" => "2.1.0",
           "$schema" => "https://json.schemastore.org/sarif-2.1.0.json",
@@ -585,6 +621,38 @@ module Kotoshu
           ]
         }
         JSON.pretty_generate(sarif)
+      end
+
+      # Build one SARIF result object for +err+. Suppressed entries carry a
+      # suppressions entry (kind external / status accepted) so SARIF
+      # consumers show them as suppressed rather than dropped (plan 82).
+      def sarif_result_for(err, source, level:, suppressed_by: nil)
+        suggestions = err.top_suggestions(3)
+        suggestion_text = suggestions.empty? ? "" : " Suggestions: #{suggestions.join(', ')}"
+        result = {
+          "ruleId" => "kotoshu/spelling",
+          "level" => level,
+          "message" => {
+            "text" => "'#{err.word}' is not in the dictionary.#{suggestion_text}"
+          },
+          "locations" => [
+            {
+              "physicalLocation" => {
+                "artifactLocation" => { "uri" => source_for_sarif(source) },
+                "region" => {
+                  "charOffset" => err.position || 0,
+                  "charLength" => err.word.length
+                }
+              }
+            }
+          ]
+        }
+        if suppressed_by
+          result["suppressions"] = [
+            { "kind" => "external", "status" => "accepted", "justification" => suppressed_by }
+          ]
+        end
+        result
       end
 
       def source_for_sarif(source)
