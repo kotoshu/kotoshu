@@ -17,7 +17,7 @@ module Kotoshu
       # curated here rather than introspected from Thor (whose
       # `description` field is often terse).
       COMMANDS = [
-        Command.new(name: "check",       description: "Check spelling in a file or stdin"),
+        Command.new(name: "check",       description: "Check spelling in files, directories, or stdin"),
         Command.new(name: "setup",       description: "Set up languages (download or register local files)"),
         Command.new(name: "status",      description: "Show setup, cache, and runtime status"),
         Command.new(name: "dict",        description: "Dictionary operations"),

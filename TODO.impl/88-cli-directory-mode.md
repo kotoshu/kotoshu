@@ -33,4 +33,22 @@ doubles.
 
 ## Status
 
-**Pending.**
+**Implemented 2026-09-05 (gem PR feat/cli-directory-mode).**
+`kotoshu check FILE [DIR ...]`: DirectoryWalker selects known text
+extensions by default (md markdown asciidoc adoc txt rst mdx) with
+--include/--exclude globs replacing/overriding the default
+(slashless globs match basenames, slashed globs match the path from
+the root); hidden entries and .git/node_modules/vendor/target are
+always skipped. IgnoreMatcher implements the .gitignore/.ignore
+glob subset in Ruby (no shelling out): * ? ** anchoring trailing-/
+directory patterns ! negation with last-match-wins, nested
+scoping, and git-style no-re-include under ignored directories.
+Output: per-file text sections + summary; one combined JSON
+document (fileCount/wordCount/errorCount/files[] with the
+single-file payload keys); one SARIF run per file. --baseline
+applies per file unchanged; exit codes unchanged; interactive mode
+prints a file-only notice for directory targets. Single-file and
+stdin paths are byte-identical (the single-file code path is
+preserved verbatim). Behavior specs run the real CLI against real
+tmpdir trees with the real en dictionary from committed fixtures -
+no network, no doubles.

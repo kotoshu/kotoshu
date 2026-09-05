@@ -66,6 +66,9 @@ module Kotoshu
     autoload :StatusReport, "kotoshu/cli/status_report"
     autoload :LanguageResolver, "kotoshu/cli/language_resolver"
     autoload :ProgressReporter, "kotoshu/cli/progress_reporter"
+    autoload :IgnoreMatcher, "kotoshu/cli/ignore_matcher"
+    autoload :DirectoryWalker, "kotoshu/cli/directory_walker"
+    autoload :DirectoryCheck, "kotoshu/cli/directory_check"
 
     # Command-line interface for Kotoshu spell checker.
     #
@@ -107,10 +110,23 @@ module Kotoshu
                    desc: "Enable verbose output",
                    aliases: ["-v"]
 
-      desc "check [FILE]", "Check spelling in a file or stdin"
+      desc "check [FILE] [DIR ...]", "Check spelling in files, directories, or stdin"
       long_desc <<~DESC
-        Checks spelling in the given file (or stdin if no file is given).
-        Cache-only — never downloads. Run `kotoshu setup LANG` first.
+        Checks spelling in the given file (or stdin if no target is
+        given). Cache-only — never downloads. Run `kotoshu setup LANG`
+        first.
+
+        Directory targets (plan 88): walks the tree and checks every
+        file with a known text extension (md markdown asciidoc adoc
+        txt rst mdx), unless --include/--exclude globs say otherwise.
+        Hidden files and the .git, node_modules, vendor and target
+        directories are always skipped, and .gitignore/.ignore files
+        are honored (standard glob subset: *, **, ?, ! negation,
+        trailing / for directories; the last matching pattern wins; a
+        file inside an ignored directory cannot be re-included).
+        Output is one section per file in text mode, and one combined
+        JSON/SARIF document with per-file runs otherwise. Interactive
+        mode is file-only.
 
         Exit codes:
           0 — no errors
@@ -125,16 +141,22 @@ module Kotoshu
                     type: :boolean,
                     default: false,
                     desc: "List entries suppressed by inline directives or the baseline"
-      def check(target = nil)
+      method_option :include,
+                    type: :array,
+                    desc: "Check only files matching these globs (replaces the known-extension default; " \
+                          "a glob without a slash matches the basename, with a slash the path from the root)"
+      method_option :exclude,
+                    type: :array,
+                    desc: "Skip files matching these globs (always wins over --include and the extension default)"
+      def check(*targets)
         apply_configuration!
-        text, source = read_target(target)
-        result = run_check(text)
-        application = apply_baseline(result, source)
-        result = application.result if application
-        display_result(result, source, application: application)
-        interactive_review(result, source) if options[:interactive] && result.failed?
-        exit 1 if result.failed?
+        if targets.empty? || (targets.one? && File.file?(targets.first))
+          check_single_file(targets.first)
+        else
+          check_targets(targets)
+        end
       end
+
       desc "setup [LANGUAGE] [LANGUAGE ...]", "Set up languages (download or register local files)"
       long_desc <<~DESC
         Stage 1 of the two-stage model. Downloads spelling/frequency/model
@@ -561,7 +583,15 @@ module Kotoshu
       # (WordResult) so no hand-rolled model serialization exists.
       def format_as_json(result, source, application: nil)
         require "json"
-        payload = {
+        payload = result_json_fields(result, source)
+        payload["baseline"] = baseline_json_fields(application) if application
+        JSON.pretty_generate(payload)
+      end
+
+      # Per-result JSON fields shared by single-file and directory
+      # output.
+      def result_json_fields(result, source)
+        {
           "success" => result.success?,
           "wordCount" => result.word_count,
           "errorCount" => result.error_count,
@@ -573,17 +603,58 @@ module Kotoshu
           end,
           "source" => source
         }
-        if application
-          payload["baseline"] = {
-            "suppressedCount" => application.suppressed_count,
-            "staleCount" => application.stale_count
-          }
-        end
-        JSON.pretty_generate(payload)
+      end
+
+      # Baseline block for the JSON output.
+      def baseline_json_fields(application)
+        {
+          "suppressedCount" => application.suppressed_count,
+          "staleCount" => application.stale_count
+        }
       end
 
       def format_as_sarif(result, source, application: nil, include_suppressed: false)
+        JSON.pretty_generate(
+          sarif_document([
+                           sarif_run(result, source,
+                                     application: application, include_suppressed: include_suppressed)
+                         ])
+        )
+      end
+
+      # The SARIF tool/driver descriptor, shared by every run.
+      def sarif_tool
+        {
+          "driver" => {
+            "name" => "kotoshu",
+            "version" => Kotoshu::VERSION,
+            "informationUri" => "https://github.com/kotoshu/kotoshu",
+            "rules" => [
+              {
+                "id" => "kotoshu/spelling",
+                "name" => "SpellingError",
+                "shortDescription" => {
+                  "text" => "Word not found in the active dictionary."
+                }
+              }
+            ]
+          }
+        }
+      end
+
+      # Wrap runs into one SARIF 2.1.0 document. Directory mode emits
+      # one run per file (plan 88).
+      def sarif_document(runs)
         require "json"
+        {
+          "version" => "2.1.0",
+          "$schema" => "https://json.schemastore.org/sarif-2.1.0.json",
+          "runs" => runs
+        }
+      end
+
+      # Build one SARIF run for a single file result.
+      def sarif_run(result, source, application: nil, include_suppressed: false)
         results = result.errors.map { |err| sarif_result_for(err, source, level: "warning") }
         if application
           result.suppressed_errors
@@ -595,32 +666,7 @@ module Kotoshu
             .select { |err| err.suppressed_by == Models::Result::WordResult::SUPPRESSED_BY_INLINE }
             .each { |err| results << sarif_result_for(err, source, level: "note", suppressed_by: "inline") }
         end
-        sarif = {
-          "version" => "2.1.0",
-          "$schema" => "https://json.schemastore.org/sarif-2.1.0.json",
-          "runs" => [
-            {
-              "tool" => {
-                "driver" => {
-                  "name" => "kotoshu",
-                  "version" => Kotoshu::VERSION,
-                  "informationUri" => "https://github.com/kotoshu/kotoshu",
-                  "rules" => [
-                    {
-                      "id" => "kotoshu/spelling",
-                      "name" => "SpellingError",
-                      "shortDescription" => {
-                        "text" => "Word not found in the active dictionary."
-                      }
-                    }
-                  ]
-                }
-              },
-              "results" => results
-            }
-          ]
-        }
-        JSON.pretty_generate(sarif)
+        { "tool" => sarif_tool, "results" => results }
       end
 
       # Build one SARIF result object for +err+. Suppressed entries carry a
@@ -727,6 +773,100 @@ module Kotoshu
         puts "Review complete: #{accepted.size} accepted, #{skipped.size} skipped, " \
              "#{errors.size - accepted.size - skipped.size} unhandled."
         puts "Note: 0.3 records decisions but does not rewrite source files." unless accepted.empty?
+      end
+
+      # Single-file / stdin check (the pre-directory-mode behavior,
+      # unchanged).
+      def check_single_file(target)
+        text, source = read_target(target)
+        result = run_check(text)
+        application = apply_baseline(result, source)
+        result = application.result if application
+        display_result(result, source, application: application)
+        interactive_review(result, source) if options[:interactive] && result.failed?
+        exit 1 if result.failed?
+      end
+
+      # Multi-target / directory check (plan 88).
+      def check_targets(targets)
+        targets.each do |target|
+          raise Errors::UsageError, "File not found: #{target}" unless File.exist?(target)
+        end
+
+        runner = DirectoryCheck.new(
+          targets,
+          check: method(:run_check),
+          baseline_path: options[:baseline],
+          include_globs: Array(options[:include]),
+          exclude_globs: Array(options[:exclude])
+        )
+        runner.run
+        display_directory_result(runner)
+        if options[:interactive]
+          warn "# Interactive mode is file-only; skipping interactive review for directory targets"
+        end
+        exit 1 if runner.failed?
+      end
+
+      # Render the directory-mode result in the selected format.
+      def display_directory_result(runner)
+        case options[:format]
+        when "json"
+          puts directory_json(runner)
+        when "sarif"
+          puts directory_sarif(runner)
+        else
+          puts directory_text(runner)
+        end
+      end
+
+      # Text output: one section per file (the same section the
+      # single-file mode prints), plus a summary line.
+      def directory_text(runner)
+        if runner.file_count.zero?
+          extensions = DirectoryWalker::TEXT_EXTENSIONS.join(" ")
+          return "No text files found to check (known extensions: #{extensions})"
+        end
+
+        sections = runner.outcomes.map do |outcome|
+          format_as_text(outcome.result, outcome.path, application: outcome.application)
+        end
+        file_noun = runner.file_count == 1 ? "file" : "files"
+        error_noun = runner.error_count == 1 ? "error" : "errors"
+        sections << "#{runner.file_count} #{file_noun} checked, " \
+                    "#{runner.word_count} words, #{runner.error_count} #{error_noun}"
+        sections.join("\n\n")
+      end
+
+      # Combined JSON document: totals plus one entry per file.
+      def directory_json(runner)
+        require "json"
+        payload = {
+          "success" => !runner.failed?,
+          "fileCount" => runner.file_count,
+          "wordCount" => runner.word_count,
+          "errorCount" => runner.error_count,
+          "suppressedCount" => runner.suppressed_count,
+          "files" => runner.outcomes.map { |outcome| file_json(outcome) }
+        }
+        JSON.pretty_generate(payload)
+      end
+
+      # Per-file JSON entry: the single-file payload keys.
+      def file_json(outcome)
+        payload = result_json_fields(outcome.result, outcome.path)
+        payload["baseline"] = baseline_json_fields(outcome.application) if outcome.application
+        payload
+      end
+
+      # Combined SARIF document: one run per file (plan 88).
+      def directory_sarif(runner)
+        runs = runner.outcomes.map do |outcome|
+          sarif_run(outcome.result, outcome.path,
+                    application: outcome.application,
+                    include_suppressed: options[:show_suppressed])
+        end
+        JSON.pretty_generate(sarif_document(runs))
       end
     end
   end

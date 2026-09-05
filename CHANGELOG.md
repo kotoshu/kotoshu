@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- **CLI directory mode** (plan 88) - `kotoshu check DIR [DIR ...]`
+  walks trees and checks every file with a known text extension
+  (md markdown asciidoc adoc txt rst mdx) unless `--include` /
+  `--exclude` globs say otherwise. `.gitignore` and `.ignore` files
+  are honored through a standard glob subset implemented in Ruby
+  (`*`, `?`, `**` as a whole segment, `!` negation with last-match
+  wins, trailing `/` for directory-only patterns, anchoring, nested
+  scoping; files inside ignored directories cannot be re-included).
+  Hidden files and `.git` / `node_modules` / `vendor` / `target` are
+  skipped by default. Text output prints one section per file plus a
+  summary; JSON and SARIF emit one combined document with per-file
+  entries/runs; `--baseline` applies per file as shipped; exit codes
+  are unchanged; interactive mode stays file-only with an explicit
+  notice for directory targets. Single-file and stdin behavior is
+  byte-identical to before.
 - **Wave-1 language modules and keyboard layouts** (plan 84) -
   language modules for the thirteen model-registry newcomers (ca cs
   da el hu it nl pl ro sv tr uk vi): thin compositions over the shared
