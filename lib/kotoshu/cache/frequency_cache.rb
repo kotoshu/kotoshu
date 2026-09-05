@@ -86,7 +86,7 @@ module Kotoshu
                        "language" => language_code,
                        "type" => "kelly_frequency",
                        "source" => "local",
-                       "checksum" => checksum(File.read(path)),
+                       "checksum" => checksum(File.binread(path)),
                        "cached_at" => Time.now.utc.iso8601)
 
         { frequency_path: target_frequency, metadata_path: target_metadata, source: :local }
@@ -133,7 +133,7 @@ module Kotoshu
         JSON.parse(response)
 
         # Save frequency file
-        File.write(frequency_file, response)
+        File.binwrite(frequency_file, response)
 
         # Save metadata
         metadata = {

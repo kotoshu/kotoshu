@@ -610,7 +610,7 @@ RSpec.describe Kotoshu::Dictionary do
         Dir.mktmpdir do |dir|
           aff_path = File.join(dir, "numalias.aff")
           dic_path = File.join(dir, "numalias.dic")
-          File.write(aff_path, <<~AFF)
+          File.binwrite(aff_path, <<~AFF)
             FLAG num
 
             AF 4
@@ -631,7 +631,7 @@ RSpec.describe Kotoshu::Dictionary do
             PFX 54321 Y 1
             PFX 54321 0 un .
           AFF
-          File.write(dic_path, "1\nfoo/1\n")
+          File.binwrite(dic_path, "1\nfoo/1\n")
 
           dict = described_class.new(aff_path: aff_path, dic_path: dic_path, language_code: "en")
           %w[foo foos foosbar foosbaz unfoo unfoos unfoosbar unfoosbaz].each do |word|
