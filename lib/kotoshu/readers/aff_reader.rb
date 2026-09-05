@@ -56,48 +56,56 @@ module Kotoshu
       # @param source [FileReader, nil] Optional file reader to use instead of creating a new one
       # @return [Hash] The aff data structure
       def read(source = nil)
+        owned = source.nil?
         reader = source || FileReader.new(@path, @encoding)
 
-        data = {
-          'SFX' => {},
-          'PFX' => {},
-          'FLAG' => 'short'
-        }
+        begin
+          data = {
+            'SFX' => {},
+            'PFX' => {},
+            'FLAG' => 'short'
+          }
 
-        reader.each do |_line_no, line|
-          dir_value = read_directive(reader, line)
-          next unless dir_value
+          reader.each do |_line_no, line|
+            dir_value = read_directive(reader, line)
+            next unless dir_value
 
-          directive, value = dir_value
+            directive, value = dir_value
 
-          # Update flag format when FLAG directive is encountered (BEFORE using it)
-          if directive == 'FLAG'
-            @flag_format = value
+            # Update flag format when FLAG directive is encountered (BEFORE using it)
+            if directive == 'FLAG'
+              @flag_format = value
+            end
+
+            # Re-parse FLAG directive value now that @flag_format is updated
+            if directive == 'FLAG' && value.is_a?(String)
+              # No re-parsing needed for FLAG, just update the format
+            end
+
+            # SFX/PFX have multiple entries
+            if %w[SFX PFX].include?(directive)
+              data[directive][value.first.flag] = value
+            else
+              data[directive] = value
+            end
+
+            # Update flag synonyms when AF directive is encountered (AFTER storing it)
+            if directive == 'AF'
+              @flag_synonyms = value
+            end
+
+            # Note: We don't reset_encoding during iteration because it closes
+            # the file and breaks the iteration. The FileReader is initialized
+            # with UTF-8 encoding which handles most cases.
           end
 
-          # Re-parse FLAG directive value now that @flag_format is updated
-          if directive == 'FLAG' && value.is_a?(String)
-            # No re-parsing needed for FLAG, just update the format
-          end
-
-          # SFX/PFX have multiple entries
-          if %w[SFX PFX].include?(directive)
-            data[directive][value.first.flag] = value
-          else
-            data[directive] = value
-          end
-
-          # Update flag synonyms when AF directive is encountered (AFTER storing it)
-          if directive == 'AF'
-            @flag_synonyms = value
-          end
-
-          # Note: We don't reset_encoding during iteration because it closes
-          # the file and breaks the iteration. The FileReader is initialized
-          # with UTF-8 encoding which handles most cases.
+          data
+        ensure
+          # Close the reader only when we created it. If the caller passed
+          # one in, they own its lifecycle. Without this, the underlying
+          # File handle leaks (on Windows it also blocks tempfile cleanup).
+          reader.close if owned
         end
-
-        data
       end
 
       private
