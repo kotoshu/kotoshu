@@ -31,6 +31,8 @@ module Kotoshu
       autoload :PortugueseTokenizer, "kotoshu/language/tokenizer/portuguese_tokenizer"
       autoload :RussianTokenizer, "kotoshu/language/tokenizer/russian_tokenizer"
       autoload :JapaneseTokenizer, "kotoshu/language/tokenizer/japanese_tokenizer"
+      autoload :GreekTokenizer, "kotoshu/language/tokenizer/greek_tokenizer"
+      autoload :CyrillicTokenizer, "kotoshu/language/tokenizer/cyrillic_tokenizer"
     end
 
     module Normalizer
@@ -38,6 +40,8 @@ module Kotoshu
       autoload :Arabic, "kotoshu/language/normalizer/arabic"
       autoload :Hebrew, "kotoshu/language/normalizer/hebrew"
       autoload :Persian, "kotoshu/language/normalizer/persian"
+      autoload :Greek, "kotoshu/language/normalizer/greek"
+      autoload :Turkish, "kotoshu/language/normalizer/turkish"
     end
 
     # Base class for per-language implementations (Kotoshu::Languages::*).

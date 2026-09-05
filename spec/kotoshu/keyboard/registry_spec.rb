@@ -90,7 +90,7 @@ RSpec.describe Kotoshu::Keyboard::Registry do
   describe '.available_layouts' do
     it 'returns all registered layouts' do
       layouts = described_class.available_layouts
-      expect(layouts.size).to eq(5) # QWERTY, QWERTZ, AZERTY, JCUKEN, Dvorak
+      expect(layouts.size).to eq(19) # 5 original + 3 national + 11 Latin family
     end
 
     it 'returns layout instances' do
@@ -101,7 +101,12 @@ RSpec.describe Kotoshu::Keyboard::Registry do
     it 'includes all expected layouts' do
       layouts = described_class.available_layouts
       layout_names = layouts.map(&:name).sort
-      expect(layout_names).to eq(%w[AZERTY Dvorak JCUKEN QWERTY QWERTZ])
+      expect(layout_names).to eq(
+        %w[AZERTY Catalan-QWERTY Czech-QWERTZ Danish-QWERTY Dutch-QWERTY Dvorak
+           Greek-Phonetic Hungarian-QWERTZ Italian-QWERTY JCUKEN Norwegian-QWERTY
+           Polish-QWERTY QWERTY QWERTZ Romanian-QWERTY Swedish-QWERTY
+           Turkish-Q Ukrainian-JCUKEN Vietnamese-QWERTY]
+      )
     end
   end
 
