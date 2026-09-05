@@ -122,6 +122,19 @@ The remaining SOTA items are planned as
 [75 (LLM-as-evaluator)](75-llm-evaluator.md), and
 [76 (optional external LLM backend, gated on demand)](76-optional-llm-backend.md).
 
+Plans 77–82 are the **adoption wave** (owner ask 2026-09-05: are the
+models comprehensive, how do we cover more places, docs + news):
+closing the verified user gaps after all channels went live.
+
+| # | Plan | Gap it closes |
+|---|---|---|
+| 77 | [Model coverage expansion](77-model-coverage-expansion.md) | Semantic models cover 9 languages vs 98 dictionaries — expand to 25+ |
+| 78 | [In-browser playground](78-in-browser-playground.md) | /playground needs a running server; @kotoshu/wasm enables zero-install |
+| 79 | [News + releases](79-news-and-releases.md) | No news surface on the site; seven registries shipped invisibly |
+| 80 | [Ecosystem docs](80-ecosystem-docs.md) | Docs are gem-only; pip/npm/cargo/go/HTTP/LSP/Action users have no path in |
+| 81 | [Editor reach](81-editor-reach.md) | kotoshu-lsp shipped but no VS Code package; no pre-commit hook (supersedes 61 remainder) |
+| 82 | [Document ignores + baselines](82-doc-formats-and-ignores.md) | No inline suppressions; no CI baseline freeze |
+
 Dependency order across the ecosystem track:
 
 ```
