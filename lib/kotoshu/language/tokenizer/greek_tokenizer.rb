@@ -36,6 +36,15 @@ module Kotoshu
           /\p{Greek}/
         end
 
+        # Spell-check word characters (plan 91): Greek letters plus the
+        # apostrophe, which is not a Greek separator so elisions such
+        # as απ’ keep it in-word.
+        #
+        # @return [Regexp] Regex matching a single word character
+        def spellcheck_word_regex
+          /[\p{Greek}']/
+        end
+
         # Check if token should be skipped.
         #
         # Skips tokens that contain no Greek letters; Base's rules

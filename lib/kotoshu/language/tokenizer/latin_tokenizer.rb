@@ -56,6 +56,18 @@ module Kotoshu
           /[#{WORD_CHARS}]/o
         end
 
+        # Spell-check word characters (plan 91): Latin-script letters
+        # plus the apostrophe, mirroring the Greek/Cyrillic overrides
+        # (\p{Latin} covers the accented letters WORD_CHARS spells out
+        # by range, including capitals such as Å and Ä). Digits are
+        # excluded so number handling is unchanged from the ASCII-era
+        # extraction.
+        #
+        # @return [Regexp] Regex matching a single word character
+        def spellcheck_word_regex
+          /[\p{Latin}']/
+        end
+
         # Normalize token.
         #
         # Subclasses can override for language-specific normalization.

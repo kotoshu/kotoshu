@@ -38,6 +38,16 @@ module Kotoshu
           /\p{Cyrillic}/
         end
 
+        # Spell-check word characters (plan 91): the Cyrillic letters
+        # and apostrophe this tokenizer already declares in
+        # #word_chars (Ukrainian names like Мар'яна keep the
+        # apostrophe in-word).
+        #
+        # @return [Regexp] Regex matching a single word character
+        def spellcheck_word_regex
+          /[#{word_chars}]/o
+        end
+
         # Check if token should be skipped.
         #
         # Skips tokens that contain no Cyrillic letters; Base's rules

@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- **Unicode word detection** (plan 91 Track A) - `Spellchecker` word
+  extraction accepted only ASCII letters, so Greek and Ukrainian users
+  could not check any text through the CLI. Extraction now follows the
+  configured language's tokenizer: Greek words for `el`, Cyrillic for
+  `uk` (in-word apostrophe included, for names like Мар'яна), and
+  Latin-script letters including capitals such as Å and Ä for Latin
+  languages. Wrong-script words stay uncheckable; languages without a
+  script tokenizer (en, de, ...) keep the historical ASCII behavior;
+  the frozen conformance vectors are unchanged.
+- **Swedish aff parsing** (plan 91 Track B) - `Readers::AffReader`
+  raised `RegexpError: unmatched close parenthesis` on the Swedish
+  dictionary (dictionaries pin 1829a3e). `COMPOUNDRULE )k` uses `)`
+  itself as a flag character, but the rule compiler escaped it only in
+  some positions. Every flag character is now escaped at compile time,
+  so the dictionary loads and its compound rules match.
 ### Added
 - **Framework integrations** (plan 89) - four opt-in integration
   layers, all inside the gem with NO new runtime dependencies

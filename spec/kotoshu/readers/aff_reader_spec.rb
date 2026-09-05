@@ -484,4 +484,36 @@ RSpec.describe Kotoshu::Readers::AffReader do
       end
     end
   end
+
+  describe "COMPOUNDRULE" do
+    it "parses rules whose flag characters are regex metacharacters" do
+      # Minimal slice of the real Swedish aff (dictionaries pin 1829a3e).
+
+      # The aff comments read "for adjectives: )k" and "for verbs: >j":
+
+      # ) and > are single-character flags, and the rule must compile.
+
+      aff = read_aff(<<~AFF)
+
+        SET UTF-8
+
+        COMPOUNDRULE 2
+
+        COMPOUNDRULE >j
+
+        COMPOUNDRULE )k
+
+      AFF
+
+      rules = aff["COMPOUNDRULE"]
+
+      expect(rules.map(&:text)).to eq([">j", ")k"])
+
+      expect(rules.last.flags).to eq(Set.new([")", "k"]))
+
+      expect(rules.last.fullmatch([Set.new([")"]), Set.new(["k"])])).to be true
+
+      expect(rules.first.fullmatch([Set.new([">"]), Set.new(["j"])])).to be true
+    end
+  end
 end

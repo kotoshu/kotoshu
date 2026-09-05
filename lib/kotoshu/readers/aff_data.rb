@@ -231,9 +231,13 @@ module Kotoshu
           parts = text.scan(/\([^*?]+?\)[*?]?/)
         else
           @flags = text.gsub(/[*?]/, '').chars.to_set
-          # Handle ) as a flag character (used in sv dictionaries)
-          parts = text.gsub(/(?<=[^*?])\)/, '\\)').gsub(/([^*?])/, '\1')
-            .scan(/[^*?][*?]?/)
+          # A flag character may itself be a regex metacharacter. Escape each
+          # flag so it compiles as a literal, keeping a trailing * or ?
+          # operator intact. The Swedish dictionary uses ) as a flag
+          # (COMPOUNDRULE )k, dictionaries pin 1829a3e).
+          parts = text.scan(/[^*?][*?]?/).map do |part|
+            "#{Regexp.escape(part[0])}#{part[1..]}"
+          end
         end
 
         # Full-match regex: the entire flag-combination string must match.
