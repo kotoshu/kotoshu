@@ -48,13 +48,18 @@ RSpec.describe "keyboard layout sync with the models repo eval grids" do
     return File.join(explicit, "eval/noise.py") if explicit
 
     # The models repo is a workspace sibling; walk ancestors so the
-    # check also works from git worktrees deeper in the tree.
+    # check also works from git worktrees deeper in the tree. The
+    # fixed-point comparison terminates on Windows too, where
+    # File.dirname of a drive root returns the root itself.
     dir = File.dirname(__dir__)
-    until dir == "/"
+    loop do
       candidate = File.join(dir, "models-fasttext-onnx/eval/noise.py")
       return candidate if File.exist?(candidate)
 
-      dir = File.dirname(dir)
+      parent = File.dirname(dir)
+      break if parent == dir
+
+      dir = parent
     end
     nil
   end
