@@ -22,6 +22,11 @@ gem "onnxruntime", "~> 0.10"
 gem "suika", "~> 0.3"
 
 group :development, :test do
+  # Soft test-only deps for the framework integrations (plan 89):
+  # NOT in kotoshu.gemspec. Specs guard on load and skip when the
+  # gem is absent.
+  gem "activemodel"
+  gem "jekyll", "~> 4.0"
   gem "asciidoctor", "~> 2.0"
   gem "benchmark", "~> 0.4"
   gem "benchmark-ips", "~> 2.12"

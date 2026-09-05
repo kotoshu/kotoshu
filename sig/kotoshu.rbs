@@ -202,6 +202,72 @@ module Kotoshu
     end
   end
 
+  module Validators
+    ACTIVE_MODEL_LOADED: bool
+
+    class ActiveModelUnavailable < Kotoshu::Error
+      def initialize: () -> void
+    end
+
+    class SpellingValidator
+      def initialize: (untyped options) -> void
+      def validate_each: (untyped record, untyped attribute, untyped value) -> void
+    end
+  end
+
+  module Rspec
+    module Matchers
+      def expect_words: (*String words) -> untyped
+      def expect_document: (String path) -> untyped
+      def all_be_spelled_correctly: () -> AllWordsSpelledCorrectlyMatcher
+      def be_spelled_correctly: (?in: (String | Symbol)? language) -> SpelledCorrectlyMatcher
+
+      class AllWordsSpelledCorrectlyMatcher
+        def matches?: (untyped words) -> bool
+        def failure_message: () -> String
+        def failure_message_when_negated: () -> String
+        def description: () -> String
+      end
+
+      class SpelledCorrectlyMatcher
+        def initialize: (?language: (String | Symbol)? language) -> void
+        def matches?: (untyped target) -> bool
+        def failure_message: () -> String
+        def failure_message_when_negated: () -> String
+        def description: () -> String
+      end
+    end
+  end
+
+  module Tasks
+    class CheckTask
+      include Rake::DSL
+
+      def initialize: (?Symbol name) ?{ (CheckTask task) -> void } -> void
+      attr_accessor name (): Symbol
+      attr_accessor files (): (untyped)?
+      attr_accessor root (): String
+      attr_accessor language (): (String | Symbol)?
+      attr_accessor fail_on_error (): bool
+      attr_accessor baseline_path (): (String)?
+      def target_files: () -> Array[String]
+    end
+  end
+
+  module Jekyll
+    JEKYLL_LOADED: bool
+
+    class JekyllUnavailable < Kotoshu::Error
+      def initialize: () -> void
+    end
+
+    class Generator
+      def self.safe: () -> bool
+      def self.priority: () -> Symbol
+      def generate: (untyped site) -> void
+    end
+  end
+
   module Baseline
     class Entry < Lutaml::Model::Serializable
       def initialize: (?file: String?, ?line: Integer, ?word: String, ?count: Integer, **untyped kwargs) -> void

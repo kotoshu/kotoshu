@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- **Framework integrations** (plan 89) - four opt-in integration
+  layers, all inside the gem with NO new runtime dependencies
+  (soft-dependency pattern, like onnxruntime/suika):
+  - `Kotoshu::Validators::SpellingValidator`, an ActiveModel
+    EachValidator (`validates :body, spelling: true` after the
+    documented one-line alias, or `validates_with` directly): one
+    validation error per misspelling with the top suggestion in the
+    message; `language:` and `personal_words:` options. Loads the
+    real ActiveModel standalone - Rails is not required.
+  - RSpec matchers (`require "kotoshu/rspec"` +
+    `include Kotoshu::Rspec::Matchers`):
+    `expect_words("helo").to all_be_spelled_correctly`, and
+    `expect(text) / expect_document(path).to be_spelled_correctly`
+    for words or whole documents, with failure messages that list
+    each misspelling and its suggestions.
+  - Rake task (`require "kotoshu/tasks"`): `rake kotoshu:check`
+    over the repository text files using the plan-88 file selection
+    (known extensions, .gitignore/.ignore, default skips);
+    `Kotoshu::Tasks::CheckTask` exposes files/language/fail_on_error
+    /baseline configuration.
+  - Jekyll generator (`Kotoshu::Jekyll::Generator`, `safe`):
+    checks posts and drafts and fails the build on new spelling
+    errors; a `.kotoshu-baseline.json` in the site source is
+    respected so baselined errors do not block builds.
 - **CLI directory mode** (plan 88) - `kotoshu check DIR [DIR ...]`
   walks trees and checks every file with a known text extension
   (md markdown asciidoc adoc txt rst mdx) unless `--include` /

@@ -53,6 +53,13 @@ module Kotoshu
   autoload :Spellchecker, "kotoshu/spellchecker"
   autoload :StringMetrics, "kotoshu/string_metrics"
   autoload :Suggestions, "kotoshu/suggestions"
+  # Framework integrations (plan 89): soft dependencies, autoloaded
+  # only on reference. The rake task is require-only instead:
+  # `require "kotoshu/tasks"` (it defines a task on load, so an
+  # autoload would surprise).
+  autoload :Validators, "kotoshu/validators"
+  autoload :Rspec, "kotoshu/rspec"
+  autoload :Jekyll, "kotoshu/jekyll"
 
   # ---- Top-level error classes (all defined in core/exceptions.rb) ----
   autoload :Error, "kotoshu/core/exceptions"
