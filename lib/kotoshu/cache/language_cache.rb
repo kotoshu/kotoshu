@@ -27,7 +27,13 @@ module Kotoshu
       RESOURCE_TYPES = %w[spelling grammar frequency].freeze
 
       # Available languages
-      AVAILABLE_LANGUAGES = %w[de en es fr pt ru].freeze
+      # Downloadable spelling languages: the gem-wired language
+      # modules (lib/kotoshu/languages/). Staged-only dictionaries in
+      # the dictionaries repo stay outside this list until their
+      # module lands; local files come via setup --aff/--dic instead.
+      AVAILABLE_LANGUAGES = %w[
+        ca cs da de el en es fr hu it nl pl pt ro ru sv tr uk vi
+      ].freeze
 
       # Get or download spelling dictionary for a language.
       #
