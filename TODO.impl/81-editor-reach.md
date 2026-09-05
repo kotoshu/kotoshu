@@ -59,4 +59,10 @@ CI → B1 hook + docs → B2 (owner) marketplace publish.
 
 ## Status
 
-**Pending.**
+**Track A done (2026-09-05): kotoshu/kotoshu-vscode exists** - TS
+extension wrapping kotoshu-lsp over stdio, diagnostics + quickfix code
+actions + hover, server discovery (setting -> bundler -> PATH) with
+actionable install error, CI green including a vscode-test smoke
+against a misspelling fixture, vsce package artifact gated by a manifest
+check. Marketplace publish remains owner-gated (publisher PAT).
+**Track B done: .pre-commit-hooks.yaml shipped in gem PR #118.**
