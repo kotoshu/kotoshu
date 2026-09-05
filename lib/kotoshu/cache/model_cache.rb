@@ -544,7 +544,7 @@ module Kotoshu
       def read_cached_registry
         return nil unless File.exist?(registry_path) && File.exist?(registry_metadata_path)
 
-        bytes = File.read(registry_path)
+        bytes = File.binread(registry_path)
         metadata = read_metadata(registry_metadata_path)
         expected = metadata && metadata["sha256"]
         return nil unless expected
@@ -572,7 +572,7 @@ module Kotoshu
         end
 
         FileUtils.mkdir_p(File.dirname(registry_path))
-        File.write(registry_path, bytes)
+        File.binwrite(registry_path, bytes)
         write_metadata(registry_metadata_path,
                        "url" => url,
                        "sha256" => Digest::SHA256.hexdigest(bytes),

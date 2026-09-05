@@ -198,7 +198,7 @@ module Kotoshu
                          relative_path: "#{language}/spelling/index.aff",
                          content: aff_content,
                          resource_id: resource_id)
-        File.write(File.join(lang_path, "index.aff"), aff_content)
+        File.binwrite(File.join(lang_path, "index.aff"), aff_content)
 
         # Download index.dic
         dic_url = @source_registry.url_for(:spelling, lang: language, ext: "dic")
@@ -207,7 +207,7 @@ module Kotoshu
                          relative_path: "#{language}/spelling/index.dic",
                          content: dic_content,
                          resource_id: resource_id)
-        File.write(File.join(lang_path, "index.dic"), dic_content)
+        File.binwrite(File.join(lang_path, "index.dic"), dic_content)
 
         # Save metadata
         metadata = build_metadata(language, "spelling", checksum(dic_content))
@@ -236,7 +236,7 @@ module Kotoshu
                          relative_path: "#{language}/grammar/rules.yaml",
                          content: rules_content,
                          resource_id: resource_id)
-        File.write(File.join(lang_path, "rules.yaml"), rules_content)
+        File.binwrite(File.join(lang_path, "rules.yaml"), rules_content)
 
         # Save metadata
         metadata = build_metadata(language, "grammar", checksum(rules_content))

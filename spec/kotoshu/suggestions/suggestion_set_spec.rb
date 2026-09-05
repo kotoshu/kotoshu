@@ -4,8 +4,8 @@ RSpec.describe Kotoshu::Suggestions::SuggestionSet do
   let(:suggestions) do
     [
       Kotoshu::Suggestions::Suggestion.new(word: "hello", distance: 1, confidence: 0.9, source: :edit_distance),
-      Kotoshu::Suggestions::Suggestion.new(word: "help",   distance: 2, confidence: 0.7, source: :ngram),
-      Kotoshu::Suggestions::Suggestion.new(word: "hell",   distance: 1, confidence: 0.8, source: :edit_distance)
+      Kotoshu::Suggestions::Suggestion.new(word: "help", distance: 2, confidence: 0.7, source: :ngram),
+      Kotoshu::Suggestions::Suggestion.new(word: "hell", distance: 1, confidence: 0.8, source: :edit_distance)
     ]
   end
 

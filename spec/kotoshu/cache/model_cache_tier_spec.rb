@@ -39,7 +39,7 @@ RSpec.describe Kotoshu::Cache::ModelCache do
   def seed_cached_registry(json: fixture_json)
     dir = File.join(temp_dir, "registry")
     FileUtils.mkdir_p(dir)
-    File.write(File.join(dir, "registry.json"), json)
+    File.binwrite(File.join(dir, "registry.json"), json)
     File.write(File.join(dir, "metadata.json"), JSON.pretty_generate(
                                                   "url" => "#{unreachable_registry.base_url}/models-fasttext-onnx/main/registry.json",
                                                   "sha256" => Digest::SHA256.hexdigest(json),
@@ -150,7 +150,7 @@ RSpec.describe Kotoshu::Cache::ModelCache do
     it "downloads and stores the registry once, then reuses it" do
       server_dir = File.join(temp_dir, "server-root")
       FileUtils.mkdir_p(File.join(server_dir, "models-fasttext-onnx", "main"))
-      File.write(File.join(server_dir, "models-fasttext-onnx", "main", "registry.json"), fixture_json)
+      File.binwrite(File.join(server_dir, "models-fasttext-onnx", "main", "registry.json"), fixture_json)
       server = LocalHttpServer.new(root: server_dir)
       live_cache = described_class.new(
         cache_path: temp_dir, cache_ttl: 3600,
