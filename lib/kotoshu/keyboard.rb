@@ -24,6 +24,14 @@ module Kotoshu
       autoload :AZERTY, "kotoshu/keyboard/layouts/azerty"
       autoload :JCUKEN, "kotoshu/keyboard/layouts/jcuken"
       autoload :Dvorak, "kotoshu/keyboard/layouts/dvorak"
+      # Wave-1 national layouts (plan 84): grids mirrored from the
+      # models repo eval harness.
+      autoload :TurkishQ, "kotoshu/keyboard/layouts/turkish_q"
+      autoload :Ukrainian, "kotoshu/keyboard/layouts/ukrainian"
+      autoload :GreekPhonetic, "kotoshu/keyboard/layouts/greek"
+      # Parameterized Latin family (plan 84): one file, per-language
+      # declarations over the qwerty/qwertz base grids.
+      autoload :Latin, "kotoshu/keyboard/layouts/latin"
     end
 
     class << self

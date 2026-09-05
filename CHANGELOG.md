@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- **Wave-1 language modules and keyboard layouts** (plan 84) -
+  language modules for the thirteen model-registry newcomers (ca cs
+  da el hu it nl pl ro sv tr uk vi): thin compositions over the shared
+  Latin tokenizer/normalizer plus registry entries, with real care
+  where the script needs it — Turkish dotless-i case folding
+  (`İZMİR` -> `izmir`, `ISTANBUL` -> `ıstanbul`), Greek-aware
+  normalization (final sigma `ΕΛΛΑΣ` -> `ελλας`, opt-in accent
+  stripping) and Greek/Cyrillic script tokenizers that keep
+  non-Latin words. Keyboard layouts grow from 5 to 19: Turkish-Q,
+  Ukrainian-JCUKEN and Greek-Phonetic national grids mirrored from
+  the models repo eval harness (a drift spec asserts the gem grids
+  cover the eval grids; `scripts/extract_eval_grids.rb` refreshes the
+  committed snapshot), plus one parameterized Latin family
+  (`Keyboard::Layouts::Latin` and members) over the qwerty/qwertz
+  base grids with real Nordic å/æ/ø and å/ä/ö keys. The pre-existing
+  five layouts and ten language modules are unchanged.
 - **Inline ignore directives** (plan 82) - `kotoshu:disable-line`,
   `kotoshu:disable-next-line [WORDS]`, and the nestable
   `kotoshu:disable-file` / `kotoshu:enable-file` block, recognized in

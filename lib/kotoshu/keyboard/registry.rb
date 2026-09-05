@@ -132,8 +132,28 @@ module Kotoshu
       register(Layouts::QWERTY)
       register(Layouts::QWERTZ)
       register(Layouts::AZERTY)
+      # Ukrainian registers before JCUKEN: the base JCUKEN layout
+      # blanket-claims uk, but Ukrainian typists get the dedicated
+      # grid with the ґ є і ї keys (plan 84). Lookup is
+      # first-registered-wins, so order here is load-bearing for uk.
+      register(Layouts::Ukrainian)
       register(Layouts::JCUKEN)
       register(Layouts::Dvorak)
+      # Wave-1 national layouts (plan 84)
+      register(Layouts::TurkishQ)
+      register(Layouts::GreekPhonetic)
+      # Parameterized Latin family members (plan 84)
+      register(Layouts::Latin::Italian)
+      register(Layouts::Latin::Dutch)
+      register(Layouts::Latin::Polish)
+      register(Layouts::Latin::Czech)
+      register(Layouts::Latin::Hungarian)
+      register(Layouts::Latin::Romanian)
+      register(Layouts::Latin::Catalan)
+      register(Layouts::Latin::Vietnamese)
+      register(Layouts::Latin::Danish)
+      register(Layouts::Latin::Norwegian)
+      register(Layouts::Latin::Swedish)
     end
   end
 end

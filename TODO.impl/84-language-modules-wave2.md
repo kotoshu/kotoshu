@@ -46,6 +46,30 @@ here as the dependency so the site agent can sequence on this PR.
   (OCP: layouts register, nothing edits a switch).
 - Suite stays green; add specs per layout + module.
 
+## Sync note (the drift check)
+
+The gem layouts for tr/uk/el are derived from
+models-fasttext-onnx `eval/noise.py` (`_TR_Q`, `_UK_JCUKEN`,
+`_EL_PHONETIC`, wave 1 / registry v1.1.0) and must stay byte-equal.
+`spec/kotoshu/keyboard/layouts/eval_grid_drift_spec.rb` enforces it
+both ways: against the live models-repo checkout when one is present
+(workspace sibling or `KOTOSHU_MODELS_REPO`; skipped when the
+checkout predates the wave-1 grids) and against the committed
+snapshot `spec/fixtures/models_eval_grids.json` otherwise (CI).
+After changing the eval grids, refresh the snapshot with
+`ruby scripts/extract_eval_grids.rb PATH/eval/noise.py`. The models
+repo carries the mirror-direction note in its plan 77 status.
+
 ## Status
 
-**Pending.**
+**Implemented 2026-09-05 (gem PR feat/language-modules-wave2).**
+Track A: Turkish-Q, Ukrainian-JCUKEN, Greek-Phonetic national
+layouts plus one parameterized Latin family (11 members over the
+qwerty/qwertz base grids; Nordic members carry real å/æ/ø and å/ä/ö
+keys); registry 5 -> 19 layouts; the pre-existing five layout files
+are untouched (Ukrainian registers before JCUKEN so `uk` resolves to
+its dedicated grid). Track B: 13 thin modules on a shared
+`Languages::LatinBase` (tokenizer/normalizer composition), with
+Turkish dotless-i folding, Greek final-sigma/accent normalizer,
+Greek/Cyrillic script tokenizers; the existing ten modules are
+unchanged. Track C (site) stays with the site agent.

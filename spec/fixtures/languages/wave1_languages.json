@@ -1,0 +1,77 @@
+{
+  "source": "real dictionary words per wave-1 language, drawn from the models repo eval sample words and standard spell-checker test vocabulary",
+  "languages": {
+    "ca": {
+      "words": ["català", "escola", "cert", "més"],
+      "sentence": "Parlo català.",
+      "tokens": ["Parlo", "català"]
+    },
+    "cs": {
+      "words": ["člověk", "velký", "škola", "malíř"],
+      "sentence": "Velký člověk.",
+      "tokens": ["Velký", "člověk"]
+    },
+    "da": {
+      "words": ["hvordan", "små", "søge", "skole"],
+      "sentence": "Hvordan har du det?",
+      "tokens": ["Hvordan", "har", "du", "det"]
+    },
+    "el": {
+      "words": ["καλημέρα", "καληνύχτα", "ερώτηση", "σχολείο"],
+      "sentence": "Καλημέρα, Ελλάδα!",
+      "tokens": ["Καλημέρα", "Ελλάδα"],
+      "folded_words": ["ελλάδα", "ελλάς"]
+    },
+    "hu": {
+      "words": ["magyar", "körül", "kicsi", "kutya"],
+      "sentence": "A magyar kutya kicsi.",
+      "tokens": ["magyar", "kutya", "kicsi"]
+    },
+    "it": {
+      "words": ["città", "perché", "scuola", "libro"],
+      "sentence": "La bella città.",
+      "tokens": ["bella", "città"]
+    },
+    "nl": {
+      "words": ["volgende", "moeilijk", "zachte", "school"],
+      "sentence": "De school is groot.",
+      "tokens": ["school", "groot"]
+    },
+    "pl": {
+      "words": ["szkoła", "wszystkie", "ćwiczenie", "książka"],
+      "sentence": "Ta szkoła jest duża.",
+      "tokens": ["szkoła", "duża"]
+    },
+    "ro": {
+      "words": ["română", "mâine", "școală", "carte"],
+      "sentence": "O carte română.",
+      "tokens": ["carte", "română"]
+    },
+    "sv": {
+      "words": ["träna", "svenska", "första", "skola"],
+      "sentence": "Jag talar svenska.",
+      "tokens": ["talar", "svenska"]
+    },
+    "tr": {
+      "words": ["ışık", "ağaç", "gözlük", "kitap"],
+      "sentence": "Bu güzel kitap okulda.",
+      "tokens": ["güzel", "kitap", "okulda"],
+      "fold_cases": {
+        "İZMİR": "izmir",
+        "ISTANBUL": "ıstanbul",
+        "DIŞARIDA": "dışarıda"
+      }
+    },
+    "uk": {
+      "words": ["привіт", "україна", "книга", "школа"],
+      "sentence": "Привіт, Україно!",
+      "tokens": ["Привіт", "Україно"],
+      "folded_words": ["україна"]
+    },
+    "vi": {
+      "words": ["người", "học", "trường", "tiếng"],
+      "sentence": "Người học tiếng Việt.",
+      "tokens": ["Người", "học", "tiếng", "Việt"]
+    }
+  }
+}

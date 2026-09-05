@@ -1,6 +1,157 @@
 module Kotoshu
   VERSION: String
 
+  module Keyboard
+    module Layouts
+      # Wave-1 national layouts (plan 84); grids mirrored from the
+      # models repo eval harness (eval/noise.py).
+      class TurkishQ < Layout
+        KEY_POSITIONS: Hash[String, [Integer, Integer]]
+        def initialize: () -> void
+      end
+
+      class Ukrainian < Layout
+        KEY_POSITIONS: Hash[String, [Integer, Integer]]
+        def initialize: () -> void
+      end
+
+      class GreekPhonetic < Layout
+        KEY_POSITIONS: Hash[String, [Integer, Integer]]
+        def initialize: () -> void
+      end
+
+      # Parameterized Latin layout family (plan 84): members declare a
+      # name, language codes, a qwerty/qwertz base grid and optional
+      # extra physical keys (the Nordic å/æ/ø, å/ä/ö).
+      class Latin < Layout
+        NOT_SET: Object
+
+        def self.layout_name: (String value) -> String
+                              | () -> String?
+        def self.languages: (Array[String] value) -> Array[String]
+                           | () -> Array[String]?
+        def self.base_grid: (Symbol value) -> Symbol
+                           | () -> Symbol?
+        def self.removed_keys: (Array[String] value) -> Array[String]
+                              | () -> Array[String]?
+        def self.extra_positions: (Hash[String, [Integer, Integer]] value) -> Hash[String, [Integer, Integer]]
+                                 | () -> Hash[String, [Integer, Integer]]?
+
+        def initialize: () -> void
+
+        class Italian < Latin
+        end
+        class Dutch < Latin
+        end
+        class Polish < Latin
+        end
+        class Czech < Latin
+        end
+        class Hungarian < Latin
+        end
+        class Romanian < Latin
+        end
+        class Catalan < Latin
+        end
+        class Vietnamese < Latin
+        end
+        class Danish < Latin
+        end
+        class Norwegian < Latin
+        end
+        class Swedish < Latin
+        end
+      end
+    end
+  end
+
+  module Language
+    module Tokenizer
+      # Script-aware tokenizers (plan 84).
+      class GreekTokenizer < Base
+        WORD_SEPARATORS: Regexp
+
+        def initialize: () -> void
+        def tokenize: (String? text) -> Array[String]
+        def word_boundary_regex: () -> Regexp
+        def skip_token?: (String token) -> bool
+      end
+
+      class CyrillicTokenizer < Base
+        WORD_SEPARATORS: Regexp
+
+        def initialize: () -> void
+        def tokenize: (String? text) -> Array[String]
+        def word_boundary_regex: () -> Regexp
+        def skip_token?: (String token) -> bool
+      end
+    end
+
+    module Normalizer
+      # Greek-aware normalization (plan 84): final-sigma folding and
+      # opt-in accent stripping.
+      class Greek < Base
+        COMBINING_MARKS: Regexp
+
+        def initialize: () -> void
+        def normalize: (String? text, ?options ::Hash[Symbol, untyped]) -> String
+        def normalize_word: (String word) -> String
+      end
+
+      # Turkish case folding (plan 84): I -> ı, İ -> i.
+      class Turkish < Base
+        def initialize: () -> void
+        def normalize: (String? text, ?options ::Hash[Symbol, untyped]) -> String
+      end
+    end
+  end
+
+  module Languages
+    # Shared base for the thin wave-1 Latin modules (plan 84).
+    class LatinBase < Language::Base
+      def initialize: (?code: String code, ?name: String name, ?variant: String? variant) -> void
+      def tokenizer: () -> Language::Tokenizer::LatinTokenizer
+      def normalizer: () -> Language::Normalizer::Base
+      def dictionary_class: () -> Class
+      def script_type: () -> :latin
+      def create_tokenizer: () -> Language::Tokenizer::Base
+      def default_dictionary_paths: () -> Array[String]
+    end
+
+    class Catalan < LatinBase
+    end
+    class Czech < LatinBase
+    end
+    class Danish < LatinBase
+    end
+    class Greek < LatinBase
+      def tokenizer: () -> Language::Tokenizer::GreekTokenizer
+      def normalizer: () -> Language::Normalizer::Greek
+      def script_type: () -> :greek
+    end
+    class Hungarian < LatinBase
+    end
+    class Italian < LatinBase
+    end
+    class Dutch < LatinBase
+    end
+    class Polish < LatinBase
+    end
+    class Romanian < LatinBase
+    end
+    class Swedish < LatinBase
+    end
+    class Turkish < LatinBase
+      def normalizer: () -> Language::Normalizer::Turkish
+    end
+    class Ukrainian < LatinBase
+      def tokenizer: () -> Language::Tokenizer::CyrillicTokenizer
+      def script_type: () -> :cyrillic
+    end
+    class Vietnamese < LatinBase
+    end
+  end
+
   module Baseline
     class Entry < Lutaml::Model::Serializable
       def initialize: (?file: String?, ?line: Integer, ?word: String, ?count: Integer, **untyped kwargs) -> void
