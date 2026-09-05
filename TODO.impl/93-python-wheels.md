@@ -22,4 +22,11 @@ Rust). maturin + cibuildwheel in CI produces the matrix mechanically.
 
 ## Status
 
-**Pending.**
+**Implemented (2026-09-05, kotoshu-rs PR #13 + kotoshu-python PR #2).**
+20 wheels + sdist per run (manylinux x86_64/aarch64, macOS x86_64/
+arm64, windows x64; py3.10-3.13), 17-assertion smoke per wheel;
+keyless release-pypi.yml on both repos behind tags kotoshu-native-v* /
+kotoshu-v*. Owner registrations ready (project-level: kotoshu ->
+kotoshu-python/release-pypi.yml; kotoshu-native -> kotoshu-rs/
+release-pypi.yml; environment blank). windows-arm64 dropped,
+documented.

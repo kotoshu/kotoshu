@@ -27,4 +27,9 @@ gem supports six languages.
 
 ## Status
 
-**Pending.**
+**Implemented (2026-09-05, site PR #7).** /docs/integrations with
+every snippet EXECUTED (validator on ActiveModel 8.1.3.1, matchers,
+rake default+DSL, Jekyll 4.4.1, walk rules, include/exclude, SARIF,
+baseline); CLI directory-mode section with flags from `kotoshu help
+check`; action/install truth. Two gem bugs found in the process were
+fixed in PR #131 (standalone requires, canonical baseline paths).

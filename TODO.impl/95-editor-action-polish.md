@@ -19,4 +19,9 @@ note. Smoke test in CI still passes (server built from source there).
 
 ## Status
 
-**Pending.**
+**Implemented (2026-09-05, action PR #1 + kotoshu-vscode PR #2).**
+Action: language input truth + next-release docs (the published 0.7.0
+gem still gates six languages - directory mode/baselines/19 langs
+ride the next gem cut). VS Code: add-to-dictionary delegates to the
+server command (with republish) when advertised, local-write
+fallback otherwise.
