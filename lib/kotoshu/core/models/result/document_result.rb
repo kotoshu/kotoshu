@@ -12,16 +12,21 @@ module Kotoshu
         attribute :file, :string
         attribute :word_count, :integer, default: 0
         attribute :errors, WordResult, collection: true
+        # Errors absorbed by inline ignore directives or a baseline
+        # (plan 82); each entry is a real misspelling marked
+        # `suppressed: true` with `suppressed_by` naming what absorbed it.
+        attribute :suppressed_errors, WordResult, collection: true
         attribute :metadata, :hash, default: {}
 
         # Accept framework-private keywords (e.g. +lutaml_register+)
         # from lutaml-model's +from_hash+ so the round-trip works
         # without lutaml having to poke ivars directly.
-        def initialize(file: nil, errors: [], word_count: 0, metadata: {}, **kwargs)
+        def initialize(file: nil, errors: [], word_count: 0, metadata: {}, suppressed_errors: [], **kwargs)
           super(
             file: file,
             word_count: word_count,
             errors: errors,
+            suppressed_errors: suppressed_errors,
             metadata: metadata,
             **kwargs
           )
@@ -37,6 +42,10 @@ module Kotoshu
 
         def error_count
           Array(errors).size
+        end
+
+        def suppressed_count
+          Array(suppressed_errors).size
         end
 
         def unique_error_count
@@ -76,12 +85,12 @@ module Kotoshu
         def ==(other)
           return false unless other.is_a?(DocumentResult)
 
-          file == other.file && errors == other.errors
+          file == other.file && errors == other.errors && suppressed_errors == other.suppressed_errors
         end
         alias eql? ==
 
         def hash
-          [file, errors].hash
+          [file, errors, suppressed_errors].hash
         end
 
         def to_s
@@ -113,6 +122,7 @@ module Kotoshu
           new(
             file: nil,
             errors: results.flat_map(&:errors),
+            suppressed_errors: results.flat_map(&:suppressed_errors),
             word_count: results.sum(&:word_count)
           )
         end

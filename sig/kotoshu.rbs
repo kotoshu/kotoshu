@@ -1,4 +1,65 @@
 module Kotoshu
   VERSION: String
-  # See the writing guide of rbs: https://github.com/ruby/rbs#guides
+
+  module Baseline
+    class Entry < Lutaml::Model::Serializable
+      def initialize: (?file: String?, ?line: Integer, ?word: String, ?count: Integer, **untyped kwargs) -> void
+      attr_reader file (): String?
+      attr_reader line (): Integer
+      attr_reader word (): String
+      attr_reader count (): Integer
+      def key: () -> [String, String]
+    end
+
+    class Store < Lutaml::Model::Serializable
+      DEFAULT_FILENAME: String
+      CURRENT_VERSION: Integer
+
+      def initialize: (?version: Integer, ?entries: Array[Entry], **untyped kwargs) -> void
+      attr_reader version (): Integer
+      attr_reader entries (): Array[Entry]
+
+      def self.load: (String path) -> Store
+      def self.from_checks: (Hash[String, Array[Models::Result::DocumentResult, String]] checks) -> Store
+      def self.canonical_entries: (Array[Entry] entries) -> Array[Entry]
+
+      def save: (String path) -> Store
+      def entries_for: (String file) -> Array[Entry]
+      def apply: (Models::Result::DocumentResult result, file: String file) -> Application
+    end
+
+    # Outcome of applying a Store to one check result (plain Struct).
+    class Application
+      def result: () -> Models::Result::DocumentResult
+      def suppressed_count: () -> Integer
+      def stale_count: () -> Integer
+      def initialize: (result: Models::Result::DocumentResult result, suppressed_count: Integer suppressed_count, stale_count: Integer stale_count) -> void
+    end
+  end
+
+  module Documents
+    module Suppressions
+      def self.scan: (?String? source, ?format: Symbol format) -> Array[Suppression]
+
+      class Suppression
+        KINDS: Array[Symbol]
+
+        def initialize: (kind: Symbol kind, directive_line: Integer directive_line, start_line: Integer start_line, end_line: Integer end_line, ?words: Array[String] words) -> void
+        attr_reader kind (): Symbol
+        attr_reader words (): Array[String]
+        attr_reader directive_line (): Integer
+        attr_reader start_line (): Integer
+        attr_reader end_line (): Integer
+
+        def file_block?: () -> bool
+        def covers_line?: (Integer line) -> bool
+        def word_scoped?: () -> bool
+        def applies_to?: (Integer line, ?word: String? word) -> bool
+      end
+
+      class Scanner
+        def self.scan: (?String? source, ?format: Symbol format) -> Array[Suppression]
+      end
+    end
+  end
 end

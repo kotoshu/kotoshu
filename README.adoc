@@ -435,6 +435,79 @@ echo $?  # 0 if no errors, 1 if errors found
 ----
 ====
 
+[[ignoring-words]]
+== Ignoring Words Inline
+Words that are intentionally "wrong" - product names, code identifiers
+quoted in prose, dialect - can be suppressed in place instead of being
+added to the personal dictionary:
+----
+kotoshu:disable-line                 suppress everything on this line
+kotoshu:disable-next-line            suppress the following line
+kotoshu:disable-next-line foo bar    suppress only these words
+kotoshu:disable-file / enable-file   block suppression (nestable)
+----
+Each format recognizes the directive in its own comment syntax, and the
+directive line itself is never spellchecked:
+[options="header"]
+|===
+|Format |Form |Trailing directive
+
+|Plain text
+|a bare line: `kotoshu:disable-line`
+|not supported
+
+|Markdown
+|`<!-- kotoshu:disable-next-line -->`
+|supported
+
+|AsciiDoc
+|`// kotoshu:disable-next-line`
+|supported
+
+|===
+
+The Ruby API picks this up automatically:
+`Kotoshu.spellchecker_for("en").check(text)` moves suppressed words to
+`result.suppressed_errors` (each marked `suppressed: true` and
+`suppressed_by: "inline"`) so only real errors stay in `result.errors`.
+Pass `--show-suppressed` to `kotoshu check` to list them.
+
+[[ci-baselines]]
+== CI Baselines
+Freeze existing spelling debt so CI fails only on NEW errors:
+[source,bash]
+----
+# Record current findings: one entry per file+word with a count,
+# stable across reformatting
+kotoshu baseline init README.md docs/*.adoc
+
+# CI: errors covered by the baseline pass, new errors fail
+kotoshu check README.md --baseline .kotoshu-baseline.json
+----
+A summary line reports baseline entries that have gone stale (the error
+no longer exists), so the debt shrinks visibly; refresh by re-running
+`kotoshu baseline init`. JSON output adds `suppressedCount` /
+`suppressedErrors` plus a `baseline` block, and SARIF marks
+baseline-suppressed results with a `suppressions` entry
+(`justification: "baseline"`).
+
+[[pre-commit]]
+== Git pre-commit Hook
+The gem repository ships a https://pre-commit.com[pre-commit] hook
+definition (`.pre-commit-hooks.yaml`):
+[source,yaml]
+----
+repos:
+  - repo: https://github.com/kotoshu/kotoshu
+    rev: v0.7.0   # pin to a released tag
+    hooks:
+      - id: kotoshu
+----
+NOTE: The hook uses `language: system`: it runs the `kotoshu` executable
+from PATH, so it honestly requires a Ruby environment with the gem
+installed (`gem install kotoshu`, then `kotoshu setup en`). A
+WebAssembly client (in development) is the future zero-Ruby path.
+
 [[document-formats]]
 == Document Formats
 

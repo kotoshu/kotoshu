@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- **Inline ignore directives** (plan 82) - `kotoshu:disable-line`,
+  `kotoshu:disable-next-line [WORDS]`, and the nestable
+  `kotoshu:disable-file` / `kotoshu:enable-file` block, recognized in
+  each format's comment syntax: HTML comments in Markdown, `//` line
+  comments in AsciiDoc, bare lines in plain text (trailing directives
+  in Markdown/AsciiDoc). One shared scanner in `Documents::Suppressions`
+  attaches them to every `Document`, and the `Spellchecker` facade
+  filters them out of `check`: suppressed words move to
+  `DocumentResult#suppressed_errors` (marked `suppressed: true`,
+  `suppressed_by: "inline"`), and `kotoshu check --show-suppressed`
+  lists them. Result JSON gains `suppressed` / `suppressed_by` on
+  errors and `suppressedCount` / `suppressedErrors` at the top level.
+- **CI baselines** (plan 82) - `kotoshu baseline init FILE ...` writes
+  `.kotoshu-baseline.json` (canonical `{version, entries: [{file, line,
+  word, count}]}` via lutaml-model; count-based, so it survives
+  reformatting); `kotoshu check --baseline FILE` lets covered errors
+  pass, fails on new ones, and reports stale entries. SARIF output
+  marks baseline-suppressed results with a `suppressions` entry
+  (`kind: external`, `justification: "baseline"`), and JSON output
+  adds a `baseline` block.
+- **pre-commit hook** (plan 81) - `.pre-commit-hooks.yaml` ships hook
+  id `kotoshu` (`language: system`, entry `kotoshu check`, text-format
+  file pattern); requires Ruby plus the gem, documented honestly in the
+  README.
+
 ## [0.7.0] — 2026-09-05
 
 The universal-kotoshu cut (plan 65's roadmap milestone): tiered

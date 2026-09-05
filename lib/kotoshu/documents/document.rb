@@ -16,7 +16,7 @@ module Kotoshu
     # Kotoshu ships only {PlainTextDocument}; format-specific parsers
     # (Markdown, AsciiDoc, etc.) live in plugins.
     class Document
-      attr_reader :text_nodes, :source, :format, :language_code
+      attr_reader :text_nodes, :source, :format, :language_code, :suppressions
 
       # @param text_nodes [Array<TextNode>] one entry per contiguous
       #   text run, in source order
@@ -24,13 +24,17 @@ module Kotoshu
       #   (kept around so consumers can slice it for context display)
       # @param format [Symbol] e.g. :plain, :markdown, :asciidoc
       # @param language_code [String, nil] ISO 639-1 code when known
-      def initialize(text_nodes:, source: nil, format: :plain, language_code: nil)
+      # @param suppressions [Array<Suppressions::Suppression>, nil] inline
+      #   ignore directives; nil means scan +source+ with +format+ comment
+      #   syntax (plan 82)
+      def initialize(text_nodes:, source: nil, format: :plain, language_code: nil, suppressions: nil)
         raise ArgumentError, "text_nodes cannot be empty" if text_nodes.nil? || text_nodes.empty?
 
         @text_nodes = text_nodes.freeze
         @source = source
         @format = format
         @language_code = language_code
+        @suppressions = (suppressions || Suppressions.scan(source, format: format)).freeze
         freeze
       end
 
@@ -97,6 +101,12 @@ module Kotoshu
         return enum_for(:each_node) unless block
 
         @text_nodes.each(&block)
+      end
+
+      # True when +word+ (any word when nil) reported on 1-based +line+
+      # is suppressed by an inline ignore directive (plan 82).
+      def suppressed?(line, word: nil)
+        @suppressions.any? { |suppression| suppression.applies_to?(line, word: word) }
       end
 
       private

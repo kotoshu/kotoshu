@@ -13,6 +13,7 @@ module Kotoshu
   # ---- Namespaces (autoloaded; each namespace file declares its children) ----
   autoload :Algorithms, "kotoshu/algorithms"
   autoload :Analyzers, "kotoshu/analyzers"
+  autoload :Baseline, "kotoshu/baseline"
   autoload :Cache, "kotoshu/cache"
   autoload :Cli, "kotoshu/cli"
   autoload :Commands, "kotoshu/commands"

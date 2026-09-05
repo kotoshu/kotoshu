@@ -1,0 +1,18 @@
+# pre-commit hook definitions (https://pre-commit.com).
+#
+# Honest requirements: this hook is `language: system` — it runs the
+# `kotoshu` executable from PATH, so the machine needs a Ruby
+# environment with the gem installed:
+#
+#   gem install kotoshu
+#   kotoshu setup en        # or the languages you write in
+#
+# pre-commit passes the matched filenames to the entry; `kotoshu check`
+# exits 1 when a file has unsuppressed misspellings. The WebAssembly
+# client (in development) is the future zero-Ruby path.
+- id: kotoshu
+  name: kotoshu semantic spell check
+  description: Semantic spell checking for prose and documentation
+  entry: kotoshu check
+  language: system
+  files: \.(txt|text|md|markdown|mdown|mkd|adoc|asciidoc|ad|rst|rest|creole|rdoc|org|pod|textile|wiki|mail|article|log|notes)$
