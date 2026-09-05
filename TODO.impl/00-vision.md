@@ -150,6 +150,18 @@ and the site/docs truth that follows.
 | 88 | [CLI directory mode](88-cli-directory-mode.md) | No tree checking — the actual CI workflow |
 | 89 | [Framework integrations](89-framework-integrations-exec.md) | Executes plan 62: Rails validator, RSpec matcher, Rake/Jekyll tasks |
 
+Plans 91–95 are **wave 3** (2026-09-05 late): the correctness core the
+site flip exposed, the browser-models distribution fix, Python wheels,
+the docs for wave-2 features, and editor/action truth.
+
+| # | Plan | Gap it closes |
+|---|---|---|
+| 91 | [Unicode + sv aff](91-unicode-and-sv-aff.md) | Executes plan 90: ASCII-only word detection hides non-Latin scripts; AffReader crashes on Swedish |
+| 92 | [Tier mirror CORS](92-tier-mirror-cors.md) | Media host already sends ACAO — mirror the tiers, finish the browser-models path |
+| 93 | [Python wheels](93-python-wheels.md) | kotoshu-native is macOS-only on PyPI; build the platform matrix + keyless publish |
+| 94 | [Site integrations docs](94-site-integrations-docs.md) | Rails/RSpec/Rake/Jekyll + directory mode shipped undocumented; action page stale |
+| 95 | [Editor + action polish](95-editor-action-polish.md) | Extension delegates the now-existing server command; action gains baseline + 19 languages |
+
 Dependency order across the ecosystem track:
 
 ```
