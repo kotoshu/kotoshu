@@ -59,4 +59,11 @@ file's Status when shipped.
 
 ## Status
 
-**Pending.**
+**Implemented (2026-09-05, site PRs #1-#3, live at kotoshu.org/playground).**
+Zero-install wasm demo: @kotoshu/wasm 0.1.0 in a worker, underlines +
+click-to-mend popover, six languages; server playground moved to
+/playground/server. CDN pin: jsDelivr npm raw files @0.1.0 with manual
+instantiate (esm.sh and esm.run both broken for the bundler-target
+package); dictionaries via jsDelivr gh @commit 1829a3e. Models verdict:
+GitHub release assets send no CORS headers, so the demo is honestly
+dictionary-only; the model story lives on the server playground page.

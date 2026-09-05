@@ -54,4 +54,7 @@ None.
 
 ## Status
 
-**Pending.**
+**Implemented (2026-09-05, site PR #1).** /news with 8 entries as
+dictionary entries, RSS 2.0 + Atom 1.0 static feeds with autodiscovery,
+nav/footer/sitemap wired. Dates verified against registry timestamps
+(two plan guesses corrected: PyPI shipped 09-04; channels entry split).

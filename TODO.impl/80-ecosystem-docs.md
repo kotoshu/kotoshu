@@ -47,4 +47,10 @@ None.
 
 ## Status
 
-**Pending.**
+**Implemented (2026-09-05, site PR #2).** /install is a channel catalog
+(8 channels); seven guides under /docs/clients/ (python javascript rust
+go http lsp action). Every quick start executed for real (pip, npm http
++ wasm, cargo, go, server-from-source + curl, LSP stdio handshake);
+the action YAML parse-validated only. Each page carries a verified-date
+annotation. kotoshu-server docs intentionally show run-from-source
+until the empty 0.1.0 gem is republished.

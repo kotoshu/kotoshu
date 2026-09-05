@@ -69,4 +69,13 @@ None. CHANGELOG entry under Unreleased (version = owner).
 
 ## Status
 
-**Pending.**
+**Implemented (2026-09-05, gem PR #118).** Shared
+Documents::Suppressions scanner (disable-line, disable-next-line with
+optional word list, nestable disable-file/enable-file blocks; per-format
+comment detection; directive lines never spellchecked); check filters
+via the :auto profile; suppressed errors ride DocumentResult with
+suppressed/suppressed_by flags; --show-suppressed. Baselines: baseline
+init + check --baseline with count-based budgets, stale-entry
+reporting, SARIF suppression marking; serialized via lutaml-model.
+55 new examples; default suite 3410/0/26. Release cut pending owner
+version decision.
