@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "kotoshu"
 require "rake"
 require "kotoshu/tasks/check_task"
 

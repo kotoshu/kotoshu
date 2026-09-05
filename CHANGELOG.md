@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Fixed
+- Remote `kotoshu setup` for staged languages: the dictionaries repo ships only
+  `en` under the `{lang}/spelling/` layout while staged languages sit flat at
+  `{lang}/index.*`; downloads now try the sublayout first and fall back to the
+  flat layout (verified end-to-end for `it`).
+- `require "kotoshu/tasks"` / `require "kotoshu/jekyll"` standalone now load
+  without needing `require "kotoshu"` first.
+- Baseline paths compare canonically: entries recorded as `docs/a.md` match a
+  directory-walk check over `./docs/a.md`, and recorded entries are stored
+  canonical.
 ### Fixed
 - **Unicode word detection** (plan 91 Track A) - `Spellchecker` word
   extraction accepted only ASCII letters, so Greek and Ukrainian users
