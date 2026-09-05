@@ -152,6 +152,56 @@ module Kotoshu
     end
   end
 
+  module Cli
+    # .gitignore/.ignore glob-subset matcher (plan 88).
+    class IgnoreMatcher
+      IGNORE_FILENAMES: Array[String]
+
+      class Pattern
+        def initialize: (String line) -> void
+        attr_reader source (): String
+        attr_reader negated (): bool
+        attr_reader dir_only (): bool
+        attr_reader regex (): Regexp
+        def matches?: (String relative, ?directory: bool directory) -> bool
+      end
+
+      def self.load_directory: (String directory) -> IgnoreMatcher
+      def self.present_in?: (String directory) -> bool
+
+      def initialize: (Array[String] lines) -> void
+      def patterns: () -> Array[Pattern]
+      def ignored?: (String relative, ?directory: bool directory) -> bool
+    end
+
+    # Directory-tree file selection (plan 88).
+    class DirectoryWalker
+      TEXT_EXTENSIONS: Array[String]
+      DEFAULT_SKIP_DIRS: Array[String]
+
+      def initialize: (?include_globs: Array[String] include_globs, ?exclude_globs: Array[String] exclude_globs) -> void
+      def files: (String root) -> Array[String]
+    end
+
+    # Multi-target check runner (plan 88).
+    class DirectoryCheck
+      class FileOutcome < Struct[String path, Models::Result::DocumentResult result, Baseline::Store::Application? application]
+      end
+
+      attr_reader outcomes (): Array[FileOutcome]
+
+      def initialize: (Array[String] roots, check: untyped check, ?baseline_path: String? baseline_path,
+                       ?include_globs: Array[String] include_globs, ?exclude_globs: Array[String] exclude_globs) -> void
+      def run: () -> Array[FileOutcome]
+      def file_count: () -> Integer
+      def error_count: () -> Integer
+      def word_count: () -> Integer
+      def failed?: () -> bool
+      def suppressed_count: () -> Integer
+      def stale_count: () -> Integer
+    end
+  end
+
   module Baseline
     class Entry < Lutaml::Model::Serializable
       def initialize: (?file: String?, ?line: Integer, ?word: String, ?count: Integer, **untyped kwargs) -> void
