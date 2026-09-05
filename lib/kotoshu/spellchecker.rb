@@ -31,6 +31,11 @@ module Kotoshu
     #   KOTOSHU_BACKEND). Nil means every call runs the pure-Ruby engine.
     attr_reader :native_backend
 
+    # Word characters for extraction when the language has no script
+    # tokenizer: ASCII letters and the apostrophe, the pre-plan-91 set
+    # (kept as the fallback so unknown languages behave as before).
+    ASCII_WORD_REGEX = /[a-zA-Z']/
+
     # Create a new spellchecker.
     #
     # @param dictionary [Dictionary::Base, nil] The dictionary (optional)
@@ -91,6 +96,13 @@ module Kotoshu
         backend: @config.backend,
         max_suggestions: max_suggestions
       )
+
+      # Word extraction follows the configured language's script
+      # (plan 91): its tokenizer decides which letters form words,
+      # so Greek/Cyrillic words become checkable for el/uk while
+      # wrong-script words stay invisible. Nil keeps the ASCII set.
+      @language_tokenizer = resolve_language_tokenizer
+      @word_char_regex = @language_tokenizer&.spellcheck_word_regex || ASCII_WORD_REGEX
     end
 
     # Check if a word is spelled correctly.
@@ -306,17 +318,42 @@ module Kotoshu
 
     private
 
+    # Resolve the tokenizer of the language being checked for word
+    # extraction (plan 91).
+    #
+    # Only Language::Tokenizer::Base tokenizers participate: their
+    # script subclasses (Greek, Cyrillic, Latin) declare which letters
+    # form words. Anything else — components tokenizers such as
+    # English's whitespace tokenizer, or an unknown language — returns
+    # nil and the ASCII fallback applies.
+    #
+    # A resource bundle pins the language: spellchecker_for passes the
+    # shared global Configuration next to the resolved bundle, and the
+    # config may still carry the global default language instead of
+    # the one actually being checked.
+    #
+    # @return [Language::Tokenizer::Base, nil] The language tokenizer
+    def resolve_language_tokenizer
+      code = @resource_bundle&.language || @config.language
+      return nil if code.nil? || code.empty?
+
+      language_class = Language::Registry.get(code)
+      return nil if language_class.nil?
+
+      tokenizer = language_class.new.tokenizer
+      tokenizer.is_a?(Language::Tokenizer::Base) ? tokenizer : nil
+    end
+
     # Check if a character is part of a word.
+    #
+    # Uses the language tokenizer's script-aware set when one is
+    # configured; otherwise the historical ASCII letters plus
+    # apostrophe.
     #
     # @param char [String] The character
     # @return [Boolean] True if it's a word character
     def word_char?(char)
-      case char
-      when "a".."z", "A".."Z", "'"
-        true
-      else
-        false
-      end
+      @word_char_regex.match?(char)
     end
   end
 end

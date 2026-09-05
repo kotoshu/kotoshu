@@ -74,6 +74,8 @@ module Kotoshu
         def initialize: () -> void
         def tokenize: (String? text) -> Array[String]
         def word_boundary_regex: () -> Regexp
+def spellcheck_word_regex: () -> Regexp
+def spellcheck_word_regex: () -> Regexp
         def skip_token?: (String token) -> bool
       end
 

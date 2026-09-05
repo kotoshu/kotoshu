@@ -105,6 +105,23 @@ module Kotoshu
           raise NotImplementedError, "#{self.class} must implement #word_boundary_regex"
         end
 
+        # Regex matching one word-forming character for spell-check text
+        # extraction (plan 91).
+        #
+        # The Spellchecker walks text character by character with this
+        # regex, so it must cover exactly the letters this tokenizer
+        # recognizes: script subclasses override it with their script's
+        # letters, and wrong-script characters stay non-word so foreign
+        # words are never checked. The Base default is the historical
+        # ASCII set, so tokenizers without an override keep their
+        # extraction behavior; digits are never included so number
+        # handling stays as it was.
+        #
+        # @return [Regexp] Regex matching a single word character
+        def spellcheck_word_regex
+          /[a-zA-Z']/
+        end
+
         # Normalize a token.
         #
         # Subclasses can override this for language-specific normalization.

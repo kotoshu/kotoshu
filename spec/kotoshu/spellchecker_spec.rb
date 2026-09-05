@@ -322,6 +322,89 @@ RSpec.describe Kotoshu::Spellchecker, "# Walking Skeleton - Spellchecker Service
     end
   end
 
+  describe "#tokenize script-aware extraction (plan 91)" do
+    def spellchecker_for(language)
+      Kotoshu::Spellchecker.new(
+        dictionary_path: "spec/fixtures/words.txt",
+
+        dictionary_type: :plain_text,
+
+        language: language
+      )
+    end
+
+    it "extracts Greek words for el" do
+      tokens = spellchecker_for("el").tokenize("Η ελληνική γλώσσα είναι όμορφη")
+
+      expect(tokens.map(&:first)).to eq(["Η", "ελληνική", "γλώσσα", "είναι", "όμορφη"])
+    end
+
+    it "keeps the in-word apostrophe for uk" do
+      tokens = spellchecker_for("uk").tokenize("Маряна Павличко")
+
+      expect(tokens.map(&:first)).to eq(["Маряна", "Павличко"])
+    end
+
+    it "extracts nothing for el from wrong-script words" do
+      expect(spellchecker_for("el").tokenize("hello привіт")).to eq([])
+    end
+
+    it "extracts nothing for uk from wrong-script words" do
+      expect(spellchecker_for("uk").tokenize("hello ελληνικά")).to eq([])
+    end
+
+    it "keeps Latin capitals and accents for sv" do
+      tokens = spellchecker_for("sv").tokenize("Året på Älvsjö äng")
+
+      expect(tokens.map(&:first)).to eq(["Året", "på", "Älvsjö", "äng"])
+    end
+
+    it "still splits digits away from words for sv" do
+      tokens = spellchecker_for("sv").tokenize("42abc")
+
+      expect(tokens.map(&:first)).to eq(["abc"])
+    end
+
+    it "extracts nothing from pure Japanese text on the per-character path" do
+      # CJK has no per-character word segmentation; the Japanese
+
+      # morphological (suika) path handles ja elsewhere. The guard is
+
+      # that the spellchecker reports no bogus tokens and never raises.
+
+      expect(spellchecker_for("ja").tokenize("すももももももものうち")).to eq([])
+    end
+
+    it "follows the resource bundle language when a shared config is passed" do
+      # Facade shape used by kotoshu check -l LANG: spellchecker_for
+      # passes the global Configuration next to the resolved bundle,
+      # so the bundle, not the config default, pins the language.
+      bundle = Kotoshu::ResourceBundle.new(
+        language: "el",
+        dictionary: Kotoshu::Dictionary::PlainText.new("spec/fixtures/words.txt", language_code: "el")
+      )
+      config = Kotoshu::Configuration.new(language: "en-US")
+      spellchecker = described_class.new(resource_bundle: bundle, config: config)
+      expect(spellchecker.tokenize("ελληνικά text").map(&:first)).to eq(["ελληνικά"])
+    end
+
+    it "keeps the historical ASCII extraction for en" do
+      tokens = spellchecker_for("en").tokenize("hello world, don't stop")
+
+      expect(tokens.map(&:first)).to eq(["hello", "world", "don't", "stop"])
+    end
+
+    it "keeps the historical ASCII extraction for de" do
+      # German has no script tokenizer override yet, so the ASCII
+
+      # fallback applies exactly as before (plan 91 regression guard).
+
+      tokens = spellchecker_for("de").tokenize("Schöne Grüße 42abc")
+
+      expect(tokens.map(&:first)).to eq(["Sch", "ne", "Gr", "e", "abc"])
+    end
+  end
+
   describe "#tokenize" do
     let(:spellchecker) do
       Kotoshu::Spellchecker.new(

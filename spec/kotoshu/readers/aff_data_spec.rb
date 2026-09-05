@@ -280,6 +280,34 @@ RSpec.describe Kotoshu::Readers do
       end
     end
 
+    describe "metacharacter flags (sv, plan 91)" do
+      it "compiles rules whose flag character is itself a regex metacharacter" do
+        # The Swedish aff (dictionaries pin 1829a3e) declares the rule
+
+        # COMPOUNDRULE )k: ) is a flag character, not a group close.
+
+        rule = described_class.new(")k")
+
+        expect(rule.flags).to eq(Set.new([")", "k"]))
+
+        expect(rule.re.match?(")k")).to be true
+
+        expect(rule.re.match?("k")).to be false
+
+        expect(rule.partial_re.match?(")")).to be true
+      end
+
+      it "matches flag combinations containing the metacharacter flag" do
+        rule = described_class.new(")k")
+
+        expect(rule.fullmatch([Set.new([")"]), Set.new(["k"])])).to be true
+
+        expect(rule.fullmatch([Set.new(["k"]), Set.new(["k"])])).to be false
+
+        expect(rule.partial_match([Set.new([")"])])).to be true
+      end
+    end
+
     describe "#partial_match" do
       it "returns true for any prefix of the rule" do
         rule = described_class.new("ABC")
