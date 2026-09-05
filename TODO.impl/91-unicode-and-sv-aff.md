@@ -35,4 +35,13 @@ which languages verified end-to-end through the CLI.
 
 ## Status
 
-**Pending.**
+**Implemented (2026-09-05, gem PR #130 + residue PR #131).** Track B:
+COMPOUNDRULE )k - the sv aff uses ) as a flag char; flag atoms now
+Regexp.escape'd (full 152k-word sv dictionary loads). Track A:
+Tokenizer::Base#spellcheck_word_regex with Greek/Cyrillic/Latin
+overrides, digits excluded, ASCII default byte-identical (2630 frozen
+vectors 0 failures); plus the bundle-language-priority fix that made
+`check -l el` extract zero words. Track C: remote setup for staged
+languages was the LAST gap - PR #131 added the flat-layout fallback
+(verified live: setup it + check -l it, probva -> prova). el/tr/sv/it
+all verified end-to-end. Suite 3701/0/27.
