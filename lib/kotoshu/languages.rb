@@ -32,6 +32,7 @@ module Kotoshu
     autoload :Polish, "kotoshu/languages/pl/language"
     autoload :Romanian, "kotoshu/languages/ro/language"
     autoload :Swedish, "kotoshu/languages/sv/language"
+    autoload :NorwegianBokmal, "kotoshu/languages/nb/language"
     autoload :Turkish, "kotoshu/languages/tr/language"
     autoload :Ukrainian, "kotoshu/languages/uk/language"
     autoload :Vietnamese, "kotoshu/languages/vi/language"

@@ -32,7 +32,7 @@ module Kotoshu
       # the dictionaries repo stay outside this list until their
       # module lands; local files come via setup --aff/--dic instead.
       AVAILABLE_LANGUAGES = %w[
-        ca cs da de el en es fr hu it nl pl pt ro ru sv tr uk vi
+        ca cs da de el en es fr hu it nb nl pl pt ro ru sv tr uk vi
       ].freeze
 
       # Get or download spelling dictionary for a language.
