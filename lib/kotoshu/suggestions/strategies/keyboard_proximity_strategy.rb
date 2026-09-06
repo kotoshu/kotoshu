@@ -127,39 +127,15 @@ module Kotoshu
         private
 
         # Calculate edit distance between two strings.
-        # Uses Levenshtein distance (substitution, insertion, deletion).
+        # Uses Damerau-Levenshtein distance (substitution, insertion,
+        # deletion, adjacent transposition) via Algorithms::EditDistance,
+        # so a swapped pair ("teh" -> "the") costs 1, not 2.
         #
         # @param str1 [String] First string
         # @param str2 [String] Second string
         # @return [Integer] Edit distance
         def edit_distance(str1, str2)
-          return str2.length if str1.empty?
-          return str1.length if str2.empty?
-
-          len1 = str1.length
-          len2 = str2.length
-
-          # Create a 2D array for dynamic programming
-          d = Array.new(len1 + 1) { Array.new(len2 + 1, 0) }
-
-          # Initialize the first row and column
-          (0..len1).each { |i| d[i][0] = i }
-          (0..len2).each { |j| d[0][j] = j }
-
-          # Fill the matrix
-          (1..len1).each do |i|
-            (1..len2).each do |j|
-              cost = str1[i - 1] == str2[j - 1] ? 0 : 1
-
-              d[i][j] = [
-                d[i - 1][j] + 1,      # deletion
-                d[i][j - 1] + 1,      # insertion
-                d[i - 1][j - 1] + cost # substitution
-              ].min
-            end
-          end
-
-          d[len1][len2]
+          Algorithms::EditDistance.distance(str1, str2)
         end
 
         # Get neighbors for a key.
@@ -171,6 +147,13 @@ module Kotoshu
         end
 
         # Generate keyboard variants of a word.
+        #
+        # Each round applies one edit operation to every current
+        # variant: substitution with a keyboard-adjacent key,
+        # insertion of an adjacent key, deletion, and adjacent
+        # transposition (the restricted Damerau operation — the most
+        # common typing error, which is why it is enumerated here as a
+        # single edit like the others).
         #
         # @param word [String] The word
         # @param max_distance [Integer] Maximum edit distance
@@ -195,6 +178,13 @@ module Kotoshu
                   new_variants.add(variant[0...i] + variant[(i + 1)..]) # Delete
                   new_variants.add(variant[0...i] + neighbor + variant[i..]) # Insert
                 end
+              end
+
+              # Adjacent transposition: swap each neighboring
+              # character pair (a single 1-cost edit).
+              (0...variant.length - 1).each do |i|
+                swapped = variant[0...i] + variant[i + 1] + variant[i] + variant[(i + 2)..]
+                new_variants.add(swapped)
               end
             end
 

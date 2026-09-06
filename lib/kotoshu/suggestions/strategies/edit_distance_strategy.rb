@@ -170,8 +170,36 @@ module Kotoshu
             candidates << [dict_word, dist, score]
           end
 
+          # Single-edit sweep: enumerate the distance-1 edits of the
+          # misspelling itself (adjacent transposition, substitution,
+          # insertion, deletion) and keep the ones the dictionary
+          # accepts. The headword loop above can only ever surface raw
+          # dictionary stems — without this sweep, valid dictionary
+          # FORMS (affixed like "definately" -> "definitely", or
+          # capitalization variants like "Teh" -> "The") can never be
+          # suggested, no matter how close they are. Transposition is
+          # enumerated as a single operation (restricted Damerau), so
+          # a swapped pair costs 1, not 2.
+          edit_sweep_candidates(context, word, case_insensitive: case_insensitive,
+                                               max_dist: max_dist) do |candidate, dist|
+            compare_candidate = case_insensitive ? candidate.downcase : candidate
+            score = calculate_enhanced_score(compare_word, compare_candidate, dist)
+            candidates << [candidate, dist, score]
+          end
+
           # Sort by enhanced score (lower is better)
           sorted_candidates = candidates.sort_by { |_, _, score| score }
+
+          # Drop case variants of the same word, keeping the
+          # best-scoring form (first after the sort). The headword
+          # loop and the edit sweep can both propose a word — e.g.
+          # "the" (stem) and "The" (lookup-valid INITCAP form of the
+          # same stem) — and the final SuggestionSet would deduplicate
+          # them anyway; deduplicating here keeps the strategy output
+          # free of case duplicates and the score range used for
+          # confidence normalization honest.
+          seen_words = Set.new
+          sorted_candidates = sorted_candidates.select { |dict_word, _, _| seen_words.add?(dict_word.downcase) }
 
           # Calculate confidence scores with threshold filtering
           if sorted_candidates.empty?
@@ -339,6 +367,93 @@ module Kotoshu
         # @return [Integer, nil] Distance or nil if exceeds threshold
         def edit_distance_with_threshold(str1, str2, threshold)
           Algorithms::EditDistance.distance_with_threshold(str1, str2, threshold)
+        end
+
+        # Enumerate the single-edit candidates of the misspelling and
+        # yield the ones the dictionary accepts, with their true
+        # (Damerau-Levenshtein) distance. Edit order is fixed and
+        # mirrors typo frequency: transposition, substitution,
+        # insertion, deletion — ties in the candidate sort resolve in
+        # this order, and the native engine reproduces it exactly.
+        #
+        # Substitutions and insertions use the dictionary's TRY
+        # string (Hunspell TRY directive); with no TRY available
+        # they are skipped, exactly as in Hunspell. Deletions and
+        # transpositions need no alphabet and always run.
+        #
+        # Candidates are validated with the full dictionary lookup,
+        # so affixed forms (stem + suffix/prefix, e.g. "definitely")
+        # and capitalization variants (e.g. "The") are accepted with
+        # their surface spelling preserved.
+        #
+        # @param context [Context] The suggestion context
+        # @param word [String] The misspelled word
+        # @param case_insensitive [Boolean] Comparison case handling
+        # @param max_dist [Integer] Maximum distance to accept
+        # @yield [String, Integer] Each accepted candidate and distance
+        def edit_sweep_candidates(context, word, case_insensitive:, max_dist:)
+          compare_word = case_insensitive ? word.downcase : word
+          try_string = try_string_for(context)
+          seen = Set.new
+
+          each_sweep_edit(word, try_string) do |candidate|
+            next if candidate == word
+            next unless seen.add?(candidate)
+
+            next unless dictionary_lookup(context, candidate)
+
+            compare_candidate = case_insensitive ? candidate.downcase : candidate
+            dist = edit_distance_with_threshold(compare_word, compare_candidate, max_dist)
+            next unless dist && dist > 0
+
+            yield candidate, dist
+          end
+        end
+
+        # Yield every single-edit variant of the word in canonical
+        # order: adjacent transpositions (Permutations.swapchar,
+        # restricted Damerau operation), substitutions over the TRY
+        # alphabet (Permutations.badchar), insertions over the TRY
+        # alphabet (Permutations.forgotchar), and deletions
+        # (Permutations.extrachar). Reuses the spylls-derived
+        # permutation primitives — the same generators the
+        # Hunspell-style suggester uses.
+        #
+        # @param word [String] The word to edit
+        # @param try_string [String, nil] Substitution/insertion alphabet
+        # @yield [String] Each edit variant
+        def each_sweep_edit(word, try_string, &block)
+          # Adjacent transposition (and, for 4/5-letter words,
+          # double adjacent swaps) — the most common typing error.
+          Algorithms::Permutations.swapchar(word, &block)
+
+          # Substitution of each character with each TRY character.
+          Algorithms::Permutations.badchar(word, try_string, &block)
+
+          # Insertion of each TRY character at each position.
+          Algorithms::Permutations.forgotchar(word, try_string, &block)
+
+          # Deletion of one character at each position.
+          Algorithms::Permutations.extrachar(word, &block)
+        end
+
+        # The substitution/insertion alphabet for the edit sweep: an
+        # explicit +try_string+ config wins (used by callers without
+        # a TRY-capable dictionary); otherwise the dictionary's TRY
+        # string (nil for backends without one — the sweep then runs
+        # transpositions and deletions only).
+        #
+        # @param context [Context] The suggestion context
+        # @return [String, nil] TRY characters or nil
+        def try_string_for(context)
+          configured = get_config(:try_string)
+          return configured if configured
+
+          dictionary = context.dictionary
+          case dictionary
+          when Kotoshu::Dictionary::Base then dictionary.try_string
+          else nil
+          end
         end
 
         public

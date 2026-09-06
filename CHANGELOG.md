@@ -8,6 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- **Suggestion candidate sweep missed transpositions, substitutions, and
+  dictionary forms** - `EditDistanceStrategy` only scored raw dictionary
+  stems, so valid dictionary forms could never be suggested no matter how
+  close: an adjacent transposition paired with a case difference ("Teh" ->
+  "The") was charged as two operations, and affixed forms ("definately" ->
+  "definitely", a stem + `-ly` suffix never present as a stem) were absent
+  from the candidate set entirely. The strategy now also sweeps the
+  distance-1 edits of the misspelling itself - adjacent transposition
+  (restricted Damerau operation, cost 1), substitution and insertion over
+  the dictionary TRY string, and deletion - validating each against the
+  full affix-aware dictionary lookup, and case-variant duplicates of the
+  same word are deduplicated keeping the best-scoring form. The phonetic
+  and keyboard-proximity strategies now measure candidates with
+  `Algorithms::EditDistance` (Damerau-Levenshtein; previously each carried
+  a private plain-Levenshtein copy charging transpositions 2), and the
+  keyboard variant generator enumerates adjacent transpositions as a
+  single edit. `Dictionary::Base#try_string` / `Dictionary::Hunspell#try_string`
+  expose the Hunspell TRY directive for the sweep alphabet. Conformance
+  suggest vectors regenerated (84 of 1315 rows improved - affixed, compound,
+  and correctly-cased forms now appear; all 1315 correct vectors unchanged).
 - **Dictionary mutation correctness** (from suleman-uzair, PR rescue of #93) -
   `remove_word` deleted the wrong word after any prior removal because the
   word set stored array indices that went stale; `Custom`, `PlainText`, and

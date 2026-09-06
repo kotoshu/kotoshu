@@ -51,6 +51,14 @@ module Kotoshu
         @lookuper ||= Readers::LookupBuilder.from_data(@aff_data, @dic_words).build
       end
 
+      # The TRY string from the .aff file, driving substitution and
+      # insertion candidate generation (see {Base#try_string}).
+      #
+      # @return [String, nil] TRY characters, or nil when the aff has no TRY
+      def try_string
+        aff_data['TRY']
+      end
+
       # @return [Algorithms::Suggest::Suggester] The suggestion algorithm instance
       def suggester
         @suggester ||= Algorithms::Suggest::Suggester.new(
