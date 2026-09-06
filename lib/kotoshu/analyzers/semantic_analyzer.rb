@@ -292,7 +292,7 @@ module Kotoshu
       #
       # @param word [String] The error word
       # @param suggestions [Array<Models::Suggestion>] Suggestions
-      # @param context [Models::Context, nil] Context
+      # @param _context [Models::Context, nil] Context (unused)
       # @return [Symbol] Error type
       def classify_error(word, suggestions, _context)
         return :orthographic if suggestions && suggestions.empty?

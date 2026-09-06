@@ -29,12 +29,6 @@ module Kotoshu
 
       # Create a new CSpell dictionary.
       #
-      # @param path [String] Path to the dictionary file (.txt or .trie)
-      # @param language_code [String] The language code
-      # @param locale [String, nil] The locale (optional)
-      # @param case_sensitive [Boolean] Whether lookups are case-sensitive
-      # @param metadata [Hash] Additional metadata (optional)
-      # @param path [String, nil] Path to the dictionary file (.txt or
       #   .trie). Nil when constructing from in-memory +words:+.
       # @param language_code [String] The language code
       # @param locale [String, nil] The locale (optional)
@@ -141,8 +135,9 @@ module Kotoshu
 
       # Remove a word from the dictionary.
       #
-      # @param word [String] The word to remove
-      # @return [Boolean] True if removed
+      # @param _word [String] The word to remove (unused — the trie
+      #   does not support removal)
+      # @return [Boolean] Always false; trie dictionaries are immutable
       # @note CSpell dictionaries are typically immutable after loading
       def remove_word(_word)
         # Trie doesn't support removal easily

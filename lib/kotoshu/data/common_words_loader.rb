@@ -52,7 +52,6 @@ module Kotoshu
         # Load from GitHub frequency.json (Phase 2 integration).
         # Also handles Kelly frequency-list format from kotoshu/frequency-list-kelly
         #
-        # @param language_code [String] ISO 639-1 language code
         # @param frequency_path [String] Path to frequency.json file
         # @return [Hash{Symbol => Set}] Hash with :tiers and :metadata
         def load_from_frequency_file(frequency_path)

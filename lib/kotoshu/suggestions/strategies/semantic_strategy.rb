@@ -93,7 +93,7 @@ module Kotoshu
         # - Words not in vocabulary (for typo re-ranking)
         # - Words in vocabulary (for real-word error detection)
         #
-        # @param context [Context] The suggestion context
+        # @param _context [Context] The suggestion context
         # @return [Boolean] True if the strategy should handle this context
         def handles?(_context)
           return false unless enabled?
@@ -265,7 +265,7 @@ module Kotoshu
 
         # Get context words for semantic analysis.
         #
-        # @param context [Context] The suggestion context
+        # @param _context [Context] The suggestion context (unused)
         # @return [Array<String>] Context words
         def get_context_words(_context)
           # For now, return empty - context analysis would need full text

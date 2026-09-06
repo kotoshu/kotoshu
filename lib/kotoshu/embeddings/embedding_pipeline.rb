@@ -227,12 +227,10 @@ module Kotoshu
 
       # Convenience class methods
       class << self
-        # Create pipeline for a specific language (shortcut)
+        # Create a pipeline for a specific language (shortcut for
+        # {.from_cache}; same parameters and return value).
         #
-        # @param language [String] ISO 639-1 language code
-        # @param kwargs [Hash] Additional options
-        # @return [EmbeddingPipeline]
-        #
+        # @see .from_cache
         alias :[] :from_cache
       end
     end

@@ -1,0 +1,55 @@
+# YARD API reference build.
+#
+# Builds `yard doc` on main and on PRs that touch the public surface,
+# uploads the generated HTML as an artifact, and fails on warnings that
+# indicate broken doc tags (@param/@option name mismatches, unknown or
+# malformed tags). Unresolved prose links in internal namespaces are
+# tracked separately and do not fail the build.
+#
+# Hosting (gh-pages vs a subpath on kotoshu.github.io) is an open owner
+# decision — nothing is deployed from here yet.
+
+name: docs
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    paths:
+      - 'lib/**'
+      - '.yardopts'
+      - 'README.adoc'
+      - '.github/workflows/docs.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  yard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - name: Build YARD docs
+        run: |
+          set -o pipefail
+          bundle exec yard doc 2>&1 | tee yard-build.log
+
+      - name: Fail on broken YARD tags
+        run: |
+          if grep -E '\[warn\].*(unknown parameter name|duplicate parameter name|unknown tag|Invalid tag format|@option tag)' yard-build.log; then
+            echo "::error::YARD reported broken documentation tags (see yard-build.log)"
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yard-docs
+          path: doc/
+          retention-days: 14

@@ -1,0 +1,8 @@
+--title "Kotoshu API Reference"
+--markup markdown
+--readme README.adoc
+--exclude ^spec/
+--exclude ^tasks/
+--exclude ^ext/
+--exclude ^conformance/
+--hide-void-return

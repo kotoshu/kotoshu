@@ -1246,6 +1246,23 @@ Plugin gems should publish to RubyGems with a runtime dependency on
 `kotoshu >= 0.5.0`. Format-specific parsers are the plugin's
 responsibility — kotoshu never owns document parsing.
 
+== API Documentation
+
+The YARD API reference for the Ruby API builds in CI on every change
+to `lib/` (the `docs` workflow); the generated HTML is attached to each
+run as the `yard-docs` artifact. A hosted copy is pending — it will
+live either on this repository's GitHub Pages or as an API subpath on
+https://kotoshu.github.io[kotoshu.github.io].
+
+To build and browse it locally:
+
+[source,bash]
+----
+bundle install
+bundle exec yard doc
+open doc/index.html
+----
+
 == License
 
 BSD 2-Clause — see the link:LICENSE[LICENSE] file for details.

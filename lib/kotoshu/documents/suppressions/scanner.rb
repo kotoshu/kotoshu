@@ -27,11 +27,22 @@ module Kotoshu
       # form the plan defines them for); extra words after the other
       # directives are ignored.
       class Scanner
+        # A directive line: `kotoshu:<verb>` at the very start of a
+        # comment body, capturing the verb and any trailing word list.
         DIRECTIVE_PATTERN =
           /\Akotoshu:(disable-line|disable-next-line|disable-file|enable-file)\b[ \t]*(.*)\z/
+
+        # Matches an HTML comment body (`<!-- ... -->`; Markdown profile).
         HTML_COMMENT_BODIES = /<!--\s*(.*?)\s*-->/
+
+        # Matches an AsciiDoc `//` line comment body. The marker must
+        # start the line or follow whitespace so URLs are not comments.
         ASCII_DOC_COMMENT_BODY = /(?:\A|[ \t])\/\/[ \t]?(?<body>.*)\Z/
 
+        # Which comment kinds each format profile recognizes: :bare
+        # (whole-line directives), :html_comment (Markdown),
+        # :line_comment (AsciiDoc). :auto enables all three — the
+        # facade default, since it checks raw text without a parser.
         PROFILE = {
           plain: %i[bare],
           markdown: %i[html_comment],
