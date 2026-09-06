@@ -6,8 +6,9 @@
 # malformed tags). Unresolved prose links in internal namespaces are
 # tracked separately and do not fail the build.
 #
-# Hosting (gh-pages vs a subpath on kotoshu.github.io) is an open owner
-# decision — nothing is deployed from here yet.
+# Hosting: gh-pages off this repo (owner-approved option 1, 2026-09-06).
+# Main pushes publish doc/ to the gh-pages branch -> served at
+# https://kotoshu.github.io/kotoshu/ once Pages is enabled on it.
 
 name: docs
 
@@ -24,10 +25,16 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: yard-docs
+  cancel-in-progress: true
+
 jobs:
   yard:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -53,3 +60,12 @@ jobs:
           name: yard-docs
           path: doc/
           retention-days: 14
+
+      - name: Publish to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: doc
+          force_orphan: true
