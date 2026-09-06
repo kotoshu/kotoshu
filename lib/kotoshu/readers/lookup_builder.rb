@@ -491,7 +491,7 @@ module Kotoshu
       # because their REP entries don't map 1:1 to the stem and would
       # mislead ngram.
       #
-      # @param stem [String] Dictionary stem (unused, present for symmetry)
+      # @param _stem [String] Dictionary stem (unused, present for symmetry)
       # @param ph_tokens [Array<String>] Raw `ph:` payloads
       # @return [Array<String>] Simple alt spellings
       def simple_alt_spellings(_stem, ph_tokens)

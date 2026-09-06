@@ -530,7 +530,7 @@ module Kotoshu
     # The process-default configuration instance.
     #
     # New code should prefer passing a +Configuration+ instance
-    # explicitly to {Spellchecker.new} (and friends) rather than
+    # explicitly to `Spellchecker.new` (and friends) rather than
     # reading this singleton — that path is testable without
     # process-wide state and scopes the configuration per-call. This
     # accessor is kept for backward compat with the facade methods
@@ -673,15 +673,21 @@ module Kotoshu
 
     # Get default cache path.
     #
-    # @return [String] The default cache path
+    # @return [String] The default cache path (see Paths.cache_path)
     def self.default_cache_path
       Paths.cache_path
     end
 
+    # Get default user config directory.
+    #
+    # @return [String] The default config path (see Paths.config_path)
     def self.default_config_path
       Paths.config_path
     end
 
+    # Get default data directory.
+    #
+    # @return [String] The default data path (see Paths.data_path)
     def self.default_data_path
       Paths.data_path
     end

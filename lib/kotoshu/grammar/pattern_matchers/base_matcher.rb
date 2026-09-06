@@ -15,8 +15,8 @@ module Kotoshu
 
         # Match tokens against the pattern.
         #
-        # @param tokens [Array<Hash>] Array of token hashes
-        # @param rule [Rule] The rule being checked
+        # @param _tokens [Array<Hash>] Array of token hashes (unused)
+        # @param _rule [Rule] The rule being checked (unused)
         # @return [Array<Hash>] Array of error hashes
         def match(_tokens, _rule)
           []

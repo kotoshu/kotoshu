@@ -191,14 +191,18 @@ module Kotoshu
   #
   # @param languages [String, Symbol, Array<String, Symbol>] One or more language codes
   # @param want [Array<Symbol>] Resource types to fetch (default: [:spelling])
-  # @param force [Boolean] Re-fetch even if already cached
-  # @param strict [Boolean] Re-raise on optional-resource failure
-  # @param tier [Symbol, String] Model tier when want includes :model
+  # @param opts [Hash] Additional keyword options, all forwarded to
+  #   ResourceManager.setup
+  # @option opts [Boolean] :force Re-fetch even if already cached
+  # @option opts [Boolean] :strict Re-raise on optional-resource failure
+  # @option opts [Symbol, String] :tier Model tier when want includes :model
   #   (:full default, :fluency, :mini)
-  # @param aff [String, nil] Path to local .aff file (single-language only)
-  # @param dic [String, nil] Path to local .dic file (single-language only)
-  # @param from [String, nil] Directory containing local .aff/.dic (single-language only)
-  # @param frequency [String, nil] Path to local frequency.json (single-language only)
+  # @option opts [String, nil] :aff Path to local .aff file (single-language only)
+  # @option opts [String, nil] :dic Path to local .dic file (single-language only)
+  # @option opts [String, nil] :from Directory containing local .aff/.dic
+  #   (single-language only)
+  # @option opts [String, nil] :frequency Path to local frequency.json
+  #   (single-language only)
   # @return [SetupResult, Array<SetupResult>] Result or results (array if multiple languages)
   #
   # @example Download from kotoshu/dictionaries
@@ -315,7 +319,8 @@ module Kotoshu
   #
   # @param text [String] The text to check
   # @param language [String, Symbol, nil] Language code; if nil, uses configured default
-  # @param options [Hash] Options
+  # @param _options [Hash] Accepted and ignored — kept so call sites can
+  #   pass extra options without breaking
   # @return [Models::Result::DocumentResult] The check result
   # @raise [ResourceNotSetupError] if the language hasn't been set up
   #
@@ -332,7 +337,8 @@ module Kotoshu
   #
   # @param path [String] The file path
   # @param language [String, Symbol, nil] Language code
-  # @param options [Hash] Options
+  # @param _options [Hash] Accepted and ignored — kept so call sites can
+  #   pass extra options without breaking
   # @return [Models::Result::DocumentResult] The check result
   # @raise [ResourceNotSetupError] if the language hasn't been set up
   #

@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 module Kotoshu
+  # Rake integration namespace (plan 89). Requiring
+  # `kotoshu/tasks` installs the default {CheckTask}; build custom
+  # tasks by constructing {CheckTask} yourself.
   module Tasks
     # Rake task checking a repository text files with the plan-88
     # file selection (plan 89, item 3).

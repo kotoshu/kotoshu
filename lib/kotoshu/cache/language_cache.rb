@@ -319,7 +319,8 @@ module Kotoshu
       # Download a specific resource (implements abstract method).
       #
       # @param resource_id [String] The resource identifier
-      # @param dest_path [String] Destination directory
+      # @param _dest_path [String] Destination directory (unused —
+      #   spelling resources pick their own layout)
       # @return [Object] Downloaded resource
       def download_resource(resource_id, _dest_path)
         language = extract_language(resource_id)

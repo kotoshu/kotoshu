@@ -23,7 +23,7 @@ module Kotoshu
 
       # Record a lookup operation.
       #
-      # @param word [String] The word being looked up
+      # @param _word [String] The word being looked up (not retained)
       # @param result [Boolean] The lookup result
       # @param time [Float] Time taken in milliseconds
       def record_lookup(_word, result:, time:)
@@ -55,7 +55,7 @@ module Kotoshu
 
       # Record suggestion generation.
       #
-      # @param word [String] The input word
+      # @param _word [String] The input word (not retained)
       # @param count [Integer] Number of suggestions generated
       # @param time [Float] Time taken in milliseconds
       def record_suggestions(_word, count:, time:)

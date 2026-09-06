@@ -64,15 +64,14 @@ module Kotoshu
         @strategy.generate(context)
       end
 
-      # Alias for generate for API consistency.
-      #
-      # @param word [String] The misspelled word
-      # @param max_suggestions [Integer] Maximum suggestions (optional)
-      # @return [SuggestionSet] Generated suggestions
+      # Alias for {#generate}, for API consistency (same parameters and
+      # return value).
       #
       # @example
       #   generator.suggest("helo")
       #   # => #<Kotoshu::Suggestions::SuggestionSet ...>
+      #
+      # @see #generate
       alias suggest generate
 
       # Check if a word is correct.

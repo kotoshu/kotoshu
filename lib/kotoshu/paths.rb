@@ -16,26 +16,52 @@ module Kotoshu
   #   ~/.local/share/kotoshu/   append-only data (audit log)
   module Paths
     class << self
+      # Root directory for downloaded resources (dictionaries,
+      # frequency lists, ONNX models).
+      #
+      # @return [String] KOTOSHU_CACHE_PATH, or
+      #   `$XDG_CACHE_HOME/kotoshu` (default `~/.cache/kotoshu`)
       def cache_path
         ENV.fetch("KOTOSHU_CACHE_PATH", nil) || xdg("CACHE", "cache")
       end
 
+      # Root directory for user configuration (kotoshu.cfg, personal
+      # dictionary).
+      #
+      # @return [String] KOTOSHU_CONFIG_PATH, or
+      #   `$XDG_CONFIG_HOME/kotoshu` (default `~/.config/kotoshu`)
       def config_path
         ENV.fetch("KOTOSHU_CONFIG_PATH", nil) || xdg("CONFIG", "config")
       end
 
+      # Root directory for shared state (audit log).
+      #
+      # @return [String] KOTOSHU_DATA_PATH, or
+      #   `$XDG_DATA_HOME/kotoshu` (default `~/.local/share/kotoshu`)
       def data_path
         ENV.fetch("KOTOSHU_DATA_PATH", nil) || xdg("DATA", "local/share")
       end
 
+      # Where audited operations are appended (with rotation; see
+      # Configuration#audit_max_bytes / #audit_rotations).
+      #
+      # @return [String] KOTOSHU_AUDIT_LOG, or `<data_path>/audit.log`
       def audit_log_path
         ENV.fetch("KOTOSHU_AUDIT_LOG", nil) || File.join(data_path, "audit.log")
       end
 
+      # Where {PersonalDictionary} stores its words (Hunspell word-list
+      # format).
+      #
+      # @return [String] KOTOSHU_PERSONAL_DIC, or
+      #   `<config_path>/personal.dic`
       def personal_dictionary_path
         ENV.fetch("KOTOSHU_PERSONAL_DIC", nil) || File.join(config_path, "personal.dic")
       end
 
+      # Create the cache, config, and data directories. Idempotent.
+      #
+      # @return [void]
       def ensure_exist!
         FileUtils.mkdir_p(cache_path)
         FileUtils.mkdir_p(config_path)

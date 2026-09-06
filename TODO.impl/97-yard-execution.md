@@ -36,4 +36,38 @@ declarations only. Suite stays 3701/0/27.
 
 ## Status
 
-**Pending.**
+**Merged (PR #NNN — filled at merge).**
+
+What shipped:
+
+- `.yardopts`: title "Kotoshu API Reference", markup markdown,
+  README.adoc as the readme, excludes for `^spec/`, `^tasks/`,
+  `^ext/`, `^conformance/`, `--hide-void-return` (pragmatic default:
+  no hard undocumented-count rule).
+- Coverage pass on the full public list (facade, Cli, Spellchecker,
+  ResourceManager/Bundle/SetupResult, Configuration, Paths, Documents
+  + Suppressions, PersonalDictionary, Baseline, Suggestions::Generator,
+  integration entry points). Undocumented objects in the covered
+  files: 28 before, 0 after; repo-wide 84.72% -> 85.80%. Broken tag
+  warnings (`@param` name mismatches etc.) fixed repo-wide so the CI
+  gate can start green — includes small docstring-only fixes in
+  internals (cspell, metrics_collector, language_cache, strategies,
+  pattern matchers, embedding pipeline).
+- CI: `.github/workflows/docs.yml` — yard doc on main + PRs touching
+  `lib/**`/`.yardopts`/README, uploads `doc/` as the `yard-docs`
+  artifact, fails on warnings indicating broken tags (unknown/duplicate
+  parameter names, unknown or malformed tags). Unresolved prose links
+  in internal namespaces are known debt (~30 sites) and do not gate.
+- README.adoc gained an "API Documentation" section.
+
+HOSTING — owner choice, nothing deployed yet:
+
+1. **gh-pages off this repo** — the docs workflow gets a deploy step
+   publishing `doc/` to the `gh-pages` branch. Zero new moving parts,
+   everything lives in this repo; URL becomes
+   `kotoshu.github.io/kotoshu`.
+2. **Subpath on kotoshu.github.io** — the site repo owns the single
+   public host and links `/api/` to the reference. YARD's output uses
+   relative links so it works under a subpath unchanged; costs a small
+   sync job (artifact download or subtree copy) plus a site-repo PR
+   per doc rebuild.

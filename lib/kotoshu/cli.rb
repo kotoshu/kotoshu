@@ -9,6 +9,9 @@ require "thor"
 #   kotoshu dict info en-US
 class DictCommand < Thor
   desc "list", "List available dictionaries"
+  # Print the available dictionary types (one line each).
+  #
+  # @return [void]
   def list
     puts "Available dictionary types:"
     puts "  - unix_words: Unix system dictionary"
@@ -19,6 +22,12 @@ class DictCommand < Thor
   end
 
   desc "info TYPE", "Show information about a dictionary type"
+  # Print a short description of one dictionary type, or a hint to
+  # run `kotoshu dict list` for an unknown type.
+  #
+  # @param type [String, Symbol] One of unix_words, plain_text,
+  #   custom, hunspell, cspell
+  # @return [void]
   def info(type)
     case type.to_sym
     when :unix_words
@@ -51,6 +60,11 @@ class DictCommand < Thor
 end
 
 module Kotoshu
+  # Command-line interface namespace.
+  #
+  # The entry class is {Cli} (driven by exe/kotoshu); helper
+  # components — subcommands, the interactive reviewer, reporting and
+  # directory walking — are autoloaded from cli/.
   module Cli
     # LAZY: CLI helper components (autoloaded on first reference)
     autoload :CacheCommand, "kotoshu/cli/cache_command"
@@ -148,6 +162,15 @@ module Kotoshu
       method_option :exclude,
                     type: :array,
                     desc: "Skip files matching these globs (always wins over --include and the extension default)"
+      # Check spelling in files, directories, or stdin. Cache-only —
+      # never downloads; run `kotoshu setup LANG` first. See the
+      # command long description (kotoshu help check) for flags,
+      # directory-mode semantics, and exit codes.
+      #
+      # @param targets [Array<String>] File(s) and/or directory(ies);
+      #   empty reads stdin
+      # @return [void]
+      # @see Kotoshu.check
       def check(*targets)
         apply_configuration!
         if targets.empty? || (targets.one? && File.file?(targets.first))
@@ -278,6 +301,11 @@ module Kotoshu
                     type: :boolean,
                     default: false,
                     desc: "List currently set up languages and exit"
+      # Deprecated alias for {#setup} (kept hidden from help output).
+      #
+      # @param languages [Array<String>] One or more language codes
+      # @return [void]
+      # @see #setup
       def fetch(*languages)
         setup(*languages)
       end
@@ -308,6 +336,12 @@ module Kotoshu
                     type: :boolean,
                     default: false,
                     desc: "Emit the report as JSON"
+      # Print a snapshot of the installation: set-up languages with
+      # per-resource status, cache disk usage, audit log, default
+      # language, and whether onnxruntime is loaded. `--json` emits
+      # the same report as one JSON object.
+      #
+      # @return [void]
       def status
         report = StatusReport.build(version: Kotoshu::VERSION)
         if options[:json]
@@ -318,6 +352,9 @@ module Kotoshu
       end
 
       desc "version", "Show version information"
+      # Print the kotoshu and Ruby versions (also via `--version`).
+      #
+      # @return [void]
       def version
         puts "Kotoshu version #{Kotoshu::VERSION}"
         puts "Ruby #{RUBY_VERSION}"

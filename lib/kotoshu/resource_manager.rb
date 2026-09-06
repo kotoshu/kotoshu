@@ -16,10 +16,27 @@ module Kotoshu
   # The hot path (Kotoshu.correct?, .check, .suggest, .spellchecker_for) calls
   # resolve and lets ResourceNotSetupError propagate. Setup is never implicit.
   class ResourceManager
+    # Default `want:` value: spelling only. Everything else (frequency,
+    # model) is an explicit opt-in.
     DEFAULT_WANT = %i[spelling].freeze
 
+    # The Stage-1 result: per-resource status for one language's
+    # setup run. A resource that was not requested is nil; one that
+    # was requested but failed is :unavailable.
+    #
+    # Statuses: :downloaded | :local | :cached | :unavailable | nil.
+    # The most common ones, as a quick reference:
+    #
+    #   result = Kotoshu.setup(:en, want: %i[spelling frequency model])
+    #   result.spelling   # => :downloaded (or :cached on re-run)
+    #   result.frequency  # => :downloaded | :unavailable (soft dep)
+    #   result.model      # => :downloaded | :cached | :unavailable
+    #   result.model_tier # => :full | :fluency | :mini | nil
+    #   result.source     # => :kotoshu | :local
+    #
+    # See also {ResourceBundle} — the Stage-2 result.
     SetupResult = Struct.new(
-      :language,
+      :language,    # [String] Language code that was set up
       :spelling,    # :downloaded | :local | :cached | nil
       :frequency,   # :downloaded | :local | :cached | :unavailable | nil
       :model,       # :downloaded | :cached | :unavailable | nil
@@ -27,28 +44,74 @@ module Kotoshu
       :source,      # :kotoshu | :local
       keyword_init: true
     ) do
+      # Whether the setup run produced anything usable: at least one
+      # of spelling/frequency succeeded. A nil everywhere means the
+      # run failed outright (network, integrity) — with `strict:`,
+      # such failures raise instead.
+      #
+      # @return [Boolean]
       def success?
         !spelling.nil? || !frequency.nil?
       end
     end
 
     class << self
+      # Stage 1, class-level convenience. Delegates to a new instance;
+      # see the instance method for parameters and semantics.
+      #
+      # @param language [String, Symbol]
+      # @param want [Array<Symbol>] Resource types (default: [:spelling])
+      # @param opts [Hash] Forwarded to {#setup} (force:, strict:,
+      #   tier:, aff:, dic:, from:, frequency:)
+      # @return [SetupResult]
+      # @see #setup
+      # @see Kotoshu.setup
       def setup(language, want: DEFAULT_WANT, force: false, strict: false, **opts)
         new.setup(language: language, want: want, force: force, strict: strict, **opts)
       end
 
+      # Stage 1 from local files, class-level convenience. Delegates to
+      # a new instance; see the instance method.
+      #
+      # @param language [String, Symbol]
+      # @param aff [String] Path to the local .aff file
+      # @param dic [String] Path to the local .dic file
+      # @param frequency [String, nil] Optional path to frequency.json
+      # @param force [Boolean] Re-register even if already cached
+      # @return [SetupResult]
+      # @raise [ArgumentError] when a file is missing
+      # @see #setup_from_local
       def setup_from_local(language:, aff:, dic:, frequency: nil, force: false)
         new.setup_from_local(language: language, aff: aff, dic: dic, frequency: frequency, force: force)
       end
 
+      # Stage 2, class-level convenience. Delegates to a new instance;
+      # see the instance method for the tier contract.
+      #
+      # @param language [String, Symbol]
+      # @param want [Array<Symbol>] Resource types (default: [:spelling])
+      # @param tier [Symbol, nil] Model tier to resolve
+      # @return [ResourceBundle]
+      # @raise [ResourceNotSetupError] when a wanted resource is not cached
+      # @see #resolve
       def resolve(language:, want: DEFAULT_WANT, tier: nil)
         new.resolve(language: language, want: want, tier: tier)
       end
 
+      # Predicate, class-level convenience. See {#setup?}.
+      #
+      # @param language [String, Symbol]
+      # @param resource [Symbol, nil] :spelling, :frequency, :model, nil for any
+      # @param tier [Symbol, nil] Model tier to check (:any = any tier)
+      # @return [Boolean]
       def setup?(language, resource: nil, tier: nil)
         new.setup?(language, resource: resource, tier: tier)
       end
 
+      # Languages with a cached spelling dictionary, sorted.
+      #
+      # @return [Array<String>]
+      # @see Kotoshu.languages_setup
       def languages_setup
         new.languages_setup
       end
@@ -56,6 +119,29 @@ module Kotoshu
 
     # ---- Stage 1: setup ----
 
+    # Download or register resources for one language (slow,
+    # network-required when remote, explicit). Idempotent: re-running
+    # with the same args is a no-op unless `force:` is true.
+    #
+    # Pass `aff:`/`dic:` or `from:` to register local Hunspell files
+    # instead of downloading (single-language only). See
+    # {Kotoshu.setup} — the facade takes the same options and fans
+    # them out over multiple languages.
+    #
+    # @param language [String, Symbol] Language code
+    # @param want [Array<Symbol>] Resource types (default: [:spelling])
+    # @param force [Boolean] Re-fetch even if already cached
+    # @param strict [Boolean] Re-raise on optional-resource failure
+    #   (frequency/model); without it, failures degrade to
+    #   :unavailable with a warning
+    # @param tier [Symbol, String, nil] Model tier when want includes
+    #   :model (:full default, :fluency, :mini)
+    # @param aff [String, nil] Path to local .aff file
+    # @param dic [String, nil] Path to local .dic file
+    # @param from [String, nil] Directory containing lang.aff/lang.dic
+    # @param frequency [String, nil] Path to local frequency.json
+    # @return [SetupResult]
+    # @raise [ArgumentError] when local files are named but missing
     def setup(language:, want: DEFAULT_WANT, force: false, strict: false, tier: nil,
               aff: nil, dic: nil, from: nil, frequency: nil)
       lang = normalize_language(language)
@@ -68,6 +154,25 @@ module Kotoshu
       end
     end
 
+    # Register local Hunspell files as the language's cached spelling
+    # dictionary (no network). `from:` looks for `lang.aff` and
+    # `lang.dic` inside the directory; explicit `aff:`/`dic:` paths win.
+    #
+    # @param language [String, Symbol] Language code
+    # @param aff [String, nil] Path to the .aff file
+    # @param dic [String, nil] Path to the .dic file
+    # @param from [String, nil] Directory to find lang.aff/lang.dic in
+    # @param frequency [String, nil] Optional path to frequency.json
+    # @param force [Boolean] Re-register even if already cached
+    # @return [SetupResult]
+    # @raise [ArgumentError] when a file is missing
+    #
+    # @example
+    #   ResourceManager.setup_from_local(
+    #     language: "en",
+    #     aff: "/usr/share/hunspell/en_US.aff",
+    #     dic: "/usr/share/hunspell/en_US.dic"
+    #   ).source  # => :local
     def setup_from_local(language:, aff:, dic:, from: nil, frequency: nil, force: false)
       lang = normalize_language(language)
 
@@ -114,6 +219,18 @@ module Kotoshu
     #
     # `tier: :any` (explicit opt-in only) maps to the single cached
     # tier; with zero or multiple cached tiers it raises.
+    #
+    # @param language [String, Symbol] Language code
+    # @param want [Array<Symbol>] Resource types to resolve
+    #   (default: [:spelling])
+    # @param tier [Symbol, nil] Model tier to resolve (:full, :fluency,
+    #   :mini, or :any for "the single cached tier")
+    # @return [ResourceBundle] Bundle with a member per resolved
+    #   resource; unrequested resources are nil
+    # @raise [ResourceNotSetupError] when a wanted resource is not
+    #   cached — resolve never downloads
+    # @raise [ResourceResolutionError] when multiple model tiers are
+    #   cached and `tier: :any` cannot disambiguate
     def resolve(language:, want: DEFAULT_WANT, tier: nil)
       lang = normalize_language(language)
       effective_tier = effective_tier(tier)
@@ -139,6 +256,22 @@ module Kotoshu
 
     # ---- Predicates ----
 
+    # Whether a language (or a specific resource for it) is already
+    # cached and resolvable. Mirrors the tier-less resolve contract
+    # for models: with no `tier:`, the configured tier counts plus a
+    # single cached tier of any kind.
+    #
+    # @param language [String, Symbol] Language code
+    # @param resource [Symbol, nil] :spelling (default), :frequency,
+    #   :model, or nil for "spelling"
+    # @param tier [Symbol, nil] Model tier to check (:full, :fluency,
+    #   :mini, or :any); only meaningful with resource: :model
+    # @return [Boolean]
+    #
+    # @example
+    #   ResourceManager.setup?(:en)                       # spelling
+    #   ResourceManager.setup?(:en, resource: :frequency) # Kelly list
+    #   ResourceManager.setup?(:en, resource: :model, tier: :mini)
     def setup?(language, resource: nil, tier: nil)
       lang = normalize_language(language)
       case resource&.to_sym
@@ -165,6 +298,9 @@ module Kotoshu
       end
     end
 
+    # Languages with a cached spelling dictionary, sorted.
+    #
+    # @return [Array<String>] e.g. ["de", "en", "fr"]
     def languages_setup
       spelling_cache_for(nil).cached_resources
         .map { |r| r.to_s.split(":").first }
