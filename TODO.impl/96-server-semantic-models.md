@@ -34,4 +34,17 @@ None for source; the release itself remains the standing 0.1.1 gate.
 
 ## Status
 
-**Pending.**
+**Implemented (2026-09-06, kotoshu-server PR #3).** /v1/check gains
+"model": true|false (default = language has a model set up; explicit
+true on a model-less language is 422, non-boolean 400); rerank rides
+the gem cascade, memoized per language under a Mutex; per-word
+analyzer failure falls back to traditional suggestions. /v1/languages
+reports model availability. Boot opt-in via KOTOSHU_SERVER_MODEL_LANGS
++ KOTOSHU_SERVER_MODEL_TIER (default fluency) through the prewarm
+thread; unset = byte-for-byte 0.1.0 behavior; never implicit
+downloads. Gemspec constraint untouched (owner decision): the server
+fail-fasts at boot on kotoshu < 0.7.0 with a clear message; "model":
+true returns 503 there. Specs 15 green against 0.6.0 + 19 against
+local 0.7.0 source. Gem quirk recorded: SemanticAnalyzer raises
+in-vocab ArgumentError Similarity must be 0-1 (worked around
+server-side; gem-side fix pending).
