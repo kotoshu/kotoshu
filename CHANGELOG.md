@@ -8,6 +8,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- **Dictionary mutation correctness** (from suleman-uzair, PR rescue of #93) -
+  `remove_word` deleted the wrong word after any prior removal because the
+  word set stored array indices that went stale; `Custom`, `PlainText`, and
+  `UnixWords` now track membership (word => true) and remove by value, so
+  every copy of a duplicate word is gone and `words` / `include?` stay
+  consistent across interleaved add/remove sequences. `PlainText#add_word` /
+  `#remove_word` now also keep the length-bucketed index in sync, so
+  `find_by_length_range` (the edit-distance candidate filter) reflects
+  post-construction mutations instead of returning stale buckets.
+- **Edit-distance threshold on empty strings** (from suleman-uzair, PR rescue
+  of #93) - `Algorithms::EditDistance.distance_with_threshold` returned the
+  other string's length for empty inputs even when that exceeded the
+  threshold; the length pre-filter now runs before the empty-string
+  shortcuts, so the nil-above-threshold contract holds for empty strings.
+- **Offline mode enforcement and cache-only suggestion hot path** (from
+  suleman-uzair, PR rescue of #93) - `Kotoshu::Configuration.offline` /
+  `KOTOSHU_OFFLINE=1` previously did not stop downloads. Every cache
+  download path now refuses in offline mode (`BaseCache#download` and the
+  `download_url` / `download_file` transports raise
+  `ResourceNotCachedError`; `Integrity::NetHTTP.get` refuses before opening
+  a connection; `LanguageCache#download_spelling` / `#download_grammar`
+  raise). The resolve paths (`ResourceManager`, `FrequencyProvider`) read
+  via the public cache-only `load_cached` instead of the download-on-miss
+  `get`, so the suggestion hot path never triggers a download.
+  `Configuration.default` no longer re-applies `DEFAULTS` as explicit
+  settings, which clobbered every `KOTOSHU_*` ENV-derived value including
+  `KOTOSHU_OFFLINE`. `kotoshu cache download` surfaces offline and
+  integrity failures as `ResourceUnavailable` instead of a stack trace.
+- **Kelly frequency loader dead branch** (from suleman-uzair, PR rescue of
+  #93) - `CommonWordsLoader.load_from_frequency_file` kept a legacy
+  array-format branch that crashed on its own probe and had no producer;
+  it now parses the Kelly shape only and degrades unknown shapes to empty
+  tiers.
 - Remote `kotoshu setup` for staged languages: the dictionaries repo ships only
   `en` under the `{lang}/spelling/` layout while staged languages sit flat at
   `{lang}/index.*`; downloads now try the sublayout first and fall back to the
