@@ -1,0 +1,10 @@
+# Hunspell affix file for the suggestion edit-sweep specs.
+# Mirrors the shape the sweep depends on: a TRY string (substitution
+# and insertion alphabet) and a productive -ly suffix (SFX Y) so that
+# affixed forms like "definitely" are valid lookups without being
+# dictionary stems.
+SET UTF-8
+TRY esianrtolcdugmphbyfvkwz
+
+SFX Y Y 1
+SFX Y 0 ly .

@@ -293,35 +293,18 @@ module Kotoshu
           code[0...4] # Max 4 characters
         end
 
-        # Calculate Levenshtein edit distance.
+        # Calculate Damerau-Levenshtein edit distance.
+        #
+        # Delegates to Algorithms::EditDistance so phonetically equal
+        # candidates are measured with the same metric as the edit
+        # distance strategy — an adjacent transposition ("recieve" ->
+        # "receive") costs 1, not 2.
         #
         # @param str1 [String] First string
         # @param str2 [String] Second string
         # @return [Integer] Edit distance
         def edit_distance(str1, str2)
-          return str2.length if str1.empty?
-          return str1.length if str2.empty?
-
-          # Use smaller string for inner loop
-          str1, str2 = str2, str1 if str1.length > str2.length
-
-          previous = (0..str1.length).to_a
-
-          str2.each_char.with_index do |char2, j|
-            current = [j + 1]
-
-            str1.each_char.with_index do |char1, i|
-              insert_cost = current[i] + 1
-              delete_cost = previous[i + 1] + 1
-              substitute_cost = previous[i] + (char1 == char2 ? 0 : 1)
-
-              current << [insert_cost, delete_cost, substitute_cost].min
-            end
-
-            previous = current
-          end
-
-          previous.last
+          Algorithms::EditDistance.distance(str1, str2)
         end
       end
     end

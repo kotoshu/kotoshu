@@ -137,6 +137,18 @@ module Kotoshu
         words
       end
 
+      # The dictionary's TRY string: characters to try when generating
+      # single-edit candidates (substitutions, insertions), from the
+      # Hunspell TRY directive. Backends without a TRY concept answer
+      # nil — callers must treat nil as "no substitution/insertion
+      # alphabet" and fall back to the edit operations that need no
+      # alphabet (transposition, deletion).
+      #
+      # @return [String, nil] TRY characters, or nil when unavailable
+      def try_string
+        nil
+      end
+
       # Return words whose length is in [min_length, max_length].
       #
       # Default implementation filters all_words. Subclasses with a
