@@ -162,6 +162,17 @@ the docs for wave-2 features, and editor/action truth.
 | 94 | [Site integrations docs](94-site-integrations-docs.md) | Rails/RSpec/Rake/Jekyll + directory mode shipped undocumented; action page stale |
 | 95 | [Editor + action polish](95-editor-action-polish.md) | Extension delegates the now-existing server command; action gains baseline + 19 languages |
 
+Plans 96–97 are **wave 4** (2026-09-06): the audit found the wave-1–3
+surface complete except two honest items — the HTTP server never
+loads models, and plan 59's YARD reference is still unpublished. (The
+Rust engine was audited too: its AST-based aff parser is immune to
+the Swedish COMPOUNDRULE bug by design.)
+
+| # | Plan | Gap it closes |
+|---|---|---|
+| 96 | [Server semantic models](96-server-semantic-models.md) | /v1/check is dictionary-only — SDK users get no reranking through HTTP |
+| 97 | [YARD execution](97-yard-execution.md) | Executes plan 59: the Ruby API reference still does not exist |
+
 Dependency order across the ecosystem track:
 
 ```
