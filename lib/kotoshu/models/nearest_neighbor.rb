@@ -21,11 +21,19 @@ module Kotoshu
       #   (e.g., Euclidean). Defaults to the cosine-derived distance (1 - similarity).
       # @param embedding [WordEmbedding, nil] Optional embedding reference
       def initialize(word:, similarity:, distance: nil, embedding: nil)
-        raise ArgumentError, "Similarity must be 0-1" unless similarity.between?(0.0, 1.0)
+        similarity = Float(similarity)
+        raise ArgumentError, "Similarity must be a finite number" unless similarity.finite?
+        unless similarity.between?(-1.0 - 1e-6, 1.0 + 1e-6)
+          raise ArgumentError, "Similarity out of range: #{similarity}"
+        end
 
         @word = word
-        @similarity = similarity
-        @distance = distance || (1.0 - similarity)
+        # Cosine similarity is mathematically in [-1, 1]: float
+        # rounding can drift just past 1.0, and true negatives are
+        # noise suggestions (filtered by min_similarity downstream) —
+        # both clamp into the documented [0, 1] suggestion range.
+        @similarity = similarity.clamp(0.0, 1.0)
+        @distance = distance || (1.0 - @similarity)
         @embedding = embedding
         freeze
       end

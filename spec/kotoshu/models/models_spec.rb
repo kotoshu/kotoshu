@@ -161,9 +161,14 @@ RSpec.describe Kotoshu::Models do
         expect(nn.distance).to be_within(0.001).of(0.42)
       end
 
-      it "raises ArgumentError when similarity is out of range" do
-        expect { described_class.new(word: "a", similarity: -0.1) }.to raise_error(ArgumentError)
-        expect { described_class.new(word: "a", similarity: 1.1) }.to raise_error(ArgumentError)
+      it "raises ArgumentError when similarity is outside the cosine range" do
+        expect { described_class.new(word: "a", similarity: -1.5) }.to raise_error(ArgumentError)
+        expect { described_class.new(word: "a", similarity: 1.5) }.to raise_error(ArgumentError)
+      end
+
+      it "clamps in-range rounding drift and true negatives into 0-1" do
+        expect(described_class.new(word: "a", similarity: 1.0000000001).similarity).to eq(1.0)
+        expect(described_class.new(word: "a", similarity: -0.1).similarity).to eq(0.0)
       end
 
       it "freezes the instance" do
