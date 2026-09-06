@@ -36,7 +36,7 @@ declarations only. Suite stays 3701/0/27.
 
 ## Status
 
-**Merged (PR #NNN — filled at merge).**
+**Merged via PR #134 (docs/yard-api).**
 
 What shipped:
 
