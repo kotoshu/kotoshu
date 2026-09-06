@@ -44,7 +44,7 @@ jobs:
       - name: Configure RubyGems credentials (trusted publishing via OIDC)
         uses: rubygems/configure-rubygems-credentials@v1.0.0
         with:
-          oidc: true
+          trusted-publisher: true
 
       - name: Determine version
         id: version
