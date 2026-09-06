@@ -54,4 +54,25 @@
 
 ## Status
 
-**In progress — executed items done; proposals awaiting the owner.**
+**Executed (2026-09-06, owner approved all + rebase-merge).**
+
+- PR #139 (the rescued #93 work) rebase-merged: remove_word corruption,
+  PlainText length-index sync, threshold fix, cache-only hot path,
+  KOTOSHU_OFFLINE env fix — suite 3751/0.
+- Models worktrees (batch2/expand/nb/mirrors/agent-71, ~214 GB
+  re-downloadable source archives) removed; worktree table pruned.
+- All campaign worktrees removed across gem/rs/site (two were locked
+  by long-dead agent pids — unlocked first); verification scratch from
+  correct3 preserved in docs/verification-evidence (PR #142; cached
+  dictionaries excluded). The truth2 `.verify` turned out to be a
+  Chrome profile dir, not scripts — not preserved, deleted with its
+  worktree; adoption spike scripts were one-shot probes, findings live
+  in plan 78's status.
+- `2b` reference tip preserved as LOCAL tag `t2-phase2b-reference`
+  (not pushed — tags are owner actions); worktree + merged branches
+  deleted.
+- Merged local branches deleted per repo via `git branch -d` only.
+  The SHA-diverged rebase-merged campaign branches (content verified
+  on main via --cherry-pick) and pre-campaign user branches are LEFT
+  IN PLACE — force-deleting them was not what was approved.
+- Disk: models .claude/worktrees now 0 B.
