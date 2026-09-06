@@ -1,0 +1,4504 @@
+/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/jekyll_generator_spec.rb:16: warning: already initialized constant EN_AFF
+/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/cli/check_directory_spec.rb:14: warning: previous definition of EN_AFF was here
+/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/jekyll_generator_spec.rb:17: warning: already initialized constant EN_DIC
+/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/cli/check_directory_spec.rb:15: warning: previous definition of EN_DIC was here
+/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/rspec_spec.rb:13: warning: already initialized constant EN_AFF
+/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/jekyll_generator_spec.rb:16: warning: previous definition of EN_AFF was here
+/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/rspec_spec.rb:14: warning: already initialized constant EN_DIC
+/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/jekyll_generator_spec.rb:17: warning: previous definition of EN_DIC was here
+/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/tasks/check_task_spec.rb:12: warning: already initialized constant EN_AFF
+/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/rspec_spec.rb:13: warning: previous definition of EN_AFF was here
+/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/tasks/check_task_spec.rb:13: warning: already initialized constant EN_DIC
+/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/rspec_spec.rb:14: warning: previous definition of EN_DIC was here
+/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/validators/spelling_validator_spec.rb:18: warning: already initialized constant EN_AFF
+/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/tasks/check_task_spec.rb:12: warning: previous definition of EN_AFF was here
+/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/validators/spelling_validator_spec.rb:19: warning: already initialized constant EN_DIC
+/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/tasks/check_task_spec.rb:13: warning: previous definition of EN_DIC was here
+Run options: exclude {onnx: true, slow: true, network: true}
+
+Randomized with seed 63564
+
+Kotoshu::Language::Segmenter
+  #segment
+    groups consecutive same-language nodes into one Segment
+    every segment carries a language_code
+    raises ArgumentError for a non-Document argument
+    every segment carries its text_nodes in source order
+    returns [] for a document with no text nodes
+  with a custom detector
+    uses the injected detector
+
+en_US Hunspell correctness
+  affix-driven inflections
+    accepts "quickly" (adverb)
+    accepts "taller" (comparative)
+    accepts "running" (gerund)
+    accepts "happiest" (superlative)
+    accepts "cats" (plural)
+    accepts "dogs" (plural)
+  common misspellings
+    rejects "accross"
+    rejects "enviroment"
+    rejects "helo"
+    rejects "recieve"
+    rejects "wrld"
+    rejects "programmng"
+    rejects "seperate"
+    rejects "beleive"
+    rejects "tesst"
+  release acceptance suggestion test
+    suggests 'hello' as the top correction for 'helo'
+  correctly-spelled English words
+    accepts "cats"
+    accepts "computer"
+    accepts "keyboard"
+    accepts "dictionary"
+    accepts "test"
+    accepts "world"
+    accepts "language"
+    accepts "hello"
+    accepts "quickly"
+    accepts "happiest"
+    accepts "programming"
+    accepts "taller"
+    accepts "ruby"
+    accepts "dogs"
+    accepts "running"
+  loading the dictionary
+    detects ISO-8859-1 encoding from the SET directive
+    loads a non-trivial number of words
+
+Kotoshu::Readers::DicReader
+  #initialize
+    defaults encoding, flag_format, and flag_synonyms
+    exposes path, encoding, flag_format, flag_synonyms readers
+  Kotoshu::Readers::Word
+    .from_line (morph data via key:value fallback)
+      splits before the first key:value token when no tab is present
+    .parse_morph_data
+      splits whitespace-separated tokens
+      collapses runs of whitespace
+      returns empty array for nil
+      returns empty array for empty string
+      returns a single token
+    .parse_flags
+      resolves AF aliases for pure-digit strings when synonyms exist
+      does not consult aliases for non-digit strings even with synonyms
+      splits chars for short format
+      returns empty set for empty string
+      returns empty set for nil
+      falls back to char splitting for unknown formats
+      does not consult aliases when synonyms is empty
+      groups 2-char tokens for long format
+      splits chars for UTF-8 format
+      extracts digit runs for num format
+    .from_line (bare stem)
+      strips surrounding whitespace from the head
+      parses a bare stem with no flags or morph data
+    .from_line (stem/flags with FLAG short)
+      returns empty flags when flags string is empty
+      splits stem and flags at the unescaped slash
+      returns empty flags when no flag_format is in context
+    .unescaped_slash_index
+      skips an escaped slash and finds the next unescaped one
+      returns the index of the first unescaped slash
+      returns nil when every slash is escaped
+      finds a slash at position 0
+      returns nil for a string with no slash
+    .from_line (FLAG long format)
+      groups flag chars into 2-char tokens
+    .from_line (AF flag aliases)
+      resolves a numeric alias through flag_synonyms
+      does not consult aliases when synonyms is empty
+      returns empty set for an unknown alias index
+    .from_line (morph data via tab)
+      splits stem from morph data on the tab
+      preserves the slash-split before the morph split
+    .from_line (FLAG UTF-8 format)
+      treats flag string as chars
+    .from_line (escaped slash)
+      treats \/ as a literal slash inside the stem
+      treats \/ as literal and splits at the next unescaped slash
+    .from_line (leading slash)
+      treats a leading slash as part of the stem, not empty-stem+flags
+      parses a single-slash entry as a word whose only char is /
+    .from_line (FLAG num format)
+      extracts numeric flag tokens
+    .split_stem_and_morph
+      splits before the first key:value token when no tab is present
+      splits on a tab when one is present
+      returns the whole line with empty morph when no separator is found
+  Word struct shape
+    exposes stem, flags, morph_data readers (keyword_init)
+  #read
+    skips the first line (word count header)
+    returns an empty array for an empty dic body
+    parses flags using the configured flag_format
+    resolves AF aliases when flag_synonyms is configured
+    parses morph data following the tab
+
+Integrational Suggestion Tests
+  Prohibit Bad Suggestions
+    passes forceucase suggestion tests
+    passes opentaal_forbiddenword2 suggestion tests
+    passes onlyincompound suggestion tests
+    passes nosplitsugs suggestion tests
+    passes opentaal_forbiddenword1 suggestion tests
+    passes nosuggest suggestion tests
+    passes keepcase suggestion tests
+  Permutations
+    passes reputf suggestion tests
+    passes maputf suggestion tests
+    passes map suggestion tests
+    passes rep suggestion tests
+  Base
+    passes base_utf suggestion tests
+    passes base suggestion tests
+  Break
+    passes breakdefault suggestion tests
+  All Caps
+    passes allcaps_utf suggestion tests
+    passes allcaps suggestion tests
+    passes allcaps2 suggestion tests
+  Edge Cases and Bugs
+    passes i35725 suggestion tests
+    passes ngram_utf_fix suggestion tests
+    passes i54633 suggestion tests
+    passes 1695964 suggestion tests
+    passes i58202 suggestion tests
+    passes 1463589 suggestion tests
+    passes 1463589_utf suggestion tests
+    passes IJ suggestion tests
+    passes utf8_nonbmp suggestion tests
+    passes checksharpsutf suggestion tests
+    passes checksharps suggestion tests
+    passes opentaal_keepcase suggestion tests
+  IO Quirks
+    passes oconv suggestion tests
+  Phonetical Suggestions
+    passes ph2 suggestion tests
+    passes phone suggestion tests
+    passes ph suggestion tests
+  Suggest Base
+    passes sug2 suggestion tests
+    passes sugutf suggestion tests
+    passes sug suggestion tests
+
+Kotoshu::Readers::StringReader
+  #each
+    skips empty lines
+    returns an Enumerator when no block is given
+    yields [line_no, line] pairs from a string
+    strips UTF-8 BOM from the first line
+  #reset
+    resets to the beginning
+
+Kotoshu::Algorithms::Permutations
+  .mapchars
+    recurses to map multiple positions
+    returns nothing for nil maptable
+    returns nothing for words shorter than 2 chars
+    returns nothing for empty maptable
+    yields variants with mapped characters
+  .longswapchar
+    yields non-adjacent swaps within MAX_CHAR_DISTANCE
+    does not swap adjacent positions (those are swapchar's job)
+    returns nothing for words too short for non-adjacent swaps
+  .forgotchar
+    returns nothing for nil trystring
+    yields every single-char insertion from trystring
+    returns nothing for empty trystring
+  .badcharkey
+    does not yield uppercase for already-uppercase chars
+    yields nothing for keys not in the layout
+    yields the uppercase variant when char is lowercase
+    yields adjacent-key variants
+  .replchars
+    yields each replaced variant
+    returns nothing (yields nothing) for words shorter than 2 chars
+    yields multiple matches when the pattern occurs more than once
+    yields a list variant when the replacement introduces a space
+    returns nothing for an empty reptable
+    returns nothing for a nil reptable
+  .doubletwochars
+    returns nothing for words shorter than 5 chars
+    returns nothing when no doubling pattern is present
+    collapses accidental doubling like 'vacacation' -> 'vacation'
+  .extrachar
+    returns nothing for words shorter than 2 chars
+    yields every single-char deletion
+  .movechar
+    yields chars moved forward by 2-4 positions
+    yields chars moved backward by 2-4 positions
+    returns nothing for words shorter than 2 chars
+  .swapchar
+    yields double swaps for 5-letter words
+    yields double swaps for 4-letter words
+    returns nothing for words shorter than 2 chars
+    yields single-adjacent swaps
+  .twowords
+    yields every two-word split
+    yields (n-1) splits for an n-char word
+  .badchar
+    returns nothing for empty trystring
+    returns nothing for nil trystring
+    yields chars replaced with chars from trystring
+    does not yield when the replacement char equals the existing one
+  MAX_CHAR_DISTANCE constant
+    is 4
+
+Kotoshu::Dictionaries::Catalog# Integration - Dictionary Catalog
+  .hunspell
+    returns all Hunspell dictionaries
+  .all
+    returns an array of DictionaryEntry objects
+    includes dictionaries from multiple sources
+  .statistics
+    returns catalog statistics
+    has correct counts
+  .by_license
+    returns Public Domain dictionaries
+    returns GPL dictionaries
+  Kotoshu::Dictionaries::Catalog::DictionaryEntry
+    #plain_text?
+      returns false for Hunspell format
+    #initialize
+      creates a valid entry
+      freezes the entry
+    #hunspell?
+      returns false for plain text format
+      returns true for Hunspell format
+    #description
+      returns human-readable description
+      without region
+        returns description without region
+  .by_language
+    returns all dictionaries for a language
+    is case-insensitive
+    returns empty array for unknown language
+  .licenses
+    returns array of unique license types
+  .find
+    when dictionary exists
+      is case-insensitive
+      finds dictionary with underscore notation
+      finds dictionary by exact code
+    when dictionary does not exist
+      returns nil for empty string
+      returns nil for unknown code
+  .plain_text
+    returns all plain text dictionaries
+  .languages
+    returns array of unique language codes
+  .by_format
+    returns all plain text dictionaries
+    returns all Hunspell dictionaries
+
+Kotoshu::Embeddings
+  Kotoshu::Embeddings::OnnxRuntimeModel
+    #model_info
+      returns the documented shape
+    #unload!
+      is a no-op when the model was never loaded, returning self
+    #initialize
+      starts not-loaded
+      exposes language_code, onnx_path, dimension
+      defaults dimension to 300
+    metadata methods
+      #supports_batching? is true
+      #model_type returns 'onnx'
+      #to_s includes language, dimension, and loaded state
+      #batch_size returns the BATCH_SIZE constant
+    .from_file
+      auto-detects language code from the basename (xx pattern)
+      defaults to 'en' when no language pattern is found in the basename
+      passes through explicit language_code and dimension overrides
+      raises ArgumentError when the file does not exist
+  Kotoshu::Embeddings::EmbeddingModelProtocol
+    requires the documented embedding-model methods
+  Kotoshu::Embeddings::Protocol
+    lets `required` add method names to required_methods
+    exposes optional_methods as a Set (empty by default)
+    lets `optional` add method names to optional_methods
+    exposes required_methods as a Set (empty by default)
+    #assert_implemented_by!
+      raises ProtocolError listing the missing methods
+      exposes the offending class, protocol, and missing methods on the error
+      is a no-op when the class conforms
+    #compliance_errors
+      returns an empty collection when the class implements every required method
+      lists the missing methods when the class is non-conformant
+  Kotoshu::Embeddings::Search
+    Kotoshu::Embeddings::Search::MinHeap
+      exposes size, empty?, and each
+      to_a returns a dup so mutations on the result don't affect the heap
+      keeps at most max_size items, sorted by similarity ascending
+    #to_s / #inspect
+      includes vocab size and load state
+    #clear_cache
+      empties the cache and resets embeddings_loaded
+    #find_nearest_batch
+      returns a per-word hash of neighbor arrays
+    #preload_embeddings!
+      loads every embedding into the cache and flips embeddings_loaded
+    #similarity
+      returns 1.0 for an identical vector
+      returns the cosine similarity between two known words
+      returns 0.0 for orthogonal vectors
+      returns nil when either word is unknown
+    #initialize
+      exposes vocabulary, model, similarity_engine, and embeddings_loaded flag
+    #find_nearest
+      includes the vocabulary index in each result
+      returns at most k neighbors
+      returns neighbors sorted by similarity descending
+      returns [] when the query word is not in the vocabulary
+      excludes the query word by default
+      returns the most-similar word first
+      includes the query word when exclude_self is false
+      filters out neighbors below min_similarity
+  Kotoshu::Embeddings::VocabularyProtocol
+    requires the lookup and traversal methods
+  Kotoshu::Embeddings::SimilarityEngineProtocol
+    requires the four similarity metrics plus the normalization pair
+  Kotoshu::Embeddings::ProtocolError
+    carries klass, protocol, and missing_methods as read-only attributes
+    is a StandardError subclass
+  Kotoshu::Embeddings::EmbeddingPipeline
+    #preload_embeddings! / #unload!
+      loads the model and preloads search embeddings
+      unload! reverses both
+    #similarity
+      delegates to the underlying search
+    #model_info
+      delegates to the model
+    #get_embedding_by_index
+      returns the model's vector for a known index
+    #include?
+      checks the vocabulary
+    #get_embedding
+      returns nil for an unknown word
+      returns the model's vector for a known word
+    #find_nearest
+      delegates to the underlying search
+    #stats
+      reports the documented keys
+    #initialize
+      constructs a SimilarityEngine and Search from vocabulary + model
+      does not preload unless asked
+      preloads when preload: true is passed
+    #to_s / #inspect
+      includes the language, vocab size, dimension, and load state
+  Kotoshu::Embeddings::Registry
+    .register_model / .register_engine / .register_vocabulary
+      overwrites a previous registration with the new class
+      stores the class under the given name and returns it
+      supports engines and vocabularies
+    boot-time registration
+      registers :json => Vocabulary
+      lists the built-in names
+      registers :onnx => OnnxRuntimeModel
+      registers :cosine => SimilarityEngine
+    .reset!
+      makes *_names return empty arrays
+      clears every registry
+    .create_model / .create_engine / .create_vocabulary
+      raises ArgumentError for an unknown engine name
+      raises ArgumentError for an unknown model name
+      instantiates the registered class with the given kwargs
+      raises ArgumentError for an unknown vocabulary name
+
+Kotoshu::Components::PassthroughSpellChecker
+  #passthrough?
+    returns true
+  #reason
+    returns the reason
+    has a default reason
+  #correct?
+    always returns true
+  #suggest
+    always returns empty array
+  behaves like a spell checker
+    checks words
+    suggests corrections
+    returns boolean from correct?
+    returns found flag as boolean
+    has a correct? convenience method
+  #check
+    handles nil
+    handles empty string
+    always returns found: true
+
+Kotoshu::Cli::LanguageResolver
+  explicit language code
+    does not call the detector
+    uses the flag value without detection
+  'auto' with successful detection
+    falls back when detection returns nil
+    falls back when detected language is not set up
+    uses the detected language when it is set up
+  'default' keyword
+    uses the configured default language
+  detector failures
+    swallows exceptions from the detector and falls back
+  normalization
+    strips region suffixes before checking setup
+
+Kotoshu::Cache::LanguageCache
+  #clean
+    removes expired entries
+  #get_grammar
+    when resources are cached and valid
+      returns cached grammar rules
+  #initialize
+    creates cache directory if it doesn't exist
+    creates a cache with default values
+    creates a cache with custom values
+  #language_path
+    returns the correct path for grammar resources
+    is consistent with resource_dir_for
+    returns the correct path for spelling resources
+  resource presence interface
+    #cached_resources
+      returns resource IDs for each cached language directory
+      returns empty list for an empty cache
+    #clear
+      returns false when the resource is absent
+      removes a specific cached resource
+    #clear_all
+      removes every cached resource
+      resets statistics
+    #available?
+      returns true when metadata + dictionary files exist
+      returns false for unsupported language
+      returns false for non-cached resources
+  #reset_stats
+    resets hit and miss counters
+  #get_spelling
+    when resources are cached and valid
+      returns cached spelling dictionary
+  #stats
+    returns the documented statistics shape
+    includes cached resources in stats
+
+Configuration wiring for max_cache_size #evict
+  the SCHEMA entry exists with the env var and Integer type
+  the Configuration instance exposes max_cache_size as a public reader
+
+Kotoshu::Defaults
+  .configure
+    configures Kotoshu with sensible defaults
+  .bundled_dictionary_path
+    returns path to bundled dictionary
+  .default_dictionary
+    provides a working dictionary
+  .detect_system_dictionary
+    returns nil if no system dictionary found
+    returns path if system dictionary exists
+
+Unit: Hunspell Stemmer
+  Stemmer tests
+    tests full stemmer call (PENDING: Stemmer class not yet ported to Kotoshu)
+    tests desuffix (PENDING: Stemmer class not yet ported to Kotoshu)
+    tests deprefix (PENDING: Stemmer class not yet ported to Kotoshu)
+
+Kotoshu::Configuration::Builder
+  backward compatibility
+    supports boolean flags
+    works with existing Configuration.new API
+    supports dictionary_path assignment
+    supports custom_words
+  builder methods
+    provides fluent setter methods
+  .build
+    creates configuration using block syntax
+    creates a configuration with defaults
+    creates immutable configuration
+    is thread-safe for concurrent use
+
+Kotoshu::Spellchecker#check with ignore directives
+  marks suppressed entries with suppressed and suppressed_by
+  does not count suppressed words as failures but keeps the word count
+  recognizes markdown HTML-comment directives via the auto profile
+  moves errors on a disable-line into suppressed_errors
+  recognizes asciidoc // directives via the auto profile
+  suppresses a disable-file block across lines
+  keeps reporting misspellings without directives
+  suppresses only the listed words of disable-next-line
+  suppresses the whole next line without a word list
+
+RTL language modules
+  Kotoshu::Languages::Arabic
+    registration
+      registers ar and ar-SA
+    instance
+      is RTL
+      uses Custom dictionary class (no bundled Hunspell dicts yet)
+      uses a Tokenizer that handles Arabic text
+      reports script_type :arabic
+      uses the Arabic normalizer
+    Kotoshu::Languages::Arabic::Tokenizer
+      returns [] for empty string
+      returns [] for nil
+      splits on Arabic punctuation (، ؛ ؟)
+      filters pure numbers
+      tokenizes Arabic text by splitting on whitespace
+    normalization integration
+      normalizer strips tashkeel from input
+  Kotoshu::Languages::Hebrew
+    normalization integration
+      normalizer strips niqqud from input
+    Kotoshu::Languages::Hebrew::Tokenizer
+      tokenizes Hebrew text by splitting on whitespace
+      returns [] for nil
+      returns [] for empty string
+      filters pure numbers
+    instance
+      is RTL
+      uses a Tokenizer that handles Hebrew text
+      uses Custom dictionary class
+      uses the Hebrew normalizer
+      reports script_type :hebrew
+    registration
+      registers he and he-IL
+
+Kotoshu::Algorithms::Capitalization
+  Kotoshu::Algorithms::Capitalization::Casing
+    #upper
+      upcases the word
+    #coerce
+      uppercases an ALL-cased suggestion
+      leaves a NO-cased suggestion unchanged
+      title-cases an INIT/HUHINIT-cased suggestion (capitalizes first letter)
+    #guess
+      returns ALL for all-uppercase
+      returns NO for all-lowercase
+      returns INIT for first-letter-capitalized only
+      returns HUH for mixed case with lowercase first letter
+      returns HUHINIT for mixed case with capitalized first letter
+    #variants (correctly-spelled hypotheses)
+      returns [NO, [word]] for an all-lowercase word
+      returns [INIT, [word, *lower]] for a titlecase word
+      returns [HUHINIT, [word, *lowerfirst]] for a mixed-case word with capitalized first
+      returns [ALL, [word, *lower, *capitalize]] for an all-caps word
+      returns [HUH, [word]] for a mixed-case word with lowercase first
+    #lowerfirst
+      yields the word with first letter lowercased and rest preserved
+      returns an Enumerator when no block is given
+    #corrections (misspelling hypotheses)
+      returns [HUH, [word, *lower]] for a mixed-case word with lowercase first
+      returns [ALL, [word, *lower, *capitalize]] for an all-caps word
+      returns [NO, [word]] for an all-lowercase word
+      returns [INIT, [word, *lower]] for a titlecase word
+      returns [HUHINIT, [word, *lowerfirst, *lower, *capitalize]] for a mixed-case word with capitalized first
+    #lower
+      returns the downcased word as a single-element array
+      returns empty array for empty string
+      returns empty array for nil
+      returns empty array when first char is İ (cannot be lowered in non-Turkic)
+      normalizes the Turkic 'i̇' (i with combining dot) to plain 'i'
+    #capitalize
+      yields the word with first letter upper and the rest lower (titlecase)
+      returns an Enumerator when no block is given
+      handles a single-character word
+  Kotoshu::Algorithms::Capitalization::TurkicCasing
+    is a subclass of Casing
+    #upper
+      translates lowercase ı → I (dotless capital)
+      translates lowercase i → İ (dotted capital)
+    #lower
+      translates uppercase İ → i (dotted i)
+      translates uppercase I → ı (dotless i)
+      translates both I and İ in the same word
+  Type constants
+    exposes the five captype symbols
+  Kotoshu::Algorithms::Capitalization::GermanCasing
+    is a subclass of Casing
+    #lower
+      returns both ß and ss variants for an SS-containing uppercase word
+      returns [lowered] when there is no SS in the source
+    #guess
+      classifies a word containing ß + uppercase letters as ALL caps
+      falls back to the parent guess when ß is not present
+    #sharp_s_variants
+      replaces a single 'ss' with ß
+      returns empty when there is no 'ss' in the text
+      produces multiple variants when 'ss' appears more than once
+
+Kotoshu::Suggestions::FrequencyProvider
+  EMPTY_TIERS
+    is frozen
+    has empty sets for all three tiers
+  #tiers_for
+    returns EMPTY_TIERS for an unknown language
+    returns a hash with :top_50, :top_200, :top_1000 keys
+    returns Set instances for each tier
+    caches per-language independently (different languages → different tiers)
+    memoizes per-language — second call returns the same object
+
+Kotoshu::Language::Detector
+  .detect_with_confidence
+    returns language and confidence
+    returns higher confidence for clear language signals
+    returns zero confidence for nil
+  .detect
+    with German text
+      detects German
+    with mixed text
+      detects dominant language
+    with English text
+      detects English with mixed case
+      detects English
+    with French text
+      detects French
+    with Russian text
+      detects Russian
+    with Portuguese text
+      detects Portuguese
+    with invalid input
+      returns nil for empty string
+      returns nil for whitespace only
+      returns nil for nil
+      returns nil for special characters only
+    with Spanish text
+      detects Spanish
+    with Arabic text
+      detects Arabic (PENDING: FastText LID missing Arabic vector — see TODO.impl/30-language-auto-detection.md)
+  .detect_candidates
+    returns empty array for nil
+    returns multiple candidates
+    respects limit parameter
+    orders by confidence
+
+Kotoshu::IntegrityError
+  appends the remediation hint when provided
+  omits the remediation line when not provided (backward compat)
+  exposes url and remediation readers
+
+Kotoshu::Suggestions::Strategies::NgramStrategy
+  #handles?
+    is false when the strategy is disabled
+    is false for a word in the dictionary
+    is true for a word not in the dictionary
+  #initialize
+    is enabled by default
+    defaults name to :ngram
+    honours an explicit name override
+  ranking
+    ranks higher-similarity (lower-distance) suggestions first
+  #generate
+    honours a custom n via config
+    returns an empty set when no dictionary word passes the thresholds
+    every distance is non-zero (zero-distance matches are filtered)
+    stamps original_length metadata on each suggestion
+    returns a SuggestionSet of Suggestion objects
+    tags every suggestion with source = 'ngram'
+    excludes the input word from the result set
+    returns an empty set when the input word is shorter than n
+    honours a stricter min_similarity threshold by returning fewer suggestions
+    derives distance from similarity: higher similarity = lower distance
+  with a real misspelled word (smoke)
+    finds plausible corrections for 'helo'
+
+Kotoshu::Models::Word# Walking Skeleton - Word VALUE Object
+  .from_dic_line
+    parses word with flags
+    parses word with single flag
+    returns nil for empty line
+    returns nil for nil input
+    parses word without flags
+  hashing
+    can be used as hash key
+    different words have different hash codes
+  #text, #flags, #morphological_data
+    exposes attributes via readers
+  immutability
+    freezes flags array
+    cannot modify text after creation (frozen object)
+    freezes the word on creation
+    freezes morphological data hash
+  query methods
+    #has_flag?
+      returns false when word has no flags
+      returns true when word has the flag
+      returns false when word does not have the flag
+    #has_flags?
+      returns true when word has flags
+      returns false when word has no flags
+    #valid?
+      returns true for valid word
+    #empty?
+      returns false for non-empty word
+    #length
+      returns word length
+  creation
+    creates word with morphological data
+    creates word with text
+    creates word with flags
+    raises error when text is empty
+    raises error when text is nil
+  value equality
+    words with different text are not equal
+    words are not equal to non-words
+    two words with same text are equal
+    two words with same text but different flags are equal
+  #to_s
+    returns word text
+  #<=>
+    returns 0 for equal words
+    compares words alphabetically
+
+Kotoshu::Cli::IgnoreMatcher
+  * and ? globs
+    matches exactly one character with ?
+    does not let a lone star cross directories
+    matches any characters except the path separator
+  comments, blanks and escapes
+    treats escaped ! and # as literals
+    skips blank lines and comments
+  anchoring
+    anchors patterns containing a slash to the ignore directory
+    anchors patterns with a leading slash only at the top
+  directory-only patterns
+    matches directories, not files, with a trailing slash
+  negation
+    negates directory patterns too
+    re-includes a file negated after a matching pattern
+    lets the last matching pattern win
+  ** globstar
+    matches any depth between two anchors with a/**/b
+    matches a name at any depth with **/name
+    matches everything below a directory with dir/**
+    matches everything with a lone **
+  plain name patterns
+    matches the basename at any depth
+    does not match different names or substrings
+  .load_directory
+    detects presence without loading
+    returns an empty matcher when neither file exists
+    loads .gitignore and .ignore together, .ignore last
+
+Kotoshu::Dictionary::PlainText# Walking Skeleton - PlainText Dictionary
+  #size
+    returns word count
+  creation and loading
+    loads dictionary from file path
+  #words
+    returns empty array for empty dictionary
+    returns all words as strings
+  #lookup
+    when word does not exist in dictionary
+      returns false
+    when word exists in dictionary
+      returns true for case-insensitive match when configured
+      returns false for case-sensitive mismatch
+      returns true for exact match
+    when dictionary is empty
+      returns false for all words
+  #empty?
+    returns true for empty dictionary
+    returns false for non-empty dictionary
+
+Kotoshu::Models::AffixRule
+  .from_hunspell
+    parses a prefix rule line
+    parses a suffix rule line
+    returns nil when the line is too short
+    treats '0' strip as empty
+    defaults the condition to '.' when missing
+  #apply
+    with a suffix rule
+      returns nil when the strip mismatch fails
+      returns nil when the rule's condition does not match
+      strips the suffix and adds the new one
+    with a prefix rule
+      strips then adds when strip is non-empty
+      prepends the prefix
+      returns nil when the rule does not apply (strip mismatch)
+  #to_hunspell
+    formats a suffix rule as an SFX line
+    formats a prefix rule as a PFX line
+    uses 0 for empty strip
+  #<=>
+    orders rules by flag
+    returns nil when compared to a non-AffixRule
+  TYPES constant
+    is frozen
+    maps :prefix to PFX and :suffix to SFX
+  #== / #eql?
+    differs when any attribute differs
+    returns false for a non-AffixRule
+    equals a rule with identical attributes
+  #applies_to?
+    returns true when the word matches the condition
+    returns false for an empty string
+    returns false for nil
+    returns false when the word does not match
+  #initialize
+    accepts a valid prefix rule
+    accepts a valid suffix rule
+    raises ArgumentError for an invalid type
+    defaults cross_product to false
+    raises ArgumentError when flag is nil
+    raises ArgumentError when flag is empty
+    freezes the rule on initialization
+    defaults condition to '.' (match-any)
+    freezes the string attributes
+    preserves an explicit Regexp condition as-is
+  #hash
+    is consistent for equal rules
+  #prefix? / #suffix?
+    prefix? is true for a prefix rule
+    suffix? is true for a suffix rule
+  #remove
+    with a suffix rule
+      removes the suffix and restores the strip
+    with a prefix rule
+      returns nil when the word does not start with the added prefix
+      removes the prefix and restores the strip
+
+Kotoshu::Language::Suika
+  KOTOSHU_NO_SUIKA=1 opt-out
+    forces LOADED to false and raises SuikaUnavailable
+  .tagger
+    returns a memoized Suika::Tagger instance
+  ::LOADED
+    is a boolean
+    is true when suika is installed in the test environment
+
+Kotoshu::Cli::CacheCommand
+  #evict
+    with --dry-run flag
+[WARNING] Attempted to create command "create_cache" without usage or description. Call desc if you want this method to be available as command or declare it inside a no_commands{} block. Invoked from "/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/cli/cache_command_spec.rb:319:in 'Module#define_method'".
+      reports nothing-to-evict when under the cap
+[WARNING] Attempted to create command "create_cache" without usage or description. Call desc if you want this method to be available as command or declare it inside a no_commands{} block. Invoked from "/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/cli/cache_command_spec.rb:319:in 'Module#define_method'".
+      lists the entries that would be evicted without removing them
+    without --dry-run flag
+[WARNING] Attempted to create command "create_cache" without usage or description. Call desc if you want this method to be available as command or declare it inside a no_commands{} block. Invoked from "/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/cli/cache_command_spec.rb:319:in 'Module#define_method'".
+      reports nothing-to-evict when under the cap
+[WARNING] Attempted to create command "create_cache" without usage or description. Call desc if you want this method to be available as command or declare it inside a no_commands{} block. Invoked from "/Users/mulgogi/src/kotoshu/kotoshu/.claude/worktrees/correct3/spec/kotoshu/cli/cache_command_spec.rb:319:in 'Module#define_method'".
+      removes the oldest entry and reports the reclaimed bytes
+  #info
+    without --json flag
+      displays cache statistics in text format
+    with --json flag
+      displays cache statistics in JSON format
+  #list
+    without --json flag
+      shows message when no languages are cached
+      lists cached languages in text format
+    with --json flag
+      lists cached languages in JSON format
+  #clean
+    without --dry-run flag
+      removes expired entries and displays results
+    with --dry-run flag
+      shows what would be removed without removing
+  #format_bytes
+    formats bytes in human-readable format
+  #time_ago
+    returns human-readable time ago string
+  #purge
+    with --confirm flag
+      purges without prompting
+    without --confirm flag
+      aborts purge when user declines
+  #create_cache
+    builds cache from options
+  #validate
+    shows checkmarks for valid resources
+    shows X for missing resources
+    validates cached resources and shows status
+
+Kotoshu::Suggestions::SuggestionSet
+  #within_distance
+    returns an empty set when nothing matches
+    filters by inclusive distance range
+    returns a new SuggestionSet
+  #to_a consistency with #suggestions
+    yields Suggestion objects to Enumerable methods
+    returns the same count as #suggestions
+    returns Array<Suggestion>, the same shape as #suggestions
+  #add
+    re-sorts after adding (best first)
+    respects max_size after add
+    appends a suggestion and returns self for chaining
+    is aliased as <<
+  #first / #last
+    #last returns the worst suggestion
+    returns nil for #last on an empty set
+    returns nil for #first on an empty set
+    #first returns the best suggestion (highest combined score)
+  #top
+    returns fewer than N when the set is smaller
+    returns the first N suggestions as Array<Suggestion>
+  #low_confidence
+    returns suggestions with confidence < 0.5
+    returns a new SuggestionSet
+  #high_confidence
+    returns a new SuggestionSet
+    returns suggestions with confidence >= 0.8
+  #find_word
+    returns the matching Suggestion (case-insensitive)
+    returns nil when not found
+  #initialize
+    dedupes case-insensitively on construction
+    enforces max_size on construction
+    sorts by combined score on construction (best first)
+    defaults max_size to 10
+  #unique
+    returns a new SuggestionSet with case-insensitive unique words
+    does not mutate the receiver
+  .from_words
+    honors max_size
+    defaults source to :unknown
+    builds a SuggestionSet from a word list with the given source
+  #to_words
+    returns Array<String>
+    is aliased as #words
+  #from_source
+    returns an empty set when no suggestions match
+    returns a new SuggestionSet filtered by source
+    does not mutate the receiver
+    accepts string sources (normalizes Symbol/String)
+  #merge!
+    absorbs another set's suggestions
+    returns self
+  #empty? / #size
+    reports empty? true on a fresh .empty set
+    #size, #count, #length all agree
+    reports empty? false after add
+  .empty
+    honors a custom max_size
+    returns an empty SuggestionSet
+  #include? / #has_word?
+    returns true when the word is present (case-insensitive)
+    is aliased as has_word?
+    returns false when the word is absent
+  #concat
+    respects max_size after concat
+    appends multiple suggestions and returns self
+  explicit deduplication (TODO 56 T5.1)
+    reports zero duplicates when all words are unique
+    tracks the number of duplicates removed
+    deduplicates after merge!
+    deduplicates case-insensitively
+  #each
+    yields Suggestion objects when a block is given
+    returns an Enumerator when no block is given
+  #as_json
+    delegates to #to_hashes (serialization shape)
+  #to_hashes
+    returns Array<Hash>
+    includes word, distance, confidence, source keys
+
+Kotoshu::Core::Trie::Node
+  #add_child
+    creates a new child node
+    is idempotent — returns the existing child if added twice
+  #child / #has_child?
+    returns the child node for an existing character
+    reports has_child? accurately
+    returns nil for a missing character
+  #all_children / #has_children? / #child_count
+    returns the children hash
+    updates child_count as children are added
+    flips has_children? once a child exists
+  #mark_terminal / #terminal?
+    overwrites a previously nil payload when no payload is given
+    stores a payload when one is given
+    marks the node as terminal
+  #to_s / #inspect
+    includes the character and terminal flag
+    aliases inspect to to_s
+  #initialize
+    defaults the character to empty string
+    starts with a nil payload
+    starts with an empty children hash
+    starts not terminal
+    accepts an explicit character
+
+Kotoshu::Components::PosTagger
+  #tag_word
+    raises NotImplementedError when called directly
+  #tag
+    raises NotImplementedError when called directly
+
+Kotoshu::Language
+  .detect
+    detects Arabic (PENDING: FastText LID missing Arabic vector — see TODO.impl/30-language-auto-detection.md)
+    detects German
+    detects French
+    returns nil for unknown
+    detects English
+  .info
+    returns nil for unregistered language
+    with registered language
+      returns language info
+  .supported_codes
+    returns empty array when no languages registered
+    with registered languages
+      returns sorted list of codes
+  .registered?
+    returns false for unregistered language
+    with registered language
+      returns true for registered language
+  .detect_with_confidence
+    returns language and confidence
+  .get
+    returns nil for unregistered language
+    with registered language
+      returns registered class
+  .register
+    registers a language class
+
+Result model serialization consistency
+  Kotoshu::Suggestions::Suggestion
+    round-trips through to_hash / from_hash
+  Kotoshu::Models::Result::WordResult
+    round-trips through to_hash / from_hash
+    round-trips an empty-suggestions result
+  Kotoshu::Suggestions::SuggestionSet
+    to_hashes / from_hashes round-trip via the underlying Suggestion
+    as_json delegates to to_hashes (no JSON-specific hand-rolled path)
+    is symmetric — empty set to_hashes is []
+  Kotoshu::Models::Result::DocumentResult
+    round-trips a result with no errors
+    round-trips through to_hash / from_hash
+  Cross-model invariants
+    DocumentResult.errors contains WordResult instances after round-trip
+    WordResult's suggestion collection uses the same Suggestion serialization
+
+Kotoshu::Cli::AutoSetup
+  #call with TTY and user declines
+    returns nil without calling Kotoshu.setup
+  #call in non-TTY context
+    returns nil without prompting
+  #call in offline mode
+    returns nil without prompting
+  #call with TTY and user accepts
+    treats empty input (just enter) as yes
+    calls Kotoshu.setup and returns the language
+
+Kotoshu::DataStructures::BloomFilter
+  #initialize
+    creates filter with default parameters
+    creates filter with custom expected size
+    creates filter with custom false positive rate
+  #include?
+    returns true for added words
+    returns false for words never added (mostly)
+    never has false negatives
+  #add
+    handles case sensitivity
+    is case-insensitive by default
+    adds multiple words
+    adds a word to the filter
+  #stats
+    tracks item count
+    returns filter statistics
+  #merge
+    merges two filters
+  #clear
+    removes all entries
+
+Kotoshu::Languages::Turkish
+  tokenization
+    splits a real Turkish sentence
+    keeps dotless-i words as single tokens
+  dotless-i case folding
+    does not fold like the Unicode default (regression guard)
+    honors the downcase option
+    folds I to ı and İ to i
+    keeps already-lowercase Turkish words unchanged
+  registry
+    registers tr and tr-TR
+
+Kotoshu::Suggestions::Pipeline
+  #initialize
+    creates empty pipeline
+    creates pipeline with block
+  #execute
+    can early terminate on empty result
+    executes stages in sequence
+  #remove
+    returns self for chaining
+    removes a stage
+  context sharing
+    shares context between stages
+  #add
+    returns self for chaining
+    adds a stage
+    adds multiple stages
+
+Kotoshu::Keyboard::Layouts::JCUKEN
+  #distance
+    JCUKEN-specific characteristics
+      measures distance correctly for Cyrillic
+  #position
+    has hard and soft signs
+    has correct position for ё (yo) in number row
+    has correct position for Cyrillic letters
+  Cyrillic character support
+    has ё separate from е
+    includes all Russian letters
+  Russian language support
+    is the default layout for Russian
+    does not support Latin languages
+  #initialize
+    supports Russian and variants
+    supports Bulgarian (bg)
+    creates JCUKEN layout
+    supports Belarusian (be)
+    supports Ukrainian (uk)
+
+Kotoshu::Readers::LookupBuilder
+  #build — ph: morph data folds into REP and alt_spellings
+    extracts star ph: payloads as REP with trimmed pattern and stem
+    ignores morph-data tokens that are not ph: payloads
+    star ph: payloads are NOT exposed as alt_spellings
+    extracts arrow ph: payloads as an explicit (from, to) REP pair
+    appends a simple ph: payload to aff[:REP] as (wich, which)
+    extracts simple ph: payloads as alt_spellings on the word entry
+    arrow ph: payloads are NOT exposed as alt_spellings
+  #build — suggester defaults
+    applies DEFAULT_MAX_DIFF when MAXDIFF is absent
+    honors an explicit MAXNGRAMSUGS
+    applies DEFAULT_MAX_CPD_SUGS when MAXCPDSUGS is absent
+    applies DEFAULT_MAX_NGRAM_SUGS when MAXNGRAMSUGS is absent
+  #build — suffix index
+    indexes suffixes by the first char of the REVERSED add string
+    groups suffix entries under their flag
+  .new
+    exposes aff_path, dic_path, encoding, script, aff_data, words readers
+    honors the encoding and script keyword args
+  #build — single-value flag pass-through
+    forwards COMPOUNDMIN/COMPOUNDWORDMAX verbatim (nil when absent)
+    forwards KEEPCASE/FORBIDDENWORD/NEEDAFFIX/etc. verbatim
+    forwards compound-directive flags verbatim
+  #build — prefix index
+    indexes prefixes by the first char of the add string
+    groups prefix entries under their flag
+  #build — IGNORE chars are stripped at read time
+    removes IGNORE chars from dictionary stems
+    removes IGNORE chars from affix add strings
+  #build — BREAK defaults
+    synthesizes the Spylls default BREAK table when BREAK is nil
+    treats explicit empty BREAK ([]) as DISABLED — no defaults synthesized
+    honors an explicit non-empty BREAK directive
+  #build — REP table adaptation
+    returns an empty REP table when REP is absent
+    adapts RepPattern instances to the {:regexp, :pattern, :replacement} shape
+  PhRepExtractor module
+    .build_rep
+      dispatches to star_rep when token ends with *
+      dispatches to arrow_rep when token contains ->
+      dispatches to simple_rep otherwise
+    .simple_alt_spellings
+      returns empty for an empty ph_tokens array
+      returns only the simple payloads (no star, no arrow)
+    .append_to_aff
+      appends to an existing REP array without overwriting
+      appends each payload as a REP-shaped hash
+      is a no-op when ph_tokens is empty
+      is a no-op when ph_tokens is nil
+    .simple_rep
+      returns nil when the token is empty
+      uses the token as the pattern and the stem as the replacement
+    .star_rep
+      returns nil when the stem is too short
+      strips the last two chars of the pattern and the last char of the stem
+      returns nil when the pattern is too short
+    .arrow_rep
+      returns nil when there is no -> at all
+      returns nil when the from side is empty
+      splits on -> into a (from, to) pair
+      returns nil when the to side is empty
+  .from_data
+    returns a builder with aff_data and words populated
+    yields a buildable Lookuper without touching the filesystem
+  #build — casing selection
+    CHECKSHARPS takes precedence over LANG
+    uses TurkicCasing when LANG starts with 'tr'
+    uses GermanCasing when CHECKSHARPS is true
+    uses the standard Casing when no LANG or CHECKSHARPS is set
+    uses GermanCasing when LANG starts with 'de'
+    uses TurkicCasing when LANG starts with 'az'
+  #build — dic structure
+    has_flag returns false when no entry has the flag
+    indexes dictionary stems for case-insensitive lookup when capitalized
+    has_flag with for_all: true requires every entry to have the flag
+    does NOT lowercase-index already-lowercase stems (NO captype)
+    has_flag returns true when at least one entry has the flag (any)
+    indexes dictionary stems for exact lookup
+    has_flag returns false when there are no entries for the stem at all
+
+Kotoshu
+  ResourceNotSetupError
+    accepts an explicit resource_type
+    mentions setup in the message
+    exposes language and the default resource_type
+  InvalidDictionaryFormatError
+    exposes path and details readers
+    includes the path in the message
+    includes the details in the message when given
+    formats cleanly with nil details
+  ResourceResolutionError
+    formats the message with the reason
+    exposes the language reader
+  SuikaUnavailable
+    appends the optional detail when given
+    includes the install hint
+    mentions the gem name in the message
+  AffixRuleError
+    exposes the rule reader
+    defaults rule to nil
+  ResourceNotCachedError
+    exposes language and resource_type
+    mentions the remediation command in the message
+  ConfigurationError
+    defaults key to nil
+    exposes the key reader
+    passes the message through unchanged
+  Error
+    is a StandardError
+    accepts a message
+  IntegrityError
+    includes resource_id, expected and actual hashes in the message
+    omits url and remediation segments when nil
+    exposes all five readers
+    includes the remediation hint when given
+    includes the url when given
+  DictionaryNotFoundError
+    is a Kotoshu::Error
+    honours an explicit message override
+    synthesizes a default message that includes the path
+    exposes the path reader
+  SpellcheckError
+    defaults word to nil
+    exposes the word reader
+
+Kotoshu::Cache::ModelCache
+  #get integrity verification on cache hit
+    points the LFS-pointer error at the cache download subcommand and purges the stub
+    returns the model path when the checksum matches
+    returns nil when the resource is not in AVAILABLE_MODELS
+    exposes expected and actual checksums on the error
+    raises IntegrityError when the cached file is truncated
+    points the user at the cache download subcommand in the remediation hint
+    accepts a legacy cache whose metadata has no checksum field (graceful degradation)
+    raises IntegrityError when the cached file is a Git LFS pointer stub
+
+Kotoshu::Readers
+  Kotoshu::Readers::PhonetTable
+    #parse_rule
+      treats '_' replacement as silent (empty string)
+      returns a Rule with the search regex and replacement
+      parses a lookahead (-) into a followup rule
+      defaults priority to 5 when absent
+      parses the start flag (^)
+      parses an explicit priority digit
+      parses the end flag ($)
+      raises ArgumentError for a malformed rule
+      parses optional groups in parens
+    #empty?
+      is false for a non-empty table
+      is true for an empty table
+    #initialize
+      indexes rules by their first letter
+      returns an empty hash for an empty table
+      stores the raw table
+    Kotoshu::Readers::PhonetTable::Rule
+      is constructed with keyword args
+      is a Struct with the documented fields
+  Kotoshu::Readers::CompoundRule
+    metacharacter flags (sv, plan 91)
+      compiles rules whose flag character is itself a regex metacharacter
+      matches flag combinations containing the metacharacter flag
+    #fullmatch
+      returns true when the flag sets combine to a full match
+      returns false for an empty array of flag sets
+      returns false when any flag set has no overlap with the rule
+      returns false when the combination does not match
+    #partial_match
+      returns false when the prefix does not match
+      returns true for any prefix of the rule
+    #initialize
+      stores the rule text
+      extracts multi-char flags when parens are used
+      compiles a full-match regex
+      extracts single-char flags when no parens are used
+      compiles a partial-match regex
+  Kotoshu::Readers::BreakPattern
+    #initialize
+      escapes regex special characters that are not ^ or $
+      compiles a middle-of-word matcher for an unanchored pattern
+      stores the pattern string
+      compiles an anchored matcher for a $-trailing pattern
+      compiles an anchored matcher for a ^-leading pattern
+  Kotoshu::Readers::RepPattern
+    #initialize
+      stores pattern, replacement, and compiled matcher
+  Kotoshu::Readers::Affix
+    aliases #inspect to #to_s
+    #to_s
+      renders a suffix affix as Suffix(...)
+      renders a prefix affix as Prefix(add: flag×/flags, on condition)
+    #initialize
+      stores all affix attributes from kwargs
+      defaults flags to Set.new when not provided
+    #prefix?/#suffix?
+      suffix? is true for type: :suffix
+      prefix? is true for type: :prefix
+  Kotoshu::Readers::ConvTable
+    #call
+      replaces underscore in replacement with space
+      passes characters without a matching conversion through unchanged
+      applies multiple conversions positionally
+      applies a single conversion to the matching prefix
+      prefers the longer conversion when both match at the same position
+      preserves declaration order for equal-length conversions
+      treats trailing underscore as end-of-word anchor
+      treats leading underscore as start-of-word anchor
+    #initialize
+      stores the raw pairs
+  Kotoshu::Readers::Ignore
+    #initialize
+      stores an empty string when no chars given
+      stores the chars string
+      builds a translation_table mapping each char to its index
+    #remove
+      removes multiple distinct ignored characters
+      returns the original string when no chars match
+      removes ignored characters from the string
+  Kotoshu::Readers::CompoundPattern
+    #match?
+      matches when left stem ends in left_stem and right stem starts with right_stem
+      requires the right member to be at least as long as the pattern
+      enforces the right_flag requirement when present
+      enforces the left_flag requirement when present
+      rejects when left stem does not end in left_stem
+      treats . in the right side as a single-character wildcard
+      rejects when right stem does not start with right_stem
+      matches the right side against its text, not its stem
+      keeps a right-side 0 literal
+      when the left side is 0
+        matches a left part whose prefix leaves the root running into the seam
+        matches a left part carrying only a zero-width affix
+        rejects a left part an affix has rewritten
+        matches a left part whose surface text is the bare root
+    #initialize
+      reports whether a replacement was given
+      keeps both sides literal, as Hunspell's parser does
+      stores left, right, replacement
+      parses left into left_stem and left_flag when slash present
+      marks left_no_affix from the left side's leading zero
+      sets left_flag to nil when no slash present
+    #surface
+      handles an empty stem on either side
+      trims each stem by length, not by matching its text
+      writes the two members the way the replacement spells them
+      honors flags on either side when trimming the stems
+
+Kotoshu::Embeddings::SimilarityEngine
+  #is_normalized?
+    returns false for a non-unit vector
+    returns true for empty or nil input
+    returns true for a unit-length vector
+  #initialize
+    defaults to non-pre-normalized, norm-caching mode
+    honors cache_norms: false
+    honors pre_normalize: true
+  #pre_normalize
+    returns a copy of an empty/nil input unchanged
+    returns a new array (does not mutate input)
+    returns a copy of a zero-magnitude vector unchanged
+    scales a vector to unit length
+  #cosine
+    returns 0.0 for orthogonal vectors
+    returns 0.0 for nil or empty inputs
+    returns -1.0 for opposite vectors
+    returns 1.0 for parallel vectors regardless of magnitude
+    returns 1.0 for identical non-zero vectors
+    is symmetric in its arguments
+    computes cosine for a 3D example
+    returns 0.0 for a zero-magnitude vector
+  dimension mismatch
+    raises ArgumentError from dot_product
+    raises ArgumentError from euclidean
+    raises ArgumentError from manhattan
+    raises ArgumentError from cosine
+    does not raise when one operand is empty (early-return path)
+  norm cache
+    records a miss on first computation and a hit on repeat
+    tracks hit_rate as hits / (hits + misses)
+    is disabled when cache_norms: false
+  #cache_stats
+    includes hits, misses, hit_rate, and cache_size keys
+    reports 0.0 hit_rate when nothing has been computed
+  #euclidean
+    computes the Euclidean distance
+    returns 0.0 for empty input
+    returns 0.0 for identical vectors
+  #dot_product
+    computes the dot product
+    returns 0.0 for empty or nil input
+  #clear_cache
+    resets hit/miss counters and empties the cache
+    returns self for chaining
+  #manhattan
+    computes the Manhattan (L1) distance
+    returns 0.0 for empty input
+  #compute_all_pairs
+    produces a symmetric similarity matrix with 1.0 on the diagonal
+  #normalize_and_compute
+    returns 0.0 for empty input
+    uses dot product when pre_normalize is on (fast path)
+    delegates to cosine when pre_normalize is off
+  #cosine_batch
+    computes cosine for each pair
+
+Foundation Component Integration
+  WhitespaceTokenizer
+    can be used standalone
+    behaves like a tokenizer
+      tokenizes text
+      can tokenize to strings
+      returns hashes with token, position, length
+      handles empty text
+      handles text with only whitespace
+      handles nil text
+  EnglishPosTagger
+    when dictionary files exist
+      tags a single token
+      caches lookup results
+      behaves like a POS tagger
+        adds pos_tag to tokens
+        adds lemma to tokens
+        tags tokens
+        can tag a single word
+        handles empty token array
+        handles nil token array
+  EnglishSpellChecker
+    when dictionary files do not exist
+      raises an error when creating checker
+    when dictionary files exist
+      #check
+        returns found: false for misspelled words
+        returns found: true for correct words
+      behaves like a spell checker
+        checks words
+        has a correct? convenience method
+        suggests corrections
+        returns boolean from correct?
+        returns found flag as boolean
+      #correct?
+        returns false for misspelled words
+        returns true for correct words
+      #suggest
+        returns suggestions for misspelled words
+  Component Integration
+    when dictionary files exist
+      finds misspelled words and suggests corrections
+      can tokenize, tag, and check text end-to-end
+
+Kotoshu::Grammar::RuleEngine
+  More common confusion-phrase rules
+    to/too
+      flags "to much" → "too much"
+      flags "to many" → "too many"
+      does NOT flag "too much" (correct usage)
+    rule loading
+      loads all seven new confusion-phrase rules
+    common grammar confusions
+      flags "alright" → "all right"
+      flags "inspite" → "in spite"
+      flags "between you and I" → "between you and me"
+      flags "apart of" → "a part of"
+      flags "as follow" → "as follows"
+  EN_THERE_THEIR rule
+    #check
+      accepts "there are"
+      accepts "there is" (location/existence)
+      detects "there parents" (should be "their parents")
+  Confusion-phrase rules (TODO 51 Phase 2 subset)
+    common phrase confusions
+      flags "alot" → "a lot"
+      flags "for free" → "free"
+      flags "could care less" → "couldn't care less"
+    then/than phrases
+      does NOT flag "more than" (correct usage)
+      flags "more then" → "more than"
+      flags "less then" → "less than"
+      flags "other then" → "other than"
+      flags "rather then" → "rather than"
+    rule loading
+      loads all seven confusion-phrase rules
+  EN_DOUBLE_NEGATIVE rule
+    #check
+      handles "not only... but also" correctly
+      does not flag "I don't know anything"
+      finds double negatives within reasonable distance
+      does not flag distant negatives
+      detects "I don't know nothing"
+  Capitalization rules (TODO 51 Phase 3)
+    EN_PROPER_NOUN_CAP rule
+      flags "english" and suggests "English"
+      flags multiple proper nouns in a stream
+      does NOT flag common nouns like "apple"
+      flags "monday" and suggests "Monday"
+      does NOT flag "Monday" (already capitalized)
+    EN_SENTENCE_START_CAP rule
+      flags lowercase sentence starts across multiple sentences
+      suggests the capitalized form
+      flags a lowercase first word of a stream
+      flags a lowercase word after a period
+      does not flag a capitalized first word
+  Possessive / contraction rules (TODO 51 Phase 1)
+    EN_ITS_IT_S rule
+      flags "its cold" (should be "it's cold")
+      does not flag "its color" (possessive is correct)
+      flags "its been" (should be "it's been")
+    EN_YOUR_YOURE rule
+      does not flag "your jacket" (possessive is correct)
+      flags "your going" (should be "you're going")
+    rule loading
+      loads all three possessive/contraction rules
+    EN_WHOSE_WHOS rule
+      does not flag "whose book" (possessive is correct)
+      flags "whose coming" (should be "who's coming")
+  EN_A_VS_AN rule
+    #check
+      handles "a university" correctly
+      accepts "an elephant"
+      detects "an dog" (should be "a dog")
+      accepts "a dog"
+      handles "a one-time" correctly
+      detects "a elephant" (should be "an elephant")
+      handles "an hour" correctly
+  RuleEngine
+    returns nil for unknown rule ID
+    returns rule IDs
+    checks if rule exists
+    can get specific rule by ID
+    loads rules from YAML configuration
+  English language class integration
+    provides create_grammar_rules method
+  Phrase confusion rules (EN_*_OF)
+    #check
+      detects "could of" and suggests "could have"
+      detects "would of"
+      detects "must of" and "might of"
+      does not flag "could have"
+      detects "should of"
+    rule loading
+      loads all five phrase-confusion rules
+
+Kotoshu::Keyboard::Layouts::Latin
+  Kotoshu::Keyboard::Layouts::Latin::Czech
+    keeps háček letters off the physical grid
+    freezes its composed grid
+    is registered for its language
+    reuses the QWERTZ base grid (z/y swap)
+  Kotoshu::Keyboard::Layouts::Latin::Vietnamese
+    is registered for its language
+    freezes its composed grid
+  Kotoshu::Keyboard::Layouts::Latin::Catalan
+    freezes its composed grid
+    is registered for its language
+  Kotoshu::Keyboard::Layouts::Latin::Hungarian
+    is registered for its language
+    freezes its composed grid
+    reuses the QWERTZ base grid
+  Kotoshu::Keyboard::Layouts::Latin::Italian
+    freezes its composed grid
+    reuses the QWERTY base grid coordinates
+    is registered for its language
+    reports an Italian name
+  the Nordic members
+    Kotoshu::Keyboard::Layouts::Latin::Norwegian
+      is registered for its language
+      shares the Danish physical grid
+      freezes its composed grid
+    Kotoshu::Keyboard::Layouts::Latin::Swedish
+      has real å ä ö keys where Danish has æ ø
+      makes the classic ä/ö slip distance 1
+      freezes its composed grid
+      is registered for its language
+    Kotoshu::Keyboard::Layouts::Latin::Danish
+      drops the US bracket and semicolon keys they replace
+      freezes its composed grid
+      makes æ adjacent to ø
+      has real å æ ø keys
+      is registered for its language
+  Kotoshu::Keyboard::Layouts::Latin::Polish
+    freezes its composed grid
+    keeps Polish diacritics off the physical grid
+    is registered for its language
+  Kotoshu::Keyboard::Layouts::Latin::Dutch
+    freezes its composed grid
+    is registered for its language
+  family hygiene
+    gives uk the dedicated grid instead of the base JCUKEN claim
+    does not change the existing language mappings
+  Kotoshu::Keyboard::Layouts::Latin::Romanian
+    freezes its composed grid
+    is registered for its language
+
+Kotoshu::Languages::English::Tokenizer
+  behaves like a tokenizer
+    handles nil text
+    handles text with only whitespace
+    handles empty text
+    can tokenize to strings
+    tokenizes text
+    returns hashes with token, position, length
+  #initialize
+    can disable contraction expansion
+  CONTRACTIONS constant
+    has common contractions defined
+  #tokenize
+    handles possessive "John's" correctly
+    expands "can't" to "can" + "not"
+    handles "I've" correctly
+    handles "I'm" correctly
+    handles "I'd" correctly
+    handles "you're" correctly
+    expands common contractions
+    expands "won't" to "will" + "not"
+    handles multiple contractions in one sentence
+    handles non-contraction text normally
+
+Kotoshu::Suggestions::Strategies::CompositeStrategy
+  #size / #count / #any?
+    size reports the number of child strategies
+    any? is true when at least one strategy is present
+    count is aliased as size
+  .with_defaults
+    starts empty (defaults are added by the caller via #add)
+    returns a CompositeStrategy with name :default
+    forwards config kwargs to the constructor
+  #sort_by_priority!
+    sorts strategies by ascending priority and returns self
+  #applicable_strategies
+    does not mutate the strategies array
+    returns an empty array when no strategy handles the context
+    returns only strategies whose handles? is true
+  #to_s / #inspect
+    includes the class name, composite name, and child strategy names
+    is aliased as inspect
+  #each_strategy
+    yields each strategy when a block is given
+    returns an Enumerator when no block is given
+  confidence cascade
+    runs the rerank at the default threshold even for confidence 1.0
+    follows the process Configuration when no threshold kwarg is given
+    at a mid threshold
+      merges rerank candidates into the pool when not skipped
+      skips exactly when the top traditional confidence is at or above it
+    debug metrics
+      exports the counter in StatsD and Prometheus formats
+      counts skips as semantic_cascade_skips
+      does not count when the rerank runs
+    at threshold 0.0 (never rerank)
+      skips the rerank whenever the traditional pool has candidates
+      still runs the rerank when the traditional pool is empty
+  #remove
+    removes the strategy by identity and returns self
+    is a no-op when the strategy is not present
+  #handles?
+    is false when the composite is empty
+    is false when no child handles the context
+    is true when at least one child handles the context
+  #generate
+    with real EditDistanceStrategy returns ranked suggestions for a typo
+    returns an empty SuggestionSet when no strategy handles the context
+    skips strategies that don't handle the context but still runs the rest
+    merges results from every applicable strategy into one SuggestionSet
+    honours the context max_results cap
+    deduplicates across strategies in a single batch (TODO 56 T5.1)
+  #add / #<<
+    appends a strategy and returns self for chaining
+    is aliased as <<
+    preserves insertion order across multiple adds
+  #initialize
+    accepts an initial strategies array
+    accepts a name keyword and exposes it via #name
+    defaults strategies to an empty array
+  #clear
+    removes all strategies and returns self
+
+Kotoshu::Jekyll::Generator
+  is a registered-safe Jekyll generator
+  is quiet for a site without posts
+  passes a clean site
+  fails the build naming the post and word
+  checks drafts when the site builds with drafts
+  respects a baseline in the site source
+
+Kotoshu::Keyboard::Layouts::GreekPhonetic
+  registry integration
+    is returned by layout_for for Greek
+  adjacency
+    gives the common typo pair ο/π distance 1
+    makes σ adjacent to ε on the top row
+    makes κ adjacent to λ and ξ
+  language support
+    supports el and el-GR
+  phonetic mapping
+    maps each Greek letter to the Latin letter it transliterates to
+    has no accented vowels — accents are dead keys
+    has the full 24-letter Greek alphabet
+
+Semantic path runtime gating
+  Suggestions::Generator default algorithms
+    does not include SemanticStrategy
+    includes the four traditional algorithms
+  true
+    is a boolean
+  traditional Spellchecker entry points
+    #check never raises OnnxUnavailable and returns a DocumentResult
+    #correct? never raises OnnxUnavailable
+    #suggest never raises OnnxUnavailable and returns a SuggestionSet
+    #check_word never raises OnnxUnavailable
+  SemanticStrategy fallback when ONNX is unavailable
+    returns an empty SuggestionSet without raising
+  Kotoshu::Models::OnnxModel::OnnxUnavailable
+    appends the optional detail when given
+    is a Kotoshu::Error subclass
+    mentions KOTOSHU_NO_ONNX as the opt-out
+    mentions the install command in the default message
+
+Kotoshu::Cli::CompletionsCommand
+  Kotoshu::Cli::Completions::Command
+    is a keyword-initialised Struct with name and description
+  the wired CLI exposes `completions` as a subcommand
+    lists `completions` in `kotoshu help`
+    lists bash/zsh/fish/languages under `kotoshu completions help`
+  #fish
+    documents the install path
+    adds language completion for setup and fetch
+    emits one complete line per top-level command
+  #languages
+    is non-empty
+    emits supported language codes one per line
+  #zsh
+    shells out to kotoshu completions languages for setup/fetch
+    emits a #compdef header and a _kotoshu function
+    describes every top-level command
+  #bash
+    includes the language-argument branch for setup and fetch
+    emits a syntactically valid bash completion script
+    documents the install path
+  Kotoshu::Cli::Completions::ScriptBuilders
+    with custom language-argument commands
+      renders one case branch per language-argument command
+    with no language-argument commands
+      renders a placeholder line instead of an empty case branch
+    .indent
+      indents every line by the given count
+      is a no-op at zero indent
+
+Kotoshu::SourceRegistry
+  immutability
+    is unaffected by mutating the hash passed to the constructor
+  per-repo pin overrides
+    keeps a custom mirror base for LFS model sources
+    honors override pins keyed by repo name
+    leaves other repos on their default pin when only one is overridden
+    accepts symbol keys in the pins hash
+  #pin_for_source and #repo_for
+    returns the default pin when no override is configured
+    returns the repo name for a source key
+  custom base URL
+    uses the provided base without trailing slash
+  #url_for
+    builds frequency URL with main pin (Kelly repo)
+    builds spelling URL with v1 pin and language extension
+    raises ArgumentError for unknown source
+    builds vocab URL paired with each model
+    builds model URL with main pin via the Git-LFS media host
+    builds manifest URLs for each repo
+    builds grammar URL with v1 pin
+
+Unit: Hunspell DIC Reader
+  #load
+    handles encoding
+    handles long flag format
+    loads a simple DIC file
+
+Kotoshu::Rspec::Matchers
+  #expect_words
+    returns a real expectation target composable with .to
+  be_spelled_correctly
+    accepts a language option
+    fails for a misspelled word
+    checks whole documents when the text has whitespace
+    passes for a correct word
+    passes for a clean document
+    negates honestly for documents
+  all_be_spelled_correctly
+    negates honestly
+    fails naming the misspelled words with suggestions
+    passes when every word is correct
+  #expect_document
+    checks the file contents as a document
+
+Kotoshu::Languages::Ukrainian
+  registry
+    registers uk and uk-UA
+  normalization
+    folds uppercase Ukrainian words
+  Cyrillic tokenizer
+    is a CyrillicTokenizer
+    rejects tokens without Cyrillic letters
+    keeps Ukrainian apostrophe names as one token
+    has the four Ukrainian-only letters in real words
+    splits a real Ukrainian sentence
+    keeps Ukrainian-script words
+
+Kotoshu::Spellchecker::FluentChecker
+  #max_suggestions
+    sets max suggestions option
+    returns self for chaining
+  #initialize
+    stores options
+    creates fluent checker with spellchecker
+  #check
+    checks text for errors
+    finds misspelled words
+  #on_progress
+    sets progress callback
+  #on_error
+    sets error callback
+  #ignore_words
+    stores ignore pattern
+    returns self for chaining
+
+Kotoshu::Native
+  requiring the gem without the extension
+    defines the module and its Ruby-side error class
+  .available?
+    answers without raising, on every install shape
+  extension surface
+    loads a real fixture dictionary and checks words (PENDING: native extension not built (rake compile))
+    answers available? true (PENDING: native extension not built (rake compile))
+    returns suggestion rows in the conformance shape (PENDING: native extension not built (rake compile))
+    raises Native::Error naming the path when loading a missing dictionary (PENDING: native extension not built (rake compile))
+    defines Error as a RuntimeError subclass (PENDING: native extension not built (rake compile))
+    exposes the kotoshu-rs version (PENDING: native extension not built (rake compile))
+  .suggestion
+    materializes a Suggestions::Suggestion from a native row
+    keeps exactly the four public conformance keys
+
+Kotoshu::Suggestions::Strategies::SemanticStrategy
+  #skip_when_confident?
+    opts in to the confidence cascade (skippable when traditional is confident)
+  #generate
+    when ONNX model is not available
+      returns empty suggestion set
+  #initialize
+    is enabled by default
+    accepts config options
+    creates a strategy with language code
+    can be disabled
+  #to_s
+    returns informative string representation
+
+Kotoshu::Algorithms::EditDistance
+  .distance
+    returns the other string's length when one is empty
+    returns 0 for identical strings
+    counts single-character deletion as 1
+    counts single-character insertion as 1
+    counts single-character substitution as 1
+    counts adjacent-character transposition as 1 (Damerau extension)
+    sums multiple operations for distant strings
+  .distance_with_threshold
+    returns nil when the distance exceeds the threshold
+    returns the distance when it is within the threshold
+    returns the distance when it equals the threshold
+
+Integrational Lookup Tests
+  Misc
+    passes warn lookup tests
+    passes opentaal_keepcase lookup tests
+    passes ph2 lookup tests
+    passes morph lookup tests
+    passes utf8_nonbmp lookup tests
+    passes ngram_utf_fix lookup tests
+  Affixes
+    passes affixes lookup tests
+    passes complexprefixes2 lookup tests
+    passes condition lookup tests
+    passes complexprefixes lookup tests
+    passes conditionalprefix lookup tests
+    passes complexprefixesutf lookup tests
+    passes condition_utf lookup tests
+    passes circumfix lookup tests
+  Flags
+    passes utf8 lookup tests
+    passes alias3 lookup tests
+    passes utf8_bom lookup tests
+    passes encoding lookup tests
+    passes flagnum lookup tests
+    passes alias lookup tests
+    passes right_to_left_mark lookup tests
+    passes alias2 lookup tests
+    passes flagutf8 lookup tests
+    passes flag lookup tests
+    passes flaglong lookup tests
+    passes utf8_bom2 lookup tests
+  Specific Languages
+    passes dotless_i lookup tests
+    passes checksharpsutf lookup tests
+    passes ignoresug lookup tests
+    passes korean lookup tests
+    passes checksharps lookup tests
+    passes hu lookup tests (PENDING: Hungarian is hard! (COMPOUNDSYLLABLE, LANG_hu moving rule, CHECKCOMPOUNDREP, COMPOUNDFORBIDFLAG))
+    passes ignore lookup tests
+    passes germancompoundingold lookup tests
+    passes germancompounding lookup tests
+    passes IJ lookup tests
+    passes ignoreutf lookup tests
+    passes nepali lookup tests
+  Base
+    passes base lookup tests
+    passes base_utf lookup tests
+  Compounding
+    passes onlyincompound2 lookup tests
+    passes checkcompoundpattern4 lookup tests
+    passes fogemorpheme lookup tests
+    passes compoundrule5 lookup tests
+    passes checkcompoundcase lookup tests
+    passes checkcompoundtriple lookup tests
+    passes compoundrule6 lookup tests
+    passes opentaal_cpdpat2 lookup tests
+    passes forceucase lookup tests
+    passes checkcompoundpattern lookup tests
+    passes compoundrule8 lookup tests
+    passes onlyincompound lookup tests
+    passes compoundaffix lookup tests
+    passes checkcompoundcase2 lookup tests
+    passes checkcompoundrep lookup tests
+    passes compoundrule7 lookup tests
+    passes utfcompound lookup tests
+    passes compoundforbid lookup tests
+    passes compoundaffix2 lookup tests
+    passes compoundrule3 lookup tests
+    passes compoundaffix3 lookup tests
+    passes checkcompoundcaseutf lookup tests
+    passes compoundrule lookup tests
+    passes compoundflag lookup tests
+    passes compoundrule2 lookup tests
+    passes opentaal_forbiddenword2 lookup tests
+    passes simplifiedtriple lookup tests
+    passes checkcompoundpattern2 lookup tests
+    passes checkcompoundpattern3 lookup tests
+    passes opentaal_cpdpat lookup tests
+    passes checkcompounddup lookup tests
+    passes wordpair lookup tests
+    passes compoundrule4 lookup tests
+    passes opentaal_forbiddenword1 lookup tests
+  Input/Output
+    passes iconv2 lookup tests
+    passes iconv lookup tests
+    passes oconv lookup tests
+    passes oconv2 lookup tests
+  Exclusion Flags
+    passes forbiddenword lookup tests
+    passes allcaps lookup tests
+    passes keepcase lookup tests
+    passes allcaps3 lookup tests
+    passes nosuggest lookup tests
+    passes allcaps_utf lookup tests
+    passes allcaps2 lookup tests
+  Break
+    passes break lookup tests
+    passes breakdefault lookup tests
+    passes breakoff lookup tests
+  Need Affix
+    passes needaffix2 lookup tests
+    passes fullstrip lookup tests
+    passes needaffix3 lookup tests
+    passes needaffix lookup tests
+    passes needaffix4 lookup tests
+    passes needaffix5 lookup tests
+    passes zeroaffix lookup tests
+  Edge Cases and Bugs
+    passes i58202 lookup tests
+    passes 2970242 lookup tests
+    passes slash lookup tests
+    passes 1975530 lookup tests
+    passes i68568utf lookup tests
+    passes arabic lookup tests
+    passes i54980 lookup tests
+    passes i53643 lookup tests
+    passes 2970240 lookup tests
+    passes digits_in_words lookup tests
+    passes 2999225 lookup tests
+    passes 1592880 lookup tests
+    passes timelimit lookup tests
+    passes i54633 lookup tests
+    passes 1706659 lookup tests
+    passes i68568 lookup tests
+    passes i35725 lookup tests
+
+Kotoshu::Suggestions::Strategies::BaseStrategy
+  #generate (abstract)
+    raises NotImplementedError on the abstract parent
+    is fulfilled by a concrete subclass
+  #handles?
+    is false when the word IS in the dictionary (no suggestions needed)
+    is false when the strategy is disabled
+    is true when the word is NOT in the dictionary (suggestions needed)
+    dispatches through IndexedDictionary#has_word? when given an IndexedDictionary
+  #create_suggestion_set
+    honours an explicit distances map
+    builds a SuggestionSet with each word wrapped in a Suggestion
+    falls back to the downcased distance key when the exact key is missing
+    defaults distance to 1 when neither exact nor downcased key is present
+    stamps original_length metadata when original_word is supplied
+    stamps ngram_score 0 when no original_word is supplied
+    stamps a non-zero ngram_score when original_word is supplied
+  #initialize
+    defaults max_results to 10
+    honours an explicit enabled: false
+    exposes the config hash
+    defaults enabled to true when not specified
+    defaults name to :base
+    coerces name to a Symbol
+    honours an explicit max_results
+  #get_config / #has_config?
+    returns the stored value even when it is nil
+    returns nil when absent and no default is given
+    returns the supplied default when absent
+    returns the stored value when present
+    has_config? returns true for present keys, including nil-valued
+  #calculate_ngram_similarity
+    is 1.0 for identical (case-insensitive) words
+    is clamped to the 0.0..1.0 range
+    is 0 for nil or empty inputs
+    is higher for words that share a prefix than for words that don't
+  #create_suggestion
+    absorbs extra kwargs into metadata via Suggestion's catch-all
+    builds a Suggestion tagged with the strategy name as source
+  dictionary dispatch (private API exercised through #handles?)
+    with an Array dictionary
+      looks up via Array#include?
+    with a Hash dictionary
+      looks up via Hash#key?
+    with a real PlainText dictionary backend
+      looks up via the documented lookup(word) interface
+    with a non-dictionary object
+      surfaces a NoMethodError rather than silently returning false
+  #priority
+    defaults to 100
+    honours an explicit priority
+  #skip_when_confident?
+    is false by default (only opt-in rerankers are cascade-skippable)
+  #to_s / #inspect
+    includes class name, name, and enabled flag
+    is aliased as inspect
+
+Kotoshu::Algorithms::Lookup
+  Kotoshu::Algorithms::Lookup::CompoundPos
+    exposes BEGIN_POS, MIDDLE, END_POS as symbols
+  NUMBER_REGEXP
+    matches a decimal
+    does not match a word with digits inside
+    does not match a bare word
+    matches an integer
+  CHECKCOMPOUNDPATTERN replacement, end to end
+    bounds COMPOUNDMIN by the surface word, as Hunspell does
+    does not choke when a member is a single character
+    does not apply CHECKCOMPOUNDTRIPLE to a seam a replacement rebuilt
+    treats a right-side 0 as a literal, not a wildcard
+    accepts the same word once COMPOUNDMIN leaves room for the cut
+    does not treat a rebuilt seam as a written word pair
+    treats . in the right side as a single-character wildcard
+    does not apply CHECKCOMPOUNDCASE to a seam a replacement rebuilt
+    still forbids the unsimplified spelling the pattern rejects
+    runs CHECKCOMPOUNDREP against the surface spelling
+    still applies CHECKCOMPOUNDTRIPLE to an ordinary seam
+  Kotoshu::Algorithms::Lookup::CompoundForm
+    aliases #inspect to #to_s
+    handles a single-part compound
+    treats a junction past the recorded list as ordinary
+    renders via to_s by joining parts with ' + '
+    stores the parts array
+    reports no junction pattern by default
+    reports the junctions a pattern replacement built
+  Kotoshu::Algorithms::Lookup::Lookuper
+    #call (BREAK patterns)
+      does NOT accept when BREAK is explicitly disabled (no defaults)
+      accepts a word that breaks into two dictionary words
+    #call (IGNORE chars)
+      strips IGNORE chars from the word before lookup
+    #good_forms
+      yields at least one form for an in-dictionary word
+      yields nothing for an unknown word
+      honors affix_forms: false (compound_forms only)
+      returns an Enumerator when no block is given
+      yields both affix and compound forms when applicable
+    #correct? (case variants)
+      accepts an all-caps variant of a lowercase dictionary stem
+      accepts a titlecase variant of a lowercase dictionary stem
+      skips case variants when capitalization: false
+    #correct? (basic dictionary lookup)
+      returns false for a word not in the dictionary
+      is aliased as #is_correct?
+      returns true for a word directly in the dictionary
+    #call (numerals shortcut)
+      does not shortcut a word that merely contains digits
+      accepts an integer as a number
+      accepts a decimal as a number
+    #correct? (prefix rules)
+      accepts a word that matches a dictionary stem + prefix rule
+    #initialize
+      exposes aff and dic readers
+    #call (FORBIDDENWORD top-level guard)
+      accepts a word whose some homonym does not have FORBIDDENWORD
+      rejects a word whose every homonym has FORBIDDENWORD
+    #correct? (suffix + prefix cross-product)
+      accepts a word that needs both a prefix and a suffix (crossproduct on)
+    #call (the outermost check)
+      returns false for an incorrect word
+      returns true for a correct word
+    #correct? (NOSUGGEST directive)
+      rejects NOSUGGEST-flagged words when allow_nosuggest: false
+      accepts NOSUGGEST-flagged words by default
+    #break_word
+      returns nothing (depth limit reached) when recursion exceeds depth 10
+      yields splits by the BREAK patterns
+      returns just [text] when no BREAK is configured
+      always yields the whole text as the first option
+      yields via Enumerator when no block given
+    #correct? (suffix rules)
+      rejects a word whose suffix does not satisfy the affix condition
+      accepts a second-suffix derivation when nested
+      accepts a word that matches a dictionary stem + suffix rule
+  Kotoshu::Algorithms::Lookup::AffixForm
+    aliases #inspect to #to_s
+    #initialize
+      stores text and stem, with nil affixes by default
+      honors all kwargs
+    #to_s
+      returns the text alone for a base form
+      renders prefix2 + prefix + stem + suffix2 + suffix for an affixed form
+    #has_affixes?
+      ignores in_dictionary (root homonym is not an affix)
+      is true when suffix is present
+      is false for a base form
+      is true when prefix is present
+    #is_base?
+      is the inverse of has_affixes?
+    #replace
+      preserves fields not mentioned in changes
+      returns a new form with one field changed (text)
+      replaces stem
+      replaces suffix
+    #all_affixes
+      compacts out nil secondary affixes
+      is empty for a base form
+      returns [prefix2, prefix, suffix, suffix2] in order, compacted
+    #flags
+      excludes secondary affix flags, matching Spylls
+      merges suffix flags into the set
+      merges prefix flags into the set
+      returns an empty set when in_dictionary is nil
+      returns the in_dictionary flags when present
+
+Kotoshu::Embeddings::Vocabulary
+  #lookup
+    returns nil for non-existent word
+    returns index for existing word
+  #to_h
+    returns a copy (not the original)
+    returns word_to_index mapping
+  #size
+    returns vocabulary size
+  .from_words
+    creates vocabulary from array of words
+  #words_starting_with
+    returns empty array if no matches
+    finds words starting with prefix
+  #sample
+    returns sample of words
+  .from_file
+    loads vocabulary from JSON file (array format)
+    loads vocabulary from JSON file (hash format)
+    auto-detects language from filename
+    raises ArgumentError for non-existent file
+    loads vocabulary from JSON file (wrapped word_to_idx format)
+  #sub_vocabulary
+    creates sub-vocabulary with subset of words
+  #common_words
+    returns first N words
+  #empty?
+    returns false for non-empty vocabulary
+  #words
+    returns enumerator of all words
+  #to_s
+    returns informative string representation
+  #initialize
+    creates vocabulary from word_to_index hash
+    builds reverse mapping automatically
+    raises a clear error when values are not integer indices
+    raises error for empty word_to_index
+  #save_to_file
+    saves vocabulary to file
+  #valid_index?
+    returns false for invalid indices
+    returns true for valid indices
+  #get_word
+    returns word for valid index
+    returns nil for invalid index
+  #include?
+    returns false for non-existent word
+    returns true for existing word
+
+Kotoshu::Languages::English
+  #create_spell_checker
+    creates a Hunspell spell checker
+    with spell checking
+      detects misspelled words
+      provides suggestions for misspelled words
+      checks common words
+  #create_tokenizer
+    creates an English tokenizer
+    with tokenization
+      tokenizes English text
+      handles contractions
+  #initialize
+    creates British English with en-GB code
+    creates American English by default
+    creates American English with en-US code
+  #create_pos_tagger
+    creates a Hunspell POS tagger
+    with POS tagging
+      tags single words
+  #description
+    returns full name with variant
+    returns just name for base English
+  #valid_in_other_variant?
+    returns nil for en-US when only en-US is available
+
+Kotoshu::Readers::PassthroughConditionChecker
+  #matches?
+    always returns true
+
+Kotoshu::Models::Result::WordResult
+  .correct
+    honours the position keyword
+    builds a correct result with no suggestions
+  #to_s / #inspect
+    shows 'no suggestions' when incorrect without suggestions
+    aliases inspect to to_s
+    shows top suggestions when incorrect with suggestions
+    shows just the word when correct
+  .incorrect
+    defaults suggestions to an empty array
+    builds an incorrect result
+    stores the suggestions array
+    accepts a SuggestionSet for suggestions
+    raises ArgumentError for an unsupported suggestions type
+  #initialize
+    accepts metadata
+    defaults metadata to an empty hash
+    stringifies the word
+  #== / #eql? / #hash
+    is consistent with hash equality
+    differs when the correct flag differs
+    equals another WordResult with the same word and correct flag
+    returns false when compared to a non-WordResult
+    differs when the word differs
+  #has_suggestions? / #suggestion_count
+    reports suggestions present
+    reports no suggestions when empty
+  #first_suggestion
+    returns nil when there are no suggestions
+    returns the first suggestion's word
+  #correct? / #incorrect?
+    is incorrect when correct: false
+    is correct when correct: true
+  #top_suggestions
+    defaults to 3
+    returns the first n suggestion words
+  #to_suggestion_set
+    wraps the suggestions in a SuggestionSet
+
+Kotoshu::Suggestions::Strategies::KeyboardProximityStrategy
+  #generate
+    returns a SuggestionSet of Suggestion objects
+    honours a stricter max_distance by returning at most the same number of suggestions
+    honours a stricter min_similarity by returning at most the same number of suggestions
+    tags every suggestion with source = 'keyboard_proximity'
+    excludes the input word from the result set
+    returns an empty set for a nil word
+    respects the max_distance cap: no suggestion exceeds the cap
+    stamps original_length metadata on each suggestion
+  KEYBOARD_LAYOUT constant
+    lists space as having no neighbours
+    is frozen so external mutation is impossible
+    documents the QWERTY 'h' neighbours used by the smoke tests below
+  #initialize
+    is enabled by default
+    defaults name to :keyboard_proximity
+    honours an explicit name override
+  ranking
+    sorts suggestions by ascending distance
+  smoke: typo correction via QWERTY neighbours
+    finds single-key typo corrections for 'hello'
+    finds single-key typo corrections for 'help'
+  #handles?
+    is true for a word not in the dictionary
+    is false when the strategy is disabled
+    is false for a word in the dictionary
+
+Kotoshu::Core::Trie::Trie
+  #clear
+    returns self for chaining
+    empties the trie
+  #| (union)
+    produces a new trie with words from both
+  #find_node
+    returns the terminal node for an inserted word
+    returns nil when the prefix is absent
+    returns an interior node for a prefix
+  #has_prefix?
+    returns false when no word has the prefix
+    returns true when any word starts with the prefix
+  #words_with_prefix
+    returns the single word when the prefix is a full word
+    returns all words starting with the prefix
+    returns an empty array when no words match
+  #& (intersection)
+    produces a new trie with words in both
+  #to_s / #inspect
+    includes the size
+    aliases inspect to to_s
+  #initialize
+    exposes a root Node
+    starts empty
+  #traverse
+    returns an Enumerator when no block is given
+    visits every node with its accumulated prefix
+  #count_prefix
+    counts words with the given prefix
+  #merge!
+    returns self
+    absorbs words from the other trie
+  #suggestions
+    honours the max_results cap
+    returns completions sharing the longest matching prefix
+  #all_words
+    returns every word in insertion traversal order
+    returns an empty array for an empty trie
+  #each_word
+    yields word and payload for terminal nodes
+    returns an Enumerator when no block is given
+  #insert / #lookup
+    returns self for chaining
+    returns false for a prefix that is not itself a word
+    increments size only for new words
+    inserts a word and confirms it via lookup
+    aliases has_word? and contains? to lookup
+    returns false for a word that was never inserted
+
+Kotoshu::Core::IndexedDictionary
+  #find_by_prefix
+    returns an empty array for no matches
+    returns a duplicate (caller can mutate without breaking the index)
+    honours ignore_case: true
+    returns words starting with the prefix
+  #find_by_length_range
+    returns words within the inclusive range
+  #to_trie
+    returns a Trie containing all words
+  #find_by_length
+    returns words of exactly that length
+    returns an empty array when no words match
+  #to_s / #inspect
+    aliases inspect to to_s
+    includes the size
+  #statistics
+    reports total and unique word counts
+    reports zero lengths for an empty dictionary
+    reports min/max/avg lengths
+    nests count_by_first_letter and count_by_length
+  #initialize
+    accepts an empty word list
+    is not empty when words are provided
+    counts every word including duplicates
+    is empty when no words are provided
+  #all_words
+    returns every word in insertion order
+  .from_file
+    builds a dictionary from a word-list file, ignoring blanks and comments
+  #count_by_first_letter
+    returns an empty hash for an empty dictionary
+    groups words by uppercased first letter
+  #count_by_length
+    groups words by length
+  #has_word_ignorecase?
+    returns false for a missing word
+    matches regardless of case
+  #add_words
+    appends multiple words
+    returns self for chaining
+  #find_by_suffix
+    honours ignore_case: true
+    returns a duplicate (caller can mutate without breaking the index)
+    returns an empty array for no matches
+    returns words ending with the suffix
+  #find_by_pattern
+    returns an empty array when nothing matches
+    returns words matching the regex
+  #add_word
+    increments size
+    indexes the word for suffix search
+    makes the new word findable by has_word?
+    indexes the word for prefix search
+    returns self for chaining
+  #each_word
+    yields every word when a block is given
+    returns an Enumerator when no block is given
+  #has_word? (case-sensitive)
+    returns false for a missing word
+    finds an exact word
+    distinguishes case
+  #lookup_ignorecase
+    returns nil for a missing word
+    finds the entry regardless of case
+  #lookup
+    returns nil for a missing word
+    returns the entry hash for an exact match
+    returns nil for a wrong-case word
+    stamps the index
+  #each_with_index
+    returns an Enumerator when no block is given
+    yields word and index pairs
+  #random_words
+    returns an empty array for an empty dictionary
+    returns words that exist in the dictionary
+    returns the requested count
+
+Kotoshu::Keyboard::Layouts::QWERTY
+  #position
+    has correct position for top row (QWERTY)
+    has correct position for number row keys
+    has correct position for home row (ASDFG)
+    has correct position for bottom row (ZXCVB)
+  #distance
+    adjacent keys
+      returns 1 for a-s
+      returns 1 for q-w
+      returns 1 for z-x
+    same row distances
+      calculates distance across number row
+      calculates distance across top row
+    QWERTY-specific characteristics
+      has z and y far apart (key difference from QWERTZ)
+  language support
+    does not support German
+    is the default layout for most languages
+    does not support Russian
+    does not support French
+  #initialize
+    supports Spanish
+    creates QWERTY layout
+    supports US English
+    supports English and variants
+    supports Portuguese
+  #adjacent_keys
+    returns adjacent keys for home row a
+    returns adjacent keys for q
+    includes diagonally adjacent keys for corner positions
+
+Kotoshu
+  does something useful (spellchecking)
+  has a version number
+
+Kotoshu::Cache::ModelRegistry
+  parses the top-level fields
+  holds one entry per (language, tier) id
+  .id_for
+    is the key under which entries are stored
+    builds the stable registry id
+  lutaml-model round trip
+    deserializes a raw resource hash through Resource.from_hash
+  #find
+    returns nil for an unknown language
+    accepts a tier given as a symbol
+    returns a typed resource for an existing (language, tier) pair
+    returns nil for an unknown tier
+    leaves nullable fields nil for the full tier
+  #languages
+    lists the languages the registry covers
+
+Kotoshu::Keyboard::Layouts::TurkishQ
+  language support
+    supports tr and tr-TR
+    does not support other languages
+  adjacency
+    gives the classic Turkish typo pair ı/o distance 1
+    makes ı adjacent to u and o on the top row
+    gives ğ and ü distance 1
+    makes ş adjacent to l and i on the home row
+  Turkish-specific keys
+    places i on the semicolon key position
+    has all six Turkish letters as real keys
+    places the dotless ı where QWERTY has i
+    has no semicolon or bracket keys
+  registry integration
+    is returned by layout_for for Turkish
+    is found by name
+
+Kotoshu::Suggestions::Generator
+  .default_algorithms
+    returns a duplicate of DEFAULT_ALGORITHMS
+    freezes the source constant so external mutation is impossible
+  #generate / #suggest
+    returns an empty SuggestionSet for an empty word
+    returns a non-empty SuggestionSet for a misspelled word
+    returns Suggestion objects, not Strings, from each entry
+    honours a per-call max_suggestions override
+    is aliased as #suggest
+    returns an empty SuggestionSet for a nil word
+  .default_algorithms=
+    is writable but does not affect the DEFAULT_ALGORITHMS constant
+  #correct? / #incorrect?
+    returns false for nil
+    returns false for a word not in the dictionary
+    is the negation of #incorrect?
+    returns true for a word in the dictionary
+    is aliased as #misspelled?
+    returns false for an empty string
+  dictionary dispatch
+    with a non-dictionary object
+      surfaces a NoMethodError on lookup rather than silently returning false
+    with an Array dictionary
+      looks up via Array#include?
+    with a Hash dictionary
+      looks up via Hash#key?
+  #initialize
+    raises ArgumentError when an algorithm is neither a Class nor a BaseStrategy
+    accepts a pre-built strategy instance in the algorithms array
+    forwards max_suggestions through to the strategy via Context
+    accepts a strategy class and instantiates it with the config hash
+    exposes the dictionary reader
+    builds a CompositeStrategy by default
+    composes the four default algorithm classes by default
+
+Kotoshu::Cli::PersonalCommand
+  #remove
+Added 3 words to /var/folders/2t/xmdrn2sd2lv2w49dv0zw9_q00000gp/T/kotoshu-personal-cli-spec20260905-34527-cexehc/personal.dic
+    ignores words not in the dictionary
+Added 3 words to /var/folders/2t/xmdrn2sd2lv2w49dv0zw9_q00000gp/T/kotoshu-personal-cli-spec20260905-34527-4t5y3l/personal.dic
+    removes words and reports the count
+  #add
+    adds words and reports the count
+    raises UsageError when called with no words
+Added 1 word to /var/folders/2t/xmdrn2sd2lv2w49dv0zw9_q00000gp/T/kotoshu-personal-cli-spec20260905-34527-6s67if/personal.dic
+    ignores duplicates
+  wiring into kotoshu CLI
+    is registered as a subcommand on Kotoshu::Cli::Cli
+  #list
+Added 2 words to /var/folders/2t/xmdrn2sd2lv2w49dv0zw9_q00000gp/T/kotoshu-personal-cli-spec20260905-34527-wo64x2/personal.dic
+    prints every word one per line
+    prints (empty) when nothing is added
+  #path
+    prints the on-disk location of the personal dictionary
+  #clear
+Added 2 words to /var/folders/2t/xmdrn2sd2lv2w49dv0zw9_q00000gp/T/kotoshu-personal-cli-spec20260905-34527-wqr2m9/personal.dic
+    is a no-op when stdin returns 'n'
+Added 2 words to /var/folders/2t/xmdrn2sd2lv2w49dv0zw9_q00000gp/T/kotoshu-personal-cli-spec20260905-34527-oqyiin/personal.dic
+    wipes the file when --yes is passed
+  #import
+    raises UsageError when a file does not exist
+    dry_run mode lists what would be added without writing
+    adds non-comment, non-blank lines
+
+Kotoshu::Results::Result
+  ::Success
+    supports and_then
+    can be unwrapped
+    is successful
+    returns nil for error
+    returns the wrapped value
+    supports map
+    does not call or_else
+  composable operations
+    chains multiple operations
+    recovers from failure
+    short-circuits on first failure
+  ::Failure
+    returns the wrapped error
+    returns nil for value
+    does not call map
+    is a failure
+    raises error on unwrap
+    does not call and_then
+    supports or_else
+  pattern matching
+    supports case-like pattern matching
+
+Kotoshu::Grammar::PatternMatchers::PhraseMatcher
+  #match
+    returns [] when the pattern has no phrase_check condition
+    returns [] when the phrase is not present
+    is case-insensitive on the wrong phrase
+    flags every occurrence of the wrong phrase
+    returns [] when only part of the phrase matches
+    supports three-word phrases
+    carries the suggestion and context in each error
+
+Kotoshu::Language::Tokenizer::LatinTokenizer
+  #tokenize
+    handles punctuation
+    handles contractions
+    handles slashes and backslashes
+    returns empty array for nil
+    filters out single non-letter characters
+    keeps words with accents
+    handles mixed case
+    filters out pure numbers
+    returns empty array for empty string
+    filters out empty tokens
+    handles apostrophes within words
+    handles parentheses and brackets
+    handles hyphens in words
+    returns empty array for whitespace only
+    splits text into words
+  #skip_token?
+    returns true for empty string
+    returns false for normal words
+    returns true for tokens with no letters
+    returns true for pure numbers
+    returns false for words with numbers
+  #normalize
+    strips whitespace
+  #word_boundary_regex
+    returns regex for Latin characters
+
+Kotoshu::Documents
+  Kotoshu::Documents
+    .register / .parser_for / .registered_formats
+      parser_for returns nil for an unregistered format
+      registers a parser class under a format symbol
+      register accepts string format names by coercing to symbol
+    .parse
+      falls back to PlainTextDocument when no parser is registered
+      uses the registered parser for the requested format
+      forwards language_code to the parser
+    .discovered_plugin_files / .discovered_formats
+      discovers plugin files via Gem.find_files
+      loads the plugin file and exposes its registered format
+      tracks which formats came from auto-discovered plugins
+    .reset!
+      clears every registration
+      clears the discovered_formats list
+      resets the discovery flag so the next lookup re-runs discovery
+  Kotoshu::Documents::Document
+    rejects empty text_nodes
+    #flattened_text
+      is the concatenation of every text node
+    #source_range_for
+      spans multiple nodes when the flattened range crosses a markup boundary
+      returns a single-node range when both offsets are inside the same node
+      defaults the end to flattened_length when nil
+    #source_range_at
+      returns node A's source range for a flattened offset in node A
+      returns nil for out-of-range offsets
+      returns node B's source range for a flattened offset in node B (the bolded word)
+    #flattened_length
+      is the total character count of the flattened text
+    #each_node
+      yields every text node in source order
+      returns an Enumerator when no block given
+  Kotoshu::Documents::SourcePosition
+    rejects negative offset
+    returns nil <=> for non-SourcePosition
+    rejects line < 1
+    rejects column < 1
+    is a frozen Struct with offset, line, column
+    is Comparable — lexicographic by (offset, line, column)
+  Kotoshu::Documents::SourceRange
+    is frozen
+    exposes start, end, and length
+    rejects non-SourcePosition args
+    rejects end < start
+    #empty?
+      is true when start == end
+      is false otherwise
+    #contains?
+      is true for a position between start (inclusive) and end (exclusive)
+    #union
+      is reflexive — union(self) returns an equivalent range
+      spans both ranges
+  Kotoshu::Documents::PlainTextDocument
+    is a Document
+    .from_string
+      computes the source range covering the whole string
+      carries the language_code through
+      wraps the entire string in one text node
+    .from_file
+      reads the file and wraps it
+  Kotoshu::Documents::TextNode
+    rejects non-SourceRange source_range
+    rejects negative flattened_offset
+    is a frozen Struct with text, source_range, flattened_offset, format, metadata
+    defaults format to :plain and metadata to {}
+    #contains_flattened?
+      is true for offsets inside flattened_range
+    #flattened_range
+      returns flattened_offset...(flattened_offset + text.length)
+
+Kotoshu::Models::OnnxModel
+  .from_file
+    raises ArgumentError when the vocab sibling is missing
+    loads a wrapped word_to_idx vocab.json (models-repo shape)
+    loads a flat word-to-index vocab.json
+
+Kotoshu::Embeddings::SimilaritySearch
+  #preload_embeddings!
+    preloads all embeddings
+  with preloaded embeddings
+    uses preloaded embeddings for search
+  #find_nearest
+    returns empty array for unknown word
+    filters by minimum similarity
+    includes the query word when exclude_self is false
+    returns hashes with word and similarity keys
+    finds nearest neighbors for a word
+    excludes the query word when exclude_self is true
+  #cosine_similarity
+    computes similarity for orthogonal vectors
+    computes similarity between two vectors
+    computes similarity for opposite vectors
+    computes partial similarity
+    handles nil vectors
+  #to_s
+    returns informative string representation
+  #clear_cache
+    clears the embedding cache
+  #similarity
+    computes similarity between two words
+    returns nil for unknown word
+    returns 1.0 for identical words
+  #find_nearest_batch
+    returns array of neighbors for each word
+    finds neighbors for multiple words
+  #initialize
+    preloads embeddings when requested
+    creates similarity search with vocabulary and model
+    does not preload embeddings by default
+
+Kotoshu::Configuration::Resolver
+  #merge
+    creates a new resolver with merged values
+    does not modify the original resolver
+  #get_all
+    returns all priority levels for another key
+    returns all priority levels for a key
+  #key?
+    returns true for keys in defaults
+    returns true for keys in programmatic settings
+    returns false for unknown keys
+    returns true for keys in CLI
+    returns true for keys in ENV
+  #initialize
+    creates a resolver with default empty values
+    creates a resolver with provided values
+  #get
+    with all priority levels set
+      returns CLI value when set (highest priority)
+    with only defaults
+      returns default value when nothing else set
+    without CLI and ENV values
+      returns programmatic value when CLI and ENV not set
+    without CLI value
+      returns ENV value when CLI not set
+    with unknown key
+      returns nil when key not found anywhere
+
+Kotoshu::Cache::ModelCache
+  .normalize_tier
+    raises ArgumentError listing valid tiers for anything else
+    accepts symbols and strings, case-insensitively
+  #download_tiered_model
+    raises and removes corrupt bytes when the sha256 does not match the registry
+    falls back to the mirror when the primary 404s
+    raises when the registry has no entry for the pair
+    downloads, verifies, and stores the model + vocab under the tier path
+    leaves no partial file behind when both primary and mirror fail
+  #cached_resources
+    lists tiered and legacy entries without the registry storage
+  #cached_tiers
+    lists coexisting tiers in preference order (mini first)
+    returns an empty list when nothing is cached
+    counts the legacy directory as :full
+  tier -> resource id -> path mapping
+    maps :mini and :fluency to tiered ids and sibling directories
+    recognizes tiered ids in supports_resource? and rejects bogus tiers
+    maps :full to the legacy id and directory (backwards compat)
+    reports the tier of a tiered id
+  registry storage
+    downloads and stores the registry once, then reuses it
+    reuses a cached registry in offline mode
+    refuses to trust a cached registry whose bytes fail the recorded sha
+    reuses a cached registry without fetching (unreachable URL would raise)
+    returns nil for a pair the registry does not know
+    raises (never fetches) when offline with no cached registry
+
+Kotoshu::Cli::DirectoryWalker
+  default skips
+    skips hidden files and directories
+    skips the default directories
+  .gitignore and .ignore support
+    never descends into ignored directories
+    cannot re-include a file inside an ignored directory
+    supports globstar
+    reads .ignore with the same semantics
+    ignores matched files
+    scopes nested ignore files to their subtree
+    applies the root ignore to nested paths
+    honors negation with the last pattern winning
+  extension selection
+    finds files at any depth, deterministically sorted
+    selects the known text extensions
+    skips unknown extensions
+  --include and --exclude
+    matches slashless globs against the basename at any depth
+    matches slashed globs against the path from the root
+    checks non-text files when included explicitly
+    excludes always win over the extension default
+    excludes win over includes
+    replaces the extension default with include globs
+
+Kotoshu::Language::Normalizer::Base
+  #normalize_word
+    normalizes single word
+  #normalize_whitespace
+    collapses multiple spaces
+    strips leading and trailing
+    converts various space characters
+  #remove_accents
+    preserves non-accented characters
+    removes accents from characters
+    handles German umlauts
+  #normalize
+    strips leading and trailing whitespace
+    collapses multiple whitespace
+    handles nil
+    downcases by default
+    handles empty string
+    combines options
+    with downcase: false
+      preserves case
+    with strip_punct: true
+      removes punctuation
+    with collapse_ws: false
+      preserves multiple spaces
+  #normalize_quotes
+    converts backticks
+    converts curly quotes to straight
+  #normalized_eql?
+    returns true for equal strings
+    returns false for different words
+    returns true for strings with different whitespace
+  #strip_punctuation
+    removes punctuation
+    preserves whitespace
+    preserves letters and numbers
+
+Kotoshu::Grammar
+  Kotoshu::Grammar::PatternMatchers::PossessiveContextMatcher
+    flags "there" + NOUN pos-tag
+    flags "there" + possessive-noun-list word (word-list fallback)
+    flags "there" + ADJ pos-tag
+    flags "there" + NOUN_PROPER pos-tag
+    does not flag when 'there' is the last token
+    does NOT flag "there" + verb (location context)
+    reports the rule's suggestion and message verbatim
+    matches 'there' case-insensitively
+  Kotoshu::Grammar::PatternMatchers::VowelSoundMatcher
+    passes through correct usage
+    flags "an" before a consonant-initial word
+    ignores empty/nil next-word tokens
+    interpolates {expected} and {word} into the rule message
+    flags multiple "a elephant" pairs in the same stream
+    respects silent-consonant exceptions (uses 'an' before 'hour')
+    ignores the article when its pos_tag is non-DET and non-nil
+    flags "a" before a vowel-initial word
+    respects consonant-sound exceptions (uses 'a' before 'unicorn')
+  Kotoshu::Grammar::PatternMatchers::DoubleNegativeMatcher
+    still fires for negatives outside an unclosed 'not only'
+    flags contractions ending in "n't"
+    aggregates multiple negative pairs
+    flags two negatives within the max-distance window
+    does not flag two negatives outside the window
+    uses the rule's message and suggestion verbatim
+    ignores empty/nil words
+    suppresses negatives inside the 'not only...but also' correlative
+    recognizes the full negative word list
+  Kotoshu::Grammar::PatternMatchers::BaseMatcher
+    #extract_tokens_from_context (protected)
+      is exposed for subclass reuse
+      matches case-insensitively
+    #match
+      returns an empty array by default (subclass responsibility)
+  Kotoshu::Grammar::RuleEngine
+    #rule_exists?
+      is true for a loaded rule
+      is false for an unknown rule
+    #get_rule
+      returns the rule with the given id
+      returns nil for an unknown id
+    rules_path resolution
+      joins dictionaries_base/<language>/grammar when no rules_path is given
+    #check
+      returns [] when no rules fire
+      runs every loaded rule and aggregates errors
+    #rule_names
+      returns the list of rule ids
+    #initialize
+      exposes the language code
+      loads rules eagerly from rules_path
+  Kotoshu::Grammar::RuleLoader
+    returns [] when rules.yaml is empty
+    defaults exceptions to {} when not present in a rule config
+    returns [] when rules.yaml has a null rules value
+    returns [] when rules.yaml has no 'rules' key
+    loads rules from rules.yaml
+    returns [] when rules.yaml does not exist
+  Kotoshu::Grammar::Rule
+    #check
+      aggregates errors from every pattern
+      falls back to BaseMatcher for an unknown condition type
+      returns an empty array when there are no patterns
+      uses BaseMatcher when conditions is empty
+      selects the matcher based on condition type
+    .from_yaml
+      builds a Rule from a YAML-shaped config hash
+      defaults exceptions to {} when not provided
+
+Kotoshu::Tasks::CheckTask
+  uses the plan-88 file selection over the root
+  defines kotoshu:check when kotoshu/tasks is required
+kotoshu: 1 spelling error(s) in 1 file(s)
+  prints errors and aborts when a file has misspellings
+  succeeds quietly for clean trees
+  honors an explicit file list and fail_on_error = false
+
+Kotoshu::Cache::LookupCache
+  #delete
+    removes a key from cache
+    does nothing for nonexistent key
+  #clear
+    removes all entries
+  #size
+    returns number of entries
+  LRU eviction
+    evicts least recently used entries when max size reached
+    updates LRU order on read
+  #stats
+    returns cache statistics
+    tracks hits and misses
+  #reset_stats
+    resets statistics counters
+  #key?
+    returns false for missing key
+    returns true for existing key
+  #initialize
+    creates cache with default max size
+    creates cache with custom max size
+  #write
+    stores a value
+    overwrites existing value
+  #read
+    returns stored value
+    returns nil for missing key
+  #fetch
+    stores and retrieves values
+    returns cached value without executing block
+    calls block only on cache miss
+
+Kotoshu::Spellchecker::ParallelChecker
+  thread safety
+    handles concurrent file checking safely
+  #check_files_parallel
+    finds errors in files
+    checks multiple files in parallel
+    returns empty results for empty file list
+    handles single file
+  #check_file
+    checks a single file
+  #initialize
+    creates checker with custom worker count
+    creates checker with default worker count
+
+Kotoshu::Keyboard::Layouts::Ukrainian
+  adjacency
+    gives the common typo pair и/т distance 1
+    keeps the JCUKEN top-row order ц у к
+    makes і adjacent to ф and в
+  language support
+    does not support Russian
+    supports uk and uk-UA
+  registry integration
+    is returned by layout_for for Ukrainian
+  Ukrainian-specific keys
+    has all four Ukrainian-only letters as real keys
+    has no Russian-only keys
+    places ґ two keys right of х, beside ї
+    places і where Russian JCUKEN has ы
+
+Kotoshu::Models::Result::DocumentResult
+  #== / #eql? / #hash
+    returns false when compared to a non-DocumentResult
+    differs when the file differs
+    equals another DocumentResult with same file and errors
+  .success
+    builds a result with no errors
+  #first_errors
+    defaults to 10
+    returns the first n errors
+  #initialize
+    accepts file, errors, word_count, and metadata
+    defaults sensibly
+  .failure
+    builds a result with the given errors
+  #each_error
+    yields each error
+    returns an Enumerator when no block is given
+  .merge
+    returns an empty result when the array is empty
+    combines multiple DocumentResults into one
+  #has_error_for? / #errors_for
+    reports whether a word has any error entries
+    returns the matching WordResult entries
+  #error_summary
+    is empty for a successful result
+    builds a Hash of word => occurrence count
+  #error_count / #unique_error_count
+    counts total and unique errors
+  #success? / #failed?
+    is success when errors are empty
+    is failed when errors are present
+  #to_s / #inspect
+    reports 'no errors' for a successful result with a file
+    reports counts for a failed result
+    reports 'no errors' for a successful result without a file
+    aliases inspect to to_s
+  #each_unique_error
+    yields (word, [WordResult, ...]) pairs grouped by word
+    returns an Enumerator when no block is given
+
+Kotoshu::Language::Segment
+  exposes language_code, text_nodes, confidence
+  #flattened_text
+    concatenates every node's text
+  #empty?
+    is true when text_nodes is empty
+
+Kotoshu::Algorithms::PhonetSuggest
+  .suggest
+    returns an Enumerator-like interface via the block
+    yields suggestions as strings
+    yields at least one suggestion when a phonetically similar stem exists
+  MAX_ROOTS constant
+    is 100
+  .metaphone
+    skips characters with no matching rule
+    returns the word unchanged when the table is nil
+    applies a single literal-letter rule
+    returns the word unchanged when the table is empty
+    handles multi-character search patterns
+    is case-insensitive on input — uppercases the word before matching
+  .final_score
+    is positive for identical words
+    factors in the left-common-substring bonus
+    gives a higher score to more similar words
+  .match_rule
+    returns nil when the pattern does not match
+    end-anchored rule matches from the given position to end of word
+    returns nil when start-anchored rule is invoked past position 0
+    returns the match length for a matching unanchored rule
+    allows start-anchored rule at position 0
+
+Kotoshu::Suggestions::Strategies::SymSpellStrategy
+  #generate
+    includes words with 1 deletion distance
+    handles case-insensitive matching
+    returns suggestions sorted by distance
+    returns empty set for words with no close matches
+    respects max_results config
+    generates suggestions for a misspelled word
+  #initialize
+    accepts max_deletion_distance config
+    creates a strategy with default config
+  #handles?
+    returns false when strategy is disabled
+    returns true when word is not in dictionary
+    returns false when word is in dictionary
+  #deletion_distance
+    calculates deletion distance between words
+    returns correct distance for multiple deletions
+    returns 0 for identical words
+
+Kotoshu::Languages::Greek
+  registry
+    registers el and el-GR
+  Greek-aware normalization
+    does not touch medial sigma
+    folds uppercase words with the final sigma
+    keeps lowercase final sigma untouched
+    strips accents only when asked
+  Greek tokenizer
+    keeps Greek-script words the Latin tokenizer would drop
+    rejects tokens without Greek letters
+    splits a real Greek sentence on Greek punctuation
+    is a GreekTokenizer
+
+Kotoshu::Grammar::PatternMatchers::PossessiveContractionMatcher
+  emits once per occurrence (multiple "its" in stream)
+  does not emit when the target token is absent
+  handles case-insensitively (Its/ITS match target "its")
+  does not emit when target is the last token
+  does not emit when the target is followed by a non-trigger token
+  emits an error when target is followed by a trigger word
+  emits an error when target is followed by a trigger tag
+
+Kotoshu::ConformanceRunner
+  #run
+    fails loudly when native is requested without the extension
+    records a failure for every row that diverges from its expectation
+    replays every vector through the native backend with zero failures (PENDING: native extension not built (rake compile))
+    replays every vector through the ruby backend with zero failures
+  default path
+    points at the committed vectors file
+  #compare
+    reports zero divergences when both backends agree (PENDING: native extension not built (rake compile))
+
+Kotoshu::Suggestions::SemanticCascade
+  #skip?
+    at a mid threshold
+      skips when the top confidence is at or above the threshold
+      does not skip when the top confidence is below the threshold
+      judges by the top candidate, not the rest of the pool
+      does not skip an empty pool
+    at threshold 0.0 (never rerank)
+      skips any non-empty pool, even a low-confidence one
+      does not skip an empty pool (traditional found nothing)
+    at the default threshold of 1.0
+      never skips, even for a top candidate with confidence exactly 1.0
+  #armed?
+    is false at the default threshold (always rerank)
+    is false above 1.0 (never skips)
+    is true for any threshold strictly below 1.0
+  #initialize
+    coerces non-Float thresholds (e.g. ENV strings) to Float
+    defaults to the always-rerank threshold
+    falls back to always-rerank for a nil threshold
+  .from_configuration
+    reads a programmatic threshold from the Configuration
+    reads KOTOSHU_SEMANTIC_CASCADE_THRESHOLD and converts it to Float
+    reads the SCHEMA default (1.0) from a fresh Configuration
+
+Unit: Hunspell FileReader
+  #encodings
+    handles Windows-1251 encoding
+  #bom
+    handles UTF-8 BOM
+  #stringio
+    reads from a string
+  #lines
+    reads lines from a basic UTF-8 file
+
+Kotoshu::Suggestions::Strategies::EditDistanceStrategy
+  English language behavior
+    with keyboard proximity errors
+      recognizes adjacent key substitutions on QWERTY
+      ranks adjacent-key substitutions higher than distant-key substitutions
+    with transposition errors
+      ranks "world" first for "wrold"
+      gives "world" highest confidence for "wrold"
+    with missing double letters
+      ranks "hello" above "help" for "helo"
+      ranks "hello" first for "helo"
+      gives "hello" highest confidence for "helo"
+    with common English words
+      gives frequency bonus to common words
+  integration with other strategies
+    provides source information
+    includes metadata in suggestions
+    produces suggestions compatible with SuggestionSet
+  edge cases
+    handles special characters
+    handles very long word
+    handles empty word
+    handles single character word
+    handles unicode characters
+  multi-language support
+    with Russian language
+      selects the JCUKEN keyboard layout
+    with French language
+      generates a suggestion for a French typo
+      selects the AZERTY keyboard layout
+    with German language
+      treats z and y as adjacent on QWERTZ (transposition bonus)
+      selects the QWERTZ keyboard layout
+      generates a suggestion for a German typo
+    with English language
+      selects the QWERTY keyboard layout as the default
+  core algorithm (language-agnostic)
+    #edit_distance_with_threshold
+      returns nil when exceeding threshold
+      returns 0 when threshold is 0 and words match
+      returns distance when within threshold
+    #calculate_ngram_similarity
+      returns 1.0 for identical words
+      gives high similarity for words with common suffix
+      gives high similarity for words with common prefix
+      handles words with character overlap
+      returns 0.0 for completely different words
+    #edit_distance
+      calculates Levenshtein distance correctly
+      calculates distance for deletions
+      calculates distance for insertions
+      handles empty strings
+      calculates distance for substitutions
+      handles transpositions correctly (Damerau-Levenshtein)
+    #typo_pattern_bonus
+      with missing double letters
+        detects missing double letter at end of word
+        does not give bonus when no double letter exists
+        detects missing double letter in middle of word
+      with extra double letters
+        does not give bonus for single deletions
+        detects extra double letter
+    #transposition_bonus
+      detects single transposition
+      gives higher bonus for single transposition than multiple
+      returns 0 when no transposition exists
+    #calculate_enhanced_score
+      combines multiple scoring factors
+      gives lower score (better) for common typo patterns
+      penalizes length differences
+    #keyboard_penalty
+      with QWERTY layout
+        gives low penalty for adjacent key substitutions
+        returns 0 when no substitutions exist
+        gives high penalty for distant key substitutions
+  threshold filtering
+    filters out low-similarity suggestions
+    respects min_results configuration even with threshold
+    filters by confidence threshold as well
+
+Kotoshu::PersonalDictionary
+  .remove_word
+    returns false for non-existent word
+    removes a word from personal dictionary
+  .add_word
+    normalizes to lowercase
+    adds a word to personal dictionary
+    prevents duplicates
+  .words
+    returns all personal words
+  .include?
+    returns true for added words
+    is case-insensitive
+
+keyboard layout sync with the models repo eval grids
+  keeps every eval grid key on the gem layout at the same position
+  can rank the eval grids common typo neighbors
+  keeps the committed fixture in sync with the live eval grids (PENDING: models repo absent or predates the wave-1 grids)
+
+Kotoshu::Components::WhitespaceTokenizer
+  #pattern
+    returns the token pattern
+    can use a custom pattern
+  behaves like a tokenizer
+    handles text with only whitespace
+    tokenizes text
+    handles empty text
+    handles nil text
+    can tokenize to strings
+    returns hashes with token, position, length
+  #punctuation?
+    returns false for word characters
+    returns true for punctuation
+  #tokenize_to_strings
+    returns just the token strings
+  #tokenize
+    splits on whitespace and separates punctuation
+    handles tabs
+    includes position information
+    handles multiple spaces
+    handles special characters
+    preserves contractions
+    handles numbers
+    handles newlines
+  #word_char?
+    returns true for underscore
+    returns false for punctuation
+    returns true for letters
+    returns true for numbers
+    returns false for spaces
+
+Kotoshu::Suggestions::Suggestion
+  lutaml-model serialization
+    to_json round-trips through parse (smoke-level)
+    round-trips a Suggestion through from_hash
+    to_hash exposes word/distance/confidence/source as strings/numbers
+  #initialize
+    coerces source to a string for clean serialization
+    absorbs extra kwargs into the metadata hash (legacy catch-all)
+    accepts word, distance, confidence, source as keyword args
+    defaults distance to 0, confidence to 1.0, source to 'unknown'
+  #to_s / #inspect
+    renders a readable summary
+    inspect is aliased to to_s
+  #combined_score
+    honors custom distance_weight / confidence_weight
+    weights distance (low is good) and confidence (high is good)
+  .from_word
+    accepts a custom source
+    builds a confidence-1.0, distance-0 Suggestion from a word
+  #<=> (sort order)
+    breaks ties on distance (lower wins)
+    uses alphabetical (case-insensitive) only as the final tiebreaker
+    sorts higher combined_score first
+    is nil-safe (returns nil for non-Suggestion)
+    breaks further ties on length similarity to original
+    breaks further ties on ngram_score (higher wins)
+  #from_source?
+    returns false on a different source
+    matches Symbol source against the stored String
+  #same_word?
+    matches against another Suggestion case-insensitively
+    matches against a String case-insensitively
+  #high_confidence? / #low_confidence?
+    high_confidence? is false below 0.8
+    low_confidence? is true strictly below 0.5
+    high_confidence? is true at exactly 0.8 (inclusive)
+    low_confidence? is false at exactly 0.5
+  #== / #eql? / #hash
+    == compares words case-insensitively
+    hash is consistent with == (case-insensitive word)
+    hash can be used as a Hash key without collisions across cases
+    == returns false against non-Suggestion
+    eql? is aliased to ==
+
+EditDistanceStrategy length filter (perf optimization)
+  returns the same candidates regardless of length filter (property: soundness)
+  does not crash on very long input (length filter handles it)
+  still finds candidates of varying lengths (within max_dist)
+
+Kotoshu::Cache::BaseCache#evict
+  removes the evicted directories when not a dry run
+  skips directories that have no metadata.json
+  treats a corrupt metadata.json as oldest (sorted first for eviction)
+  plans to evict the oldest entry when the cap is exceeded (dry_run)
+  respects the configured max_cache_size on the instance
+  returns a no-op plan when nothing exceeds the cap (dry_run)
+
+Kotoshu::Language::Tokenizer::Base
+  #skip_token?
+    returns true for pure numbers
+    returns true for empty string
+    returns false for normal words
+  #normalize
+    returns input unchanged by default
+  #word_char?
+    returns true for word characters
+    returns false for non-word characters
+  #tokenize_with_positions
+    returns empty array for nil
+    returns empty array for empty string
+    handles text with only whitespace
+  #tokenize
+    raises NotImplementedError
+
+Kotoshu::StringMetrics
+  integration tests
+    shows low similarity for dissimilar words
+    combines metrics for word similarity scoring
+  .leftcommonsubstring
+    returns shorter string length when one is prefix of other
+    returns 0 for completely different strings
+    returns full length when strings match
+    handles empty strings
+    calculates common prefix length
+  .ngram
+    basic n-gram calculation
+      calculates n-gram similarity
+      handles identical strings
+      returns 0 for empty second string
+      handles completely different strings
+    with longer_worse: true
+      does not penalize small length differences
+      penalizes when second string is significantly longer
+    with weighted: true
+      penalizes missing n-grams
+      penalizes missing prefix/suffix n-grams more
+    real-world examples
+      handles transposition errors
+      handles similar words with typos
+      handles extra letter
+      handles missing letter
+    with any_mismatch: true
+      does not penalize small length differences
+      penalizes significant length differences
+  .commoncharacters
+    handles strings of different lengths
+    handles empty strings
+    handles nil values
+    counts matching characters at same positions
+  .lcslen
+    handles one string being subsequence of other
+    calculates longest common subsequence length
+    handles empty strings
+    handles completely different strings
+    handles identical strings
+    handles common subsequences at different positions
+    real-world spelling correction examples
+      finds common subsequence in similar words
+      handles insertion/deletion
+      handles transposition
+
+Kotoshu::Integrity
+  Kotoshu::Integrity::AuditLog
+    #entries
+      returns the array form of #each
+      is empty when no entries have been recorded
+    .default_path
+      returns the Paths.audit_log_path
+    #each
+      preserves every entry when capacity exceeds the total payload
+      iterates entries newest-first across current + rotations
+      returns an Enumerator when no block is given
+    #clear!
+      removes the current log and all rotations
+      is safe to call on an empty log
+    #record
+      creates the parent directory when missing
+      returns the written entry hash
+      writes one JSON object per line
+      appends multiple entries
+    rotation integration
+      never grows beyond the configured bound across many writes
+      renames the current file to .1 when the policy says rotate
+  Kotoshu::Integrity::Manifest
+    #empty?
+      is false when resources are present
+      is true when no resources were parsed
+    #fetch
+      returns the Entry for a known path
+      returns nil for an unknown path
+    Entry#verify?
+      is false otherwise
+      is true when the content hashes to the recorded sha256
+    #verify_content!
+      raises IntegrityError when the SHA-256 mismatches
+      includes the URL in the error when provided
+      returns true when the SHA-256 matches
+      returns nil (no-op) when the manifest has no entry for the path
+    .parse
+      parses each resource into an Entry
+      raises IntegrityError on malformed JSON
+      builds a Manifest from a JSON string
+      parses manifests with no resources section as empty
+    .load
+      returns nil when the http layer returns nil (404 / 410)
+      propagates JSON parse errors
+      delegates to the http layer and parses the body
+  Kotoshu::Integrity::RotationPolicy
+    #plan_for
+      is purely functional — does not touch the filesystem
+      deletes the oldest rotation slot
+      shifts each existing rotation up by one suffix, oldest-first
+      with rotations=1 deletes .1 and moves current to .1
+      preserves move ordering so a verbatim executor never clobbers a live file
+      deletes the current path (truncate) when rotations is zero
+    #initialize
+      accepts custom max_bytes and rotations
+      raises ArgumentError for negative rotations
+      defaults max_bytes to 10 MB and rotations to 5
+      raises ArgumentError for negative max_bytes
+      coerces string inputs to integers
+      accepts zero for both (effectively truncate-on-rotate / never-rotate)
+    #rotate?
+      is true when current_size > max_bytes
+      is false when current_size <= max_bytes
+
+Kotoshu::SuikaUnavailable
+  explains how to install the gem
+  is a Kotoshu::Error
+  includes the optional detail when provided
+
+Kotoshu::Models
+  Kotoshu::Models::Suggestion
+    aliases #inspect to #to_s
+    #initialize
+      accepts confidence boundaries 0.0 and 1.0
+      raises ArgumentError when confidence is below 0
+      stores word, confidence, source, metadata
+      freezes the metadata hash
+      defaults source to :unknown when not provided
+      freezes the instance
+      raises ArgumentError when confidence is above 1
+      defaults metadata to an empty hash
+    #<=>
+      returns 0 when comparing against a non-Suggestion
+      sorts by confidence descending (higher is better)
+    #high_confidence?
+      is false when confidence == 0.8
+      is true when confidence > 0.8
+    metadata accessors
+      #embedding returns metadata[:embedding]
+      #embedding returns nil when metadata lacks :embedding
+      #edit_distance returns metadata[:edit_distance]
+      #explanation returns metadata[:explanation]
+    #to_s
+      includes word, percentage, and source when source is set
+      omits the source suffix when source is :unknown
+    #== and #eql?
+      is equal when the word matches (regardless of confidence)
+      is not equal to non-Suggestion objects
+      has a hash based on the word
+  Kotoshu::Models::EmbeddingModel
+    #similarity
+      returns nil when either word is OOV
+      returns the cosine similarity between two known words
+    #distance
+      returns nil when either word is OOV
+      returns the Euclidean distance between two known words
+    #embedding_for (abstract)
+      returns nil for OOV words
+      raises NotImplementedError on the abstract base
+      returns a WordEmbedding for words in the vocabulary
+    #vocabulary (abstract)
+      raises NotImplementedError on the abstract base
+    #metadata
+      includes language_code, dimension, vocabulary_size, model_type
+    #nearest_neighbors_for_embedding
+      returns [] when the embedding is nil
+      returns neighbors for an OOV embedding (closest vocab word first)
+      includes the source word when given an in-vocab embedding
+    #to_s
+      includes class name, language, dimension, vocabulary_size
+    #has_word?
+      is false for OOV words
+      is true for words in the vocabulary
+    #statistics
+      reports language, dimension, vocabulary_size, loaded
+    #loaded?
+      is true when vocabulary_size is positive
+      is false when vocabulary_size is zero
+    #initialize
+      raises ArgumentError when dimension is not positive
+      raises ArgumentError when language_code is nil
+      stores language_code and dimension
+      does not freeze the base — subclasses may add ivars post-super
+    #nearest_neighbors
+      returns up to k neighbors sorted by similarity
+      excludes the query word from results
+      returns [] when the query is OOV
+  Kotoshu::Models::Context
+    #initialize
+      compact-filters nil segments when joining
+      defaults window to 5
+      stores before/current/after/location/window
+      joins before/current/after into full_context with newlines
+      freezes itself
+    #with_highlight
+      returns full_context unchanged when error_word is nil
+      wraps the error word with ANSI underline codes
+    #surrounding_words
+      returns an empty array when current is nil
+      returns all words when the target word is not found
+      limits the window to n words on each side of the target
+    #word_at_location
+      returns nil when location is nil
+      returns the character at the column index when set
+      falls back to the current text when column is nil
+    #to_s
+      returns full_context alone when location.line is nil
+      prefixes with 'Line N:' when location.line is set
+    #==/#eql?/#hash
+      is equal when location and full_context match
+  Kotoshu::Models::NearestNeighbor
+    #initialize
+      accepts an explicit distance overriding the cosine-derived default
+      freezes the instance
+      raises ArgumentError when similarity is out of range
+      accepts an optional embedding reference
+      stores word, similarity, and computes distance
+    #==/#eql?/#hash
+      is equal when the word matches
+    #<=>
+      sorts by similarity descending
+    #to_s
+      renders as word [similarity%]
+    #high_confidence?/#confidence_level
+      confidence_level returns :medium for 0.5 < similarity <= 0.8
+      confidence_level returns :high for similarity > 0.8
+      confidence_level returns :low for similarity <= 0.5
+      high_confidence? is true when similarity > 0.8
+  Kotoshu::Models::WordEmbedding
+    #==/#eql?/#hash
+      is not equal when languages differ
+      is equal when word and language match (regardless of vector)
+    #similarity
+      returns 1.0 for identical vectors
+      raises TypeError when other is not a WordEmbedding
+      returns 0.0 when one vector is zero
+      returns 0.0 when dimensions differ
+      returns 0.0 for orthogonal vectors
+    #initialize
+      freezes the vector
+      raises ArgumentError when vector size does not match dimension
+      freezes itself
+      defaults dimension to 300
+      stores word, vector, language_code, dimension
+    #distance
+      is Float::INFINITY when dimensions differ
+      raises TypeError when other is not a WordEmbedding
+      is sqrt(2) for orthogonal unit vectors
+      is 0 for identical vectors
+    #to_s
+      includes class name, word, language, dimension
+  Kotoshu::Models::SemanticError
+    #<=>
+      returns 0 when other is not a SemanticError
+      sorts by location (line, then column)
+    #==/#eql?/#hash
+      is not equal when ids differ
+      is equal when ids match
+    #to_s
+      renders with location, original, recommended word, and percentage
+    #initialize
+      stringifies a Symbol id
+      freezes the instance
+      raises ArgumentError when suggestions is nil
+      raises ArgumentError for an invalid error_type
+      freezes suggestions sorted by confidence descending
+      raises ArgumentError when suggestions is empty
+      raises ArgumentError when confidence is out of range
+      stores all attributes
+    #abbreviated
+      renders a compact location/word/suggestion/percentage form
+    #display_type
+      returns the human-readable name for the error_type
+    #recommended_suggestion
+      returns the highest-confidence suggestion
+    #confidence_level
+      returns :low for confidence <= 0.5
+      returns :medium for 0.5 < confidence <= 0.8
+      returns :high for confidence > 0.8
+    #high_confidence?
+      is false when confidence == 0.8
+      is true when confidence > 0.8
+    ERROR_TYPES
+      maps each category to a display name
+      exposes the ten semantic categories
+
+Unit: Hunspell AFF Reader
+  #utf_flags
+    parses UTF-8 flag format
+  #numeric_flags
+    parses numeric flag format
+  #directives
+    parses PFX directive
+    parses MAP directive
+    parses REP directive
+  #long_flags
+    parses long flag format
+  #flag_aliases
+    parses flag aliases (AF directive)
+
+Kotoshu::ConformanceExporter
+  .export
+    exercises both correct and incorrect words
+    exports more than 500 vectors over the full default corpora
+    writes every line in the declared vector shape
+    produces byte-identical output when run twice
+  .spec_fixture_corpus
+    builds words from the test dictionary entries and the word list
+  corpus handling
+    skips a corpus whose dictionary fails to load instead of aborting
+    excludes the pathological timelimit fixture from the default corpora
+
+Kotoshu::Readers::ZipReader
+  reads lines from a zip entry
+
+Property-Based Tests
+  Dictionary mutation properties
+    finds word in custom dictionary after creation
+    always finds word immediately after adding
+    maintains word count property
+  LookupCache properties
+    provides consistent cache statistics
+    clears all entries on clear
+    maintains LRU eviction order
+    grows until max_size, then evicts
+  Parallel checker properties
+    produces same results as sequential checking
+    handles empty file list gracefully
+  SymSpell strategy properties
+    maintains distance upper bound
+    returns empty for very distant words
+    finds words within deletion distance
+  SuggestionCache properties
+    caches suggestions with same word regardless of max_results
+    generates correct cache keys for word/max_results combinations
+  BloomFilter properties
+    never produces false negatives
+    maintains false positive rate within bounds
+    handles case-insensitive lookups correctly
+    becomes more accurate as size increases
+  Dictionary lookup properties
+    returns same result for repeated lookups
+    returns false for non-existent words across different cases
+    with case-insensitive dictionary
+      maintains case-insensitive lookup property
+      maintains case-insensitive suggestion property
+    with case-sensitive dictionary
+      maintains case-sensitive lookup property
+  Result pattern properties
+    and_then short-circuits on failure
+    or_else recovers from failure
+    failure chained with map returns failure
+    and_then chains successes
+    success chained with map always returns success
+  Suggestion generation properties
+    respects max_suggestions limit
+    returns same suggestions for same input (deterministic)
+    finds correct word in suggestions for misspellings
+    orders suggestions by relevance
+    returns suggestions with valid distances
+  Personal dictionary properties
+    handles duplicate adds idempotently
+    can remove added words
+    persists words across instances
+
+Kotoshu::Readers::LatinScriptConditionChecker
+  literal dash handling
+    treats '-' as a literal char, not a range
+  distinguishing prefix vs suffix anchoring with the same condition
+    the same 'ab' condition matches different stems as prefix vs suffix
+  #matches? for prefix conditions
+    'ij' matches stems starting with ij
+    'wr.' matches stems starting with wr + any char
+  .compile
+    builds a prefix checker (anchored at start)
+    builds a suffix checker (anchored at end)
+    exposes condition, type, anchor, and pattern readers
+  #matches? for suffix conditions
+    'y' matches stems ending in y
+    handles nil/empty condition as match-any
+    '[^y]' matches stems NOT ending in y
+    '[aeiou]y' matches stems ending in vowel + y
+    '.' matches any stem
+
+Kotoshu::Cache::SuggestionCache
+  #fetch
+    respects max_results in cache key
+    computes and caches on miss
+    returns cached value without executing block
+  #delete
+    respects max_results when deleting
+    removes cached suggestions
+  #invalidate_word
+    does not affect other words
+    returns self for chaining
+    removes all cached entries for a word
+  inheritance from LookupCache
+    supports LRU eviction
+    provides stats
+    supports clear
+  #key?
+    returns false for missing word
+    respects max_results
+    returns true for cached word
+  #write and #read
+    separates cache entries by max_results
+    stores and retrieves suggestions with default max_results
+    is case-insensitive for words
+    stores and retrieves suggestions with custom max_results
+  #initialize
+    creates cache with default max size
+    creates cache with custom max size
+
+Kotoshu::Documents::Suppressions
+  Kotoshu::Documents::SourcePosition.line_for_offset
+    clamps nil and out-of-range offsets
+    maps flat offsets to 1-based lines
+  .scan
+    returns a frozen empty list for empty and nil sources
+    ignores unknown and malformed directives
+    with the :auto profile
+      recognizes bare, HTML-comment, and // directives at once
+    with markdown
+      keeps the directive comment itself out of scope as prose
+      recognizes a whole-line HTML comment directive
+      recognizes a trailing HTML comment directive
+    with asciidoc
+      recognizes a whole-line // directive
+      recognizes a trailing // directive
+      does not treat URLs as line comments
+    with plain text
+      recognizes a bare disable-line
+      does not treat trailing directive text as a directive
+      recognizes a bare disable-next-line with a word list
+      ignores prose that merely mentions a directive
+    with file blocks
+      ignores a stray enable-file
+      suppresses from disable-file to the matching enable-file
+      runs to EOF when never re-enabled
+      supports nested blocks: inner enable only closes the inner block
+  attachment to documents
+    PlainTextDocument scans bare directives for :plain
+    lets the caller supply suppressions explicitly
+    scans an explicit :markdown document with comment syntax
+  Kotoshu::Documents::Suppressions::Suppression
+    rejects unknown kinds and invalid line ranges
+    downcases and freezes its word list
+    matches words case-insensitively
+
+Kotoshu::Embeddings::OnnxRuntimeModel
+  #load! with an undeserializable model file
+    raises an actionable error pointing at the cache subcommand
+
+Kotoshu::Language::Normalizer::Hebrew
+  with normalize_maqaf: false
+    preserves the maqaf
+  #normalize
+    strips dagesh (consonant dot) by default
+    normalizes the maqaf (Hebrew hyphen) to ASCII hyphen
+    returns '' for nil
+    is idempotent — bare form stays bare
+    strips niqqud (vowel points)
+    does not downcase (Hebrew has no case)
+  #normalize_word
+    normalizes a single word identically to #normalize
+  with strip_dagesh: false
+    preserves dagesh when configured to keep it
+
+Kotoshu::Readers::AffReader
+  SFX / PFX grouping
+    parses crossproduct Y as true and N as false
+    groups SFX entries under their flag
+    groups PFX entries under their flag
+    parses flags embedded in the add field via '/X'
+    treats strip/add value '0' as the empty string
+  synonym resolution
+    rewrites PSEUDOROOT to NEEDAFFIX
+    rewrites COMPOUNDLAST to COMPOUNDEND
+  ICONV / OCONV directives
+    parses OCONV count + N conversion pairs
+    parses ICONV count + N conversion pairs
+  #initialize
+    defaults encoding to UTF-8 when path is empty
+    exposes path, encoding, flag_format readers
+    defaults encoding to UTF-8 when path is nil
+    defaults flag_format to short
+  INTEGER directives
+    parses COMPOUNDMIN as an integer
+    parses MAXDIFF as an integer
+    returns nil for INTEGER directives with no value
+    parses MAXCPDSUGS as an integer
+    parses MAXNGRAMSUGS as an integer
+    parses COMPOUNDWORDMAX as an integer
+  CHECKCOMPOUNDPATTERN directive
+    parses count + N compound patterns
+  encoding detection from real files
+    defaults to UTF-8 when SET is missing and bytes are valid UTF-8
+    defaults to ISO-8859-1 when SET is missing and bytes are not valid UTF-8
+    uses the SET directive when present
+    normalizes ISO8859-N to ISO-8859-N
+    passes UTF-8 through unchanged
+  IGNORE directive
+    returns an Ignore instance exposing the chars
+    returns an Ignore instance even with no chars
+  AM directive (morphological aliases)
+    parses count + N morph alias sets
+  BREAK directive
+    returns an empty array when count is 0
+    parses count + N break patterns
+  flag format edge cases (spylls parity)
+    FLAG long drops a trailing odd character from a flag run
+    FLAG num splits a flag run into digit runs
+    FLAG UTF-8 decodes multi-byte flags as whole characters
+  STRING directives
+    parses WORDCHARS as a raw string
+    parses KEY as a raw string
+    parses LANG as a raw string
+    parses TRY as a raw string
+    parses SET as a raw string
+  lines that are not directives
+    ignores unknown directives
+    ignores non-alphabetic lines
+    ignores lowercase lines (directives must be all caps)
+  AF directive (flag aliases)
+    decodes AF values with the active FLAG format (long)
+    builds a positional index → flag-set map
+    decodes AF values with the active FLAG format (num)
+    does not alias-substitute AF values while the AF table is being built
+    decodes AF values with the active FLAG format (UTF-8)
+  COMPOUNDSYLLABLE directive
+    returns a [count, flag] pair
+  COMPOUNDRULE
+    parses rules whose flag characters are regex metacharacters
+  FLAG format switching
+    updates flag_format when FLAG is encountered
+    applies the new flag format to FLAG directives that follow it
+  COMPOUNDRULE directive
+    parses count + N compound rules
+  FLAG directives (single-flag value)
+    CIRCUMFIX parses as a single flag string
+    COMPOUNDPERMITFLAG parses as a single flag string
+    NEEDAFFIX parses as a single flag string
+    SUBSTANDARD parses as a single flag string
+    FORBIDDENWORD parses as a single flag string
+    WARN parses as a single flag string
+    KEEPCASE parses as a single flag string
+    COMPOUNDFLAG parses as a single flag string
+    ONLYINCOMPOUND parses as a single flag string
+    COMPOUNDMIDDLE parses as a single flag string
+    COMPOUNDFORBIDFLAG parses as a single flag string
+    COMPOUNDROOT parses as a single flag string
+    COMPOUNDBEGIN parses as a single flag string
+    SYLLABLENUM parses as a single flag string
+    FORCEUCASE parses as a single flag string
+    COMPOUNDEND parses as a single flag string
+  PHONE directive
+    parses count + N phone rules into a PhonetTable
+  BOOLEAN directives
+    COMPOUNDMORESUFFIXES parses as true
+    CHECKCOMPOUNDDUP parses as true
+    ONLYMAXDIFF parses as true
+    CHECKCOMPOUNDCASE parses as true
+    FULLSTRIP parses as true
+    SIMPLIFIEDTRIPLE parses as true
+    COMPLEXPREFIXES parses as true
+    CHECKCOMPOUNDREP parses as true
+    NOSPLITSUGS parses as true
+    CHECKCOMPOUNDTRIPLE parses as true
+    CHECKSHARPS parses as true
+
+Kotoshu::Readers::ConditionChecker
+  .compile
+    returns a LatinScriptConditionChecker for :latin script
+    returns a PassthroughConditionChecker for unsupported scripts
+    defaults to :latin script
+  #matches? (abstract)
+    raises NotImplementedError on the base class
+
+Kotoshu::Keyboard::Layouts::Dvorak
+  English language support
+    is not the default for English (QWERTY is)
+    supports English as alternative layout
+  #distance
+    Dvorak-specific characteristics
+      has vowels close together on home row
+      has home row optimized for typing efficiency
+  #initialize
+    creates Dvorak layout
+    supports English (alternative layout)
+  #position
+    Dvorak-specific: vowels on home row left
+      places a, o, e, u, i on home row left
+    Dvorak-specific: high-frequency consonants on home row right
+      places d, h, t, n, s on home row right
+  layout efficiency
+    places punctuation on top row for easy access
+
+Kotoshu::Plugins::Plugin
+  dependency injection
+    resolves dependencies with keyword arguments
+  lifecycle hooks
+    calls before_start hook
+    calls after_stop hook
+  plugin definition
+    has dependencies
+    has provided services
+    has a plugin name
+
+Kotoshu::Language::Normalizer::Persian
+  #normalize
+    strips diacritics (inherited from Arabic)
+    returns '' for nil
+    maps Arabic Kaf to Persian Kaf
+    maps Arabic Yeh to Persian Yeh
+    is idempotent on already-Persian text
+
+Unit: Hunspell Flags
+  Compound flags
+    tests compound flag processing (PENDING: Different architecture in Kotoshu — covered by integrational lookup specs)
+  Affix flags
+    tests affix flag processing (PENDING: Different architecture in Kotoshu — covered by integrational lookup specs)
+
+Kotoshu::Suggestions::Context
+  #has_option?
+    is true even when the stored value is nil
+    is false for an option that was not passed
+    is true for an option that was passed
+  integration with Generator
+    exposes the three fields strategies read
+  #option
+    returns nil when the option is absent and no default is given
+    returns the stored value even when it is falsy (nil/false)
+    returns the stored value when present
+    returns the supplied default when the option is absent
+  #initialize
+    defaults max_results to 10
+    defaults options to an empty hash when no extra kwargs are given
+    exposes word, dictionary, max_results, and options as readers
+    freezes nothing — callers may mutate options hash if they must
+  #inspect / #to_s
+    does not leak the dictionary object_id into the summary
+    is aliased as to_s
+    renders a readable summary including word and max_results
+
+Kotoshu::Components::Synthesizer
+  #synthesize
+    raises NotImplementedError when called directly
+  #synthesize_all
+    calls synthesize for each POS type
+
+Kotoshu::Integrity
+  Kotoshu::Integrity::AuditLog
+    exposes entries via #each and #entries
+    appends one JSON object per line per record
+    returns the written entry from #record
+    can be cleared
+    creates the parent directory if it does not exist
+    with a rotation policy
+      does not rotate while under the threshold
+      exposes rotated entries via #entries (newest-first)
+      promotes the current log to .1 once over the threshold
+      shifts existing rotations up before promoting current
+      clears the current log and all rotations on clear!
+      caps total rotations at the configured count
+  Kotoshu::IntegrityError
+    is a Kotoshu::Error
+    carries resource_id, expected, actual, url
+  Kotoshu::Integrity::Manifest
+    .parse
+      returns a Manifest with entries keyed by relative path
+      returns an empty manifest when the resources section is absent
+      raises IntegrityError on malformed JSON
+    .load
+      fetches and parses the manifest from a URL
+      returns nil when manifest is absent (HTTP 404)
+    #verify_content!
+      returns nil (no-op) when the path is not in the manifest
+      raises IntegrityError with expected and actual hashes on mismatch
+      returns true when content matches the manifest entry
+  Kotoshu::Integrity::RotationPolicy
+    rejects negative max_bytes
+    is wired to Configuration via the audit_max_bytes / audit_rotations accessors
+    rejects negative rotations
+    uses the documented defaults
+    #rotate?
+      is true above the threshold
+      is false at and below the threshold
+    #plan_for
+      preserves plan shape at rotations == 1 (current → .1 only)
+      produces a drop + shift + promote plan when rotations > 0
+      truncates the current log when rotations == 0
+
+Kotoshu::Keyboard::Layouts::AZERTY
+  #position
+    AZERTY-specific: a and q are swapped from QWERTY
+      places a in top row (position 0)
+      places q in home row (position 0)
+    AZERTY-specific: z and w are swapped from QWERTY
+      places z in top row (position 1)
+      places w in bottom row (position 0)
+  French language support
+    is the default layout for French
+    does not support German
+    does not support English
+  #initialize
+    creates AZERTY layout
+    supports French and variants
+    supports Belgian (be)
+  #distance
+    AZERTY-specific characteristics
+      has z and w far apart (swapped from QWERTY)
+      has a and q far apart (swapped from QWERTY)
+  #adjacent_keys
+    returns adjacent keys for a (in top row)
+
+Kotoshu::Readers::FileReader
+  #initialize
+    opens the file and exposes path and encoding
+  #has_next? / #next / #peek
+    supports iterator-style consumption
+  #reset
+    resets to the beginning
+  encoding transcoding
+    falls back to ISO-8859-1 when the declared encoding is invalid
+    transcodes ISO-8859-1 to UTF-8
+  #reset_encoding
+    reopens the file with a new encoding and resets line_no
+  #each
+    yields [line_no, line] pairs with stripped content
+    returns an Enumerator when no block is given
+    skips empty lines and increments line_no correctly
+  BOM handling
+    strips a UTF-8 BOM from the first line
+
+Unit: Hunspell read_aff
+  #directives
+    parses REP directive
+    parses MAP directive
+    parses PFX directive
+  #long_flags
+    parses long flag format
+  #utf_flags
+    parses UTF-8 flag format
+  #flag_aliases
+    parses flag aliases (AF directive)
+  #numeric_flags
+    parses numeric flag format
+
+Kotoshu::Dictionaries::Catalog
+  .all
+    returns a frozen array of DictionaryEntry instances
+  .find
+    finds a dictionary by exact code
+    returns nil for an unknown code
+  .by_format / .hunspell / .plain_text
+    .hunspell returns only hunspell-format entries
+    .by_format(:hunspell) equals .hunspell
+    .plain_text returns only plain_text-format entries
+  Kotoshu::Dictionaries::Catalog::DictionaryEntry
+    is frozen
+    exposes all constructor fields as readers
+    #description omits region when nil
+    #description includes name, region, and word count
+    #plain_text? is true for plain_text format
+    #hunspell? is true for hunspell format
+  .by_license
+    returns entries whose license includes the query string
+  .by_language
+    returns all dictionaries for a language
+    returns [] for an unknown language
+  .statistics
+    returns a hash with the documented keys
+
+Kotoshu::Dictionary::Unified
+  PATHES and DISTRIBUTED constants
+    PATHES is a frozen Array of system search paths
+    DISTRIBUTED maps fixture dictionary names to language codes
+  .from_files
+    raises ArgumentError when the .aff file is missing
+    loads from the bundled test fixture
+  #suggest
+    yields suggestions when a block is given
+    returns an Enumerator when no block is given
+  #lookup
+    returns true for a word in the dictionary
+    returns false for an unknown word
+
+Kotoshu::Dictionary::Repository# Walking Skeleton - Dictionary Repository
+  #keys
+    returns all registered keys
+  #empty?
+    returns true for empty repository
+    returns false for non-empty repository
+  #find_by_language
+    returns empty array when no matches
+    returns dictionaries matching language code
+    is case-insensitive
+  #register
+    registers dictionary under key
+    replaces existing dictionary
+    converts string keys to symbols
+    has alias add
+    has alias []=
+  #unregister
+    removes dictionary
+    has alias remove
+    returns nil for non-existing key
+  #clear
+    removes all dictionaries
+  #get
+    has alias []
+    returns dictionary for existing key
+    converts string keys to symbols
+    returns nil for non-existing key
+  #each
+    iterates over key-dictionary pairs
+    returns enumerator when no block given
+  #registered?
+    has alias has_key?
+    has alias key?
+    returns false for unregistered key
+    returns true for registered key
+  .keys
+    returns all keys from global repository
+  #values
+    returns all dictionaries
+  #to_h
+    returns hash representation
+  creation
+    creates empty repository
+    creates repository with initial dictionaries
+  #to_s
+    has alias inspect
+    returns string representation
+  .clear
+    clears global repository
+  #merge
+    merges a hash
+    overwrites existing keys
+    merges another repository
+  #size
+    has alias count
+    has alias length
+    returns number of dictionaries
+  .instance
+    returns singleton instance
+    returns same instance across calls
+  .register
+    registers dictionary in global repository
+  .get
+    gets dictionary from global repository
+  .unregister
+    unregisters dictionary from global repository
+
+Kotoshu::Analyzers::SemanticAnalyzer
+  #suggest_corrections for an OOV word
+    falls back to edit-distance neighbors when the model returns []
+    returns [] when no vocabulary word is within edit distance 2
+    scored by inverse edit distance (distance-1 ranks above distance-2)
+  #suggest_corrections for an in-vocab word
+    uses the model's nearest_neighbors (no fallback)
+  #analyze with a Documents::Document
+    rejects a non-Document argument
+    produces an error whose id is stable for the same source range
+    emits SemanticErrors carrying source_range from the document
+    suggests the in-vocabulary friend for the frend typo
+
+Kotoshu::Embeddings::LruCache
+  #fetch (cache-aside)
+    only invokes the block once per key
+    returns the cached value when present
+    computes, stores, and returns the block result on miss
+    yields the key to the block, matching Hash#fetch
+  #delete
+    removes the key
+    returns nil when deleting a missing key
+  #clear
+    removes all entries
+  #size and #empty?
+    reflects eviction in size
+    tracks size as entries are added
+  #stats
+    reports size, max_size, ttl, and hit/miss counts
+    computes hit_rate as hits / (hits + misses)
+    counts hits on cache reads
+  #[] and #[]=
+    returns the stored value from []=
+    stores and retrieves a value
+    returns nil for a missing key
+    overwrites an existing value without growing the cache
+  #key?
+    returns false for a deleted key
+    returns false for a missing key
+    returns true for an existing key
+  #keys and #values
+    returns keys in MRU-first order
+    returns a defensive copy of keys
+    returns values in MRU-first order
+  LRU eviction at capacity
+    evicts the least recently used key when capacity is exceeded
+    evicts in insertion order when no reads occur
+    honors max_size of 1 (always keeps the latest)
+    treats a write to an existing key as a use, not an eviction trigger
+  #initialize
+    honors a custom max_size
+    defaults max_size to 1000
+    defaults ttl to nil (no expiry)
+    starts empty with zero hits and misses
+    honors a custom ttl
+  access order tracking
+    promotes the most recently read key to mru
+    returns key-value pairs from lru/mru
+    reports lru/mru as nil when empty
+
+Kotoshu::Languages::Persian
+  Kotoshu::Languages::Persian::Tokenizer
+    returns [] for nil
+    filters pure numbers
+    tokenizes Persian text by splitting on whitespace
+  normalization integration
+    normalizer maps Arabic Yeh to Persian Yeh
+  instance
+    is RTL
+    uses the Persian normalizer
+    uses a Persian Tokenizer
+    reports script_type :arabic (Persian uses Arabic script)
+    uses Custom dictionary class
+  registration
+    registers fa and fa-IR
+
+Kotoshu::ResourceManager
+  .languages_setup
+    lists set up languages
+    returns empty array when nothing is set up
+  .setup? predicate
+    returns true after a local install
+    returns false for an unset language
+    returns false for :frequency when only spelling is set up
+  .setup with want: parameter
+    accepts multiple resource types
+  .resolve / #resolve (cache-only)
+    raises ResourceNotSetupError with normalized language code
+    raises ResourceNotSetupError when not set up
+    raises ResourceNotSetupError with symbol language code
+  language normalization
+    strips region suffixes
+    handles underscore-separated locale codes
+    downcases the code
+  .setup_from_local
+    installs the language and lets resolve succeed
+    overwrites with force: true
+    raises ArgumentError when aff file is missing
+    is idempotent without force (raises on second run)
+    raises ArgumentError when dic file is missing
+
+Kotoshu::Dictionary
+  Kotoshu::Dictionary::Hunspell
+    AF flag aliases under FLAG num
+      resolves numeric aliases through affixes and cross-products
+    #initialize
+      raises DictionaryNotFoundError when the .dic file is missing
+      parses affix rules into prefix/suffix buckets
+      loads aff and dic data
+      raises DictionaryNotFoundError when the .aff file is missing
+      registers itself as :hunspell in the Dictionary registry
+    instance facade
+      exposes a memoized Lookuper
+      exposes a memoized Suggester
+  Kotoshu::Dictionary::Custom
+    #merge
+      returns self
+      is a no-op for other input types
+      merges words from another Dictionary::Base
+      merges words from a plain Array
+    #clear / #readonly?
+      clear empties the dictionary and returns self
+      readonly? is always false
+    #add_word / #remove_word
+      add_word adds new words and rejects duplicates
+      remove_word removes words
+      remove_word returns false for missing words
+      add_word strips whitespace before storing
+    #lookup / #suggest
+      suggest returns [] for nil/empty
+      lookup is false for nil/empty
+      suggest returns close matches and respects max_suggestions
+    #initialize
+      accepts an initial word list (case-insensitive)
+      starts empty by default
+      registers itself in the Dictionary registry as :custom
+      preserves case when case_sensitive is true
+  Kotoshu::Dictionary::UnixWords
+    .detect_system_dictionary / .detect
+      returns the first path in SYSTEM_PATHS that exists, or nil
+      detect returns nil when no system dictionary is found
+    #initialize
+      skips blank lines and # comments
+      raises DictionaryNotFoundError when the file does not exist
+      registers itself in the Dictionary registry as :unix_words
+    #add_word / #remove_word
+      add_word returns false for an existing word
+      remove_word removes and returns true
+      add_word adds and returns true
+      add_word returns false for nil/empty
+      remove_word returns false for a missing word
+    #lookup
+      is true for words in the file (case-insensitive by default)
+      is false for missing words
+      is false for nil and empty input
+    #suggest
+      respects the max_suggestions limit
+      returns close edit-distance matches
+      returns [] for nil and empty input
+    case sensitivity
+      treats input case-sensitively when case_sensitive is true
+      treats input case-insensitively when case_sensitive is false (default)
+  Kotoshu::Dictionary::CSpell
+    #words
+      returns every word stored in the trie
+    #lookup / #has_prefix?
+      has_prefix? is true when at least one word starts with the prefix
+      lookup is false for missing words
+      lookup is false for nil/empty
+      lookup is true for words in the file
+    #initialize
+      loads a .txt fixture into the trie
+      raises DictionaryNotFoundError for a missing file
+      registers itself as :cspell in the Dictionary registry
+    #add_word / #remove_word
+      remove_word always returns false (trie is immutable after load)
+      add_word always returns false (trie is frozen post-load)
+  Kotoshu::Dictionary::Base
+    abstract template methods
+      remove_word raises NotImplementedError
+      add_word raises NotImplementedError
+      words raises NotImplementedError
+      suggest raises NotImplementedError
+      lookup raises NotImplementedError
+    #each_word
+      returns an Enumerator when no block is given
+      iterates words when a block is given
+    aliases
+      contains? is an alias for lookup
+      has_word? is an alias for lookup
+      include? is an alias for lookup
+      lookup? is an alias for lookup
+      count and length are aliases for size
+      << is an alias for add_word
+      all_words is an alias for words
+    #initialize
+      preserves but freezes a passed-in locale
+      raises ArgumentError for an empty language_code
+      freezes language_code, locale, and metadata
+      raises ArgumentError for a nil language_code
+    #to_s / #inspect
+      includes the class name, language code, and size
+    #size / #empty?
+      empty? is true when there are no words
+      size returns the number of words
+    class-level registry
+      Base.load(type, *args) dispatches to the registered class constructor
+      Base.register_type(type_key) registers self into the module-level registry
+    module-level registry
+      Kotoshu::Dictionary.load dispatches to the registered class constructor
+      Kotoshu::Dictionary.register_type adds a class under a symbol
+      Kotoshu::Dictionary.load raises ConfigurationError for an unknown type
+    #words_with_prefix / #words_matching
+      returns words starting with the prefix
+      returns words matching a Regexp
+    #type
+      derives a snake_case symbol from the class name
+
+kotoshu check directory mode
+  single-file mode stays unchanged
+    prints one section without a summary line for a lone file
+  sarif output
+    emits one run per file
+  text output
+    exits 0 when every file is clean
+    reports when no text files are found
+    prints one section per file plus a summary and exits 1 on errors
+  ignore and glob flags
