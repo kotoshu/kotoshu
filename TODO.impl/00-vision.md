@@ -173,6 +173,21 @@ the Swedish COMPOUNDRULE bug by design.)
 | 96 | [Server semantic models](96-server-semantic-models.md) | /v1/check is dictionary-only — SDK users get no reranking through HTTP |
 | 97 | [YARD execution](97-yard-execution.md) | Executes plan 59: the Ruby API reference still does not exist |
 
+Plan 98 is **wave 5, the cleanup and closeout** (2026-09-06): after the
+release-day cuts (gem 0.8.0 → 0.9.0, @kotoshu/wasm 0.2.0, registry
+v1.3.0 with nb, lsp/server 0.1.1 via trusted publishing) the workspace
+was swept — 214 GB of models worktrees reclaimed, the plan corpus
+01–98 fully tracked, verification evidence preserved.
+
+| # | Plan | What it records |
+|---|---|---|
+| 98 | [Campaign cleanup](98-campaign-cleanup.md) | The inventory, the executed sweep, the keep list, and the deliberately-unforced items |
+
+Campaign state at close: every channel live and populated; the
+convertible model pool exhausted at 55 languages; owner-side
+remnants (PyPI registrations, marketplace PAT, nds/fi calls) recorded
+in the plans, not pending work.
+
 Dependency order across the ecosystem track:
 
 ```
