@@ -188,6 +188,28 @@ convertible model pool exhausted at 55 languages; owner-side
 remnants (PyPI registrations, marketplace PAT, nds/fi calls) recorded
 in the plans, not pending work.
 
+Plans 99-104 are **wave 6, the live-quality follow-through**
+(2026-09-07), written after the sweep-performance arc (gem 0.9.1 ->
+0.9.2, @kotoshu/wasm 0.3.0 -> 0.3.2) and a fresh state audit: 55 model
+languages x 3 tiers confirmed (ja/ko/zh rerank-only by design), no LID
+resource mirrored, lsp/server `~> 0.6` constraints already resolving
+current engines, site docs carrying stale version references.
+
+| # | Plan | Gap it closes |
+|---|---|---|
+| 99 | [Site truth + performance docs](99-site-truth-performance-docs.md) | Docs misstate current versions; the measured per-language latency is unpublished |
+| 100 | [Full-feature batch 3](100-full-feature-batch3.md) | ~35 languages have dictionaries + models but no gem module - the big-audience remainder (ar id fa he ...) |
+| 101 | [int4 tier experiment](101-int4-tier-experiment.md) | Halving tier bytes was named (B1) but never run through the gates |
+| 102 | [LID chain](102-lid-chain.md) | No detection in the registry, wasm, or playground - users pick the language blind |
+| 103 | [OOV bucket tables](103-oov-bucket-tables.md) | Model candidates miss n-grams absent from vocab (the Teh gap's model half) |
+| 104 | [VS Code marketplace readiness](104-vscode-marketplace-readiness.md) | The extension is built but not installable; everything short of the owner PAT |
+
+Execution notes: plan 103 is sequenced after 101 (same repo, one
+worktree at a time); all site-facing flips (99, 100, 102's playground
+half, 104's link line) land through one coordinated site pass to keep
+the repo conflict-free; lsp/server 0.1.2 bumps are deliberately NOT
+planned - the `~> 0.6` floor already resolves 0.9.2 for fresh installs.
+
 Dependency order across the ecosystem track:
 
 ```
