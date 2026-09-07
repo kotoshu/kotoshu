@@ -17,7 +17,11 @@ module Kotoshu
   module Language
     autoload :Registry, "kotoshu/language/registry"
     autoload :Detector, "kotoshu/language/detector"
+    # Detection value + the native LID reader behind it (plan 106) share
+    # lid_detector.rb.
+    autoload :Detection, "kotoshu/language/lid_detector"
     autoload :LanguageIdentifier, "kotoshu/language/identifier"
+    autoload :LidDetector, "kotoshu/language/lid_detector"
     autoload :Segmenter, "kotoshu/language/segmenter"
     autoload :Segment, "kotoshu/language/segmenter"
     autoload :Suika, "kotoshu/language/suika"

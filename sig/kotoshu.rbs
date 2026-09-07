@@ -106,6 +106,27 @@ def spellcheck_word_regex: () -> Regexp
         def normalize: (String? text, ?options ::Hash[Symbol, untyped]) -> String
       end
     end
+
+    # One language detection: top label code and its probability
+    # (plan 106). Plain-data Struct.
+    class Detection
+      attr_reader code: String?
+      attr_reader score: Float
+
+      def initialize: (?code: String?, ?score: Float) -> void
+      def to_s: () -> String
+    end
+
+    # Document language detection through the pure-Rust LID reader
+    # (plan 106): kotoshu://models/lid/lid-176 scored by the native
+    # extension, Language::Detector heuristic as the fallback.
+    class LidDetector
+      def self.detect: (String? text, ?config: Configuration) -> Detection
+      def self.available?: (?config: Configuration) -> bool
+      def self.setup: (?config: Configuration, ?force: bool) -> Hash[Symbol, untyped]
+      def self.setup?: (?config: Configuration) -> bool
+      def self.reset: () -> nil
+    end
   end
 
   module Languages

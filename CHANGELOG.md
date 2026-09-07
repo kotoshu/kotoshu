@@ -20,6 +20,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   per process (no hot reload; the LSP keeps its mtime-based reload).
   Opt out with `Kotoshu.configure { |c| c.personal_dictionary = false }`
   / KOTOSHU_PERSONAL_DICTIONARY=false / `kotoshu check --no-personal`.
+- **Native language detection** (plan 106) - `Kotoshu.detect_language(text)`
+  now returns a `Kotoshu::Language::Detection` (`code` + `score`) scored by
+  the Rust extension over the `kotoshu://models/lid/lid-176` registry
+  artifact pair (the ONNX-converted lid.176 model, 176 languages,
+  bit-faithful to the fastText bindings - parity 55/55 against the frozen
+  corpus shared with kotoshu-rs). Fetch the pair once with
+  `Kotoshu.setup_lid` (registry-resolved, sha-verified, cached under
+  `models-cache/lid/`); detect resolves cache-only and never downloads.
+  The 7-language `Language::Detector` heuristic stays the fallback when
+  the extension is absent, the model is not set up, or
+  `KOTOSHU_BACKEND=ruby` opts out - so pure-Ruby installs are unaffected
+  (no new gemspec dependency, no onnxruntime). The magnus shim
+  (ext/kotoshu_native) gains `Kotoshu::Native::LidModel.load` +
+  `#detect` behind the kotoshu-rs `model` feature; the workspace
+  Cargo.lock moves to the kotoshu-rs revision carrying the reader.
+  `Kotoshu.detect_language_with_confidence` keeps its `[code, score]`
+  shape and now routes through the same engine.
 - **Full-feature language batch 3** (plan 100) - twelve languages gain the
   downloadable spelling dictionary, a keyboard layout, and a gem module:
   `ar` `id` `fa` `he` `bg` `sr` `hr` `sk` `sl` `lt` `lv` `et` (the RTL
