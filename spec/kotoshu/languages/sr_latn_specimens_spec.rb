@@ -17,7 +17,7 @@ require "kotoshu"
 # the vocabulary the sr-Latn dictionary carries — not the Croatian
 # ijekavian forms (lijep veliki svijet) the hr specimens use.
 RSpec.describe "sr-Latn specimens through the engine", :network do
-  SPECIMENS = {
+  SR_LATN_SPECIMENS = {
     "sr-Latn" => [
       %w[kniga knjiga], %w[škloa škola], %w[veilk veliki],
       %w[svte svet], %w[kuać kuća], %w[držva država]
@@ -27,11 +27,11 @@ RSpec.describe "sr-Latn specimens through the engine", :network do
   # One real sentence carrying the first specimen typo, proving word
   # extraction through Kotoshu.check: exactly the typo surfaces, no
   # false positives on the surrounding words.
-  SENTENCES = {
+  SR_LATN_SENTENCES = {
     "sr-Latn" => ["Ovo je kniga iz škole", "kniga"]
   }.freeze
 
-  SPECIMENS.each do |lang, pairs|
+  SR_LATN_SPECIMENS.each do |lang, pairs|
     describe lang do
       before { Kotoshu.setup(lang, want: [:spelling]) }
 
@@ -53,7 +53,7 @@ RSpec.describe "sr-Latn specimens through the engine", :network do
       end
 
       it "flags exactly the typo inside a real sentence" do
-        text, typo = SENTENCES.fetch(lang)
+        text, typo = SR_LATN_SENTENCES.fetch(lang)
         result = Kotoshu.check(text, language: lang)
         expect(result.errors.map(&:word)).to eq([typo])
       end

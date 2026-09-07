@@ -16,7 +16,7 @@ require "kotoshu"
 # forms of common eojeol; the Nepali typos drop or slip a matra or a
 # conjunct member of common words.
 RSpec.describe "ko and ne specimens through the engine", :network do
-  SPECIMENS = {
+  KO_NE_SPECIMENS = {
     "ko" => [
       %w[국한어 한국어], %w[랑사 사랑], %w[족가 가족], %w[부공 공부],
       %w[생선님 선생님], %w[간시 시간], %w[람사 사람]
@@ -29,12 +29,12 @@ RSpec.describe "ko and ne specimens through the engine", :network do
   # One real sentence per language carrying its first specimen typo,
   # proving word extraction through Kotoshu.check: exactly the typo
   # surfaces, no false positives on the surrounding eojeol/words.
-  SENTENCES = {
+  KO_NE_SENTENCES = {
     "ko" => ["생선님 안녕하세요 학생", "생선님"],
     "ne" => ["म नमसते गर्छु", "नमसते"]
   }.freeze
 
-  SPECIMENS.each do |lang, pairs|
+  KO_NE_SPECIMENS.each do |lang, pairs|
     describe lang do
       before { Kotoshu.setup(lang, want: [:spelling]) }
 
@@ -56,7 +56,7 @@ RSpec.describe "ko and ne specimens through the engine", :network do
       end
 
       it "flags exactly the typo inside a real sentence" do
-        text, typo = SENTENCES.fetch(lang)
+        text, typo = KO_NE_SENTENCES.fetch(lang)
         result = Kotoshu.check(text, language: lang)
         expect(result.errors.map(&:word)).to eq([typo])
       end

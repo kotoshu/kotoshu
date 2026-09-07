@@ -15,7 +15,7 @@ require "kotoshu"
 # that). The typos are delete/transpose slips of common words — the
 # classic single-edit forms the Damerau sweep exists for.
 RSpec.describe "batch-3 language specimens through the engine", :network do
-  SPECIMENS = {
+  BATCH3_SPECIMENS = {
     "ar" => [
       %w[مدسرة مدرسة], %w[جيمل جميل], %w[كيبر كبير], %w[ثكير كثير], %w[دجيد جديد]
     ],
@@ -54,7 +54,7 @@ RSpec.describe "batch-3 language specimens through the engine", :network do
     ]
   }.freeze
 
-  SPECIMENS.each do |lang, pairs|
+  BATCH3_SPECIMENS.each do |lang, pairs|
     describe lang do
       before { Kotoshu.setup(lang, want: [:spelling]) }
 

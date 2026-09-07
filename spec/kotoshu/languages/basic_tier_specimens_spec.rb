@@ -16,7 +16,7 @@ require "kotoshu"
 # that). The typos are delete/transpose slips of common words — the
 # classic single-edit forms the Damerau sweep exists for.
 RSpec.describe "basic-tier language specimens through the engine", :network do
-  SPECIMENS = {
+  BASIC_TIER_SPECIMENS = {
     "is" => [
       %w[þeta þetta], %w[tstofu stofu], %w[kenari kennari], %w[faeleg falleg]
     ],
@@ -34,14 +34,14 @@ RSpec.describe "basic-tier language specimens through the engine", :network do
   # One real sentence per language carrying one of its specimen
   # typos, proving word extraction through Kotoshu.check: exactly the
   # typo surfaces, no false positives on the surrounding words.
-  SENTENCES = {
+  BASIC_TIER_SENTENCES = {
     "is" => ["Þetta er kenari íslenskur", "kenari"],
     "cy" => ["Mae hwn yn hfal Gymraeg", "hfal"],
     "gd" => ["Seo lebhar Gàidhlig", "lebhar"],
     "nn" => ["Eg skriv nyorsk i dag", "nyorsk"]
   }.freeze
 
-  SPECIMENS.each do |lang, pairs|
+  BASIC_TIER_SPECIMENS.each do |lang, pairs|
     describe lang do
       before { Kotoshu.setup(lang, want: [:spelling]) }
 
@@ -63,7 +63,7 @@ RSpec.describe "basic-tier language specimens through the engine", :network do
       end
 
       it "flags exactly the typo inside a real sentence" do
-        text, typo = SENTENCES.fetch(lang)
+        text, typo = BASIC_TIER_SENTENCES.fetch(lang)
         result = Kotoshu.check(text, language: lang)
         expect(result.errors.map(&:word)).to eq([typo])
       end
