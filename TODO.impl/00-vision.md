@@ -262,3 +262,20 @@ yet passing bucket bytes to loadModel.
 | 106 | [Native LID detection](106-native-lid-detection.md) | detect is a 7-language heuristic; the pure-Rust lid reader exists unused |
 | 107 | models [09 bucket expansion](../../models-fasttext-onnx/TODO.impl/09-bucket-table-expansion.md) | bucket OOV siblings exist only for en and de |
 | — | site 11 playground buckets | wasm 0.4.0 accepts bucketsBytes; the worker never fetches the sibling |
+
+
+Plans 107-109 are **wave 8, reachability and the road to 1.0**
+(2026-09-07): after wave 7 (personal dict in check, 176-language
+detection, buckets rolling to all languages), the remaining user gaps
+are the sixty-plus staged dictionaries unreachable without a module,
+the last big-population languages (ko, ne), and the absence of a
+stability commitment adopters can build on.
+
+| # | Plan | Gap it closes |
+|---|---|---|
+| 107 | [Basic support for every staged language](107-basic-support-every-staged-language.md) | setup rejects 60+ staged languages; modules become upgrades, not gates |
+| 108 | [ko and ne full-feature](108-ko-ne-full-feature.md) | Hangul and Devanagari - the last ~100M speakers without support |
+| 109 | [The 1.0 readiness audit](109-ten-audit.md) | no frozen surface or stability policy for adopters |
+
+Sequencing: 108 after 107 (same area); 109 is analysis-only and runs in
+parallel. The 1.0 cut itself remains the owner's version call.
