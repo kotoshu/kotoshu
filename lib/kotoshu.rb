@@ -446,17 +446,30 @@ module Kotoshu
 
   # Detect language of text.
   #
+  # Native LID when available (plan 106): the Rust extension scoring
+  # the `kotoshu://models/lid/lid-176` artifact pair over 176
+  # languages, after a one-time {setup_lid}. Falls back to the
+  # {Language::Detector} heuristic when the extension is absent,
+  # KOTOSHU_BACKEND=ruby, or the model is not set up — so pure-Ruby
+  # installs keep the previous behavior.
+  #
   # @param text [String] Text to analyze
-  # @return [String, nil] Detected language code
+  # @return [Language::Detection] +code+ (String, or nil when the
+  #   heuristic is uncertain) and +score+ (Float in [0, 1]);
+  #   interpolation yields the code
   #
   # @example
-  #   Kotoshu.detect_language("Bonjour le monde")  # => "fr"
-  #   Kotoshu.detect_language("こんにちは")        # => "ja"
+  #   Kotoshu.setup_lid
+  #   Kotoshu.detect_language("Bonjour le monde").code  # => "fr"
+  #   Kotoshu.detect_language("こんにちは").score        # => 0.99
   def self.detect_language(text)
-    Language.detect(text)
+    Language::LidDetector.detect(text)
   end
 
   # Detect language with confidence score.
+  #
+  # Same engine selection as {detect_language}, returned as the
+  # historical [code, confidence] pair.
   #
   # @param text [String] Text to analyze
   # @return [Array<String, Float>] Language code and confidence
@@ -466,7 +479,34 @@ module Kotoshu
   #   lang  # => "en"
   #   conf  # => 0.85
   def self.detect_language_with_confidence(text)
-    Language.detect_with_confidence(text)
+    detection = Language::LidDetector.detect(text)
+    [detection.code, detection.score]
+  end
+
+  # Set up the language-identification model: downloads the
+  # lid.176.onnx + vocab.json pair from the models registry into the
+  # model cache (stage one of the two-stage model — {detect_language}
+  # never downloads implicitly). Idempotent; +force+ re-downloads.
+  #
+  # @param force [Boolean] Re-fetch even if already cached
+  # @return [Hash] { onnx_path:, vocab_path:, metadata }
+  # @raise [Kotoshu::Error] registry unreachable while offline with no
+  #   cached registry (KOTOSHU_OFFLINE=1), or no registry entry
+  # @raise [Kotoshu::IntegrityError] downloaded bytes fail the
+  #   registry checksum
+  #
+  # @example
+  #   Kotoshu.setup_lid
+  #   Kotoshu.setup_lid?  # => true
+  def self.setup_lid(force: false)
+    Language::LidDetector.setup(config: configuration, force: force)
+  end
+
+  # Whether the language-identification model is cached (cache-only).
+  #
+  # @return [Boolean]
+  def self.setup_lid?
+    Language::LidDetector.setup?(config: configuration)
   end
 
   # Get language class by code.

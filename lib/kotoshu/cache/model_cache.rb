@@ -72,6 +72,22 @@ module Kotoshu
       # output is stable across machines and runs.
       TIER_PREFERENCE = %i[mini fluency full].freeze
 
+      # The language-identification artifact pair (plan 106): registry
+      # resource `kotoshu://models/lid/lid-176` — the ONNX-converted
+      # lid.176 model (int8-per-row, dim 16) plus its vocab.json
+      # sidecar. Lives in the same registry as the embedding tiers but
+      # is NOT a language tier: it has no language of its own and the
+      # tier machinery (resource ids, TIERS) does not apply. It is
+      # stored under a top-level `lid/` directory (not
+      # `{lang}/models/onnx/{tier}`) so {#cached_resources} keeps
+      # reporting per-language ids only.
+      LID_LANGUAGE = "lid"
+      LID_TIER = "lid-176"
+      LID_REGISTRY_ID = ModelRegistry::Resource.id_for(LID_LANGUAGE, LID_TIER)
+
+      # Directory (under the cache root) holding the LID artifact pair.
+      LID_DIRECTORY = "lid"
+
       # Normalize and validate a tier name.
       #
       # @param tier [String, Symbol] "full", "fluency", or "mini"
@@ -246,6 +262,96 @@ module Kotoshu
         result = { model_path: model_file, metadata: metadata }
         result[:vocab_path] = vocab_path if vocab_path
         result
+      end
+
+      # ---- LID artifact pair (plan 106) ----
+
+      # Whether the LID artifact pair is cached and complete.
+      #
+      # @return [Boolean]
+      def lid_cached?
+        !load_cached_lid.nil?
+      end
+
+      # Resolve the LID artifact pair from the cache only — never
+      # touches the network (the resolve half of the two-stage model).
+      #
+      # @return [Hash, nil] { onnx_path:, vocab_path:, metadata } when
+      #   cached, nil when not set up
+      # @raise [Kotoshu::IntegrityError] cached bytes fail their
+      #   recorded checksum
+      def load_cached_lid
+        dir = File.join(@cache_path, LID_DIRECTORY)
+        metadata_path = File.join(dir, "metadata.json")
+        return nil unless File.exist?(metadata_path)
+
+        metadata = read_metadata(metadata_path)
+        return nil unless metadata
+
+        onnx_file = File.join(dir, metadata["file"].to_s)
+        vocab_file = File.join(dir, metadata["vocab_file"].to_s)
+        return nil unless File.exist?(onnx_file) && File.size(onnx_file).positive?
+        return nil unless File.exist?(vocab_file) && File.size(vocab_file).positive?
+
+        verify_lid_integrity!(metadata, onnx_file, vocab_file)
+
+        { onnx_path: onnx_file, vocab_path: vocab_file, metadata: metadata }
+      end
+
+      # Download the LID artifact pair from the models registry
+      # (`kotoshu://models/lid/lid-176`), verifying the ONNX bytes
+      # against the registry sha256 before accepting them (the setup
+      # half of the two-stage model; same contract as
+      # {#download_tiered_model}).
+      #
+      # @param force [Boolean] re-fetch the registry first
+      # @return [Hash] { onnx_path:, vocab_path:, metadata }
+      # @raise [Kotoshu::Error] no registry entry, or offline without
+      #   a cached registry (the registry is fetched once per cache
+      #   instance; see {#registry})
+      # @raise [Kotoshu::IntegrityError] sha256 mismatch (corrupt
+      #   bytes are removed before raising)
+      def download_lid(force: false)
+        entry = registry(force: force)&.find(LID_LANGUAGE, LID_TIER)
+        unless entry
+          raise Kotoshu::Error, "no registry entry for #{LID_REGISTRY_ID}"
+        end
+
+        dir = File.join(@cache_path, LID_DIRECTORY)
+        FileUtils.mkdir_p(dir)
+
+        onnx_file = File.join(dir, filename_from_url(entry.urls.primary))
+        used_url = download_primary_or_mirror!(entry, onnx_file)
+        verify_registry_sha256!(entry, onnx_file, LID_REGISTRY_ID, used_url,
+                                remediation: "Run Kotoshu.setup_lid(force: true) to re-download.")
+
+        # The vocab sidecar is required, not optional: the reader
+        # cannot score without its labels and Huffman counts.
+        vocab_file = File.join(dir, filename_from_url(entry.vocab_url))
+        begin
+          download_file(entry.vocab_url, vocab_file)
+        rescue StandardError => e
+          File.delete(onnx_file) if File.exist?(onnx_file)
+          raise Kotoshu::Error, "LID vocab unavailable at #{entry.vocab_url}: #{e.message}"
+        end
+
+        metadata = {
+          version: entry.version,
+          url: used_url,
+          language: LID_LANGUAGE,
+          type: "lid",
+          tier: LID_TIER,
+          file: File.basename(onnx_file),
+          vocab_file: File.basename(vocab_file),
+          checksum: entry.sha256,
+          registry_id: LID_REGISTRY_ID,
+          size_bytes: entry.size_bytes,
+          cached_at: Time.now.utc.iso8601,
+          source: "registry"
+        }
+        write_metadata(File.join(dir, "metadata.json"), metadata)
+
+        { onnx_path: onnx_file, vocab_path: vocab_file, metadata: metadata }
       end
 
       # Get available model types for a language.
@@ -629,7 +735,9 @@ module Kotoshu
       # Verify downloaded model bytes against the registry's sha256.
       # Corrupt bytes are removed from disk before raising so the next
       # attempt re-downloads (same contract as BaseCache#verify_and_audit).
-      def verify_registry_sha256!(entry, model_file, resource_id, url)
+      # +remediation+ overrides the default re-download hint (the LID
+      # pair is fetched through Kotoshu.setup_lid, not setup LANG --model).
+      def verify_registry_sha256!(entry, model_file, resource_id, url, remediation: nil)
         actual = Digest::SHA256.file(model_file).hexdigest
         if actual == entry.sha256
           @audit_log.record(
@@ -649,7 +757,8 @@ module Kotoshu
           expected: entry.sha256,
           actual: actual,
           url: url,
-          remediation: "Run `kotoshu setup #{extract_language(resource_id)} --model` to re-download."
+          remediation: remediation ||
+                       "Run `kotoshu setup #{extract_language(resource_id)} --model` to re-download."
         )
       end
 
@@ -680,6 +789,45 @@ module Kotoshu
       # Caches written without a checksum field are accepted silently
       # to preserve backward compatibility with pre-verification caches.
       #
+      # Verify the cached LID pair against the checksum recorded at
+      # download time (which, for registry downloads, is the registry's
+      # sha256). A Git LFS pointer stub is refused by content first —
+      # same contract as {#verify_cached_integrity!}, against the
+      # fixed LID paths instead of a resource-id-derived layout.
+      #
+      # @param metadata [Hash] Parsed metadata.json (string keys)
+      # @param onnx_file [String] Path to the cached lid.176.onnx
+      # @param vocab_file [String] Path to the cached vocab sidecar
+      # @return [void]
+      # @raise [Kotoshu::IntegrityError, Kotoshu::Error] on mismatch;
+      #   corrupt bytes are removed so the next setup re-downloads
+      def verify_lid_integrity!(metadata, onnx_file, vocab_file)
+        dir = File.join(@cache_path, LID_DIRECTORY)
+        if lfs_pointer?(onnx_file) || lfs_pointer?(vocab_file)
+          File.delete(onnx_file)
+          File.delete(vocab_file)
+          FileUtils.rm_f(File.join(dir, "metadata.json"))
+          raise Kotoshu::Error,
+                "Integrity verification failed for #{LID_REGISTRY_ID}: cached LID " \
+                "artifact is a Git LFS pointer stub, not model content. Run " \
+                "Kotoshu.setup_lid(force: true) to re-download."
+        end
+
+        expected = metadata["checksum"]
+        return unless expected
+
+        actual = Digest::SHA256.file(onnx_file).hexdigest
+        return if actual == expected
+
+        raise Kotoshu::IntegrityError.new(
+          LID_REGISTRY_ID,
+          expected: expected,
+          actual: actual,
+          url: metadata["url"],
+          remediation: "Run Kotoshu.setup_lid(force: true) to re-download."
+        )
+      end
+
       # @param resource_id [String] The resource identifier (e.g. "en:onnx")
       # @param metadata [Hash] Parsed metadata.json (string keys)
       # @param model_file [String] Path to the cached model file

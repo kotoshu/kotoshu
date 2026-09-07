@@ -33,5 +33,8 @@ rb-sys = { version = "0.9.124", features = ["global-allocator"] }
 # and are a documented relax trigger for the P4 gate, not adopted here).
 magnus = "0.8"
 
-# The engine. Feature "ruby" turns on ffi::ruby (magnus bindings).
-kotoshu = { git = "https://github.com/kotoshu/kotoshu-rs", branch = "main", features = ["ruby"] }
+# The engine. Feature "ruby" turns on ffi::ruby (magnus bindings);
+# "model" turns on the pure-Rust LID reader (kotoshu::lid, plan 106) —
+# the same feature the core crate ships it under, so pure-Ruby installs
+# that never build this extension are unaffected.
+kotoshu = { git = "https://github.com/kotoshu/kotoshu-rs", branch = "main", features = ["ruby", "model"] }

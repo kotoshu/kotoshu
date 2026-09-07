@@ -1,0 +1,396 @@
+{
+  "comment": "Frozen gem detection outputs (Kotoshu::Language::LanguageIdentifier over upstream lid.176.ftz via the fasttext bindings); the Rust engine must reproduce every code and stay within tolerance on every score.",
+  "tolerance": 0.001,
+  "frozen_at": "2026-09-07T07:45:38Z",
+  "model": {
+    "onnx_sha256": "8f0c0ea57b100c8467c62a20365df9d895f9d00ad90fc3ba7da49df85db4eaeb",
+    "vocab_sha256": "4e37eafc4950faab99e15537928c55681bd6e0c8661a5b839328d79840355b2c"
+  },
+  "samples": [
+    {
+      "id": "en-1",
+      "expected": "en",
+      "text": "The committee will review the proposal before the end of the quarter.",
+      "code": "en",
+      "score": 0.8699199557304382
+    },
+    {
+      "id": "en-2",
+      "expected": "en",
+      "text": "She poured herself a cup of coffee and opened the morning newspaper.",
+      "code": "en",
+      "score": 0.8849636912345886
+    },
+    {
+      "id": "en-3",
+      "expected": "en",
+      "text": "Machine learning models need large amounts of labeled training data.",
+      "code": "en",
+      "score": 0.9171319007873535
+    },
+    {
+      "id": "en-4",
+      "expected": "en",
+      "text": "The old bridge across the river was rebuilt after the flood.",
+      "code": "en",
+      "score": 0.991026759147644
+    },
+    {
+      "id": "de-1",
+      "expected": "de",
+      "text": "Der Ausschuss wird den Vorschlag vor Quartalsende prüfen.",
+      "code": "de",
+      "score": 0.9932846426963806
+    },
+    {
+      "id": "de-2",
+      "expected": "de",
+      "text": "Sie goss sich eine Tasse Kaffee ein und öffnete die Morgenzeitung.",
+      "code": "de",
+      "score": 0.9999741911888123
+    },
+    {
+      "id": "de-3",
+      "expected": "de",
+      "text": "Maschinelle Lernmodelle benötigen große Mengen annotierter Daten.",
+      "code": "de",
+      "score": 0.7957926392555237
+    },
+    {
+      "id": "de-4",
+      "expected": "de",
+      "text": "Die alte Brücke über den Fluss wurde nach dem Hochwasser neu gebaut.",
+      "code": "de",
+      "score": 0.9999005198478699
+    },
+    {
+      "id": "es-1",
+      "expected": "es",
+      "text": "El comité revisará la propuesta antes de fin de trimestre.",
+      "code": "es",
+      "score": 0.8806793093681335
+    },
+    {
+      "id": "es-2",
+      "expected": "es",
+      "text": "Se sirvió una taza de café y abrió el periódico de la mañana.",
+      "code": "es",
+      "score": 0.9802183508872986
+    },
+    {
+      "id": "es-3",
+      "expected": "es",
+      "text": "Los modelos de aprendizaje automático necesitan muchos datos etiquetados.",
+      "code": "es",
+      "score": 0.9262376427650452
+    },
+    {
+      "id": "es-4",
+      "expected": "es",
+      "text": "El viejo puente sobre el río fue reconstruido después de la inundación.",
+      "code": "es",
+      "score": 0.9948879480361938
+    },
+    {
+      "id": "fr-1",
+      "expected": "fr",
+      "text": "Le comité examinera la proposition avant la fin du trimestre.",
+      "code": "fr",
+      "score": 0.912571907043457
+    },
+    {
+      "id": "fr-2",
+      "expected": "fr",
+      "text": "Elle s'est versé une tasse de café et a ouvert le journal du matin.",
+      "code": "fr",
+      "score": 0.9966675639152527
+    },
+    {
+      "id": "fr-3",
+      "expected": "fr",
+      "text": "Les modèles d'apprentissage automatique nécessitent beaucoup de données annotées.",
+      "code": "fr",
+      "score": 0.972226083278656
+    },
+    {
+      "id": "fr-4",
+      "expected": "fr",
+      "text": "Le vieux pont sur la rivière a été reconstruit après l'inondation.",
+      "code": "fr",
+      "score": 0.9583625197410583
+    },
+    {
+      "id": "it-1",
+      "expected": "it",
+      "text": "Il comitato esaminerà la proposta prima della fine del trimestre.",
+      "code": "it",
+      "score": 0.9617018103599548
+    },
+    {
+      "id": "it-2",
+      "expected": "it",
+      "text": "Si è versata una tazza di caffè e ha aperto il giornale del mattino.",
+      "code": "it",
+      "score": 0.9975451827049255
+    },
+    {
+      "id": "it-3",
+      "expected": "it",
+      "text": "I modelli di apprendimento automatico richiedono molti dati etichettati.",
+      "code": "it",
+      "score": 0.9609603881835938
+    },
+    {
+      "id": "it-4",
+      "expected": "it",
+      "text": "Il vecchio ponte sul fiume è stato ricostruito dopo l'alluvione.",
+      "code": "it",
+      "score": 0.992184579372406
+    },
+    {
+      "id": "pt-1",
+      "expected": "pt",
+      "text": "O comité analisará a proposta antes do fim do trimestre.",
+      "code": "pt",
+      "score": 0.49626684188842773
+    },
+    {
+      "id": "pt-2",
+      "expected": "pt",
+      "text": "Serviu-se uma chávena de café e abriu o jornal da manhã.",
+      "code": "pt",
+      "score": 0.9937304854393005
+    },
+    {
+      "id": "pt-3",
+      "expected": "pt",
+      "text": "Os modelos de aprendizagem automática precisam de muitos dados anotados.",
+      "code": "pt",
+      "score": 0.8673224449157715
+    },
+    {
+      "id": "pt-4",
+      "expected": "pt",
+      "text": "A velha ponte sobre o rio foi reconstruída depois da cheia.",
+      "code": "pt",
+      "score": 0.989642322063446
+    },
+    {
+      "id": "ru-1",
+      "expected": "ru",
+      "text": "Комитет рассмотрит предложение до конца квартала.",
+      "code": "ru",
+      "score": 0.9564744234085083
+    },
+    {
+      "id": "ru-2",
+      "expected": "ru",
+      "text": "Она налила себе чашку кофе и открыла утреннюю газету.",
+      "code": "ru",
+      "score": 0.9604091048240662
+    },
+    {
+      "id": "ru-3",
+      "expected": "ru",
+      "text": "Модели машинного обучения требуют больших объёмов размеченных данных.",
+      "code": "ru",
+      "score": 0.9911523461341858
+    },
+    {
+      "id": "ru-4",
+      "expected": "ru",
+      "text": "Старый мост через реку перестроили после наводнения.",
+      "code": "ru",
+      "score": 0.9559133648872375
+    },
+    {
+      "id": "ja-1",
+      "expected": "ja",
+      "text": "委員会は四半期が終わる前に提案を審査します。",
+      "code": "ja",
+      "score": 0.9868074655532837
+    },
+    {
+      "id": "ja-2",
+      "expected": "ja",
+      "text": "彼女はコーヒーを一杯注いで、朝の新聞を開きました。",
+      "code": "ja",
+      "score": 1.0000499486923218
+    },
+    {
+      "id": "ja-3",
+      "expected": "ja",
+      "text": "機械学習モデルには大量の注釈付き訓練データが必要です。",
+      "code": "ja",
+      "score": 1.0000009536743164
+    },
+    {
+      "id": "ja-4",
+      "expected": "ja",
+      "text": "洪水のあと、川に架かる古い橋が建て替えられました。",
+      "code": "ja",
+      "score": 1.000044822692871
+    },
+    {
+      "id": "zh-1",
+      "expected": "zh",
+      "text": "委员会将在本季度结束前审查这项提案。",
+      "code": "zh",
+      "score": 0.9925512671470642
+    },
+    {
+      "id": "zh-2",
+      "expected": "zh",
+      "text": "她给自己倒了一杯咖啡，翻开了晨报。",
+      "code": "zh",
+      "score": 0.9998975396156311
+    },
+    {
+      "id": "zh-3",
+      "expected": "zh",
+      "text": "机器学习模型需要大量带标注的训练数据。",
+      "code": "zh",
+      "score": 0.9968137741088867
+    },
+    {
+      "id": "zh-4",
+      "expected": "zh",
+      "text": "洪水过后，河上的老桥得到了重建。",
+      "code": "zh",
+      "score": 0.9998913407325745
+    },
+    {
+      "id": "ko-1",
+      "expected": "ko",
+      "text": "위원회는 분기가 끝나기 전에 제안을 검토할 것입니다.",
+      "code": "ko",
+      "score": 0.9999264478683472
+    },
+    {
+      "id": "ko-2",
+      "expected": "ko",
+      "text": "그녀는 커피 한 잔을 따라서 아침 신문을 펼쳤습니다.",
+      "code": "ko",
+      "score": 1.000067949295044
+    },
+    {
+      "id": "ko-3",
+      "expected": "ko",
+      "text": "머신 러닝 모델은 대량의 레이블이 지정된 훈련 데이터가 필요합니다.",
+      "code": "ko",
+      "score": 1.0000697374343872
+    },
+    {
+      "id": "ko-4",
+      "expected": "ko",
+      "text": "홍수가 지나간 후 강의 오래된 다리가 재건되었습니다.",
+      "code": "ko",
+      "score": 1.0000425577163696
+    },
+    {
+      "id": "ar-1",
+      "expected": "ar",
+      "text": "ستراجع اللجنة المقترح قبل نهاية الربع.",
+      "code": "ar",
+      "score": 0.9768633842468262
+    },
+    {
+      "id": "ar-2",
+      "expected": "ar",
+      "text": "صبت لنفسها فنجاناً من القهوة وفتحت صحيفة الصباح.",
+      "code": "ar",
+      "score": 0.9789490699768066
+    },
+    {
+      "id": "ar-3",
+      "expected": "ar",
+      "text": "تحتاج نماذج التعلم الآلي إلى كميات كبيرة من البيانات الموسومة.",
+      "code": "ar",
+      "score": 0.9900878071784973
+    },
+    {
+      "id": "ar-4",
+      "expected": "ar",
+      "text": "أعيد بناء الجسر القديم فوق النهر بعد الفيضان.",
+      "code": "ar",
+      "score": 0.9938318729400635
+    },
+    {
+      "id": "he-1",
+      "expected": "he",
+      "text": "הוועדה תבחן את ההצעה לפני סוף הרבעון.",
+      "code": "he",
+      "score": 0.9998322129249573
+    },
+    {
+      "id": "he-2",
+      "expected": "he",
+      "text": "היא מזגה לעצמה כוס קפה ופתחה את עיתון הבוקר.",
+      "code": "he",
+      "score": 0.9999691843986511
+    },
+    {
+      "id": "he-3",
+      "expected": "he",
+      "text": "מודלים של למידת מכונה זקוקים לכמויות גדולות של נתונים מסומנים.",
+      "code": "he",
+      "score": 0.9998297691345215
+    },
+    {
+      "id": "he-4",
+      "expected": "he",
+      "text": "הגשר הישן על הנהר נבנה מחדש אחרי השיטפון.",
+      "code": "he",
+      "score": 0.9989098906517029
+    },
+    {
+      "id": "hi-1",
+      "expected": "hi",
+      "text": "समिति तिमाही के अंत से पहले प्रस्ताव की समीक्षा करेगी।",
+      "code": "hi",
+      "score": 0.9796486496925354
+    },
+    {
+      "id": "hi-2",
+      "expected": "hi",
+      "text": "उसने अपने लिए कॉफी का एक कप भरा और सुबह का अख़बार खोला।",
+      "code": "hi",
+      "score": 0.9908807277679443
+    },
+    {
+      "id": "hi-3",
+      "expected": "hi",
+      "text": "मशीन लर्निंग मॉडल को बड़ी मात्रा में अंकित प्रशिक्षण डेटा चाहिए।",
+      "code": "hi",
+      "score": 0.9912513494491577
+    },
+    {
+      "id": "hi-4",
+      "expected": "hi",
+      "text": "बाढ़ के बाद नदी के ऊपर पुराना पुल फिर से बनाया गया।",
+      "code": "hi",
+      "score": 0.9459125399589539
+    },
+    {
+      "id": "edge-empty",
+      "expected": null,
+      "text": "",
+      "code": "en",
+      "score": 0.12450417876243591
+    },
+    {
+      "id": "edge-digits",
+      "expected": null,
+      "text": "12345 67890",
+      "code": "en",
+      "score": 0.12450417876243591
+    },
+    {
+      "id": "edge-mixed",
+      "expected": null,
+      "text": "don't panic — it's just 42% of the übliche Ärger",
+      "code": "en",
+      "score": 0.9266639947891235
+    }
+  ]
+}
