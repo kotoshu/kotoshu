@@ -39,12 +39,26 @@ module Kotoshu
 
           # Get n-grams for input word
           word_ngrams = extract_ngrams(word, n)
+          word_length = word.length
 
           # Calculate n-gram similarity for each dictionary word
           results = {}
           all_words.each do |dict_word|
             next if dict_word == word
             next if dict_word.length < n
+
+            # Length pre-gate: similarity is a Jaccard coefficient
+            # over n-gram multisets, so it is at most
+            # min-gram-count / max-gram-count — each word of length L
+            # contributes L - n + 1 grams. A word whose length bound
+            # already sits under min_similarity can never pass the
+            # real test, so skip it before extracting a single
+            # n-gram. Mathematically the same set of words passes
+            # (same gate as ngram.rs in kotoshu-rs).
+            dict_length = dict_word.length
+            min_grams = (dict_length < word_length ? dict_length : word_length) - (n - 1)
+            max_grams = (dict_length > word_length ? dict_length : word_length) - (n - 1)
+            next if min_grams.to_f / max_grams < min_sim
 
             similarity = ngram_similarity(word_ngrams, dict_word, n)
             next if similarity < min_sim
@@ -106,18 +120,20 @@ module Kotoshu
         def ngram_similarity(word_ngrams, other_word, n)
           other_ngrams = extract_ngrams(other_word, n)
 
-          # Calculate intersection
+          # Intersection and union in one pass over both maps. The
+          # original built the key union as an intermediate Array
+          # (`word_ngrams.keys | other_ngrams.keys`) — one allocation
+          # per dictionary word that dominated the sweep once the
+          # length gate landed.
           intersection = 0
-          word_ngrams.each do |ngram, count|
-            other_count = other_ngrams[ngram]
-            intersection += [count, other_count].min if other_count
-          end
-
-          # Calculate union
-          all_ngrams = word_ngrams.keys | other_ngrams.keys
           union = 0
-          all_ngrams.each do |ngram|
-            union += [word_ngrams[ngram] || 0, other_ngrams[ngram] || 0].max
+          word_ngrams.each do |ngram, count|
+            other_count = other_ngrams[ngram] || 0
+            intersection += count < other_count ? count : other_count
+            union += count > other_count ? count : other_count
+          end
+          other_ngrams.each do |ngram, count|
+            union += count unless word_ngrams.key?(ngram)
           end
 
           return 0.0 if union.zero?

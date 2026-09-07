@@ -85,7 +85,13 @@ module Kotoshu
           max_dist = get_config(:max_distance, 2)
           min_similarity = get_config(:min_similarity, 0.70) # Filter low-similarity suggestions
 
-          all_words = dictionary_words(context)
+          # One index per generate call: the variant set reaches tens
+          # of thousands of lookups, each of which used to scan the
+          # whole word list (with a downcase per candidate on the
+          # case-insensitive branch). WordIndex preserves find_word
+          # semantics exactly — exact (lowercase) match first, then
+          # first-in-list-order on the case-insensitive branch.
+          index = WordIndex.build(dictionary_words(context))
 
           # Generate keyboard variants
           variants = keyboard_variants(word, max_dist)
@@ -93,7 +99,7 @@ module Kotoshu
           # Find matching dictionary words with their edit distances and similarity
           results_with_distances = {}
           variants.each do |variant|
-            dict_word = find_word(all_words, variant)
+            dict_word = index.find(variant)
             next unless dict_word && dict_word != word
 
             # Calculate edit distance from original word
@@ -192,23 +198,6 @@ module Kotoshu
           end
 
           variants.to_a
-        end
-
-        # Find a word in the dictionary (case-insensitive).
-        #
-        # @param all_words [Array<String>] All dictionary words
-        # @param word [String] The word to find
-        # @return [String, nil] The dictionary word or nil
-        def find_word(all_words, word)
-          return nil if word.nil? || word.empty?
-
-          word_lower = word.downcase
-
-          # First try exact match
-          return word if all_words.include?(word_lower)
-
-          # Then try case-insensitive search
-          all_words.find { |w| w.downcase == word_lower }
         end
       end
     end

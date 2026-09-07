@@ -21,6 +21,7 @@ module Kotoshu
       autoload :PhoneticStrategy, "kotoshu/suggestions/strategies/phonetic_strategy"
       autoload :SemanticStrategy, "kotoshu/suggestions/strategies/semantic_strategy"
       autoload :SymspellStrategy, "kotoshu/suggestions/strategies/symspell_strategy"
+      autoload :WordIndex, "kotoshu/suggestions/strategies/word_index"
     end
   end
 end
