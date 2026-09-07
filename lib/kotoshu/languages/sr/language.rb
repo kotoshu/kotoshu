@@ -9,7 +9,8 @@ module Kotoshu
     # primary and the script the staged dictionary carries — the
     # module registers sr for the Cyrillic grid
     # (Keyboard::Layouts::SerbianCyrillic); Serbian Latin (sr-Latn)
-    # stays unwired like nn until its own module lands. The Serbian
+    # has its own module over the distinct staged Latin dictionary
+    # (plan 110, Kotoshu::Languages::SerbianLatin). The Serbian
     # letters љ њ ђ ћ џ ј are real keys on that grid.
     class Serbian < LatinBase
       register "sr"

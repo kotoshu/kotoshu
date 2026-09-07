@@ -41,6 +41,10 @@ module Kotoshu
       autoload :SerbianCyrillic, "kotoshu/keyboard/layouts/serbian"
       autoload :Croatian, "kotoshu/keyboard/layouts/hrsl"
       autoload :Slovenian, "kotoshu/keyboard/layouts/hrsl"
+      # Serbian Latin (plan 110): the South-Slavic QWERTZ grid the hr
+      # and sl layouts share, claiming sr-Latn so it does not fold
+      # onto the Serbian Cyrillic grid.
+      autoload :SerbianLatin, "kotoshu/keyboard/layouts/hrsl"
       # ko and ne layouts (plan 108): Dubeolsik cites the KS X 5002
       # layout standard (the eval harness models ko slips as jamo
       # confusion pairs, not a key grid); Devanagari InScript is

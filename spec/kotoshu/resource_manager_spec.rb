@@ -78,6 +78,26 @@ RSpec.describe Kotoshu::ResourceManager do
       end
       expect(error.language).to eq("en")
     end
+
+    it "keeps a script subtag — sr-Latn stages its own dictionary" do
+      error = nil
+      begin
+        described_class.resolve(language: "sr-Latn")
+      rescue Kotoshu::ResourceNotSetupError => e
+        error = e
+      end
+      expect(error.language).to eq("sr-Latn")
+    end
+
+    it "canonicalizes script subtag case and drops trailing regions" do
+      error = nil
+      begin
+        described_class.resolve(language: "sr-latn")
+      rescue Kotoshu::ResourceNotSetupError => e
+        error = e
+      end
+      expect(error.language).to eq("sr-Latn")
+    end
   end
 
   describe ".setup? predicate" do

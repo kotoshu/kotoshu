@@ -9,9 +9,9 @@ module Kotoshu
       # The Serbian-specific letters љ њ ђ ћ џ ј are real keys: љ њ
       # take the q/w faces, ђ sits where QWERTY carries the right
       # bracket, and џ ц в б н м fill the bottom row. Serbian Latin
-      # (sr-Latn) types on a QWERTZ physical grid but is not claimed
-      # by this layout — the gem wires Cyrillic as the primary Serbian
-      # script, matching the dictionaries repo dictionary.
+      # (sr-Latn) types on the South-Slavic QWERTZ grid and is
+      # claimed by its own layout (Layouts::SerbianLatin, plan 110),
+      # not this one.
       #
       # The key grid is mirrored from the models repo eval harness
       # (kotoshu/models-fasttext-onnx eval/noise.py _SR_CYR, plan 83

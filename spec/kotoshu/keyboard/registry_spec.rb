@@ -70,6 +70,17 @@ RSpec.describe Kotoshu::Keyboard::Registry do
       expect(described_class.layout_for('bg')).to be_a(Kotoshu::Keyboard::Layouts::BulgarianBds)
       expect(described_class.layout_for('sr')).to be_a(Kotoshu::Keyboard::Layouts::SerbianCyrillic)
     end
+
+    it 'resolves the Serbian Latin grid ahead of Serbian Cyrillic (plan 110)' do
+      # sr-Latn would base-match onto the Cyrillic sr grid without
+      # its own registered layout
+      layout = described_class.layout_for('sr-Latn')
+      expect(layout).to be_a(Kotoshu::Keyboard::Layouts::SerbianLatin)
+      expect(layout.name).to eq('Serbian-Latin-QWERTZ')
+      expect(layout.key_positions).to eq(
+        Kotoshu::Keyboard::Layouts::Croatian.new.key_positions
+      )
+    end
   end
 
   describe '.layout_by_name' do
@@ -114,8 +125,8 @@ RSpec.describe Kotoshu::Keyboard::Registry do
       layouts = described_class.available_layouts
       # 5 original + 3 national (wave 1) + 11 Latin family (wave 1) +
       # 7 national (batch 3) + 5 Latin family (batch 3) +
-      # 2 national (plan 108: ko ne)
-      expect(layouts.size).to eq(33)
+      # 2 national (plan 108: ko ne) + 1 national (plan 110: sr-Latn)
+      expect(layouts.size).to eq(34)
     end
 
     it 'returns layout instances' do
@@ -133,9 +144,9 @@ RSpec.describe Kotoshu::Keyboard::Registry do
            Hebrew-SI-1452 Hungarian-QWERTZ Indonesian-QWERTY
            Italian-QWERTY JCUKEN Latvian-QWERTY Lithuanian-QWERTY
            Norwegian-QWERTY Persian-Standard Polish-QWERTY QWERTY QWERTZ
-           Romanian-QWERTY Serbian-Cyrillic Slovak-QWERTY
-           Slovenian-QWERTZ Swedish-QWERTY Turkish-Q Ukrainian-JCUKEN
-           Vietnamese-QWERTY]
+           Romanian-QWERTY Serbian-Cyrillic Serbian-Latin-QWERTZ
+           Slovak-QWERTY Slovenian-QWERTZ Swedish-QWERTY Turkish-Q
+           Ukrainian-JCUKEN Vietnamese-QWERTY]
       )
     end
   end

@@ -17,7 +17,7 @@ directory layout, SHA-256 integrity verification, SARIF output, an
 * `Kotoshu.check(text, language: "en")` / `Kotoshu.suggest("helo")` — full document check and suggestions
 * `Kotoshu.spellchecker_for(lang)` — per-language checker resolved from the cache (`strict:` is a `Kotoshu.setup` option)
 * `kotoshu check FILE` CLI with these flags:
-  ** `--language en|de|es|fr|pt|ru|auto` (default: `auto`)
+  ** `--language LANG|auto` — any set-up language code, script variants included (`sr-Latn`) (default: `auto`)
   ** `--format text|json|sarif`
   ** `--offline` — use only cached resources, never download
   ** `--strict` — exit 3 if any optional resource (frequency, model) can't load
@@ -218,7 +218,13 @@ typo-heavy text.
 [[multi-language]]
 == Multi-Language Support
 
-Kotoshu supports 6 languages with full semantic analysis:
+Kotoshu serves every language staged in the dictionaries manifest —
+36 full-feature codes with per-language modules (script-aware
+tokenizer, national keyboard grid, engine-verified specimens) and the
+script-fallback basic tier for the rest; see the
+<<language-matrix, Language Support Matrix>> for the breakdown.
+Semantic reranking adds an ONNX model where the models registry pins
+one (50+ languages), for example:
 
 * *de* - German (Deutsch)
 * *en* - English
@@ -937,28 +943,29 @@ script:
 kotoshu completions languages
 ----
 
+[[language-matrix]]
 === Language Support Matrix
 
-Kotoshu provides multi-language support with varying feature availability.
+Kotoshu serves languages in tiers. Every language staged in the
+kotoshu/dictionaries manifest downloads through `kotoshu setup` and
+checks through the Hunspell engine. Region variants fold onto their
+base dictionary (`en-GB` resolves `en`, `es-MX` resolves `es`);
+script variants keep a dictionary of their own (`sr-Latn` stages the
+Latin Serbian dictionary alongside the Cyrillic `sr`).
 
-.Complete Language Support Matrix
-[width="100%",cols="^1,^1,^1,^1,^1,^1,^1",options="header"]
+.Language Support Matrix
+[width="100%",cols="^2,^3,^3",options="header"]
 |=========================================
-| Language | Dictionary | Hunspell Affix Rules | Kelly Frequency | FastText Model | ONNX Model | Notes                          |
+| Tier | Languages | What it carries                          |
 |=========================================
-| de (German)       | ✓ (75,873 words) | ✓ | ✗ | ✓ (2.5 GB) | ✓ (~230 MB) | QWERTZ keyboard support         |
-| en (English)      | ✓ (49,568 words) | ✓ | ✓ (815 KB) | ✓ (4.3 GB) | ✓ (~460 MB) | QWERTY keyboard support         |
-| es (Spanish)      | ✓ (57,344 words) | ✓ | ✗ | ✓ (2.5 GB) | ✓ (~230 MB) | QWERTY keyboard support         |
-| fr (French)       | ✓ (84,310 words) ✓ | ✗ | ✓ (2.5 GB) | ✓ (~230 MB) | AZERTY keyboard support         |
-| pt (Portuguese)   | ✓ (312,368 words) | ✓ | ✗ | ✓ (2.5 GB) | ✓ (~230 MB) | QWERTY keyboard support         |
-| ru (Russian)      | ✓ (146,269 words) | ✓ | ✓ (780 KB) | ✓ (2.5 GB) | ✓ (~230 MB) | JCUKEN keyboard support         |
-| ar (Arabic)       | ✗ | ✗ | ✓ | ✗ | ✗ | Kelly frequency only            |
-| zh (Chinese)      | ✗ | ✗ | ✓ | ✗ | ✗ | Kelly frequency only            |
-| el (Greek)        | ✗ | ✗ | ✓ | ✗ | ✗ | Kelly frequency only            |
-| it (Italian)      | ✗ | ✗ | ✓ | ✗ | ✗ | Kelly frequency only            |
-| no (Norwegian)     | ✗ | ✗ | ✓ | ✗ | ✗ | Kelly frequency only            |
-| sv (Swedish)      | ✗ | ✗ | ✓ | ✗ | ✗ | Kelly frequency only            |
-|=========================================]
+| Full feature (35 languages, 36 codes) | ar bg ca cs da de el en es et fa fr he hr hu id it ko lt lv nb ne nl nn pl pt ro ru sk sl sr sr-Latn sv tr uk vi | Per-language module: staged dictionary + Hunspell affix rules, script-aware tokenizer, national keyboard grid for typo-proximity suggestions, engine-verified specimens |
+| Basic (26 languages) | br cy eo eu fo fur fy ga gd gl hy hyw ia ie is ka la lb ltg mk mn nds oc rw tk tlh | Staged dictionary + script-fallback word extraction and the generic keyboard |
+| Kelly frequency (8 languages) | ar el en it no ru sv zh | Top-1000 frequency list wired into suggestion ranking, on top of either tier |
+|=========================================+
+
+ONNX semantic models (opt-in, `--model`) resolve per the registry the
+link:https://github.com/kotoshu/models-fasttext-onnx[models repo]
+pins — 50+ languages across the tiers, in full/fluency/mini sizes.
 
 .Dictionary Sources
 [width="100%",cols="^1,^1,^1,^1",options="header"]
@@ -972,6 +979,10 @@ Kotoshu provides multi-language support with varying feature availability.
 | pt (Portuguese)   | 312,368 | LGPLv3 + MPL | VERO                   |
 | ru (Russian)      | 146,269 | BSD-style | Alexander Lebedev       |
 |=========================================+
+
+Staged dictionaries for the other tiers carry their provenance in the
+dictionaries repo manifest (`LICENSE` and source per file; LibreOffice
+/ wooorm-dictionaries derivations dominate).
 
 .Kelly Frequency Lists
 [width="100%",cols="^1,^1,^1",options="header"]

@@ -23,4 +23,11 @@ Live setup + check -l sr-Latn round trip; suite green; conformance
 untouched.
 
 ## Status
-Pending
+Executed 2026-09-07 — the data chose the distinct staged dictionary:
+sr-Latn is a full-feature module (Languages::SerbianLatin, Latin
+tokenizer, Serbian-Latin QWERTZ grid sharing the hrsl key table), and
+the sr-Latn code now survives ResourceManager normalization
+(script subtags kept, region subtags still fold) so the staged Latin
+files are reachable — previously sr-Latn collapsed onto the Cyrillic
+sr dictionary. Script-set and frequency inventories recorded in the
+PR body (record-only). Suite green, conformance untouched.

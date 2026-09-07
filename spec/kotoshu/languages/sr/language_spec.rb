@@ -3,9 +3,10 @@
 require "spec_helper"
 
 # Serbian (plan 100, batch 3): Cyrillic composition — Cyrillic
-# tokenizer, base normalizer. Serbian Latin (sr-Latn) stays unwired;
+# tokenizer, base normalizer. Serbian Latin (sr-Latn) has its own
+# module (plan 110) over the distinct staged Latin dictionary;
 # Cyrillic is the constitutional primary script and the script the
-# staged dictionary carries. љ њ ђ ћ џ ј are real keys on the Serbian
+# staged sr dictionary carries. љ њ ђ ћ џ ј are real keys on the Serbian
 # Cyrillic grid.
 RSpec.describe Kotoshu::Languages::Serbian do
   it "registers sr and sr-RS in the language registry" do

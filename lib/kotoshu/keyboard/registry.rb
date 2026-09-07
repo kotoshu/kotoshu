@@ -150,11 +150,15 @@ module Kotoshu
       register(Layouts::QWERTY)
       register(Layouts::QWERTZ)
       register(Layouts::AZERTY)
-      # Ukrainian, Bulgarian and Serbian register before JCUKEN: the
-      # base JCUKEN layout blanket-claims uk bg, but typists of those
-      # languages get their dedicated grids (plan 84 uk, plan 100
-      # bg/sr). Lookup is first-registered-wins, so order here is
-      # load-bearing for uk bg sr.
+      # Serbian Latin registers before Serbian Cyrillic: the Cyrillic
+      # layout claims sr, and base-language matching would fold
+      # sr-Latn onto it; the Latin variant needs its own grid (plan
+      # 110). Ukrainian, Bulgarian and Serbian register before JCUKEN:
+      # the base JCUKEN layout blanket-claims uk bg, but typists of
+      # those languages get their dedicated grids (plan 84 uk, plan
+      # 100 bg/sr). Lookup is first-registered-wins, so order here is
+      # load-bearing for uk bg sr sr-Latn.
+      register(Layouts::SerbianLatin)
       register(Layouts::Ukrainian)
       register(Layouts::BulgarianBds)
       register(Layouts::SerbianCyrillic)
