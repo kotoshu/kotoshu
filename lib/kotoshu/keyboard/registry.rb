@@ -188,6 +188,10 @@ module Kotoshu
       register(Layouts::Latin::Estonian)
       register(Layouts::Latin::Lithuanian)
       register(Layouts::Latin::Latvian)
+      # ko and ne national layouts (plan 108): Dubeolsik (KS X 5002)
+      # and Devanagari InScript.
+      register(Layouts::Dubeolsik)
+      register(Layouts::DevanagariInScript)
     end
   end
 end

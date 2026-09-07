@@ -8,6 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Korean and Nepali full-feature modules** (plan 108) - the last
+  big-population languages without modules move from the plan 107
+  basic tier to full feature. `ko` ships the Hangul tokenizer
+  (an eojeol is a run of Hangul syllables U+AC00-D7A3 plus bare jamo
+  U+1100-11FF/U+3130-318F that escaped IME composition) and the
+  Dubeolsik keyboard grid keyed on jamo per the KS X 5002 standard 2-set
+  layout, so typo proximity lands on the unit vowel mergers and
+  fortis/lenis confusions operate on. `ne` ships the Devanagari
+  tokenizer (matras U+093E-094C, the virama U+094D and vowel signs
+  stay attached to the base consonant; the danda and Devanagari
+  digits are separators) and the Devanagari InScript grid (the Indian
+  national standard, mirrored from the models repo eval harness and
+  drift-checked against it; the Nepali Traditional Romanized layout
+  is more common on the ground but is not a documented standard).
+  Both dictionaries were already staged, so `kotoshu setup ko ne`
+  serves them; full-feature languages grow 33 to 35.
 - **Basic support for every staged dictionary language** (plan 107) -
   `kotoshu setup` now serves all 95 languages staged in the
   kotoshu/dictionaries manifest, not just the ones with gem modules.

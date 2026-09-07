@@ -432,12 +432,12 @@ RSpec.describe Kotoshu::Spellchecker, "# Walking Skeleton - Spellchecker Service
       expect(tokens.map(&:first)).to eq(["ова", "е", "македонски", "текст"])
     end
 
-    it "extracts eojeol runs for module-less ko" do
+    it "extracts eojeol runs through the ko module tokenizer (plan 108)" do
       tokens = spellchecker_for("ko").tokenize("한국어 텍스트입니다")
       expect(tokens.map(&:first)).to eq(["한국어", "텍스트입니다"])
     end
 
-    it "keeps Devanagari matras attached for module-less ne" do
+    it "keeps Devanagari matras attached through the ne module tokenizer (plan 108)" do
       tokens = spellchecker_for("ne").tokenize("यो नेपाली पाठ हो")
       expect(tokens.map(&:first)).to eq(["यो", "नेपाली", "पाठ", "हो"])
     end

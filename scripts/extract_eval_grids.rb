@@ -18,7 +18,7 @@ src = File.read(source)
 grids = {}
 %w[
   _TR_Q _UK_JCUKEN _EL_PHONETIC _AR_101 _FA_STD _HE_SI1452 _BG_BDS
-  _SR_CYR _HRSL
+  _SR_CYR _HRSL _NE_INSCRIPT
 ].each do |name|
   body = src[/^#{name} = \{(.*?)^\}/m, 1]
   abort "grid #{name} not found in #{source}" unless body

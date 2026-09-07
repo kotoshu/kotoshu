@@ -40,6 +40,8 @@ module Kotoshu
       autoload :GreekTokenizer, "kotoshu/language/tokenizer/greek_tokenizer"
       autoload :CyrillicTokenizer, "kotoshu/language/tokenizer/cyrillic_tokenizer"
       autoload :ScriptTokenizer, "kotoshu/language/tokenizer/script_tokenizer"
+      autoload :HangulTokenizer, "kotoshu/language/tokenizer/hangul_tokenizer"
+      autoload :DevanagariTokenizer, "kotoshu/language/tokenizer/devanagari_tokenizer"
     end
 
     module Normalizer
