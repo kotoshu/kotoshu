@@ -26,4 +26,9 @@ Suite green (3,900+ examples); rubocop clean; `kotoshu personal add x &&
 kotoshu check` live round trip recorded in the PR body.
 
 ## Status
-Pending
+Executed 2026-09-07 — gem PR (branch plan-105-personal-dict-in-check):
+check-path filter mirroring the LSP, one load per process,
+Configuration#personal_dictionary + KOTOSHU_PERSONAL_DICTIONARY +
+`kotoshu check --no-personal`; suite pins KOTOSHU_PERSONAL_DIC for
+hermeticity. /docs/ignores copy delivered in the PR body for the site
+follow-up.
