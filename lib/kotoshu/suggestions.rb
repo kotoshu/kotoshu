@@ -10,6 +10,7 @@ module Kotoshu
     autoload :SemanticCascade, "kotoshu/suggestions/semantic_cascade"
     autoload :Suggestion, "kotoshu/suggestions/suggestion"
     autoload :SuggestionSet, "kotoshu/suggestions/suggestion_set"
+    autoload :SweepIndex, "kotoshu/suggestions/sweep_index"
 
     # Strategies sub-namespace.
     module Strategies

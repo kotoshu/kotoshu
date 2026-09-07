@@ -34,17 +34,13 @@ module Kotoshu
           algorithm = get_config(:algorithm, :soundex)
           max_dist = 2
 
-          all_words = dictionary_words(context)
-
           # Get phonetic code for input word
           word_code = phonetic_code(word, algorithm)
 
           # Find words with same phonetic code
           results = []
-          all_words.each do |dict_word|
+          each_phonetic_pair(context, algorithm) do |dict_word, dict_code|
             next if dict_word == word
-
-            dict_code = phonetic_code(dict_word, algorithm)
             next unless dict_code == word_code
 
             dist = edit_distance(word, dict_word)
@@ -70,6 +66,29 @@ module Kotoshu
 
         private
 
+        # Yield each dictionary word paired with its phonetic code, in
+        # word-list order. For Soundex over a Dictionary::Base backend
+        # the codes come from the dictionary's memoized sweep index
+        # ({Dictionary::Base#sweep_index}) — one Soundex per word for
+        # the dictionary's lifetime instead of one per sweep. Every
+        # other combination (ad-hoc Hash/Array dictionaries, Metaphone)
+        # computes each code live, exactly as before.
+        #
+        # @param context [Context] The suggestion context
+        # @param algorithm [Symbol] The phonetic algorithm
+        # @yield [String, String] Each word and its phonetic code
+        # @return [void]
+        def each_phonetic_pair(context, algorithm)
+          dictionary = context.dictionary
+          if algorithm == :soundex && dictionary.is_a?(Kotoshu::Dictionary::Base)
+            dictionary.sweep_index.each_with_soundex { |*pair| yield(*pair) }
+          else
+            dictionary_words(context).each do |dict_word|
+              yield dict_word, phonetic_code(dict_word, algorithm)
+            end
+          end
+        end
+
         # Get phonetic code for a word.
         #
         # @param word [String] The word
@@ -89,7 +108,10 @@ module Kotoshu
         # Calculate Soundex code for a word.
         #
         # Soundex is a phonetic algorithm developed by Robert C. Russell
-        # and Margaret King Odell in the early 1900s.
+        # and Margaret King Odell in the early 1900s. The implementation
+        # lives in {Algorithms::Soundex} and is shared with
+        # {Suggestions::SweepIndex}, which memoizes the code per
+        # dictionary word.
         #
         # @param word [String] The word
         # @return [String] The Soundex code (letter + 3 digits)
@@ -97,58 +119,9 @@ module Kotoshu
         # @example
         #   soundex_code("Robert")  # => "R163"
         #   soundex_code("Rupert")  # => "R163"
-        #   soundex_code("Ashcraft") # => "A226"
+        #   soundex_code("Ashcraft") # => "A261"
         def soundex_code(word)
-          return "" if word.nil? || word.empty?
-
-          letters = word.upcase.gsub(/[^A-Z]/, "")
-          return "" if letters.empty?
-
-          # Keep first letter. The code is built into one mutable
-          # buffer (`<<`) instead of `code += digit`, which allocated
-          # a fresh String per encoded letter — the phonetic sweep
-          # pays this once per dictionary word.
-          code = +letters[0]
-
-          prev_code = soundex_encode(code)
-          i = 1
-          length = letters.length
-
-          while code.length < 4 && i < length
-            encoded = soundex_encode(letters[i])
-
-            # Add code if different from previous (ignore h and w)
-            code << encoded if encoded != "0" && encoded != prev_code
-
-            prev_code = encoded if encoded != "0"
-            i += 1
-          end
-
-          # Pad with zeros if needed
-          code.ljust(4, "0")[0...4]
-        end
-
-        # Soundex encoding table.
-        #
-        # @param char [String] The character
-        # @return [String] The encoded digit or "0" for no code
-        def soundex_encode(char)
-          case char.upcase
-          when "B", "P", "F", "V"
-            "1"
-          when "C", "S", "K", "G", "J", "Q", "X", "Z"
-            "2"
-          when "D", "T"
-            "3"
-          when "L"
-            "4"
-          when "M", "N"
-            "5"
-          when "R"
-            "6"
-          else
-            "0"
-          end
+          Algorithms::Soundex.code(word)
         end
 
         # Calculate Metaphone code for a word.

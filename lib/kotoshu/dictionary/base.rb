@@ -149,18 +149,45 @@ module Kotoshu
         nil
       end
 
+      # The sweep invariants for this dictionary's word list — char
+      # lengths, Soundex codes and length buckets — built once at the
+      # first suggestion sweep and shared by every later sweep (see
+      # {Suggestions::SweepIndex}).
+      #
+      # The index derives only from {#words}. Backends that mutate the
+      # word list (their {#add_word} / {#remove_word} implementations)
+      # call {#reset_sweep_index} so the memo cannot go stale; backends
+      # that cannot mutate after load (e.g. CSpell's frozen trie) never
+      # need to.
+      #
+      # @return [Suggestions::SweepIndex] The memoized sweep index
+      def sweep_index
+        @sweep_index ||= Suggestions::SweepIndex.build(words)
+      end
+
+      # Drop the memoized {#sweep_index} so the next sweep rebuilds it
+      # from the current word list. Mutating backends call this after
+      # every successful word-list change.
+      #
+      # @return [self] Self for chaining
+      def reset_sweep_index
+        @sweep_index = nil
+        self
+      end
+
       # Return words whose length is in [min_length, max_length].
       #
-      # Default implementation filters all_words. Subclasses with a
-      # length index (e.g., PlainText) override this for O(buckets)
-      # instead of O(n) lookups — important for edit-distance
-      # strategies that prune candidates by length.
+      # Uses the memoized {#sweep_index} length buckets — O(buckets in
+      # range) instead of an O(n) scan — and restores word-list order,
+      # exactly the set and order the historical whole-list filter
+      # produced. Subclasses that maintain their own length index
+      # (e.g. PlainText) keep their override.
       #
       # @param min_length [Integer] Minimum length (inclusive)
       # @param max_length [Integer] Maximum length (inclusive)
       # @return [Array<String>] Words in the length range
       def find_by_length_range(min_length:, max_length:)
-        all_words.select { |w| w.length >= min_length && w.length <= max_length }
+        sweep_index.words_in_length_range(min_length, max_length)
       end
 
       # Get the number of words in the dictionary.
