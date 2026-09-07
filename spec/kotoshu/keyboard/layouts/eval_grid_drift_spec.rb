@@ -18,7 +18,15 @@ RSpec.describe "keyboard layout sync with the models repo eval grids" do
   GRID_NAME = {
     "tr" => ["TurkishQ", "_TR_Q"],
     "uk" => ["Ukrainian", "_UK_JCUKEN"],
-    "el" => ["GreekPhonetic", "_EL_PHONETIC"]
+    "el" => ["GreekPhonetic", "_EL_PHONETIC"],
+    # Batch-3 national grids (plan 100), staged by the models repo in
+    # its plan 83 batch-2 eval expansion.
+    "ar" => ["Arabic101", "_AR_101"],
+    "fa" => ["PersianStandard", "_FA_STD"],
+    "he" => ["HebrewSI1452", "_HE_SI1452"],
+    "bg" => ["BulgarianBds", "_BG_BDS"],
+    "sr" => ["SerbianCyrillic", "_SR_CYR"],
+    "hr" => ["Croatian", "_HRSL"]
   }.freeze
 
   def gem_layout_for(lang)

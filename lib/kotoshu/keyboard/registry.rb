@@ -132,11 +132,14 @@ module Kotoshu
       register(Layouts::QWERTY)
       register(Layouts::QWERTZ)
       register(Layouts::AZERTY)
-      # Ukrainian registers before JCUKEN: the base JCUKEN layout
-      # blanket-claims uk, but Ukrainian typists get the dedicated
-      # grid with the ґ є і ї keys (plan 84). Lookup is
-      # first-registered-wins, so order here is load-bearing for uk.
+      # Ukrainian, Bulgarian and Serbian register before JCUKEN: the
+      # base JCUKEN layout blanket-claims uk bg, but typists of those
+      # languages get their dedicated grids (plan 84 uk, plan 100
+      # bg/sr). Lookup is first-registered-wins, so order here is
+      # load-bearing for uk bg sr.
       register(Layouts::Ukrainian)
+      register(Layouts::BulgarianBds)
+      register(Layouts::SerbianCyrillic)
       register(Layouts::JCUKEN)
       register(Layouts::Dvorak)
       # Wave-1 national layouts (plan 84)
@@ -154,6 +157,19 @@ module Kotoshu
       register(Layouts::Latin::Danish)
       register(Layouts::Latin::Norwegian)
       register(Layouts::Latin::Swedish)
+      # Batch-3 national layouts (plan 100): ar fa he type on their
+      # national-script grids; hr and sl share the South-Slavic QWERTZ
+      # grid; the id sk et lt lv Latin members follow.
+      register(Layouts::Arabic101)
+      register(Layouts::PersianStandard)
+      register(Layouts::HebrewSI1452)
+      register(Layouts::Croatian)
+      register(Layouts::Slovenian)
+      register(Layouts::Latin::Indonesian)
+      register(Layouts::Latin::Slovak)
+      register(Layouts::Latin::Estonian)
+      register(Layouts::Latin::Lithuanian)
+      register(Layouts::Latin::Latvian)
     end
   end
 end

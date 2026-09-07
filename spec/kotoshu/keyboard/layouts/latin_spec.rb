@@ -146,6 +146,58 @@ RSpec.describe Kotoshu::Keyboard::Layouts::Latin do
     end
   end
 
+  describe "the batch-3 members (plan 100)" do
+    describe Kotoshu::Keyboard::Layouts::Latin::Indonesian do
+      let(:layout) { described_class.new }
+
+      include_examples "a Latin family member", %w[id id-ID]
+
+      it "reuses the unmodified US QWERTY grid" do
+        expect(layout.key_positions).to eq(Kotoshu::Keyboard::Layouts::QWERTY.new.key_positions)
+      end
+    end
+
+    describe Kotoshu::Keyboard::Layouts::Latin::Slovak do
+      let(:layout) { described_class.new }
+
+      include_examples "a Latin family member", %w[sk sk-SK]
+
+      it "keeps háčik letters off the physical grid" do
+        %w[á ä č ď é í ľ ĺ ň ó ô ŕ š ť ú ý ž].each { |key| expect(layout.position(key)).to be_nil }
+      end
+    end
+
+    describe Kotoshu::Keyboard::Layouts::Latin::Estonian do
+      let(:layout) { described_class.new }
+
+      include_examples "a Latin family member", %w[et et-EE]
+
+      it "keeps õ ä ö ü off the physical grid" do
+        %w[õ ä ö ü š ž].each { |key| expect(layout.position(key)).to be_nil }
+      end
+    end
+
+    describe Kotoshu::Keyboard::Layouts::Latin::Lithuanian do
+      let(:layout) { described_class.new }
+
+      include_examples "a Latin family member", %w[lt lt-LT]
+
+      it "keeps ą č ę ė į š ų ū ž off the physical grid" do
+        %w[ą č ę ė į š ų ū ž].each { |key| expect(layout.position(key)).to be_nil }
+      end
+    end
+
+    describe Kotoshu::Keyboard::Layouts::Latin::Latvian do
+      let(:layout) { described_class.new }
+
+      include_examples "a Latin family member", %w[lv lv-LV]
+
+      it "keeps ā č ē ģ ī ķ ļ ņ š ū ž off the physical grid" do
+        %w[ā č ē ģ ī ķ ļ ņ š ū ž].each { |key| expect(layout.position(key)).to be_nil }
+      end
+    end
+  end
+
   describe "family hygiene" do
     it "does not change the existing language mappings" do
       expect(Kotoshu::Keyboard.layout_for("en").name).to eq("QWERTY")

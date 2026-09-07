@@ -36,5 +36,17 @@ module Kotoshu
     autoload :Turkish, "kotoshu/languages/tr/language"
     autoload :Ukrainian, "kotoshu/languages/uk/language"
     autoload :Vietnamese, "kotoshu/languages/vi/language"
+    # Batch-3 modules (plan 100): id hr sl sk et lt lv (Latin) and
+    # bg sr (Cyrillic). The pre-existing ar fa he modules become
+    # full-feature in this batch (layout + downloadable dictionary).
+    autoload :Bulgarian, "kotoshu/languages/bg/language"
+    autoload :Croatian, "kotoshu/languages/hr/language"
+    autoload :Estonian, "kotoshu/languages/et/language"
+    autoload :Indonesian, "kotoshu/languages/id/language"
+    autoload :Latvian, "kotoshu/languages/lv/language"
+    autoload :Lithuanian, "kotoshu/languages/lt/language"
+    autoload :Serbian, "kotoshu/languages/sr/language"
+    autoload :Slovak, "kotoshu/languages/sk/language"
+    autoload :Slovenian, "kotoshu/languages/sl/language"
   end
 end

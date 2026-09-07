@@ -14,6 +14,11 @@ module Kotoshu
     #   lang = Kotoshu::Languages::Arabic.new
     #   lang.script_type  # => :arabic
     #   lang.rtl?         # => true
+    #
+    # Full-feature since plan 100 (batch 3): the spelling dictionary
+    # downloads from the dictionaries repo (AVAILABLE_LANGUAGES) and
+    # keyboard proximity uses the Arabic 101 grid
+    # (Keyboard::Layouts::Arabic101).
     class Arabic < Language::Base
       register "ar"
       register "ar-SA"
@@ -67,6 +72,15 @@ module Kotoshu
           text.split(ARABIC_SEPARATORS)
             .map { |token| normalize(token) }
             .reject { |token| skip_token?(token) }
+        end
+
+        # Spell-check word characters (plan 91 pattern, added by
+        # plan 100): Arabic-script letters. Arabic needs no ZWNJ (the
+        # staged dictionary carries none) and no apostrophe.
+        #
+        # @return [Regexp] Regex matching a single word character
+        def spellcheck_word_regex
+          /\p{Arabic}/
         end
 
         protected

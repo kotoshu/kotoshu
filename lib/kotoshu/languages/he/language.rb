@@ -14,6 +14,11 @@ module Kotoshu
     #   lang = Kotoshu::Languages::Hebrew.new
     #   lang.script_type  # => :hebrew
     #   lang.rtl?         # => true
+    #
+    # Full-feature since plan 100 (batch 3): the spelling dictionary
+    # downloads from the dictionaries repo (AVAILABLE_LANGUAGES) and
+    # keyboard proximity uses the Hebrew SI-1452 grid
+    # (Keyboard::Layouts::HebrewSI1452).
     class Hebrew < Language::Base
       register "he"
       register "he-IL"
@@ -66,6 +71,16 @@ module Kotoshu
           text.split(HEBREW_SEPARATORS)
             .map { |token| normalize(token) }
             .reject { |token| skip_token?(token) }
+        end
+
+        # Spell-check word characters (plan 91 pattern, added by
+        # plan 100): Hebrew letters plus the geresh/gershayim used
+        # inside acronyms. Niqqud are combining marks, not letters —
+        # the Hebrew normalizer strips them from input before lookup.
+        #
+        # @return [Regexp] Regex matching a single word character
+        def spellcheck_word_regex
+          /[\p{Hebrew}\u05F3\u05F4]/
         end
 
         protected

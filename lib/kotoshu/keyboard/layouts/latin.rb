@@ -15,7 +15,8 @@ module Kotoshu
       # (kotoshu/models-fasttext-onnx eval/noise.py: LANG_LAYOUT maps
       # the Latin newcomers onto the qwerty/qwertz grids and handles
       # diacritics as _LANG_ALTERNATES slips), keeping gem suggestion
-      # adjacency and eval adjacency in sync.
+      # adjacency and eval adjacency in sync. Batch 3 (plan 100) adds
+      # id sk et lt lv on the same qwerty base grid.
       #
       # One family, per-language declarations — no near-duplicate
       # layout files. The five pre-existing layouts (qwerty qwertz
@@ -213,6 +214,51 @@ module Kotoshu
           base_grid :qwerty
           removed_keys %w([ ] ; ')
           extra_positions({ 'å' => [1, 10], 'ä' => [2, 9], 'ö' => [2, 10] })
+        end
+
+        # Indonesian: US QWERTY physical layout — the Indonesian
+        # national standard types on the unmodified US grid, and the
+        # eval harness maps id the same way (plan 83 batch 2).
+        class Indonesian < Latin
+          layout_name 'Indonesian-QWERTY'
+          languages %w[id id-ID]
+          base_grid :qwerty
+        end
+
+        # Slovak: US QWERTY physical layout; the eval harness maps sk
+        # to the qwerty grid (plan 83 batch 2) with the háčik
+        # diacritics as dead-key slips, exactly the Polish
+        # programmers' pattern. The Slovak QWERTZ national variant
+        # exists, but Slovak QWERTY is the widely-typed form.
+        class Slovak < Latin
+          layout_name 'Slovak-QWERTY'
+          languages %w[sk sk-SK]
+          base_grid :qwerty
+        end
+
+        # Estonian: US QWERTY physical layout; ä ö õ ü š ž are dead-key
+        # or AltGr sequences on the eval model grid (plan 83 batch 2).
+        class Estonian < Latin
+          layout_name 'Estonian-QWERTY'
+          languages %w[et et-EE]
+          base_grid :qwerty
+        end
+
+        # Lithuanian: US QWERTY physical layout; ą č ę ė į š ų ū ž are
+        # dead-key or AltGr sequences (plan 83 batch 2 eval mapping).
+        class Lithuanian < Latin
+          layout_name 'Lithuanian-QWERTY'
+          languages %w[lt lt-LT]
+          base_grid :qwerty
+        end
+
+        # Latvian: US QWERTY physical layout; ā č ē ģ ī ķ ļ ņ š ū ž
+        # are dead-key or AltGr sequences (plan 83 batch 2 eval
+        # mapping).
+        class Latvian < Latin
+          layout_name 'Latvian-QWERTY'
+          languages %w[lv lv-LV]
+          base_grid :qwerty
         end
       end
     end
