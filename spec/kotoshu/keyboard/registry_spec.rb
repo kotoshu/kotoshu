@@ -56,8 +56,13 @@ RSpec.describe Kotoshu::Keyboard::Registry do
       # Latin: module-less -> the generic QWERTY default
       expect(described_class.layout_for('is')).to be_a(Kotoshu::Keyboard::Layouts::QWERTY)
       expect(described_class.layout_for('cy')).to be_a(Kotoshu::Keyboard::Layouts::QWERTY)
-      # Scripts without a gem grid stay on QWERTY (ko until plan 108)
-      expect(described_class.layout_for('ko')).to be_a(Kotoshu::Keyboard::Layouts::QWERTY)
+    end
+
+    it 'resolves the ko and ne national grids (plan 108)' do
+      expect(described_class.layout_for('ko')).to be_a(Kotoshu::Keyboard::Layouts::Dubeolsik)
+      expect(described_class.layout_for('ko-KR')).to be_a(Kotoshu::Keyboard::Layouts::Dubeolsik)
+      expect(described_class.layout_for('ne')).to be_a(Kotoshu::Keyboard::Layouts::DevanagariInScript)
+      expect(described_class.layout_for('ne-NP')).to be_a(Kotoshu::Keyboard::Layouts::DevanagariInScript)
     end
 
     it 'keeps registered layouts winning over the script default' do
@@ -108,8 +113,9 @@ RSpec.describe Kotoshu::Keyboard::Registry do
     it 'returns all registered layouts' do
       layouts = described_class.available_layouts
       # 5 original + 3 national (wave 1) + 11 Latin family (wave 1) +
-      # 7 national (batch 3) + 5 Latin family (batch 3)
-      expect(layouts.size).to eq(31)
+      # 7 national (batch 3) + 5 Latin family (batch 3) +
+      # 2 national (plan 108: ko ne)
+      expect(layouts.size).to eq(33)
     end
 
     it 'returns layout instances' do
@@ -122,12 +128,14 @@ RSpec.describe Kotoshu::Keyboard::Registry do
       layout_names = layouts.map(&:name).sort
       expect(layout_names).to eq(
         %w[AZERTY Arabic-101 Bulgarian-BDS Catalan-QWERTY Croatian-QWERTZ
-           Czech-QWERTZ Danish-QWERTY Dutch-QWERTY Dvorak Estonian-QWERTY
-           Greek-Phonetic Hebrew-SI-1452 Hungarian-QWERTZ Indonesian-QWERTY
+           Czech-QWERTZ Danish-QWERTY DevanagariInScript Dubeolsik
+           Dutch-QWERTY Dvorak Estonian-QWERTY Greek-Phonetic
+           Hebrew-SI-1452 Hungarian-QWERTZ Indonesian-QWERTY
            Italian-QWERTY JCUKEN Latvian-QWERTY Lithuanian-QWERTY
            Norwegian-QWERTY Persian-Standard Polish-QWERTY QWERTY QWERTZ
-           Romanian-QWERTY Serbian-Cyrillic Slovak-QWERTY Slovenian-QWERTZ
-           Swedish-QWERTY Turkish-Q Ukrainian-JCUKEN Vietnamese-QWERTY]
+           Romanian-QWERTY Serbian-Cyrillic Slovak-QWERTY
+           Slovenian-QWERTZ Swedish-QWERTY Turkish-Q Ukrainian-JCUKEN
+           Vietnamese-QWERTY]
       )
     end
   end
@@ -177,7 +185,7 @@ RSpec.describe Kotoshu::Keyboard::Registry do
     it 'returns false for unsupported language' do
       expect(described_class.supports_language?('zh')).to be false
       expect(described_class.supports_language?('ja')).to be false
-      expect(described_class.supports_language?('ko')).to be false
+      expect(described_class.supports_language?('mk')).to be false
     end
   end
 

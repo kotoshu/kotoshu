@@ -41,6 +41,12 @@ module Kotoshu
       autoload :SerbianCyrillic, "kotoshu/keyboard/layouts/serbian"
       autoload :Croatian, "kotoshu/keyboard/layouts/hrsl"
       autoload :Slovenian, "kotoshu/keyboard/layouts/hrsl"
+      # ko and ne layouts (plan 108): Dubeolsik cites the KS X 5002
+      # layout standard (the eval harness models ko slips as jamo
+      # confusion pairs, not a key grid); Devanagari InScript is
+      # mirrored from the eval harness grid.
+      autoload :Dubeolsik, "kotoshu/keyboard/layouts/dubeolsik"
+      autoload :DevanagariInScript, "kotoshu/keyboard/layouts/devanagari_inscript"
     end
 
     class << self

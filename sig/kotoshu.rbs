@@ -96,6 +96,28 @@ def spellcheck_word_regex: () -> Regexp
         def word_boundary_regex: () -> Regexp
         def spellcheck_word_regex: () -> Regexp
       end
+
+      # Korean eojeol tokenizer (plan 108): runs of Hangul syllables
+      # plus bare jamo that escaped IME composition.
+      class HangulTokenizer < Base
+        HANGUL_WORD_CHARS: String
+
+        def initialize: () -> void
+        def tokenize: (String? text) -> Array[String]
+        def word_boundary_regex: () -> Regexp
+        def spellcheck_word_regex: () -> Regexp
+      end
+
+      # Devanagari tokenizer (plan 108): matras and virama conjuncts
+      # stay attached to the base consonant.
+      class DevanagariTokenizer < Base
+        DEVANAGARI_WORD_CHARS: String
+
+        def initialize: () -> void
+        def tokenize: (String? text) -> Array[String]
+        def word_boundary_regex: () -> Regexp
+        def spellcheck_word_regex: () -> Regexp
+      end
     end
 
     # Script classification for module-less languages (plan 107):
@@ -219,6 +241,17 @@ def spellcheck_word_regex: () -> Regexp
     # Norwegian Nynorsk (plan 107): dictionary + model staged, wired
     # as full feature while basic support opened the manifest.
     class NorwegianNynorsk < LatinBase
+    end
+    # Korean and Nepali (plan 108): the last big-population languages
+    # — Hangul eojeol tokenizer + Dubeolsik grid, Devanagari grapheme
+    # tokenizer + InScript grid.
+    class Korean < Language::Base
+      def tokenizer: () -> Language::Tokenizer::HangulTokenizer
+      def script_type: () -> :hangul
+    end
+    class Nepali < Language::Base
+      def tokenizer: () -> Language::Tokenizer::DevanagariTokenizer
+      def script_type: () -> :devanagari
     end
   end
 

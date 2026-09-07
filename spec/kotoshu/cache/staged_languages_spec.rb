@@ -62,8 +62,9 @@ RSpec.describe Kotoshu::Cache::LanguageCache do
 
       expect(full).to include("en", "de", "ru", "ar", "vi")
       expect(full).to include("nn") # wired by plan 107
+      expect(full).to include("ko", "ne") # wired by plan 108
       expect(full).not_to include("ja") # module but no staged dictionary
-      expect(full).not_to include("is", "cy", "gd", "ko", "ne", "mk", "xx")
+      expect(full).not_to include("is", "cy", "gd", "mk", "xx")
     end
   end
 end

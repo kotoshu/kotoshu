@@ -51,5 +51,10 @@ module Kotoshu
     # Nynorsk module (plan 107): wired as full feature while basic
     # support opened the staged manifest (dictionary + model staged).
     autoload :NorwegianNynorsk, "kotoshu/languages/nn/language"
+    # ko and ne modules (plan 108): the last big-population languages
+    # — Hangul eojeol tokenizer + Dubeolsik grid, Devanagari grapheme
+    # tokenizer + InScript grid.
+    autoload :Korean, "kotoshu/languages/ko/language"
+    autoload :Nepali, "kotoshu/languages/ne/language"
   end
 end

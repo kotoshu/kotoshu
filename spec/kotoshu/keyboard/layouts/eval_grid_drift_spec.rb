@@ -26,7 +26,12 @@ RSpec.describe "keyboard layout sync with the models repo eval grids" do
     "he" => ["HebrewSI1452", "_HE_SI1452"],
     "bg" => ["BulgarianBds", "_BG_BDS"],
     "sr" => ["SerbianCyrillic", "_SR_CYR"],
-    "hr" => ["Croatian", "_HRSL"]
+    "hr" => ["Croatian", "_HRSL"],
+    # Devanagari InScript (plan 108): the documented standard Nepali
+    # types on, staged with the other eval grids. ko has no eval key
+    # grid (the harness models Korean slips as jamo confusion pairs),
+    # so Dubeolsik cites KS X 5002 instead of drifting against eval.
+    "ne" => ["DevanagariInScript", "_NE_INSCRIPT"]
   }.freeze
 
   def gem_layout_for(lang)

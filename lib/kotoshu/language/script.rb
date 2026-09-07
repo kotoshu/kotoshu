@@ -54,15 +54,17 @@ module Kotoshu
         arabic: /\p{Arabic}/,
         hebrew: /\p{Hebrew}/,
         armenian: /\p{Armenian}/,
-        georgian: /\p{Georgian}/,
-        devanagari: /\p{Devanagari}/,
-        hangul: /\p{Hangul}/
+        georgian: /\p{Georgian}/
       }.freeze
 
-      # Tokenizer classes reused from the dedicated script tokenizers.
+      # Tokenizer classes reused from the dedicated script tokenizers
+      # (plan 108 added Hangul and Devanagari alongside the plan 84
+      # Cyrillic and Greek classes).
       SCRIPT_TOKENIZER_CLASSES = {
         cyrillic: Tokenizer::CyrillicTokenizer,
-        greek: Tokenizer::GreekTokenizer
+        greek: Tokenizer::GreekTokenizer,
+        hangul: Tokenizer::HangulTokenizer,
+        devanagari: Tokenizer::DevanagariTokenizer
       }.freeze
 
       class << self
