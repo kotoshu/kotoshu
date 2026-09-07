@@ -4,6 +4,9 @@ module Kotoshu
   class Spellchecker
     # Fluent checker for chainable configuration.
     #
+    # Experimental and not public API: outside the 1.0 stability
+    # freeze, may change or be removed without a deprecation cycle.
+    #
     # Provides a convenient API for spell checking with method chaining.
     #
     # @example Basic usage

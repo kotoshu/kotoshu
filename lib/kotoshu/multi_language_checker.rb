@@ -3,6 +3,9 @@
 module Kotoshu
   # Multi-language document checker.
   #
+  # Experimental and not public API: outside the 1.0 stability
+  # freeze, may change or be removed without a deprecation cycle.
+  #
   # Splits a {Documents::Document} into language-tagged segments via
   # {Language::Segmenter}, resolves a {Spellchecker} for each
   # segment's detected language, and emits a flat list of

@@ -33,11 +33,6 @@ module Kotoshu
     #   KOTOSHU_BACKEND). Nil means every call runs the pure-Ruby engine.
     attr_reader :native_backend
 
-    # Word characters for extraction when the language has no script
-    # tokenizer: ASCII letters and the apostrophe, the pre-plan-91 set
-    # (kept as the fallback so unknown languages behave as before).
-    ASCII_WORD_REGEX = /[a-zA-Z']/
-
     # Create a new spellchecker.
     #
     # @param dictionary [Dictionary::Base, nil] The dictionary (optional)
@@ -102,9 +97,11 @@ module Kotoshu
       # Word extraction follows the configured language's script
       # (plan 91): its tokenizer decides which letters form words,
       # so Greek/Cyrillic words become checkable for el/uk while
-      # wrong-script words stay invisible. Nil keeps the ASCII set.
+      # wrong-script words stay invisible. Nil keeps the fallback:
+      # ASCII letters and the apostrophe, the pre-plan-91 set (so
+      # unknown languages behave as before).
       @language_tokenizer = resolve_language_tokenizer
-      @word_char_regex = @language_tokenizer&.spellcheck_word_regex || ASCII_WORD_REGEX
+      @word_char_regex = @language_tokenizer&.spellcheck_word_regex || /[a-zA-Z']/
     end
 
     # Check if a word is spelled correctly.
