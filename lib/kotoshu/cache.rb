@@ -23,6 +23,9 @@ module Kotoshu
     autoload :ModelCache, "kotoshu/cache/model_cache"
     autoload :ModelRegistry, "kotoshu/cache/model_registry"
     autoload :SuggestionCache, "kotoshu/cache/suggestion_cache"
+    # Vendored snapshot of the dictionaries manifest languages
+    # (plan 107); refreshed by kotoshu:staged_languages:sync.
+    autoload :StagedLanguages, "kotoshu/cache/staged_languages"
 
     class << self
       # Create a new language cache instance

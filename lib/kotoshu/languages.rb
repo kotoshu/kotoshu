@@ -48,5 +48,8 @@ module Kotoshu
     autoload :Serbian, "kotoshu/languages/sr/language"
     autoload :Slovak, "kotoshu/languages/sk/language"
     autoload :Slovenian, "kotoshu/languages/sl/language"
+    # Nynorsk module (plan 107): wired as full feature while basic
+    # support opened the staged manifest (dictionary + model staged).
+    autoload :NorwegianNynorsk, "kotoshu/languages/nn/language"
   end
 end

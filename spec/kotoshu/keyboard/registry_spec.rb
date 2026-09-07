@@ -48,6 +48,23 @@ RSpec.describe Kotoshu::Keyboard::Registry do
       layout = described_class.layout_for('unknown-language-code')
       expect(layout).to be_a(Kotoshu::Keyboard::Layouts::QWERTY)
     end
+
+    it 'falls back to the script default for module-less languages (plan 107)' do
+      # Cyrillic: staged but module-less -> the standard Cyrillic grid
+      expect(described_class.layout_for('mk')).to be_a(Kotoshu::Keyboard::Layouts::JCUKEN)
+      expect(described_class.layout_for('mn')).to be_a(Kotoshu::Keyboard::Layouts::JCUKEN)
+      # Latin: module-less -> the generic QWERTY default
+      expect(described_class.layout_for('is')).to be_a(Kotoshu::Keyboard::Layouts::QWERTY)
+      expect(described_class.layout_for('cy')).to be_a(Kotoshu::Keyboard::Layouts::QWERTY)
+      # Scripts without a gem grid stay on QWERTY (ko until plan 108)
+      expect(described_class.layout_for('ko')).to be_a(Kotoshu::Keyboard::Layouts::QWERTY)
+    end
+
+    it 'keeps registered layouts winning over the script default' do
+      # bg and sr have their national grids registered ahead of JCUKEN
+      expect(described_class.layout_for('bg')).to be_a(Kotoshu::Keyboard::Layouts::BulgarianBds)
+      expect(described_class.layout_for('sr')).to be_a(Kotoshu::Keyboard::Layouts::SerbianCyrillic)
+    end
   end
 
   describe '.layout_by_name' do

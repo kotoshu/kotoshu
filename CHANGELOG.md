@@ -8,6 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Basic support for every staged dictionary language** (plan 107) -
+  `kotoshu setup` now serves all 95 languages staged in the
+  kotoshu/dictionaries manifest, not just the ones with gem modules.
+  `LanguageCache::AVAILABLE_LANGUAGES` derives from a vendored
+  snapshot of the manifest (Cache::StagedLanguages, refreshed by
+  `rake kotoshu:staged_languages:sync`), keeping the hot path
+  network-free. Languages without a module run on the basic tier:
+  script classification (Language::Script) picks the tokenizer whose
+  word regex drives check/suggest word extraction (shared Latin /
+  Cyrillic / Greek tokenizers plus a generic regex tokenizer for
+  Arabic, Hebrew, Armenian, Georgian, Devanagari and Hangul), and the
+  keyboard registry falls back to the script's standard grid (JCUKEN
+  for Cyrillic, Arabic 101, Hebrew SI-1452, QWERTY otherwise) instead
+  of QWERTY for everything. Two documented tiers: full feature =
+  module (registered keyboard + verified specimens,
+  `LanguageCache.full_feature_languages`), basic = manifest-present.
+  `nn` (Norwegian Nynorsk) is wired as a full-feature module while
+  here - dictionary and model are both staged. Modules keep winning
+  over the fallbacks; the 32 existing modules behave identically
+  (conformance vectors untouched).
 - **Personal dictionary in the check path** (plan 105) -
   `Spellchecker#check` (and therefore `Kotoshu.check`,
   `Kotoshu.check_file`, and `kotoshu check`) no longer flags words

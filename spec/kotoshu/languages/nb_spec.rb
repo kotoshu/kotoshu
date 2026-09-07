@@ -33,6 +33,7 @@ RSpec.describe Kotoshu::Languages::NorwegianBokmal do
   it "resolves as the Swedish and Danish modules do" do
     expect(Kotoshu::Language.get("da")).to eq(Kotoshu::Languages::Danish)
     expect(Kotoshu::Language.get("sv")).to eq(Kotoshu::Languages::Swedish)
-    expect(Kotoshu::Language.get("nn")).to be_nil # Nynorsk is not wired yet
+    # Nynorsk is wired since plan 107 (its own module, not an alias).
+    expect(Kotoshu::Language.get("nn")).to eq(Kotoshu::Languages::NorwegianNynorsk)
   end
 end

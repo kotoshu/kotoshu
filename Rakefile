@@ -32,6 +32,41 @@ report_divergences = lambda do |divergences|
 end
 
 namespace :kotoshu do
+  namespace :staged_languages do
+    desc <<~DESC
+      Regenerate the vendored staged-language list (plan 107). Fetches \
+      the dictionaries manifest at the SourceRegistry pin, extracts the \
+      distinct language codes from its resources, and rewrites \
+      lib/kotoshu/cache/staged_languages.rb in place so \
+      LanguageCache::AVAILABLE_LANGUAGES tracks the manifest. Run after \
+      the dictionaries repo stages new languages.
+    DESC
+    task :sync do
+      require "kotoshu"
+      require "json"
+
+      url = Kotoshu::SourceRegistry.new.url_for(:dict_manifest)
+      puts "Fetching #{url}"
+      bytes = Kotoshu::Integrity::NetHTTP.get(url)
+      abort "manifest not found at #{url}" if bytes.nil?
+
+      manifest = JSON.parse(bytes)
+      codes = manifest.fetch("resources").values.map { |r| r.fetch("language") }.uniq.sort
+      abort "manifest carried no languages" if codes.empty?
+
+      target = File.expand_path("lib/kotoshu/cache/staged_languages.rb", __dir__)
+      source = File.read(target)
+      updated = source.sub(/CODES = %w\[\n(?: {8}\S+(?: \S+)*\n)+ {6}\]\.freeze/) do
+        wrapped = codes.each_slice(10).map { |slice| "        #{slice.join(' ')}" }.join("\n")
+        "CODES = %w[\n#{wrapped}\n      ].freeze"
+      end
+      abort "CODES block not found in #{target}" if updated == source
+
+      File.write(target, updated)
+      puts "Rewrote #{target}: #{codes.size} languages (was #{Kotoshu::Cache::StagedLanguages::CODES.size})"
+    end
+  end
+
   namespace :conformance do
     desc <<~DESC
       Export conformance vectors for kotoshu-rs (plan 67 M3). Walks the Spylls \

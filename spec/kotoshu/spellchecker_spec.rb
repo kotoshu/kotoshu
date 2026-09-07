@@ -405,6 +405,62 @@ RSpec.describe Kotoshu::Spellchecker, "# Walking Skeleton - Spellchecker Service
     end
   end
 
+  describe "#tokenize module-less script fallback (plan 107)" do
+    def spellchecker_for(language)
+      Kotoshu::Spellchecker.new(
+        dictionary_path: "spec/fixtures/words.txt",
+
+        dictionary_type: :plain_text,
+
+        language: language
+      )
+    end
+
+    it "extracts accented Latin words for module-less staged languages" do
+      tokens = spellchecker_for("is").tokenize("Þetta er íslenskur texti")
+      expect(tokens.map(&:first)).to eq(["Þetta", "er", "íslenskur", "texti"])
+
+      tokens = spellchecker_for("cy").tokenize("Mae hwn yn Gymraeg")
+      expect(tokens.map(&:first)).to eq(["Mae", "hwn", "yn", "Gymraeg"])
+
+      tokens = spellchecker_for("gd").tokenize("Seo teacs Gàidhlig")
+      expect(tokens.map(&:first)).to eq(["Seo", "teacs", "Gàidhlig"])
+    end
+
+    it "extracts Cyrillic words for module-less mk" do
+      tokens = spellchecker_for("mk").tokenize("ова е македонски текст")
+      expect(tokens.map(&:first)).to eq(["ова", "е", "македонски", "текст"])
+    end
+
+    it "extracts eojeol runs for module-less ko" do
+      tokens = spellchecker_for("ko").tokenize("한국어 텍스트입니다")
+      expect(tokens.map(&:first)).to eq(["한국어", "텍스트입니다"])
+    end
+
+    it "keeps Devanagari matras attached for module-less ne" do
+      tokens = spellchecker_for("ne").tokenize("यो नेपाली पाठ हो")
+      expect(tokens.map(&:first)).to eq(["यो", "नेपाली", "पाठ", "हो"])
+    end
+
+    it "extracts Armenian words for module-less hyw" do
+      tokens = spellchecker_for("hyw").tokenize("հայերէն լեզու")
+      expect(tokens.map(&:first)).to eq(["հայերէն", "լեզու"])
+    end
+
+    it "keeps the ASCII fallback for unknown languages" do
+      tokens = spellchecker_for("xx").tokenize("Schöne Grüße")
+      expect(tokens.map(&:first)).to eq(["Sch", "ne", "Gr", "e"])
+    end
+
+    it "still prefers a registered module over the script fallback" do
+      # et has a module; the module tokenizer must win, byte-identical
+      # to before plan 107 (both are the Latin tokenizer here, but the
+      # registry path is what resolves it).
+      expect(spellchecker_for("et").tokenize("õppekool Pärnus").map(&:first))
+        .to eq(["õppekool", "Pärnus"])
+    end
+  end
+
   describe "#tokenize" do
     let(:spellchecker) do
       Kotoshu::Spellchecker.new(
