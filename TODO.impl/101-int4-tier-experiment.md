@@ -23,4 +23,10 @@ Gates table per language; byte sizes; the release registry byte-identical to
 the committed one; no existing tier URLs change.
 
 ## Status
-Pending
+Executed 2026-09-07 — REJECTED on data (models PR #17, merged). int4-per-row
+(one fp16 scale, packed nibbles) over 8 languages: rank_corr deltas -0.0146
+to -0.0199 vs int8 (15-20x outside the 0.001 window), top-1 fails on 8/8
+fluency4 and 2/8 mini4. Sizes halve (mini4 1.52 MB, fluency4 7.60 MB) but
+accuracy does not hold. With the earlier group-128/64/32 sweep the scale
+ladder is measured end to end — int8-per-row stands final. Registry
+untouched; evidence in models eval/reports/.

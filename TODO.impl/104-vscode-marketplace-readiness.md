@@ -24,4 +24,9 @@ so publishing is one secret + one click.
 steps verified against the actual GitHub UI labels.
 
 ## Status
-Pending
+Executed 2026-09-07 — vscode PR #3, merged. release-marketplace.yml (VSCE_PAT)
++ release-ovsx.yml (OPEN_VSX_TOKEN), both version-gated; PREPUBLISH.md with
+verified owner steps; package.json publisher/categories/keywords/banner;
+README quickstart against gem 0.1.1; vsce package warning-clean. Publishing
+itself is one PAT secret + one tag — owner action. The /docs/clients/lsp
+marketplace link rides the coordinated site pass.
