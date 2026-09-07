@@ -25,6 +25,8 @@ module Kotoshu
     autoload :Segmenter, "kotoshu/language/segmenter"
     autoload :Segment, "kotoshu/language/segmenter"
     autoload :Suika, "kotoshu/language/suika"
+    # Script classification for module-less languages (plan 107).
+    autoload :Script, "kotoshu/language/script"
 
     module Tokenizer
       autoload :Base, "kotoshu/language/tokenizer/base"
@@ -37,6 +39,7 @@ module Kotoshu
       autoload :JapaneseTokenizer, "kotoshu/language/tokenizer/japanese_tokenizer"
       autoload :GreekTokenizer, "kotoshu/language/tokenizer/greek_tokenizer"
       autoload :CyrillicTokenizer, "kotoshu/language/tokenizer/cyrillic_tokenizer"
+      autoload :ScriptTokenizer, "kotoshu/language/tokenizer/script_tokenizer"
     end
 
     module Normalizer

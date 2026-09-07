@@ -26,4 +26,17 @@ Live `kotoshu setup is && check -l is` round trip; suite green; the 32
 modules' outputs byte-identical.
 
 ## Status
-Pending
+Executed 2026-09-07 — AVAILABLE_LANGUAGES derives from a vendored
+snapshot of the dictionaries manifest (Cache::StagedLanguages, 95
+languages, refreshed by `rake kotoshu:staged_languages:sync`);
+module-less languages ride Language::Script (script tokenizer for
+word extraction: shared Latin/Cyrillic/Greek classes plus a generic
+regex tokenizer for Arabic/Hebrew/Armenian/Georgian/Devanagari/
+Hangul) and the script keyboard default (JCUKEN Cyrillic, Arabic 101,
+Hebrew SI-1452, QWERTY Latin). Tiers documented: full feature =
+module (LanguageCache.full_feature_languages, 33 with nn); basic =
+manifest-present. nn wired as a full-feature module. Specimens
+engine-verified for is cy gd (basic) + nn; live round trips
+setup+check -l for is cy gd nn; conformance 2630 vectors 0 failures;
+suite 3948 examples 0 failures. sr-Latn stays follow-up (normalize
+maps it to sr; needs product sign-off).

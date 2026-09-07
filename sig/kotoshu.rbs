@@ -87,6 +87,25 @@ def spellcheck_word_regex: () -> Regexp
         def word_boundary_regex: () -> Regexp
         def skip_token?: (String token) -> bool
       end
+
+      # Regex-parameterized tokenizer for scripts without a dedicated
+      # class (plan 107 basic tier).
+      class ScriptTokenizer < Base
+        def initialize: (word_regex: Regexp) -> void
+        def tokenize: (String? text) -> Array[String]
+        def word_boundary_regex: () -> Regexp
+        def spellcheck_word_regex: () -> Regexp
+      end
+    end
+
+    # Script classification for module-less languages (plan 107):
+    # language code -> writing script -> script-appropriate tokenizer.
+    module Script
+      SCRIPT_BY_LANGUAGE: Hash[String, Symbol]
+      SCRIPT_WORD_REGEXES: Hash[Symbol, Regexp]
+
+      def self.script_for: (String? code) -> Symbol
+      def self.tokenizer_for: (String? code) -> Tokenizer::Base?
     end
 
     module Normalizer
@@ -196,6 +215,10 @@ def spellcheck_word_regex: () -> Regexp
     class Slovak < LatinBase
     end
     class Slovenian < LatinBase
+    end
+    # Norwegian Nynorsk (plan 107): dictionary + model staged, wired
+    # as full feature while basic support opened the manifest.
+    class NorwegianNynorsk < LatinBase
     end
   end
 

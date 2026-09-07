@@ -26,17 +26,18 @@ module Kotoshu
       # Supported resource types
       RESOURCE_TYPES = %w[spelling grammar frequency].freeze
 
-      # Available languages
-      # Downloadable spelling languages: the gem-wired language
-      # modules (lib/kotoshu/languages/). Staged-only dictionaries in
-      # the dictionaries repo stay outside this list until their
-      # module lands; local files come via setup --aff/--dic instead.
-      # Batch 3 (plan 100) promotes the RTL wiring ar/fa/he and adds
-      # bg et hr id lt lv sk sl sr.
-      AVAILABLE_LANGUAGES = %w[
-        ar bg ca cs da de el en es et fa fr he hr hu id it lt lv nb nl
-        pl pt ro ru sk sl sr sv tr uk vi
-      ].freeze
+      # Available languages (plan 107): every language staged in the
+      # dictionaries manifest, vendored offline-safe by
+      # Cache::StagedLanguages and refreshed by
+      # `rake kotoshu:staged_languages:sync`. Two tiers:
+      # - full feature — a language module under Kotoshu::Languages
+      #   (registered keyboard + verified specimens); see
+      #   {full_feature_languages};
+      # - basic — manifest-present but module-less: the script
+      #   fallback tokenizer (Language::Script) and the generic
+      #   keyboard default still serve setup/check/suggest.
+      # Local files come via setup --aff/--dic instead.
+      AVAILABLE_LANGUAGES = StagedLanguages::CODES
 
       # Get or download spelling dictionary for a language.
       #
@@ -125,6 +126,20 @@ module Kotoshu
       # @return [Array<String>] List of supported language codes
       def available_languages
         AVAILABLE_LANGUAGES.dup
+      end
+
+      # Languages on the full-feature tier: staged in the manifest
+      # AND wired as a gem module (Kotoshu::Languages) — registered
+      # keyboard layout plus engine-verified specimens. Everything
+      # else in {available_languages} is the basic tier (plan 107).
+      #
+      # @return [Array<String>] Sorted full-feature language codes
+      def self.full_feature_languages
+        Language::Registry.supported_codes
+          .map { |code| code.split("-").first }
+          .uniq
+          .select { |base| AVAILABLE_LANGUAGES.include?(base) }
+          .sort
       end
 
       # Absolute on-disk path for a (language, resource_type) pair.

@@ -362,6 +362,11 @@ module Kotoshu
     # English's whitespace tokenizer, or an unknown language — returns
     # nil and the ASCII fallback applies.
     #
+    # Module-less staged languages get the script fallback (plan 107):
+    # Language::Script maps the code to its writing script and hands
+    # back the script-appropriate tokenizer, so basic-tier languages
+    # check with real word extraction while their module is pending.
+    #
     # A resource bundle pins the language: spellchecker_for passes the
     # shared global Configuration next to the resolved bundle, and the
     # config may still carry the global default language instead of
@@ -373,7 +378,7 @@ module Kotoshu
       return nil if code.nil? || code.empty?
 
       language_class = Language::Registry.get(code)
-      return nil if language_class.nil?
+      return Language::Script.tokenizer_for(code) if language_class.nil?
 
       tokenizer = language_class.new.tokenizer
       tokenizer.is_a?(Language::Tokenizer::Base) ? tokenizer : nil

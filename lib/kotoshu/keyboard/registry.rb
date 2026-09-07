@@ -33,7 +33,10 @@ module Kotoshu
         # Get layout for a specific language code
         #
         # Searches for a layout that supports the given language code.
-        # Returns QWERTY as fallback if no matching layout is found.
+        # Falls back to the script default for module-less languages
+        # (plan 107): JCUKEN for Cyrillic, Arabic 101 for Arabic
+        # script, Hebrew SI-1452 for Hebrew, QWERTY for Latin and
+        # unknown codes.
         #
         # @param language_code [String] the language code (e.g., 'en', 'de', 'fr', 'ru')
         # @return [Layout] the keyboard layout for the language
@@ -47,7 +50,7 @@ module Kotoshu
             layout = layouts.values.find { |l| l.supports_language?(base_lang) }
           end
 
-          layout || default_layout
+          layout || script_default_layout(language_code) || default_layout
         end
 
         # Get layout by name
@@ -109,6 +112,21 @@ module Kotoshu
         # @return [Hash] hash of layout class names to instances
         def layouts
           @layouts ||= {}
+        end
+
+        # Generic keyboard fallback for module-less languages
+        # (plan 107): the script's standard grid when no registered
+        # layout claims the code. Latin and unknown scripts fall
+        # through to +default_layout+ (QWERTY).
+        #
+        # @param language_code [String] the language code
+        # @return [Layout, nil] the script default, or nil
+        def script_default_layout(language_code)
+          case Language::Script.script_for(language_code.to_s)
+          when :cyrillic then layouts['Kotoshu::Keyboard::Layouts::JCUKEN']
+          when :arabic then layouts['Kotoshu::Keyboard::Layouts::Arabic101']
+          when :hebrew then layouts['Kotoshu::Keyboard::Layouts::HebrewSI1452']
+          end
         end
 
         # Get the default layout
