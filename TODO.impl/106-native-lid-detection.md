@@ -26,4 +26,11 @@ Suite green; a live detect over en/de/ru/ja/ar samples recorded in the PR
 body; pure-Ruby suite still green (no new hard dependency).
 
 ## Status
-Pending
+Executed 2026-09-07 — gem PR (branch plan-106-native-lid-detection):
+Kotoshu.detect_language -> Language::Detection through the ext
+(LidModel.load/#detect in the magnus shim, kotoshu-rs model feature,
+Cargo.lock bumped to the reader revision); ModelCache gained the
+lid pair (download_lid/load_cached_lid, top-level lid/ dir);
+Kotoshu.setup_lid two-stage; heuristic fallback incl.
+KOTOSHU_BACKEND=ruby; parity 55/55 vs the shared frozen corpus.
+Server follow-up (/v1/detect) noted in the PR body.
