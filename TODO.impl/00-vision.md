@@ -247,3 +247,18 @@ plan name the source.
 | `docs/ARCHITECTURE_IMPROVEMENTS_PLAN.md` (5 phases) | Phase 1 perf items in `01`/`05`; Phase 2 architecture in `00-vision` (this doc); Phase 3 UX mostly implemented (`PersonalDictionary`, `ProjectConfig`, `FluentChecker` exist); Phase 4 quality in `10`; Phase 5 polish spread |
 | `docs/TDD_ITERATION_STRATEGY.md` | `10` (test methodology + CI); project-rule overrides (no doubles, behavior-not-implementation) in `CLAUDE.md` |
 | `docs/ONNX_FUNCTIONAL_VERIFICATION.md` | `05` (semantic path productionization) |
+
+
+Plans 105-107 plus models 09 and site 11 are **wave 7, detection and
+coverage depth** (2026-09-07): after the wave-6 releases (gem 0.9.3,
+wasm 0.4.0, registry v1.4.0, action v2), the remaining gaps are the
+personal dictionary never reaching the check path, detection stuck on
+a 7-language heuristic, buckets only for en/de, and the playground not
+yet passing bucket bytes to loadModel.
+
+| # | Plan | Gap it closes |
+|---|---|---|
+| 105 | [Personal dictionary in check](105-personal-dictionary-in-check.md) | kotoshu personal add then check still flags the word |
+| 106 | [Native LID detection](106-native-lid-detection.md) | detect is a 7-language heuristic; the pure-Rust lid reader exists unused |
+| 107 | models [09 bucket expansion](../../models-fasttext-onnx/TODO.impl/09-bucket-table-expansion.md) | bucket OOV siblings exist only for en and de |
+| — | site 11 playground buckets | wasm 0.4.0 accepts bucketsBytes; the worker never fetches the sibling |
