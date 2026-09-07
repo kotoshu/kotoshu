@@ -25,30 +25,4 @@ One spec per module (specimen corrections engine-verified, layout smoke);
 id, fa, he. Deliver the verified specimen table + sizes for the site flip.
 
 ## Status
-<<<<<<< Updated upstream
-
-**Implemented 2026-09-07 (gem PR feat/full-feature-batch3).**
-Enumeration confirmed from the data: the v1 dictionaries manifest (95
-languages, 285 resources) intersected with the models registry v1.3.0
-(55 languages) minus the 20 full-feature languages leaves 30
-candidates; ranked by speakers with ko/ne excluded (CJK Hangul jamo
-input and Devanagari need ja-style tokenizer work outside this
-batch), the top 12 landed: ar (~400M) id (~199M) fa (~80M) he bg sr
-hr sk sl lt lv et. All 12 staged dictionaries parse through the real
-engine (no aff flag failures). Six national key grids mirrored from
-the models repo eval harness plan 83 batch-2 grids (Arabic 101,
-Persian ISIRI 9147, Hebrew SI-1452, Bulgarian BDS, Serbian Cyrillic,
-Croatian/Slovenian QWERTZ) with the drift fixture extended to all
-nine national grids; five Latin members (id sk et lt lv) ride the
-parameterized qwerty family like the eval model. AVAILABLE_LANGUAGES
-20 -> 32. Verification exposed a real gap: the check path
-(Kotoshu.check / kotoshu check -l) extracted zero RTL words because the
-ar/fa/he tokenizers lacked the plan-91 spellcheck_word_regex override -
-added per the Greek/Cyrillic pattern (fa includes ZWNJ, which the
-staged dictionary carries in 48k forms). 55 specimen pairs engine-verified (correct?/suggest round
-trips, RTL sentences included); the verified pairs live in a
-:network spec and in the PR body for the site flip. sr-Latn stays
-unwired like nn; ko and ne are the top deferred candidates.
-=======
 Executed 2026-09-07 — gem PR #151 merged. Twelve languages (ar id fa he bg sr hr sk sl lt lv et) full-feature; AVAILABLE_LANGUAGES 20→32; 49 specimens; RTL tokenizer fix for ar/fa/he. Site flip PR #27.
->>>>>>> Stashed changes
