@@ -101,25 +101,24 @@ module Kotoshu
         def soundex_code(word)
           return "" if word.nil? || word.empty?
 
-          word = word.upcase.gsub(/[^A-Z]/, "")
-          return "" if word.empty?
+          letters = word.upcase.gsub(/[^A-Z]/, "")
+          return "" if letters.empty?
 
-          # Keep first letter
-          first_letter = word[0]
-          rest = word[1..]
+          # Keep first letter. The code is built into one mutable
+          # buffer (`<<`) instead of `code += digit`, which allocated
+          # a fresh String per encoded letter — the phonetic sweep
+          # pays this once per dictionary word.
+          code = +letters[0]
 
-          # Encode remaining letters
-          code = first_letter
+          prev_code = soundex_encode(code)
+          i = 1
+          length = letters.length
 
-          prev_code = soundex_encode(first_letter)
-          i = 0
-
-          while code.length < 4 && i < rest.length
-            char = rest[i]
-            encoded = soundex_encode(char)
+          while code.length < 4 && i < length
+            encoded = soundex_encode(letters[i])
 
             # Add code if different from previous (ignore h and w)
-            code += encoded if encoded != "0" && encoded != prev_code
+            code << encoded if encoded != "0" && encoded != prev_code
 
             prev_code = encoded if encoded != "0"
             i += 1
