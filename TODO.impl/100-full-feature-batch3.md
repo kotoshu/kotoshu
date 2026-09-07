@@ -25,6 +25,7 @@ One spec per module (specimen corrections engine-verified, layout smoke);
 id, fa, he. Deliver the verified specimen table + sizes for the site flip.
 
 ## Status
+<<<<<<< Updated upstream
 
 **Implemented 2026-09-07 (gem PR feat/full-feature-batch3).**
 Enumeration confirmed from the data: the v1 dictionaries manifest (95
@@ -48,3 +49,6 @@ staged dictionary carries in 48k forms). 55 specimen pairs engine-verified (corr
 trips, RTL sentences included); the verified pairs live in a
 :network spec and in the PR body for the site flip. sr-Latn stays
 unwired like nn; ko and ne are the top deferred candidates.
+=======
+Executed 2026-09-07 — gem PR #151 merged. Twelve languages (ar id fa he bg sr hr sk sl lt lv et) full-feature; AVAILABLE_LANGUAGES 20→32; 49 specimens; RTL tokenizer fix for ar/fa/he. Site flip PR #27.
+>>>>>>> Stashed changes

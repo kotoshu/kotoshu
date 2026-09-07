@@ -25,4 +25,4 @@ Registry mirror ACAO + size checks; wasm parity vs gem detect on the corpus;
 playground verified with multilingual paste (en/de/ru/ja/ar).
 
 ## Status
-Pending
+Executed 2026-09-07 (core) — models PR #18 (lid-176, registry v1.4.0) + kotoshu-rs PR #25 (loadLid/detectLanguage). Playground propose-UI still pending a wasm cut that ships the export.

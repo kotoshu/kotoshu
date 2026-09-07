@@ -28,4 +28,4 @@ every measured number in /docs/performance traceable to the 0.3.2 bench
 harness (kotoshu-rs PR #23 table) — no inferred numbers.
 
 ## Status
-Pending
+Executed 2026-09-07 — site PR #26: /docs/performance + truth pass. Action gap found and closed via action-kotoshu PR #2 + site PR #27 docs flip.
