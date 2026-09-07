@@ -49,15 +49,22 @@ RSpec.describe Kotoshu::Language::Script do
     end
 
     it "serves a script tokenizer for scripts without a dedicated class" do
-      ko = described_class.tokenizer_for("ko")
-      expect(ko).to be_a(Kotoshu::Language::Tokenizer::ScriptTokenizer)
-      expect(ko.spellcheck_word_regex).to eq(/\p{Hangul}/)
+      ar = described_class.tokenizer_for("ar")
+      expect(ar).to be_a(Kotoshu::Language::Tokenizer::ScriptTokenizer)
+      expect(ar.spellcheck_word_regex).to eq(/\p{Arabic}/)
 
-      ne = described_class.tokenizer_for("ne")
-      expect(ne.spellcheck_word_regex).to eq(/\p{Devanagari}/)
+      ka = described_class.tokenizer_for("ka")
+      expect(ka.spellcheck_word_regex).to eq(/\p{Georgian}/)
 
       hyw = described_class.tokenizer_for("hyw")
       expect(hyw.spellcheck_word_regex).to eq(/\p{Armenian}/)
+    end
+
+    it "routes Hangul and Devanagari to the dedicated classes (plan 108)" do
+      expect(described_class.tokenizer_for("ko"))
+        .to be_a(Kotoshu::Language::Tokenizer::HangulTokenizer)
+      expect(described_class.tokenizer_for("ne"))
+        .to be_a(Kotoshu::Language::Tokenizer::DevanagariTokenizer)
     end
 
     it "returns nil for languages outside the manifest" do
