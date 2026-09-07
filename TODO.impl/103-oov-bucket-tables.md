@@ -24,4 +24,4 @@ Bucket-backed neighbor specs; size deltas recorded; rerank conformance 0
 change; a 0.4.x wasm release only after both engines agree.
 
 ## Status
-Pending (sequenced AFTER plan 101 — same repo, one worktree at a time)
+Executed 2026-09-07 — models PR #20 (en/de buckets) + kotoshu-rs PR #26 (bucket-backed OOV). Teh→the via buckets. Release assets + wasm 0.4.0 pin still owner/coordinated cut. (sequenced AFTER plan 101 — same repo, one worktree at a time)
