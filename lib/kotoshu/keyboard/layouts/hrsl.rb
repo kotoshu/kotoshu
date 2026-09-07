@@ -73,6 +73,22 @@ module Kotoshu
           )
         end
       end
+
+      # Serbian Latin QWERTZ (the srp driver table — the same
+      # South-Slavic physical arrangement as Croatian and Slovenian;
+      # plan 110).
+      #
+      # Languages: sr-Latn
+      class SerbianLatin < Layout
+        # Initialize the Serbian Latin layout.
+        def initialize
+          super(
+            name: 'Serbian-Latin-QWERTZ',
+            language_codes: %w[sr-Latn],
+            key_positions: HrSlQwertz::KEY_POSITIONS
+          )
+        end
+      end
     end
   end
 end

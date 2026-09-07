@@ -56,5 +56,9 @@ module Kotoshu
     # tokenizer + InScript grid.
     autoload :Korean, "kotoshu/languages/ko/language"
     autoload :Nepali, "kotoshu/languages/ne/language"
+    # Serbian Latin module (plan 110): full-feature wiring over the
+    # distinct staged sr-Latn dictionary — Latin tokenizer, the
+    # South-Slavic QWERTZ grid shared with hr and sl.
+    autoload :SerbianLatin, "kotoshu/languages/sr-Latn/language"
   end
 end

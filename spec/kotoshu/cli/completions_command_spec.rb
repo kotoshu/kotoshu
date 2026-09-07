@@ -96,7 +96,10 @@ RSpec.describe Kotoshu::Cli::CompletionsCommand do
       codes = output.split("\n")
 
       expect(codes).to include("en", "de", "fr", "es", "pt", "ru")
-      expect(codes).to all(match(/\A[a-z]{2}(-[A-Z]{2})?\z/))
+      # BCP-47 shapes: base, optional region (en-GB) or script
+      # (sr-Latn) subtag.
+      expect(codes).to all(match(/\A[a-z]{2}(-[A-Z][a-z]{3}|-[A-Z]{2})?\z/))
+      expect(codes).to include("sr-Latn")
     end
 
     it "is non-empty" do

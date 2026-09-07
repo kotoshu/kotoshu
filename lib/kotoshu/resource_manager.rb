@@ -555,8 +555,19 @@ module Kotoshu
       end
     end
 
+    # Collapse a user-given code to its cache key: lowercase base
+    # language, plus the script subtag when one is present. Region
+    # variants share their base dictionary (en-GB -> en, sv-FI -> sv),
+    # but a BCP-47 script subtag (four letters: Latn in sr-Latn and
+    # tlh-Latn) names a dictionary the manifest stages separately, so
+    # it survives normalization (plan 110).
     def normalize_language(code)
-      code.to_s.split("-").first.split("_").first.downcase
+      parts = code.to_s.split(/[-_]/)
+      base = parts.first.downcase
+      subtag = parts[1]
+      return base unless subtag&.match?(/\A[A-Za-z]{4}\z/)
+
+      "#{base}-#{subtag.downcase.capitalize}"
     end
 
     def spelling_cache_for(_lang = nil, config: nil)
