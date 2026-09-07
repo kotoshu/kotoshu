@@ -422,7 +422,7 @@ FastText models are downloaded from Facebook's public CDN:
 
 ### Adding CLI Commands
 
-To add CLI commands for a new cache type, edit `lib/kotoshu/commands/cache_command.rb`:
+To add CLI commands for a new cache type, edit `lib/kotoshu/cli/cache_command.rb`:
 
 ```ruby
 desc 'download TYPE RESOURCE', 'Download a resource from GitHub'

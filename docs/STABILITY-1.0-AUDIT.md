@@ -147,6 +147,9 @@ NOT implemented by this docs-only change.
    cli.rb:317-318 is the only consumer). Highest-priority item: it can
    break other gems in the same process, which is exactly the class of
    thing 1.0 exists to prevent.
+   Handled in this PR: the class moved to
+   `lib/kotoshu/cli/dict_command.rb` as `Kotoshu::Cli::DictCommand`
+   (autoloaded like its sibling subcommands); `::DictCommand` is gone.
 2. `Kotoshu::Commands::CheckCommand` — `lib/kotoshu/commands/check_command.rb:4`
    (autoload `lib/kotoshu/commands.rb:9`). Unwired, placeholder-laden, and
    broken at check_command.rb:198 (`SpellChecker` → `NameError`; real class
@@ -154,17 +157,26 @@ NOT implemented by this docs-only change.
    (`--model`, `-o/--output`, `csv|yaml` formats) contradicts the real CLI
    and will mislead users who find it via constants. Delete; keep
    `lib/kotoshu/commands.rb` as the namespace or remove both.
+   Handled in this PR: deleted, along with the now-empty `Commands`
+   namespace (file and autoload). No spec referenced it.
 3. `Kotoshu::CacheCommand` — `lib/kotoshu/commands/cache_command.rb:4`.
    Dead duplicate of `Kotoshu::Cli::CacheCommand`; unreachable by any
    require in the repo; still shipped by the gemspec file list. Delete.
+   Handled in this PR: deleted. No spec referenced it.
 4. `Kotoshu::Commands::ModelCommand` — `lib/kotoshu/commands/model_command.rb:4`
    (autoload `lib/kotoshu/commands.rb:10`). No `model` subcommand exists;
    `convert` depends on an untracked Python script not shipped in the gem
    (model_command.rb:33-36 vs gemspec:30-38). Delete.
+   Handled in this PR: deleted. No spec referenced it.
 5. Alias constants `Kotoshu::LanguageCache`, `Kotoshu::LanguageIdentifier`,
    `Kotoshu::ModelCache`, `Kotoshu::SemanticAnalyzer` — `lib/kotoshu.rb:80,81,84,85`.
    No usage anywhere in lib/, spec/, or README. Add a deprecation `warn`
    in a 0.x minor and drop the autoloads at 1.0 (canonical names stay).
+   Handled in this PR: grep confirmed zero references to the aliases
+   anywhere (lib, spec, exe, docs, README, sig) — the short-name hits all
+   resolve to the canonical constants lexically — so the autoloads were
+   dropped straight away, ahead of the suggested warn cycle. Canonical
+   names are untouched.
 6. CLI `fetch` — `lib/kotoshu/cli.rb:280-315`. Already hidden and marked
    deprecated. Remove at 1.0.
 7. `Configuration#dictionaries_url` / `#models_url` —
@@ -175,14 +187,27 @@ NOT implemented by this docs-only change.
 8. `Kotoshu::Spellchecker::ASCII_WORD_REGEX` — `lib/kotoshu/spellchecker.rb:39`.
    Internal fallback set posing as API. Either document + freeze or make it
    private before 1.0.
+   Handled in this PR: zero external references confirmed by grep, so the
+   constant was deleted and its literal inlined at the single internal use
+   site (constructor fallback). Behavior unchanged.
 9. `Kotoshu::FluentChecker` / `Kotoshu::MultiLanguageChecker` —
    `lib/kotoshu/fluent_checker.rb`, `lib/kotoshu/multi_language_checker.rb`.
    Spec-covered but undocumented in README.adoc. Decide per class: document
    as stable, or deprecate. Do not freeze silently.
+   Handled in this PR: both class docstrings now state "Experimental and
+   not public API: outside the 1.0 stability freeze, may change or be
+   removed without a deprecation cycle." Specs stay.
 10. wasm npm identity — `kotoshu-rs/kotoshu-wasm/pkg/package.json:2` says
     `kotoshu-wasm` while `kotoshu-rs/kotoshu/src/ffi/wasm/mod.rs:2-3` and
     all docs say `@kotoshu/wasm`. Resolve before first publication; the
     audit treats the documented scoped name as intended.
+    Handled in this PR: verified, no code change needed.
+    `kotoshu-rs/scripts/wasm_build.sh` rewrites the generated
+    `package.json` name to `@kotoshu/wasm` on every build (the source
+    manifest name is a wasm-pack crate-name artifact; `pkg/` is a
+    gitignored build output). The shipped identity is already
+    `@kotoshu/wasm`; the owner decision that remains is publication
+    credentials, not the name.
 
 ## 1.0 checklist
 

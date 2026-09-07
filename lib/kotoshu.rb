@@ -16,7 +16,6 @@ module Kotoshu
   autoload :Baseline, "kotoshu/baseline"
   autoload :Cache, "kotoshu/cache"
   autoload :Cli, "kotoshu/cli"
-  autoload :Commands, "kotoshu/commands"
   autoload :Components, "kotoshu/components"
   autoload :Configuration, "kotoshu/configuration"
   autoload :ConformanceExporter, "kotoshu/conformance_exporter"
@@ -77,12 +76,8 @@ module Kotoshu
   # ---- Lazily-loaded singletons (not in their own namespace file) ----
   autoload :Debug, "kotoshu/debug_mode"
   autoload :DebugLogger, "kotoshu/debug_logger"
-  autoload :LanguageCache, "kotoshu/cache/language_cache"
-  autoload :LanguageIdentifier, "kotoshu/language/identifier"
   autoload :Metrics, "kotoshu/metrics_module"
   autoload :MetricsCollector, "kotoshu/metrics_collector"
-  autoload :ModelCache, "kotoshu/cache/model_cache"
-  autoload :SemanticAnalyzer, "kotoshu/analyzers/semantic_analyzer"
 end
 
 module Kotoshu
