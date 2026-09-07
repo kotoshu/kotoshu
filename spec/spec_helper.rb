@@ -8,7 +8,16 @@ SimpleCov.start do
 end
 
 require 'kotoshu'
+require 'tmpdir'
 require_relative 'spylls_test_helper'
+
+# Hermetic personal dictionary (plan 105): Spellchecker#check consults
+# ~/.config/kotoshu/personal.dic, so without a pin the suite would both
+# depend on and mutate the developer's real personal dictionary. Specs
+# that exercise the personal dictionary set KOTOSHU_PERSONAL_DIC
+# themselves (around hooks); this default only isolates everything
+# else. Per-process path, so parallel/sequential runs never share one.
+ENV['KOTOSHU_PERSONAL_DIC'] ||= File.join(Dir.tmpdir, "kotoshu-spec-personal-#{Process.pid}.dic")
 
 # Load shared examples for foundation components
 require_relative 'support/shared_examples' if File.exist?(File.expand_path(

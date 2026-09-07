@@ -209,6 +209,12 @@ module Kotoshu
         default: "ruby",
         description: "Engine backend for correct?/suggest (ruby, native, or auto)",
         type: String
+      },
+      personal_dictionary: {
+        env: "KOTOSHU_PERSONAL_DICTIONARY",
+        default: true,
+        description: "Words in the personal dictionary (personal.dic) pass the check path",
+        type: :boolean
       }
     }.freeze
 
@@ -229,7 +235,8 @@ module Kotoshu
       default_language: "en",
       resource_pin: "main",
       semantic_cascade_threshold: 1.0,
-      backend: "ruby"
+      backend: "ruby",
+      personal_dictionary: true
     }.freeze
 
     # @return [String, nil] Path to the dictionary file
@@ -288,6 +295,15 @@ module Kotoshu
     #   Hunspell, else pure Ruby). Env: KOTOSHU_BACKEND. See
     #   NativeBackend for the boundary — the semantic path stays Ruby.
     attr_accessor :backend
+
+    # @return [Boolean] Whether Spellchecker#check accepts words from
+    #   the user personal dictionary (~/.config/kotoshu/personal.dic,
+    #   KOTOSHU_PERSONAL_DIC override) instead of flagging them as
+    #   errors — the README story and the LSP diagnostics behavior
+    #   (plan 105). Opt out with KOTOSHU_PERSONAL_DICTIONARY=false or
+    #   `kotoshu check --no-personal`; the suggest path is unaffected,
+    #   so personal words stay spellcheckable.
+    attr_accessor :personal_dictionary
 
     # @return [String, nil] Path to cache directory
     attr_accessor :cache_path
@@ -489,7 +505,8 @@ module Kotoshu
         cache_ttl: @cache_ttl,
         max_cache_size: @max_cache_size,
         semantic_cascade_threshold: @semantic_cascade_threshold,
-        backend: @backend
+        backend: @backend,
+        personal_dictionary: @personal_dictionary
       }
     end
 
@@ -607,6 +624,7 @@ module Kotoshu
       @resource_pin = DEFAULTS[:resource_pin]
       @semantic_cascade_threshold = DEFAULTS[:semantic_cascade_threshold]
       @backend = DEFAULTS[:backend]
+      @personal_dictionary = DEFAULTS[:personal_dictionary]
     end
 
     # Apply resolved values from the resolver (ENV, defaults).
