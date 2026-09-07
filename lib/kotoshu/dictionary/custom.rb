@@ -88,6 +88,7 @@ module Kotoshu
 
         @words << lookup_word
         @word_set[lookup_word] = true
+        reset_sweep_index
 
         true
       end
@@ -104,6 +105,7 @@ module Kotoshu
 
         @word_set.delete(lookup_word)
         @words.delete(lookup_word)
+        reset_sweep_index
 
         true
       end
@@ -121,6 +123,7 @@ module Kotoshu
       def clear
         @words.clear
         @word_set.clear
+        reset_sweep_index
         self
       end
 

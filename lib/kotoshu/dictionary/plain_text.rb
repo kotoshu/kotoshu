@@ -114,6 +114,7 @@ module Kotoshu
         @words << lookup_word
         @word_set[lookup_word] = true
         (@length_index[lookup_word.length] ||= []) << lookup_word
+        reset_sweep_index
 
         true
       end
@@ -131,6 +132,7 @@ module Kotoshu
         @word_set.delete(lookup_word)
         @words.delete(lookup_word)
         @length_index[lookup_word.length]&.delete(lookup_word)
+        reset_sweep_index
 
         true
       end

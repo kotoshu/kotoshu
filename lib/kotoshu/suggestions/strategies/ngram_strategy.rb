@@ -35,17 +35,15 @@ module Kotoshu
 
           return create_suggestion_set([]) if word.length < n
 
-          all_words = dictionary_words(context)
-
           # Get n-grams for input word
           word_ngrams = extract_ngrams(word, n)
           word_length = word.length
 
           # Calculate n-gram similarity for each dictionary word
           results = {}
-          all_words.each do |dict_word|
+          each_word_with_length(context) do |dict_word, dict_length|
             next if dict_word == word
-            next if dict_word.length < n
+            next if dict_length < n
 
             # Length pre-gate: similarity is a Jaccard coefficient
             # over n-gram multisets, so it is at most
@@ -54,8 +52,9 @@ module Kotoshu
             # already sits under min_similarity can never pass the
             # real test, so skip it before extracting a single
             # n-gram. Mathematically the same set of words passes
-            # (same gate as ngram.rs in kotoshu-rs).
-            dict_length = dict_word.length
+            # (same gate as ngram.rs in kotoshu-rs). The length is
+            # read from the dictionary's memoized sweep index before
+            # any per-word work when the backend maintains one.
             min_grams = (dict_length < word_length ? dict_length : word_length) - (n - 1)
             max_grams = (dict_length > word_length ? dict_length : word_length) - (n - 1)
             next if min_grams.to_f / max_grams < min_sim
@@ -91,6 +90,26 @@ module Kotoshu
         end
 
         private
+
+        # Yield each dictionary word paired with its char length, in
+        # word-list order. Over a Dictionary::Base backend the pairs
+        # come from the dictionary's memoized sweep index
+        # ({Dictionary::Base#sweep_index}) — the length gate reads the
+        # indexed value before any per-word work, and the sweep never
+        # copies the word list. Ad-hoc Hash/Array dictionaries compute
+        # the length live, exactly as before.
+        #
+        # @param context [Context] The suggestion context
+        # @yield [String, Integer] Each word and its char length
+        # @return [void]
+        def each_word_with_length(context)
+          dictionary = context.dictionary
+          if dictionary.is_a?(Kotoshu::Dictionary::Base)
+            dictionary.sweep_index.each_with_length { |*pair| yield(*pair) }
+          else
+            dictionary_words(context).each { |dict_word| yield dict_word, dict_word.length }
+          end
+        end
 
         # Extract n-grams from a word.
         #

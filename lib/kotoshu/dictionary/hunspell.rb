@@ -313,6 +313,7 @@ module Kotoshu
 
         word_key = word.downcase
         @word_index[word_key] = flags
+        reset_sweep_index
 
         true
       end
@@ -320,12 +321,14 @@ module Kotoshu
       # Remove a word from the dictionary.
       #
       # @param word [String] The word to remove
-      # @return [Boolean] True if removed
+      # @return [Boolean] True if the word was removed
       def remove_word(word)
         return false if word.nil? || word.empty?
 
         word_key = word.downcase
-        !@word_index.delete(word_key).nil?
+        removed = @word_index.delete(word_key)
+        reset_sweep_index unless removed.nil?
+        !removed.nil?
       end
 
       # Get all words in the dictionary.

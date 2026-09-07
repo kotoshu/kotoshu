@@ -18,5 +18,6 @@ module Kotoshu
     autoload :PhonetSuggest, "kotoshu/algorithms/phonet_suggest"
     autoload :Capitalization, "kotoshu/algorithms/capitalization"
     autoload :EditDistance, "kotoshu/algorithms/edit_distance"
+    autoload :Soundex, "kotoshu/algorithms/soundex"
   end
 end
