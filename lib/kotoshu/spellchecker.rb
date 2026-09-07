@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "set"
+
 module Kotoshu
   # Main spellchecker class.
   #
@@ -175,6 +177,15 @@ module Kotoshu
 
     # Check text for spelling errors.
     #
+    # Words present in the user's personal dictionary
+    # (~/.config/kotoshu/personal.dic, KOTOSHU_PERSONAL_DIC override)
+    # never surface as errors — the same semantics the LSP applies to
+    # its diagnostics (plan 105). They are dropped at result assembly
+    # without suppression metadata, still count toward +word_count+,
+    # and remain spellcheckable through {#suggest}. Opt out with
+    # {Configuration#personal_dictionary} (KOTOSHU_PERSONAL_DICTIONARY,
+    # `kotoshu check --no-personal`).
+    #
     # @param text [String] The text to check
     # @return [Models::Result::DocumentResult] The check result
     #
@@ -191,9 +202,12 @@ module Kotoshu
       # because the facade sees raw text without a format parser.
       words = tokenize(text)
       suppressions = Documents::Suppressions.scan(text, format: :auto)
+      personal = personal_words
       errors = []
       suppressed_errors = []
       words.each do |word, pos|
+        next if personal.include?(word.downcase)
+
         result = check_word(word)
         next if result.correct?
 
@@ -317,6 +331,27 @@ module Kotoshu
     end
 
     private
+
+    # The personal dictionary as a downcased Set for the check path
+    # (plan 105), mirroring the LSP's filter. Loaded once per process:
+    # the first {#check} call snapshots the words, and later edits to
+    # personal.dic take effect in the next process (the LSP reloads on
+    # mtime change; this path deliberately does not — one-shot CLI runs
+    # always read fresh, and long-lived embedders rebuild the
+    # spellchecker via {Kotoshu.reset_spellchecker}). An empty set when
+    # disabled through {Configuration#personal_dictionary}.
+    #
+    # @return [Set<String>]
+    def personal_words
+      return @personal_words if instance_variable_defined?(:@personal_words)
+
+      @personal_words =
+        if @config.personal_dictionary
+          PersonalDictionary.words.map(&:downcase).to_set
+        else
+          Set.new
+        end
+    end
 
     # Resolve the tokenizer of the language being checked for word
     # extraction (plan 91).

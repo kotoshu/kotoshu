@@ -162,6 +162,10 @@ module Kotoshu
       method_option :exclude,
                     type: :array,
                     desc: "Skip files matching these globs (always wins over --include and the extension default)"
+      method_option :personal,
+                    type: :boolean,
+                    default: true,
+                    desc: "Accept words from the personal dictionary (personal.dic); --no-personal flags them again"
       # Check spelling in files, directories, or stdin. Cache-only —
       # never downloads; run `kotoshu setup LANG` first. See the
       # command long description (kotoshu help check) for flags,
@@ -395,6 +399,10 @@ module Kotoshu
         Kotoshu::Configuration.reset
         cfg = Kotoshu::Configuration.instance
         cfg.default_language = options[:language] if options[:language] && options[:language] != "auto"
+        # `kotoshu check --no-personal` opts out of the personal
+        # dictionary for this run (plan 105). Other commands do not
+        # declare the flag, so options[:personal] is nil there.
+        cfg.personal_dictionary = options[:personal] unless options[:personal].nil?
       end
 
       # Install a ProgressReporter on Configuration.download_reporter

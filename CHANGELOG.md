@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Personal dictionary in the check path** (plan 105) -
+  `Spellchecker#check` (and therefore `Kotoshu.check`,
+  `Kotoshu.check_file`, and `kotoshu check`) no longer flags words
+  present in the user personal dictionary
+  (~/.config/kotoshu/personal.dic, KOTOSHU_PERSONAL_DIC override),
+  matching the semantics the LSP already applies to diagnostics:
+  case-insensitive, filtered at result assembly without suppression
+  metadata, words still counted, and `suggest`/`correct?` untouched so
+  personal words stay spellcheckable. The dictionary is loaded once
+  per process (no hot reload; the LSP keeps its mtime-based reload).
+  Opt out with `Kotoshu.configure { |c| c.personal_dictionary = false }`
+  / KOTOSHU_PERSONAL_DICTIONARY=false / `kotoshu check --no-personal`.
 - **Full-feature language batch 3** (plan 100) - twelve languages gain the
   downloadable spelling dictionary, a keyboard layout, and a gem module:
   `ar` `id` `fa` `he` `bg` `sr` `hr` `sk` `sl` `lt` `lv` `et` (the RTL
