@@ -13,6 +13,11 @@ module Kotoshu
     #   lang = Kotoshu::Languages::Persian.new
     #   lang.script_type  # => :arabic
     #   lang.rtl?         # => true
+    #
+    # Full-feature since plan 100 (batch 3): the spelling dictionary
+    # downloads from the dictionaries repo (AVAILABLE_LANGUAGES) and
+    # keyboard proximity uses the Persian standard grid
+    # (Keyboard::Layouts::PersianStandard).
     class Persian < Language::Base
       register "fa"
       register "fa-IR"
@@ -58,6 +63,17 @@ module Kotoshu
           text.split(PERSIAN_SEPARATORS)
             .map { |token| normalize(token) }
             .reject { |token| skip_token?(token) }
+        end
+
+        # Spell-check word characters (plan 91 pattern, added by
+        # plan 100): Arabic-script letters plus ZWNJ (U+200C) —
+        # Persian compounds like می‌روم keep their nimb-fāsele inside
+        # the word, and the staged dictionary carries tens of
+        # thousands of ZWNJ forms.
+        #
+        # @return [Regexp] Regex matching a single word character
+        def spellcheck_word_regex
+          /[\p{Arabic}\u200C]/
         end
 
         protected

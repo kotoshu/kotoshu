@@ -32,6 +32,15 @@ module Kotoshu
       # Parameterized Latin family (plan 84): one file, per-language
       # declarations over the qwerty/qwertz base grids.
       autoload :Latin, "kotoshu/keyboard/layouts/latin"
+      # Batch-3 national layouts (plan 100): grids mirrored from the
+      # models repo eval harness (plan 83 batch-2 grids).
+      autoload :Arabic101, "kotoshu/keyboard/layouts/arabic"
+      autoload :PersianStandard, "kotoshu/keyboard/layouts/persian"
+      autoload :HebrewSI1452, "kotoshu/keyboard/layouts/hebrew"
+      autoload :BulgarianBds, "kotoshu/keyboard/layouts/bulgarian"
+      autoload :SerbianCyrillic, "kotoshu/keyboard/layouts/serbian"
+      autoload :Croatian, "kotoshu/keyboard/layouts/hrsl"
+      autoload :Slovenian, "kotoshu/keyboard/layouts/hrsl"
     end
 
     class << self

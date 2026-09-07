@@ -152,6 +152,30 @@ def spellcheck_word_regex: () -> Regexp
     end
     class Vietnamese < LatinBase
     end
+    # Batch-3 modules (plan 100): id hr sl sk et lt lv (Latin) and
+    # bg sr (Cyrillic).
+    class Bulgarian < LatinBase
+      def tokenizer: () -> Language::Tokenizer::CyrillicTokenizer
+      def script_type: () -> :cyrillic
+    end
+    class Croatian < LatinBase
+    end
+    class Estonian < LatinBase
+    end
+    class Indonesian < LatinBase
+    end
+    class Latvian < LatinBase
+    end
+    class Lithuanian < LatinBase
+    end
+    class Serbian < LatinBase
+      def tokenizer: () -> Language::Tokenizer::CyrillicTokenizer
+      def script_type: () -> :cyrillic
+    end
+    class Slovak < LatinBase
+    end
+    class Slovenian < LatinBase
+    end
   end
 
   module Cli

@@ -7,7 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Full-feature language batch 3** (plan 100) - twelve languages gain the
+  downloadable spelling dictionary, a keyboard layout, and a gem module:
+  `ar` `id` `fa` `he` `bg` `sr` `hr` `sk` `sl` `lt` `lv` `et` (the RTL
+  ar/fa/he modules are promoted from tokenizer-only wiring; the other nine
+  are new thin modules - id hr sl sk et lt lv on `LatinBase`, bg sr with
+  the Cyrillic tokenizer). Six national key grids join the layout registry
+  (Arabic 101, Persian standard ISIRI 9147, Hebrew SI-1452, Bulgarian BDS,
+  Serbian Cyrillic, and the shared Croatian/Slovenian QWERTZ), all mirrored
+  from the models repo eval harness and drift-checked against it; five new
+  Latin family members (Indonesian Slovak Estonian Lithuanian Latvian)
+  type on the US QWERTY grid like the eval model. Bulgarian and Serbian
+  register ahead of JCUKEN so their Cyrillic grids win the lookup. The
+  eval-grid drift fixture now covers all nine national grids. Specimen
+  misspelling -> correction pairs for every language are engine-verified
+  against the staged dictionaries in a `:network` spec.
+
 ### Fixed
+- **RTL word extraction on the check path** - the plan-91 script-aware
+  word regex never reached the Arabic, Persian and Hebrew tokenizers, so
+  `Kotoshu.check` / `kotoshu check -l ar|fa|he` extracted zero words and
+  silently passed every RTL document. The three tokenizers now declare
+  their script sets (`\p{Arabic}`, `\p{Arabic}` + ZWNJ for Persian
+  compounds like می‌روم, `\p{Hebrew}` + geresh/gershayim), and RTL
+  misspellings surface with ranked suggestions.
 - **Suggestion candidate sweep missed transpositions, substitutions, and
   dictionary forms** - `EditDistanceStrategy` only scored raw dictionary
   stems, so valid dictionary forms could never be suggested no matter how
