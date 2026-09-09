@@ -18,4 +18,9 @@ Pack bytes == concatenation of parts (checksums per section); parity
 specs per language; playground CDP cold-load comparison (requests and ms).
 
 ## Status
-Pending
+Executed 2026-09-09 — models PR #26 + kotoshu-rs PR #32, both merged.
+KPK1 format (length+tag framed sections, sha256 footers, golden-sha parity
+across implementations); en/de/pt packs LFS-committed with live mirrors;
+additive kotoshu://packs/{lang} entries; wasm loadPack + worker pack mode
+with per-artifact fallback. Registry v1.6.0 cut awaiting owner; site
+playground flip optional (worker package already serves pack mode).
