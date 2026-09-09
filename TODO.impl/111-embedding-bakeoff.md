@@ -22,4 +22,12 @@ Every number from the existing harness, unweakened; frozen corpora; no
 registry changes in this plan.
 
 ## Status
-Pending
+Executed 2026-09-09 — models PR #25 merged. VERDICT: fastText stays.
+B (MiniLM cross-encoder rerank) REJECT — loses 4/4 languages (en 0.194 vs
+fluency 0.252 top-5; slate recall caps en at 0.43; context ablation
+negative). D (ModernBERT-base) REJECT — representation failure (top-5
+0.03-0.24), 5x size cap. C (0.5 MB char-BiGRU typo bi-encoder, 5.2
+ms/suggest) REJECT as drop-in but PROMISING — beats the full tier on the
+strict repo-clean subset for en and de; open thread needing non-en data,
+a bigger clean bench, and a top-1 story. Full ladders in
+eval/reports/bakeoff-v1.md.
