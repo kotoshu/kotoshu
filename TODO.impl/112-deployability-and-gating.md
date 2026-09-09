@@ -17,4 +17,10 @@ Node smoke for the worker package; budgets tuned to measured p50s, not
 aspirations; all existing CI green.
 
 ## Status
-Pending
+Executed 2026-09-09 — kotoshu-rs PR #28 merged. @kotoshu/worker package
+(createEngine full protocol, ./engine-worker entry, semantic-merge pure
+half; publish pending owner npm registration); latency.yml gate with
+measured budgets (en 56ms avg vs 120 gate, pt 346 vs 700 — 2x headroom);
+wasm32 memory ceilings frozen (en 46.9/64 MB, pt 165/192 MB) with
+behavior probes; language-pack kotoshu://packs/{lang} sketch in the PR
+body awaiting owner decision.
