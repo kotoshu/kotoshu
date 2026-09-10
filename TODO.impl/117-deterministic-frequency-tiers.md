@@ -9,9 +9,9 @@ every push and PR; its first green run landed on the PR itself.
 Suite 4007/0, rubocop clean. The checked-in-fixture variant of the
 hermetic runner (design item 2) was not needed — the CI job seeds the
 pinned cache instead; revisit only if the job proves flaky.
+
 Depends on: plan 82 (conformance runner), the 2,630-vector contract (plan 66+)
-Blocks: the 1.0 train (audit checklist item 7 — "conformance vectors green at
-the cut commit" — is not currently verifiable on a cache-cold machine)
+Blocks: nothing — audit checklist item 7 is satisfied and CI-gated
 
 ## What happened (forensics, 2026-09-10)
 
