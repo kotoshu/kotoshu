@@ -245,6 +245,31 @@ RSpec.describe Kotoshu::Spellchecker, "# Walking Skeleton - Spellchecker Service
       expect(result.errors.first.suggestions.to_a).to be_empty
     end
 
+    it "skips the sweep for occurrences the filter declines" do
+      budget = { "wrold" => 1 }
+      filter = lambda do |word|
+        if budget[word].positive?
+          budget[word] -= 1
+          false
+        else
+          true
+        end
+      end
+
+      result = spellchecker.check("wrold wrold", suggestions_filter: filter)
+
+      expect(result.errors.size).to eq(2)
+      first, second = result.errors
+      expect(first.suggestions.to_a).to be_empty
+      expect(second.suggestions.to_a).not_to be_empty
+    end
+
+    it "still skips everything when suggestions is false alongside a filter" do
+      result = spellchecker.check("wrold", suggestions: false, suggestions_filter: ->(_) { true })
+
+      expect(result.errors.first.suggestions.to_a).to be_empty
+    end
+
     it "handles multiple misspellings" do
       result = spellchecker.check("helo wrld")
 

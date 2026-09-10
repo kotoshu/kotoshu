@@ -184,13 +184,21 @@ module Kotoshu
     # `kotoshu check --no-personal`).
     #
     # @param text [String] The text to check
+    # @param suggestions [Boolean] Generate suggestions for errors
+    #   (default true; false yields errors with empty suggestion
+    #   sets — positions and counts are unaffected)
+    # @param suggestions_filter [#call, nil] Optional word predicate;
+    #   when it answers false for a misspelled word, that occurrence
+    #   skips suggestion generation. The CI baseline uses this to
+    #   skip the sweep for occurrences it is about to absorb
+    #   (plan 116) while new errors keep their suggestions.
     # @return [Models::Result::DocumentResult] The check result
     #
     # @example
     #   result = spellchecker.check("Hello wrold")
     #   result.success?    # => false
     #   result.errors.map(&:word)  # => ["wrold"]
-    def check(text, suggestions: true)
+    def check(text, suggestions: true, suggestions_filter: nil)
       return Models::Result::DocumentResult.success if text.nil? || text.empty?
 
       # Inline ignore directives (plan 82): suppressed errors move into
@@ -208,12 +216,14 @@ module Kotoshu
         correct = correct?(word)
         next if correct
 
+        want_suggestions =
+          suggestions && (!suggestions_filter || suggestions_filter.call(word))
         line = Documents::SourcePosition.line_for_offset(text, pos)
         suppressed = suppressions.any? { |s| s.applies_to?(line, word: word) }
         entry = Models::Result::WordResult.new(
           word: word,
           correct: false,
-          suggestions: (suggest(word) if suggestions) || Suggestions::SuggestionSet.empty,
+          suggestions: (suggest(word) if want_suggestions) || Suggestions::SuggestionSet.empty,
           position: pos,
           suppressed: suppressed,
           suppressed_by: (Models::Result::WordResult::SUPPRESSED_BY_INLINE if suppressed)

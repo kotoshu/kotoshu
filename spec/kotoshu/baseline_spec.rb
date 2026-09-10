@@ -80,6 +80,41 @@ RSpec.describe Kotoshu::Baseline do
       end
     end
 
+    describe "#suggestions_filter_for" do
+      let(:store) do
+        described_class.from_checks("doc.md" => [check_result, text])
+      end
+
+      it "answers false for exactly the covered occurrences, then true" do
+        filter = store.suggestions_filter_for("doc.md")
+
+        # wrld has budget 2, helo 1 (position order, as #apply absorbs)
+        expect(filter.call("wrld")).to be false
+        expect(filter.call("helo")).to be false
+        expect(filter.call("wrld")).to be false
+        expect(filter.call("wrld")).to be true
+        expect(filter.call("helo")).to be true
+      end
+
+      it "answers true for words the baseline never recorded" do
+        filter = store.suggestions_filter_for("doc.md")
+
+        expect(filter.call("xyzzy")).to be true
+      end
+
+      it "matches paths canonically like #apply" do
+        filter = store.suggestions_filter_for("./doc.md")
+
+        expect(filter.call("wrld")).to be false
+      end
+
+      it "answers true for every word of an unrecorded file" do
+        filter = store.suggestions_filter_for("other.md")
+
+        expect(filter.call("wrld")).to be true
+      end
+    end
+
     describe "#apply" do
       let(:store) do
         described_class.from_checks("doc.md" => [check_result, text])

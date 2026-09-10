@@ -79,6 +79,29 @@ module Kotoshu
         self
       end
 
+      # A decrementing budget view of +file+'s entries for the check
+      # path (plan 116): the callable answers false for the first
+      # +count+ occurrences of each entry word — exactly the
+      # occurrences {#apply} will absorb, whose suggestions nobody
+      # reads — and true for anything beyond, so new errors keep
+      # their suggestions. Occurrence order is check order, the same
+      # position order #apply absorbs in.
+      #
+      # @param file [String] path the text being checked came from
+      # @return [#call] word -> boolean
+      def suggestions_filter_for(file)
+        budget = Hash.new(0)
+        entries_for(file).each { |entry| budget[entry.word] += entry.count }
+        lambda do |word|
+          if budget[word].positive?
+            budget[word] -= 1
+            false
+          else
+            true
+          end
+        end
+      end
+
       # Entries recorded for +file+. Paths compare canonically — a
       # baseline recorded as `docs/a.md` matches a check run over
       # `./docs/a.md` and vice versa — so walking `.` and explicit

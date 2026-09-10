@@ -18,9 +18,10 @@ module Kotoshu
       attr_reader :outcomes
 
       # @param roots [Array<String>] files and directories to check
-      # @param check [#call] callable taking the file text and
-      #   returning a Models::Result::DocumentResult (the CLI
-      #   file-mode pipeline, including inline suppressions)
+      # @param check [#call] callable taking the file text and an
+      #   optional suggestions_filter: keyword and returning a
+      #   Models::Result::DocumentResult (the CLI file-mode
+      #   pipeline, including inline suppressions)
       # @param baseline_path [String, nil] --baseline file
       # @param include_globs [Array<String>] --include globs
       # @param exclude_globs [Array<String>] --exclude globs
@@ -112,7 +113,11 @@ module Kotoshu
       # @return [FileOutcome]
       def check_file(path)
         text = File.read(path, encoding: Kotoshu.configuration.encoding).scrub
-        result = @check.call(text)
+        # Baseline-covered occurrences skip the suggestion sweep
+        # (plan 116): the filter answers false for exactly the
+        # occurrences apply_baseline will absorb.
+        filter = @baseline_path ? baseline_store.suggestions_filter_for(path) : nil
+        result = @check.call(text, suggestions_filter: filter)
         application = apply_baseline(result, path)
         result = application.result if application
         FileOutcome.new(path: path, result: result, application: application)
