@@ -190,7 +190,7 @@ module Kotoshu
     #   result = spellchecker.check("Hello wrold")
     #   result.success?    # => false
     #   result.errors.map(&:word)  # => ["wrold"]
-    def check(text)
+    def check(text, suggestions: true)
       return Models::Result::DocumentResult.success if text.nil? || text.empty?
 
       # Inline ignore directives (plan 82): suppressed errors move into
@@ -205,15 +205,15 @@ module Kotoshu
       words.each do |word, pos|
         next if personal.include?(word.downcase)
 
-        result = check_word(word)
-        next if result.correct?
+        correct = correct?(word)
+        next if correct
 
         line = Documents::SourcePosition.line_for_offset(text, pos)
         suppressed = suppressions.any? { |s| s.applies_to?(line, word: word) }
         entry = Models::Result::WordResult.new(
           word: word,
           correct: false,
-          suggestions: result.suggestions,
+          suggestions: (suggest(word) if suggestions) || Suggestions::SuggestionSet.empty,
           position: pos,
           suppressed: suppressed,
           suppressed_by: (Models::Result::WordResult::SUPPRESSED_BY_INLINE if suppressed)
