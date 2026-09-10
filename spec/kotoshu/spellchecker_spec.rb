@@ -237,6 +237,14 @@ RSpec.describe Kotoshu::Spellchecker, "# Walking Skeleton - Spellchecker Service
       expect(result.errors.first.word).to eq("wrold")
     end
 
+    it "skips suggestion generation when suggestions is false" do
+      result = spellchecker.check("hello wrold", suggestions: false)
+
+      expect(result.failed?).to be true
+      expect(result.errors.first.word).to eq("wrold")
+      expect(result.errors.first.suggestions.to_a).to be_empty
+    end
+
     it "handles multiple misspellings" do
       result = spellchecker.check("helo wrld")
 

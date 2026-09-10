@@ -111,7 +111,7 @@ module Kotoshu
       # @param path [String] file path
       # @return [FileOutcome]
       def check_file(path)
-        text = File.read(path, encoding: Kotoshu.configuration.encoding)
+        text = File.read(path, encoding: Kotoshu.configuration.encoding).scrub
         result = @check.call(text)
         application = apply_baseline(result, path)
         result = application.result if application

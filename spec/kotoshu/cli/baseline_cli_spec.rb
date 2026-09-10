@@ -4,6 +4,7 @@ require "spec_helper"
 require "json"
 require "open3"
 require "tmpdir"
+require "fileutils"
 
 # End-to-end CLI behavior for baselines and --show-suppressed
 # (TODO.impl/82 Track B), mirroring check_format_spec: the real
@@ -66,6 +67,62 @@ RSpec.describe "kotoshu check --baseline", :network do
     it "refuses to run without files" do
       _output, status = run_cli("baseline", "init")
       expect(status.exitstatus).to eq(2)
+    end
+
+    it "refuses targets that match no file" do
+      _output, status = run_cli("baseline", "init", File.join(@dir, "nope.md"))
+      expect(status.exitstatus).to eq(2)
+    end
+
+    it "expands a directory target like check directory mode" do
+      dir = File.join(@dir, "prose")
+      FileUtils.mkdir_p(dir)
+      File.write(File.join(dir, "a.txt"), "wrold\n")
+      File.write(File.join(dir, "ignored.bin"), "helo\n")
+      output, status = run_cli("baseline", "init", dir, "--output",
+                               File.join(@dir, "b.json"))
+
+      expect(status.exitstatus).to eq(0)
+      payload = JSON.parse(File.read(File.join(@dir, "b.json")))
+      expect(payload["entries"].map { |e| e["file"] })
+        .to all(include("prose/a.txt"))
+      expect(output).to include("Wrote")
+    end
+
+    it "expands glob targets" do
+      glob = File.join(@dir, "glob")
+      FileUtils.mkdir_p(glob)
+      File.write(File.join(glob, "one.txt"), "wrold\n")
+      File.write(File.join(glob, "two.md"), "helo\n")
+      _output, status = run_cli("baseline", "init", File.join(glob, "*.txt"),
+                                "--output", File.join(@dir, "b.json"))
+
+      expect(status.exitstatus).to eq(0)
+      payload = JSON.parse(File.read(File.join(@dir, "b.json")))
+      expect(payload["entries"].map { |e| e["word"] }).to eq(["wrold"])
+    end
+
+    it "records personal-dictionary words so baselines are machine-independent" do
+      personal = File.join(ENV.fetch("XDG_CONFIG_HOME"), "kotoshu")
+      FileUtils.mkdir_p(personal)
+      File.write(File.join(personal, "personal.dic"), "wrold\n")
+
+      _output, status = run_cli("baseline", "init", doc, "--output",
+                                File.join(@dir, "b.json"))
+
+      expect(status.exitstatus).to eq(0)
+      payload = JSON.parse(File.read(File.join(@dir, "b.json")))
+      expect(payload["entries"].map { |e| e["word"] }).to include("wrold")
+    end
+
+    it "scrubs files that are not valid UTF-8 instead of crashing" do
+      File.binwrite(doc, "wrold \x91\xee\xf1\xee\xeb\xfc\n")
+      _output, status = run_cli("baseline", "init", doc, "--output",
+                                File.join(@dir, "b.json"))
+
+      expect(status.exitstatus).to eq(0)
+      payload = JSON.parse(File.read(File.join(@dir, "b.json")))
+      expect(payload["entries"].map { |e| e["word"] }).to include("wrold")
     end
   end
 
