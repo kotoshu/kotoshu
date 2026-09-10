@@ -21,6 +21,7 @@ jobs:
       - name: Compile the native extension
         run: bundle exec rake compile
       - name: Seed the pinned frequency cache
-        run: bundle exec ruby -e 'require "kotoshu"; Kotoshu.setup("en", want: [:spelling, :frequency])'
+        run: |
+          bundle exec ruby -e 'require "kotoshu"; Kotoshu.setup("en", want: [:spelling, :frequency])'
       - name: Compare both backends against the frozen vectors
         run: bundle exec rake kotoshu:conformance:compare
