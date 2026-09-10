@@ -1,0 +1,26 @@
+name: conformance
+
+# The 2,630-vector Ruby==Rust contract (plan 66) was ungated on the
+# gem side for weeks while a frequency-data path silently diverged the
+# two engines' suggestion rankings (plan 117). This job gates it on
+# every push and PR.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+      - name: Compile the native extension
+        run: bundle exec rake compile
+      - name: Seed the pinned frequency cache
+        run: bundle exec ruby -e 'require "kotoshu"; Kotoshu.setup("en", want: [:spelling, :frequency])'
+      - name: Compare both backends against the frozen vectors
+        run: bundle exec rake kotoshu:conformance:compare

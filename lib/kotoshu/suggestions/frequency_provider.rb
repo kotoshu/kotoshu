@@ -49,12 +49,17 @@ module Kotoshu
 
       def try_load_from_frequency_cache(language_code)
         cache = @frequency_cache || Cache::FrequencyCache.new
-        # Ask about actual cache state (TTL-aware available?), not the
-        # static supported-language list — and read cache-only. The
-        # suggestion hot path must never trigger a download; downloads
-        # happen only through explicit setup (Kotoshu.setup /
-        # kotoshu cache download).
-        return nil unless cache.available?(language_code)
+        # Read cache-only: the suggestion hot path must never trigger a
+        # download (downloads happen only through explicit setup /
+        # `kotoshu cache download`). TTL expiry is a refresh signal,
+        # NOT a reason to switch datasets: expired-but-present bytes
+        # are still the checksummed Kelly tiers the conformance
+        # vectors freeze, while the YAML fallback below is a different,
+        # more coarsely curated set whose bonus differences re-scale
+        # every suggestion confidence (plan 117). So: any readable
+        # cached data wins; the YAML only serves machines with no
+        # frequency data at all.
+        return nil unless cache.cached_data?(language_code)
 
         begin
           cache.load_cached(language_code)
