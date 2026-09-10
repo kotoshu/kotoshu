@@ -1,6 +1,14 @@
 # Plan 117 — Deterministic frequency tiers: stop the silent YAML fallback
 
-Status: proposed (forensics complete; root cause proven)
+Status: executed (gem PR #178, 2026-09-10)
+
+Acceptance met: with the cache backdated past the TTL the compare is
+2630/0/0 and suggest("ba") on the compoundrule fixtures returns the
+frozen expectations exactly. conformance.yml gates the compare on
+every push and PR; its first green run landed on the PR itself.
+Suite 4007/0, rubocop clean. The checked-in-fixture variant of the
+hermetic runner (design item 2) was not needed — the CI job seeds the
+pinned cache instead; revisit only if the job proves flaky.
 Depends on: plan 82 (conformance runner), the 2,630-vector contract (plan 66+)
 Blocks: the 1.0 train (audit checklist item 7 — "conformance vectors green at
 the cut commit" — is not currently verifiable on a cache-cold machine)
