@@ -94,6 +94,20 @@ module Kotoshu
         resource_files_exist?(resource_id)
       end
 
+      # Whether readable cached data exists for +resource_id+, TTL
+      # ignored (plan 117). Expiry is a refresh signal for the setup /
+      # download paths, never a reason for readers to behave as if the
+      # data were absent: the bytes are checksummed at write time, so
+      # present-but-expired data is exactly the dataset it was.
+      #
+      # @param resource_id [String] The resource identifier
+      # @return [Boolean] True if metadata and data files exist
+      def cached_data?(resource_id)
+        return false unless supports_resource?(resource_id)
+
+        File.exist?(metadata_path_for(resource_id)) && resource_files_exist?(resource_id)
+      end
+
       # Get a resource from cache or download it.
       #
       # @param resource_id [String] The resource identifier

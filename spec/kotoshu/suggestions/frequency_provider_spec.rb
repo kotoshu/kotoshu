@@ -33,6 +33,42 @@ RSpec.describe Kotoshu::Suggestions::FrequencyProvider do
       expect(second).to be(first)
     end
 
+    # A cache double with explicit state, not rspec mocks (house
+    # rule): expired = data present but past TTL; absent = nothing.
+    FakeFrequencyCache = Struct.new(:tiers, :data_present, keyword_init: true) do
+      def available?(_language_code)
+        false
+      end
+
+      def cached_data?(_language_code)
+        data_present
+      end
+
+      def load_cached(_language_code)
+        { tiers: tiers }
+      end
+    end
+
+    it 'prefers expired cached tiers over the YAML dataset (plan 117)' do
+      kelly_tiers = {
+        top_50: Set.new(%w[the]),
+        top_200: Set.new(%w[the help]),
+        top_1000: Set.new(%w[the help hello])
+      }
+      provider = described_class.new(
+        frequency_cache: FakeFrequencyCache.new(tiers: kelly_tiers, data_present: true)
+      )
+
+      expect(provider.tiers_for('en')).to eq(kelly_tiers)
+    end
+
+    it 'asks cached_data? (TTL-independent), not only available?' do
+      cache = FakeFrequencyCache.new(tiers: nil, data_present: false)
+      provider = described_class.new(frequency_cache: cache)
+
+      expect { provider.tiers_for('en') }.not_to raise_error
+    end
+
     it 'returns EMPTY_TIERS for an unknown language' do
       tiers = provider.tiers_for('xx')
       expect(tiers[:top_50]).to be_empty

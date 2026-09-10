@@ -249,10 +249,26 @@ RSpec.describe Kotoshu::Cache do
   # ---- FrequencyCache --------------------------------------------------
 
   describe Kotoshu::Cache::FrequencyCache do
-    let(:tmpdir) { Dir.mktmpdir("kotoshu-freqcache-spec") }
     let(:cache) { described_class.new(cache_path: tmpdir) }
+    let(:tmpdir) { Dir.mktmpdir("kotoshu-freqcache-spec") }
 
     after { FileUtils.rm_rf(tmpdir) if File.exist?(tmpdir) }
+
+    describe "cache path normalization (plan 117)" do
+      it "roots an injected base path under frequency-lists" do
+        cache = described_class.new(cache_path: "/tmp/shared-cache")
+
+        expect(cache.send(:metadata_path_for, "en"))
+          .to eq("/tmp/shared-cache/frequency-lists/en/metadata.json")
+      end
+
+      it "does not double-append when the path already ends in frequency-lists" do
+        cache = described_class.new(cache_path: "/tmp/shared-cache/frequency-lists")
+
+        expect(cache.send(:metadata_path_for, "en"))
+          .to eq("/tmp/shared-cache/frequency-lists/en/metadata.json")
+      end
+    end
 
     describe "constants" do
       it "KELLY_LANGUAGES lists the 8 supported languages" do
@@ -292,10 +308,12 @@ RSpec.describe Kotoshu::Cache do
 
     describe "#cached_resources" do
       it "lists directories under cache_path (ignoring dotfiles and tmp/)" do
-        FileUtils.mkdir_p(File.join(tmpdir, "en"))
-        FileUtils.mkdir_p(File.join(tmpdir, "ru"))
-        FileUtils.mkdir_p(File.join(tmpdir, ".hidden"))
-        File.write(File.join(tmpdir, "scratch.txt"), "x")
+        # FrequencyCache roots under frequency-lists (plan 117 path
+        # normalization), so the fixture layout nests one level.
+        FileUtils.mkdir_p(File.join(tmpdir, "frequency-lists", "en"))
+        FileUtils.mkdir_p(File.join(tmpdir, "frequency-lists", "ru"))
+        FileUtils.mkdir_p(File.join(tmpdir, "frequency-lists", ".hidden"))
+        File.write(File.join(tmpdir, "frequency-lists", "scratch.txt"), "x")
 
         expect(cache.cached_resources.sort).to eq(%w[en ru])
       end

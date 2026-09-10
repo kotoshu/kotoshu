@@ -55,6 +55,21 @@ module Kotoshu
         KELLY_LANGUAGES.include?(resource_id)
       end
 
+      # The frequency cache always roots under .../frequency-lists,
+      # including when a base cache path is injected (ResourceManager
+      # passes the shared cfg.cache_path, the CLI passes its root):
+      # without the suffix, writers and readers split across two
+      # layouts and the metadata goes permanently stale (plan 117).
+      #
+      # @param cache_path [String, nil] base cache directory
+      def initialize(cache_path: nil, **kwargs)
+        base = cache_path || default_cache_path
+        unless base.end_with?("frequency-lists")
+          base = File.join(base, "frequency-lists")
+        end
+        super(cache_path: base, **kwargs)
+      end
+
       # Install a local frequency file into the cache without going
       # through the network. Mirrors {LanguageCache#install_local} for
       # the frequency resource type — symlinks the user's file into the
