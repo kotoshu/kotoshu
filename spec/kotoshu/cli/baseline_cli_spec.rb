@@ -139,6 +139,26 @@ RSpec.describe "kotoshu check --baseline", :network do
       expect(status1.exitstatus).to eq(1)
     end
 
+    it "keeps suggestions for new errors and skips the sweep for covered ones" do
+      baseline = File.join(@dir, ".kotoshu-baseline.json")
+      File.write(doc, "wrold wrold\n")
+      run_cli("baseline", "init", doc, "--output", baseline)
+
+      # A third occurrence is beyond the baseline budget: a NEW error.
+      File.write(doc, "wrold wrold wrold\n")
+      output, _status = run_cli(
+        "check", doc, "--baseline", baseline, "--language", "en", "--format", "json"
+      )
+      payload = parse_json(output)
+
+      expect(payload["errorCount"]).to eq(1)
+      new_error = payload["errors"].find { |e| e["word"] == "wrold" }
+      expect(new_error["suggestions"].map { |s| s["word"] }).to include("world")
+      covered = payload["suppressedErrors"].select { |e| e["word"] == "wrold" }
+      expect(covered.size).to eq(2)
+      expect(covered.map { |e| e["suggestions"] }).to all(be_nil)
+    end
+
     it "reports baseline suppression counts and staleness in text output" do
       baseline = File.join(@dir, ".kotoshu-baseline.json")
       run_cli("baseline", "init", doc, "--output", baseline)

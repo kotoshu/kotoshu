@@ -446,16 +446,34 @@ module Kotoshu
       # semantics; see Kotoshu::Baseline). Returns nil when no baseline
       # was given.
       def apply_baseline(result, source)
+        store = check_baseline_store
+        return nil unless store
+
+        store.apply(result, file: source)
+      end
+
+      # The --baseline file's store, loaded once per invocation.
+      def check_baseline_store
         path = options[:baseline]
         return nil unless path
 
-        raise Errors::UsageError, "Baseline file not found: #{path}" unless File.exist?(path)
+        @check_baseline_store ||= begin
+          raise Errors::UsageError, "Baseline file not found: #{path}" unless File.exist?(path)
 
-        Kotoshu::Baseline::Store.load(path).apply(result, file: source)
+          Kotoshu::Baseline::Store.load(path)
+        end
       rescue Errors::UsageError
         raise
       rescue StandardError => e
         raise Errors::UsageError, "Invalid baseline file #{path}: #{e.message}"
+      end
+
+      # Baseline-covered occurrences in the single-file path skip the
+      # suggestion sweep too (plan 116) — same budget the directory
+      # runner builds per file.
+      def single_file_filter(source)
+        store = check_baseline_store
+        store&.suggestions_filter_for(source)
       end
 
       def read_target(target)
@@ -468,10 +486,10 @@ module Kotoshu
         end
       end
 
-      def run_check(text)
+      def run_check(text, suggestions_filter: nil)
         language = resolve_language(text)
         spellchecker = Kotoshu.spellchecker_for(language)
-        spellchecker.check(text)
+        spellchecker.check(text, suggestions_filter: suggestions_filter)
       rescue Kotoshu::DictionaryNotFoundError => e
         raise Errors::ResourceUnavailable, e.message
       end
@@ -768,7 +786,7 @@ module Kotoshu
       # unchanged).
       def check_single_file(target)
         text, source = read_target(target)
-        result = run_check(text)
+        result = run_check(text, suggestions_filter: single_file_filter(source))
         application = apply_baseline(result, source)
         result = application.result if application
         display_result(result, source, application: application)

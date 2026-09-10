@@ -62,7 +62,7 @@ module Kotoshu
       def run
         runner = Cli::DirectoryCheck.new(
           target_files,
-          check: ->(text) { check_text(text) },
+          check: ->(text, suggestions_filter: nil) { check_text(text, suggestions_filter: suggestions_filter) },
           baseline_path: baseline_path
         )
         runner.run
@@ -76,9 +76,15 @@ module Kotoshu
       # Check one text through the configured language.
       #
       # @param text [String] file contents
+      # @param suggestions_filter [#call, nil] baseline budget filter
+      #   (plan 116) — see Baseline::Store#suggestions_filter_for
       # @return [Models::Result::DocumentResult]
-      def check_text(text)
-        language ? Kotoshu.spellchecker_for(language).check(text) : Kotoshu.check(text)
+      def check_text(text, suggestions_filter: nil)
+        if language
+          Kotoshu.spellchecker_for(language).check(text, suggestions_filter: suggestions_filter)
+        else
+          Kotoshu.check(text, suggestions_filter: suggestions_filter)
+        end
       end
 
       # Print one line per file with errors plus a summary.

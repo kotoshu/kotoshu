@@ -323,9 +323,9 @@ module Kotoshu
   #   Kotoshu.setup(:en)
   #   result = Kotoshu.check("Hello wrold")
   #   result.errors.map(&:word)  # => ["wrold"]
-  def self.check(text, language: nil, **_options)
+  def self.check(text, language: nil, suggestions_filter: nil, **_options)
     checker = language ? spellchecker_for(language) : spellchecker
-    checker.check(text)
+    checker.check(text, suggestions_filter: suggestions_filter)
   end
 
   # Check a file for spelling errors. Hot path.
