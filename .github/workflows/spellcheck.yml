@@ -1,0 +1,21 @@
+name: spellcheck
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  spellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: kotoshu/action-kotoshu@v2
+        with:
+          # Prose only: the language resources under lib/ are
+          # word-list data for other languages, and the spec
+          # fixtures carry intentional misspellings.
+          files: "CHANGELOG.md CODE_OF_CONDUCT.md SECURITY.md docs"
+          language: en
+          baseline: .kotoshu-baseline.json
+          format: sarif
