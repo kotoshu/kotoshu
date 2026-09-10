@@ -1,6 +1,10 @@
 # Plan 116 — Baseline-aware suggestion skip in `kotoshu check`
 
-Status: proposed
+Status: executed (gem PR #175, 2026-09-10)
+
+Measured on this repo's own dogfood gate (prose baseline, 640 entries /
+1,905 covered occurrences): check wall time 13m+ -> 13.7s, identical
+output. Full default suite 4003/0.
 Depends on: plan 82 (baselines), plan 113 (packs — unrelated but same file surfaces)
 Blocks: nothing; targets the 0.11.x line before 1.0
 
