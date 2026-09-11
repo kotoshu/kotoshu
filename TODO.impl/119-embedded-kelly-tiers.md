@@ -1,6 +1,12 @@
 # Plan 119 — Embed the frozen Kelly tiers in the gem
 
-Status: pending
+Status: executed (gem PR #181, 2026-09-11)
+
+Acceptance exceeded: XDG_CACHE_HOME=<empty> compare is 2630/0/0 -
+determinism by construction, no CI seeding needed. Embedded tiers are
+Set-equal to the checksummed cache tiers; data ships as JSON generated
+by scripts/generate_frozen_tiers.rb (provenance + sha inside the
+file); other languages unchanged. Full suite 4010/0, rubocop clean.
 Depends on: plan 117 (the dataset-divergence forensics)
 
 ## Problem

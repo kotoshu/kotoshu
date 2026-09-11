@@ -1,6 +1,10 @@
 # Plan 118 — kotoshu-server 1.0 must ride kotoshu 1.0
 
-Status: pending (P0 — broken release constraint)
+Status: executed (kotoshu-server PR #8 + release 1.0.1, 2026-09-11)
+
+gemspec + Gemfile + lock floor ~> 1.0; guard spec added; server 1.0.1
+live on RubyGems (verified). The suite ran green on kotoshu 1.0.0
+(25/0) - the 0.6-era engine had been serving this repo's own CI.
 Priority: P0 (a shipped 1.0.0 release cannot see the 1.0 gem)
 
 ## Problem

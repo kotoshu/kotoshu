@@ -1,6 +1,12 @@
 # Plan 121 — Jekyll generator skips the sweep for baseline-covered words
 
-Status: pending
+Status: executed (gem PR #181, 2026-09-11)
+
+Third call site wired: the generator builds the per-file budget from
+its own baseline store and threads suggestions_filter through
+Kotoshu.check. Generator spec proves a beyond-budget occurrence
+surfaces with suggestions while covered words never pay for the
+sweep.
 Depends on: plan 116 (the suggestions_filter mechanism)
 
 ## Problem
