@@ -1,6 +1,11 @@
 # Plan 126 — Publish the measured error budget per tier
 
-Status: pending
+Status: executed (site 70df393, 2026-09-12)
+
+/performance carries the table: 55-language worst-case rank_corr /
+top-1 agreement per tier against the gates, the vocabulary-cut
+caveat, and the plan-123 finding that even the full tier embeds only
+~1.5% of dictionary-grounded typos.
 Depends on: the 2026-09-10 model-efficiency research (DeepSeek-V4.1-Flash:
 every "cheaper" claim carries its measured number)
 

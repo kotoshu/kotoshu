@@ -1,6 +1,15 @@
 # Plan 125 — Dependency-floor guards in every consumer repo
 
-Status: pending
+Status: executed (docker PR #1; site push 70df393; 2026-09-12)
+
+The guard found a REAL break on its first run: the docker CI image
+could not install kotoshu at all since the native extension shipped
+(ruby:slim lacks make; the 'no native ext' comment was stale). Fix:
+build-essential + clang/libclang + rustup in the builder stage.
+Dispositions: kotoshu-go has no artifact pin to guard (pure /v1 HTTP
+client); kotoshu-python's native extra rides the deliberately-0.x
+kotoshu-native line - a floor lands when that line crosses 1.0
+(tracked in plan 124).
 Depends on: plan 118 (the bug class: silent floor drift)
 
 ## Problem
