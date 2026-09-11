@@ -1,6 +1,22 @@
 # Plan 122 — KPK2: compressed pack sections
 
-Status: designed (execution-ready; next session — multi-repo pipeline)
+Status: executed as REJECTED on the pre-declared gate (2026-09-12 measurement)
+
+zstd-19 per-section, en-1.5.0.bin (15,173,525 bytes):
+
+    aff      3,086 ->     908  (3.40x)
+    dic    551,762 -> 169,700  (3.25x)
+    model 3,040,752 -> 2,769,252 (1.10x)
+    vocab  202,597 ->  59,342  (3.41x)
+    buckets 11,375,135 -> 9,854,872 (1.15x)
+    total             -> 12,854,074 (84.7% of KPK1)
+
+The acceptance gate was <= 60%. The pack is 75% int8 bucket table and
+20% int8 ONNX weights — nearly incompressible; the sections that win
+3.4x are 5% of the bytes. A 15% wire saving does not pay for a format
+generation, a decompressor on the wasm surface, and a registry
+re-cut. Revisit only if buckets shrink or sub-int8 quantization lands
+(the thing that would actually move the 84.7%).
 Depends on: plan 113 (KPK1), the 2026-09-10 model-efficiency research
 
 ## Problem
