@@ -50,7 +50,10 @@ module Kotoshu
           baseline = load_baseline(site)
           failures = []
           documents.each do |document|
-            result = Kotoshu.check(document.content)
+            # Same plan-116 budget as the CLI/rake paths: covered
+            # occurrences skip the suggestion sweep.
+            filter = baseline&.suggestions_filter_for(document.relative_path.to_s)
+            result = Kotoshu.check(document.content, suggestions_filter: filter)
             application = baseline&.apply(result, file: document.relative_path.to_s)
             result = application.result if application
             failures.concat(failure_lines(document, result))
