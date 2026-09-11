@@ -8,7 +8,11 @@ module Kotoshu
     # so that strategy construction no longer performs disk IO and
     # network access. The strategy holds a reference to a provider
     # instance; the provider encapsulates the tiered fallback
-    # (FrequencyCache → local YAML → empty).
+    # (FrequencyCache → frozen embedded tiers → local YAML → empty).
+    # The frozen tier layer (plan 119) carries the same en tables the
+    # Rust engine embeds, so a cache-cold machine ranks exactly like
+    # the frozen conformance vectors instead of the differently
+    # curated YAML.
     #
     # The provider memoizes per-language tiers, so repeated lookups
     # for the same language are free after the first call.
@@ -40,6 +44,9 @@ module Kotoshu
       def load(language_code)
         cache_result = try_load_from_frequency_cache(language_code)
         return cache_result[:tiers] if cache_result && cache_result[:tiers] && cache_result[:tiers][:top_1000].any?
+
+        frozen = FrozenTiers.tiers_for(language_code)
+        return frozen if frozen
 
         yaml_data = Data::CommonWordsLoader.load(language_code)
         return yaml_data[:tiers] if yaml_data[:tiers][:top_1000].any?

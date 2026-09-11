@@ -118,6 +118,24 @@ RSpec.describe Kotoshu::Jekyll::Generator do
       .to raise_error(RuntimeError, /xyzzy/)
   end
 
+  it "skips the suggestion sweep for baseline-covered words (plan 121)" do
+    path = "2026-01-01-covered.md"
+    write_post(path, "wrold wrold")
+    site = build_site
+    document = site.posts.docs.first
+    checks = { document.relative_path.to_s => [Kotoshu.check(document.content), document.content] }
+    Kotoshu::Baseline::Store.from_checks(checks)
+      .save(File.join(@site_dir, ".kotoshu-baseline.json"))
+
+    # Two occurrences stay covered; a third in the SAME post exceeds
+    # the budget, surfaces as the only failure, and - the plan's point -
+    # carries generated suggestions while the covered ones never pay
+    # for the sweep.
+    write_post(path, "wrold wrold wrold")
+    expect { described_class.new.generate(build_site) }
+      .to raise_error(RuntimeError, /wrold -> /)
+  end
+
   it "is quiet for a site without posts" do
     expect { described_class.new.generate(build_site) }.not_to raise_error
   end

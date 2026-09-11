@@ -69,6 +69,38 @@ RSpec.describe Kotoshu::Suggestions::FrequencyProvider do
       expect { provider.tiers_for('en') }.not_to raise_error
     end
 
+    it 'serves the frozen embedded Kelly tiers for en when no cache exists (plan 119)' do
+      cache = FakeFrequencyCache.new(tiers: nil, data_present: false)
+      provider = described_class.new(frequency_cache: cache)
+      tiers = provider.tiers_for('en')
+
+      aggregate_failures do
+        expect(tiers[:top_50].size).to eq(47)
+        expect(tiers[:top_200].size).to eq(185)
+        expect(tiers[:top_1000].size).to eq(907)
+        # The dataset signature that diverged the engines (plan 117):
+        # Kelly holds the single letter in top_1000, never top_50.
+        expect(tiers[:top_50]).not_to include('a')
+        expect(tiers[:top_1000]).to include('a')
+        expect(tiers[:top_50]).to include('the')
+        # Multi-word Kelly entries survive as single members.
+        expect(tiers[:top_1000]).to include('United Kingdom')
+      end
+    end
+
+    it 'prefers present cache data over the frozen tiers' do
+      kelly_tiers = {
+        top_50: Set.new(%w[the]),
+        top_200: Set.new(%w[the help]),
+        top_1000: Set.new(%w[the help hello])
+      }
+      provider = described_class.new(
+        frequency_cache: FakeFrequencyCache.new(tiers: kelly_tiers, data_present: true)
+      )
+
+      expect(provider.tiers_for('en')).to eq(kelly_tiers)
+    end
+
     it 'returns EMPTY_TIERS for an unknown language' do
       tiers = provider.tiers_for('xx')
       expect(tiers[:top_50]).to be_empty
