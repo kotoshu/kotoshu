@@ -1,7 +1,14 @@
 # Plan 120 — setup refreshes cached_at when a download is skipped
 
-Status: pending
-Depends on: plan 117 (design item 4, deferred there)
+Status: resolved as obsolete (2026-09-11, code inspection during execution)
+
+`setup_frequency_remote` (resource_manager.rb) has no checksum-skip
+path: `return :cached if cache.available? && !force` — expiry makes
+`available?` false — `else cache.get` → `download` → `download_resource`
+ALWAYS writes fresh metadata (cached_at = now). The observed
+"downloaded but stale timestamp" was plan 117's writer/reader path
+split in full; no second mechanism exists. Verified by walkthrough of
+get/setup_frequency_remote/download_resource; no code change needed.
 
 ## Problem
 
