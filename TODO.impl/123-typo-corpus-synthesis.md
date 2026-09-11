@@ -1,6 +1,20 @@
 # Plan 123 — Verifiable typo corpora, synthesized at scale
 
-Status: designed (execution-ready; next session — models-repo arc)
+Status: executed (models PR #32, 2026-09-12)
+
+de/es: 5,000 pairs each, dictionary-grounded, deterministic. The
+admission rule was SHAPED BY MEASUREMENT: the first draft sampled raw
+dictionary stems and 77% of corrections landed outside the model
+vocab - the corpus would have measured the vocabulary cut, not
+ranking; the checked-in rule samples the rank-ordered dict-vocab
+intersection (correction-OOV now 0). make_typo_traced added to
+noise.py (op provenance, weighting unchanged). Headline tier finding:
+full-tier typo-OOV on these typos is 98.5% de / 98.6% es - the
+quantified gap the hybrid thread claims to close. Tests in the repo's
+unittest convention (admission invariants, histogram consistency,
+dictionary verification, byte-deterministic rebuild). The hybrid
+pricing rerun (plan 115 ship decision) still needs the plan-114
+training environment reassembled; the data blocker is closed.
 Depends on: plan 115 (hybrid pricing blocked on real de/es corpora);
 validated direction: DeepSeek-V4.1-Flash §5.1 — data/environment
 synthesis exceeds algorithmic novelty

@@ -1,6 +1,10 @@
 # Plan 127 — Report-a-wrong-suggestion: backendless feedback loop
 
-Status: pending
+Status: executed (site 70df393, 2026-09-12)
+
+The popover carries a 'wrong suggestions? report' link opening a
+pre-filled issue (word, top-5 rows with source+confidence, language,
+engine version - no page text).
 Depends on: the 2026-09-11 recommendation (real failure reports feed
 plan 123's corpora; DeepSeek's environments-from-real-failures lesson)
 
