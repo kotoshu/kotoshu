@@ -2,14 +2,19 @@ name: native-gems
 
 # Plan 133: build the precompiled native platform gems so `gem install
 # kotoshu` resolves the Rust engine with no toolchain on the platforms
-# that have one. The same matrix publishes on release (release.yml's
-# native job reuses these build steps); this workflow runs the BUILD
-# only, on every PR that touches the extension or the build wiring.
+# that have one. Every leg builds NATIVELY on its own runner (no cross
+# toolchains): compile the extension in release mode, then assemble
+# the platform gem with scripts/build_native_gem.rb — the same
+# surgery rb_sys's cross blocks perform, verified end to end on
+# arm64-darwin (installs toolchain-free, native engine engages under
+# the auto default, frozen conformance vectors replay green).
+#
+# The release workflow runs this same matrix with a push step.
 on:
   pull_request:
     paths:
       - "ext/kotoshu_native/**"
-      - "Rakefile"
+      - "scripts/build_native_gem.rb"
       - "Gemfile"
       - ".github/workflows/native-gems.yml"
       - "kotoshu.gemspec"
@@ -28,42 +33,42 @@ jobs:
         include:
           - platform: x86_64-linux
             runs-on: ubuntu-latest
-            docker: true
           - platform: aarch64-linux
-            runs-on: ubuntu-latest
-            docker: true
+            runs-on: ubuntu-24.04-arm
           - platform: arm64-darwin
             runs-on: macos-14
           - platform: x86_64-darwin
-            runs-on: macos-14
-            cross-from: arm64-darwin
+            runs-on: macos-13
           - platform: x64-mingw-ucrt
             runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.4"
           bundler-cache: true
 
-      - name: Build the platform gem (Linux cross via rb-sys docker)
-        if: matrix.docker
-        run: |
-          docker run --rm -v "$PWD":/src -w /src \
-            -e RUBY_TARGET=${{ matrix.platform }} \
-            -e BUILD_NATIVE_GEM=1 \
-            ghcr.io/rbsys/${{ matrix.platform }}:latest \
-            bash -c "gem install rb_sys rake-compiler && bundle install --without development && rake nativegem"
+      - name: Compile the extension (release)
+        run: bundle exec rake compile:release
 
-      - name: Build the platform gem (native runners)
-        if: ${{ !matrix.docker }}
+      - name: Assemble the platform gem
+        run: ruby scripts/build_native_gem.rb
+
+      - name: The platform gem exists and carries the binary
         shell: bash
         run: |
-          if [ -n "${{ matrix.cross-from }}" ]; then
-            rustup target add $(ruby -e 'require "rb_sys/toolchain_info"; print RbSys::ToolchainInfo.new(ENV.fetch("RUBY_TARGET")).rust_target' 2>/dev/null || true)
-          fi
-          RUBY_TARGET=${{ matrix.platform }} BUILD_NATIVE_GEM=1 bundle exec rake nativegem
+          ls -la kotoshu-*-${{ matrix.platform }}.gem
+          gem contents --local kotoshu 2>/dev/null || true
+          tar tf kotoshu-*-${{ matrix.platform }}.gem | grep -q data.tar.gz
 
-      - name: The platform gem exists
+      - name: Install the gem and prove the native engine engages
         shell: bash
-        run: ls -la kotoshu-*-${{ matrix.platform }}.gem
+        run: |
+          GEM_HOME="$RUNNER_TEMP/gemhome" gem install kotoshu-*-${{ matrix.platform }}.gem --no-document
+          GEM_HOME="$RUNNER_TEMP/gemhome" ruby -e '
+            require "kotoshu"
+            abort "native extension did not load" unless Kotoshu::Native.available?
+            abort "backend default is not auto" unless Kotoshu::Configuration::DEFAULTS[:backend] == "auto"
+            puts "native engine: OK (auto default)"
+          '
