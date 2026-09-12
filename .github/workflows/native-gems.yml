@@ -68,7 +68,7 @@ jobs:
           # headers; bindgen's clang must parse them in GNU mode or the
           # struct layouts come out wrong (long is 32-bit under MSVC).
           # Mirrors oxidize-rb's own CI (setup-ruby-and-rust, msys2 path).
-          echo 'BINDGEN_EXTRA_CLANG_ARGS=--target=x86_64-pc-windows-gnu --sysroot=C:/msys64/ucrt64 -D__AVX512VLFP16INTRIN_H -D__AVX512FP16INTRIN_H' >> "$GITHUB_ENV"
+          echo 'BINDGEN_EXTRA_CLANG_ARGS=--target=x86_64-pc-windows-gnu --sysroot=C:/msys64/ucrt64 -isystem C:/msys64/ucrt64/include -D__AVX512VLFP16INTRIN_H -D__AVX512FP16INTRIN_H' >> "$GITHUB_ENV"
 
       - name: Compile the extension (release)
         run: bundle exec rake compile:release
