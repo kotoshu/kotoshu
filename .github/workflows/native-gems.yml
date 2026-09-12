@@ -41,7 +41,9 @@ jobs:
             runs-on: macos-14
             toolchain: stable
           - platform: x86_64-darwin
-            runs-on: macos-13
+            # macos-13 is retired (jobs queue forever); macos-15-intel
+            # is the last hosted x86_64 macOS image (until 2027-08).
+            runs-on: macos-15-intel
             toolchain: stable
           # RubyInstaller Ruby is MinGW-ABI; the rustup Windows default
           # (msvc) cannot bind to its headers. Use the GNU-host toolchain
