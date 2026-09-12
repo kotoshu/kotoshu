@@ -39,14 +39,14 @@ module Kotoshu
         return nil unless defined?(Kotoshu::Native::TypoModel)
         return nil unless Kotoshu::Native.available?
 
-        cache ||= Cache::ModelCache.new(configuration)
-        typo_onnx, typo_vocab = typo_artifacts(cache)
-        tier_onnx, tier_vocab = tier_artifacts(language, cache)
-        return nil unless typo_onnx && typo_vocab && tier_onnx && tier_vocab
+        cache ||= Cache::ModelCache.new(cache_path: configuration.cache_path)
+        typo = cache.load_cached_typo_biencoder
+        tier = cache.load_cached_tier(language, :full)
+        return nil unless typo && tier && tier[:vocab_path]
 
-        native = Kotoshu::Native::TypoModel.load(typo_onnx, typo_vocab)
-        tier = Kotoshu::Native::TypoTier.load(tier_onnx, tier_vocab)
-        new(Kotoshu::Native::TypoEngine.new(native, tier), language: language)
+        native = Kotoshu::Native::TypoModel.load(typo[:onnx_path], typo[:vocab_path])
+        native_tier = Kotoshu::Native::TypoTier.load(tier[:model_path], tier[:vocab_path])
+        new(Kotoshu::Native::TypoEngine.new(native, native_tier), language: language)
       rescue StandardError
         # The opt-in layer never breaks a check: any load failure
         # (corrupt artifact, engine error) degrades to "absent".
@@ -83,22 +83,24 @@ module Kotoshu
       end
 
       DEFAULT_SLATE = 20
-
-      # The typo bi-encoder artifact pair (registry paths, cache
-      # resolved). Returns [onnx_path, vocab_path].
-      def self.typo_artifacts(cache)
-        onnx = cache.get("kotoshu://models/typo/typo-biencoder")
-        vocab = cache.get("kotoshu://models/typo/typo-biencoder/vocab")
-        [onnx, vocab].map { |p| p.respond_to?(:path) ? p.path : p }
-      end
-
-      # The language's full tier pair — the rescore is fp32-exact by
-      # contract, so the FULL tier is the only valid tier here.
-      def self.tier_artifacts(language, cache)
-        onnx = cache.get("kotoshu://models/#{language}/full")
-        vocab = cache.get("kotoshu://models/#{language}/full/vocab")
-        [onnx, vocab].map { |p| p.respond_to?(:path) ? p.path : p }
-      end
     end
+  end
+
+  # The setup half of the two-stage model (plan 131): download the
+  # typo bi-encoder pair and the language's full tier with its vocab
+  # sibling, so {Engine.for} can resolve cache-only at suggest time.
+  # Raises the same errors {Cache::ModelCache#download_typo_biencoder}
+  # and {Cache::ModelCache#download_tiered_model} raise — setup
+  # callers report, they do not degrade.
+  #
+  # @param language [String] ISO 639-1 code
+  # @param configuration [Configuration]
+  # @param force [Boolean] re-fetch the registry first
+  # @return [Hash] { typo: {onnx_path, vocab_path}, tier: {model_path, vocab_path?} }
+  def self.setup_typo(language, configuration: Kotoshu.configuration, force: false)
+    cache = Cache::ModelCache.new(cache_path: configuration.cache_path)
+    typo = cache.download_typo_biencoder(force: force)
+    tier = cache.download_tiered_model(language, tier: :full, force_download: force)
+    { typo: typo, tier: tier }
   end
 end

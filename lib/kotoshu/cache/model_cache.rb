@@ -88,6 +88,16 @@ module Kotoshu
       # Directory (under the cache root) holding the LID artifact pair.
       LID_DIRECTORY = "lid"
 
+      # The hybrid typo bi-encoder (plan 131): a language-less
+      # registry resource (kotoshu://models/typo/typo-biencoder) with
+      # a REQUIRED vocab sidecar, resolved exactly like the LID pair.
+      TYPO_LANGUAGE = "typo"
+      TYPO_TIER = "typo-biencoder"
+      TYPO_REGISTRY_ID = ModelRegistry::Resource.id_for(TYPO_LANGUAGE, TYPO_TIER)
+
+      # Cache directory (under the models root, beside the languages).
+      TYPO_DIRECTORY = File.join("models", "typo")
+
       # Normalize and validate a tier name.
       #
       # @param tier [String, Symbol] "full", "fluency", or "mini"
@@ -224,9 +234,17 @@ module Kotoshu
       def download_tiered_model(language_code, tier:, force_download: false)
         tier = self.class.normalize_tier(tier)
         lang = language_code.to_s
-        return get("#{lang}:onnx", force_download: force_download) if tier == :full
 
+        # The full tier rides the registry when the cached registry
+        # knows it (primary URL, vocab sibling, sha256 — the path the
+        # typo layer's rescore requires, since the legacy download
+        # never fetched the vocab). Offline without a cached registry
+        # the entry is nil and the legacy CDN path serves, preserving
+        # the pre-registry behavior exactly.
         entry = registry_entry_for(lang, tier, force: force_download)
+        if tier == :full && entry.nil?
+          return get("#{lang}:onnx", force_download: force_download)
+        end
         unless entry
           raise Kotoshu::Error,
                 "no registry entry for #{ModelRegistry::Resource.id_for(lang, tier)}"
@@ -257,6 +275,7 @@ module Kotoshu
           cached_at: Time.now.utc.iso8601,
           source: "registry"
         }
+        metadata[:vocab_file] = File.basename(vocab_path) if vocab_path
         write_metadata(File.join(dest_path, "metadata.json"), metadata)
 
         result = { model_path: model_file, metadata: metadata }
@@ -293,7 +312,7 @@ module Kotoshu
         return nil unless File.exist?(onnx_file) && File.size(onnx_file).positive?
         return nil unless File.exist?(vocab_file) && File.size(vocab_file).positive?
 
-        verify_lid_integrity!(metadata, onnx_file, vocab_file)
+        verify_model_pair_integrity!(metadata, onnx_file, vocab_file)
 
         { onnx_path: onnx_file, vocab_path: vocab_file, metadata: metadata }
       end
@@ -352,6 +371,133 @@ module Kotoshu
         write_metadata(File.join(dir, "metadata.json"), metadata)
 
         { onnx_path: onnx_file, vocab_path: vocab_file, metadata: metadata }
+      end
+
+      # ---- typo bi-encoder pair (plan 131) ----
+
+      # Whether the typo bi-encoder pair is cached and complete
+      # (both files, checksum-verified).
+      #
+      # @return [Boolean]
+      def typo_biencoder_cached?
+        !load_cached_typo_biencoder.nil?
+      end
+
+      # Resolve the typo bi-encoder pair from the cache only — never
+      # touches the network (the suggest path resolves; setup
+      # downloads, the same two-stage split as the LID pair).
+      #
+      # @return [Hash, nil] { onnx_path:, vocab_path:, metadata } when
+      #   cached, nil when not set up
+      # @raise [Kotoshu::IntegrityError] cached bytes fail their
+      #   recorded checksum
+      def load_cached_typo_biencoder
+        dir = File.join(@cache_path, TYPO_DIRECTORY)
+        metadata_path = File.join(dir, "metadata.json")
+        return nil unless File.exist?(metadata_path)
+
+        metadata = read_metadata(metadata_path)
+        return nil unless metadata
+
+        onnx_file = File.join(dir, metadata["file"].to_s)
+        vocab_file = File.join(dir, metadata["vocab_file"].to_s)
+        return nil unless File.exist?(onnx_file) && File.size(onnx_file).positive?
+        return nil unless File.exist?(vocab_file) && File.size(vocab_file).positive?
+
+        verify_model_pair_integrity!(
+          metadata, onnx_file, vocab_file,
+          directory: dir,
+          registry_id: TYPO_REGISTRY_ID,
+          remediation: "Run Kotoshu.setup_typo(language, force: true) to re-download."
+        )
+
+        { onnx_path: onnx_file, vocab_path: vocab_file, metadata: metadata }
+      end
+
+      # Download the typo bi-encoder pair from the models registry,
+      # verifying the ONNX bytes against the registry sha256 (the
+      # setup half of the two-stage model). The vocab sidecar is
+      # required, not optional — the encoder cannot tokenize without
+      # its char vocabulary — so a registry entry without vocab_url
+      # (the pre-cut state) raises the honest error instead of
+      # caching a half-usable artifact.
+      #
+      # @param force [Boolean] re-fetch the registry first
+      # @return [Hash] { onnx_path:, vocab_path:, metadata }
+      # @raise [Kotoshu::Error] no entry, entry without vocab_url, or
+      #   offline without a cached registry
+      # @raise [Kotoshu::IntegrityError] sha256 mismatch
+      def download_typo_biencoder(force: false)
+        entry = registry(force: force)&.find(TYPO_LANGUAGE, TYPO_TIER)
+        unless entry
+          raise Kotoshu::Error, "no registry entry for #{TYPO_REGISTRY_ID}"
+        end
+        if entry.vocab_url.nil? || entry.vocab_url.to_s.strip.empty?
+          raise Kotoshu::Error,
+                "#{TYPO_REGISTRY_ID} carries no vocab_url yet — the typo pair ships with a models registry release"
+        end
+
+        dir = File.join(@cache_path, TYPO_DIRECTORY)
+        FileUtils.mkdir_p(dir)
+
+        onnx_file = File.join(dir, filename_from_url(entry.urls.primary))
+        used_url = download_primary_or_mirror!(entry, onnx_file)
+        verify_registry_sha256!(entry, onnx_file, TYPO_REGISTRY_ID, used_url,
+                                remediation: "Run Kotoshu::Typo.setup(force: true) to re-download.")
+
+        vocab_file = File.join(dir, filename_from_url(entry.vocab_url))
+        begin
+          download_file(entry.vocab_url, vocab_file)
+        rescue StandardError => e
+          File.delete(onnx_file) if File.exist?(onnx_file)
+          raise Kotoshu::Error, "typo vocab unavailable at #{entry.vocab_url}: #{e.message}"
+        end
+
+        metadata = {
+          version: entry.version,
+          url: used_url,
+          language: TYPO_LANGUAGE,
+          type: "typo-biencoder",
+          tier: TYPO_TIER,
+          file: File.basename(onnx_file),
+          vocab_file: File.basename(vocab_file),
+          checksum: entry.sha256,
+          registry_id: TYPO_REGISTRY_ID,
+          size_bytes: entry.size_bytes,
+          cached_at: Time.now.utc.iso8601,
+          source: "registry"
+        }
+        write_metadata(File.join(dir, "metadata.json"), metadata)
+
+        { onnx_path: onnx_file, vocab_path: vocab_file, metadata: metadata }
+      end
+
+      # Resolve a tiered model from the cache only — the cache half of
+      # the two-stage model for tiers, symmetric with
+      # {#load_cached_lid} / {#load_cached_typo_biencoder}. Returns
+      # the vocab sibling when the registry-served download landed it.
+      #
+      # @param language_code [String]
+      # @param tier [String, Symbol]
+      # @return [Hash, nil] { model_path:, vocab_path?, metadata } or nil
+      def load_cached_tier(language_code, tier)
+        tier = self.class.normalize_tier(tier)
+        resource_id = tier_resource_id(language_code.to_s, tier)
+        dir = resource_dir_for(resource_id)
+        metadata_path = File.join(dir, "metadata.json")
+        return nil unless File.exist?(metadata_path)
+
+        metadata = read_metadata(metadata_path)
+        return nil unless metadata
+
+        model_file = File.join(dir, metadata["file"].to_s)
+        return nil unless File.exist?(model_file) && File.size(model_file).positive?
+
+        result = { model_path: model_file, metadata: metadata }
+        vocab = metadata["vocab_file"].to_s
+        vocab_path = File.join(dir, vocab)
+        result[:vocab_path] = vocab_path if !vocab.empty? && File.exist?(vocab_path)
+        result
       end
 
       # Get available model types for a language.
@@ -801,16 +947,19 @@ module Kotoshu
       # @return [void]
       # @raise [Kotoshu::IntegrityError, Kotoshu::Error] on mismatch;
       #   corrupt bytes are removed so the next setup re-downloads
-      def verify_lid_integrity!(metadata, onnx_file, vocab_file)
-        dir = File.join(@cache_path, LID_DIRECTORY)
+      def verify_model_pair_integrity!(metadata, onnx_file, vocab_file, directory: nil,
+                                       registry_id: nil, remediation: nil)
+        registry_id ||= LID_REGISTRY_ID
+        directory ||= File.join(@cache_path, LID_DIRECTORY)
+        remediation ||= "Run Kotoshu.setup_lid(force: true) to re-download."
         if lfs_pointer?(onnx_file) || lfs_pointer?(vocab_file)
           File.delete(onnx_file)
           File.delete(vocab_file)
-          FileUtils.rm_f(File.join(dir, "metadata.json"))
+          FileUtils.rm_f(File.join(directory, "metadata.json"))
           raise Kotoshu::Error,
-                "Integrity verification failed for #{LID_REGISTRY_ID}: cached LID " \
-                "artifact is a Git LFS pointer stub, not model content. Run " \
-                "Kotoshu.setup_lid(force: true) to re-download."
+                "Integrity verification failed for #{registry_id}: cached " \
+                "artifact is a Git LFS pointer stub, not model content. " \
+                "#{remediation}"
         end
 
         expected = metadata["checksum"]
@@ -820,11 +969,11 @@ module Kotoshu
         return if actual == expected
 
         raise Kotoshu::IntegrityError.new(
-          LID_REGISTRY_ID,
+          registry_id,
           expected: expected,
           actual: actual,
           url: metadata["url"],
-          remediation: "Run Kotoshu.setup_lid(force: true) to re-download."
+          remediation: remediation
         )
       end
 
