@@ -39,11 +39,7 @@ module Kotoshu
         return nil unless defined?(Kotoshu::Native::TypoModel)
         return nil unless Kotoshu::Native.available?
 
-        cache ||= Cache::ModelCache.new(
-          cache_path: configuration.cache_path,
-          cache_ttl: configuration.cache_ttl,
-          audit_log: configuration.audit_log
-        )
+        cache ||= Cache::ModelCache.new(cache_path: configuration.cache_path)
         typo = cache.load_cached_typo_biencoder
         tier = cache.load_cached_tier(language, :full)
         return nil unless typo && tier && tier[:vocab_path]
@@ -102,11 +98,7 @@ module Kotoshu
   # @param force [Boolean] re-fetch the registry first
   # @return [Hash] { typo: {onnx_path, vocab_path}, tier: {model_path, vocab_path?} }
   def self.setup_typo(language, configuration: Kotoshu.configuration, force: false)
-    cache = Cache::ModelCache.new(
-      cache_path: configuration.cache_path,
-      cache_ttl: configuration.cache_ttl,
-      audit_log: configuration.audit_log
-    )
+    cache = Cache::ModelCache.new(cache_path: configuration.cache_path)
     typo = cache.download_typo_biencoder(force: force)
     tier = cache.download_tiered_model(language, tier: :full, force_download: force)
     { typo: typo, tier: tier }
