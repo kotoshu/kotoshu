@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Kotoshu::Algorithms::Suggest
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Algorithms::Suggest";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Algorithms.html" title="Kotoshu::Algorithms (module)">Algorithms</a></span></span>
+     &raquo; 
+    <span class="title">Suggest</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Kotoshu::Algorithms::Suggest
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/algorithms/suggest.rb
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>Main suggestion orchestration for spell checking.</p>
+<p>Ported from Spylls (Python) suggest.py</p>
+<p>On a bird's-eye view level, suggest does:</p>
+<ol>
+<li>Tries small word &quot;edits&quot; (remove letters, insert letters, swap letters)
+and checks (with the help of Lookup) if there are any valid ones</li>
+<li>If no good suggestions found, tries &quot;ngram-based&quot; suggestions
+(calculating ngram-based distance to all dictionary words)</li>
+<li>If possible, tries metaphone-based suggestions (phonetic)</li>
+</ol>
+<p>Note: Spylls's implementation takes one liberty vs Hunspell:
+In Hunspell, ngram suggestions and phonetic suggestions are done in the
+same cycle. Spylls does them in two separate cycles for clarity.</p>
+<p>To follow algorithm details, see Suggest.suggestions method.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Suggest/MultiWordSuggestion.html" title="Kotoshu::Algorithms::Suggest::MultiWordSuggestion (class)">MultiWordSuggestion</a></span>, <span class='object_link'><a href="Suggest/Suggester.html" title="Kotoshu::Algorithms::Suggest::Suggester (class)">Suggester</a></span>, <span class='object_link'><a href="Suggest/Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span>
+    
+  
+</p>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="MAXPHONSUGS-constant" class="">MAXPHONSUGS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="MAXSUGGESTIONS-constant" class="">MAXSUGGESTIONS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>15</span></pre></dd>
+      
+        <dt id="GOOD_EDITS-constant" class="">GOOD_EDITS =
+          
+        </dt>
+        <dd><pre class="code"><span class='qwords_beg'>%w[</span><span class='tstring_content'>spaceword</span><span class='words_sep'> </span><span class='tstring_content'>uppercase</span><span class='words_sep'> </span><span class='tstring_content'>replchars</span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:36 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

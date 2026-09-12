@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Kotoshu::Models::FastTextModel
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Models::FastTextModel";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (F)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Models.html" title="Kotoshu::Models (module)">Models</a></span></span>
+     &raquo; 
+    <span class="title">FastTextModel</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Kotoshu::Models::FastTextModel
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="EmbeddingModel.html" title="Kotoshu::Models::EmbeddingModel (class)">EmbeddingModel</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="EmbeddingModel.html" title="Kotoshu::Models::EmbeddingModel (class)">EmbeddingModel</a></span></li>
+          
+            <li class="next">Kotoshu::Models::FastTextModel</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/models/fasttext_model.rb
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>FastText embedding model implementation.</p>
+<p>Loads FastText pre-trained word vectors from .vec files.
+Supports Common Crawl and Wikipedia trained vectors.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+        <h5 class="example_title"><div class='inline'><p>Loading from file</p></div></h5>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_model'>model</span> <span class='op'>=</span> <span class='const'>FastTextModel</span><span class='period'>.</span><span class='id identifier rubyid_from_file'><span class='object_link'><a href="#from_file-class_method" title="Kotoshu::Models::FastTextModel.from_file (method)">from_file</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cc.en.300.vec</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_model'>model</span><span class='period'>.</span><span class='id identifier rubyid_embedding_for'>embedding_for</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></code></pre>
+    
+      
+        <h5 class="example_title"><div class='inline'><p>Loading from GitHub</p></div></h5>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_model'>model</span> <span class='op'>=</span> <span class='const'>FastTextModel</span><span class='period'>.</span><span class='id identifier rubyid_from_github'><span class='object_link'><a href="#from_github-class_method" title="Kotoshu::Models::FastTextModel.from_github (method)">from_github</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_model'>model</span><span class='period'>.</span><span class='id identifier rubyid_nearest_neighbors'>nearest_neighbors</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>k:</span> <span class='int'>10</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><a href="https://fasttext.cc/docs/en/crawl-vectors.html" target="_parent" title="FastText crawl vectors">FastText crawl vectors</a></li>
+    
+      <li><a href="https://fasttext.cc/docs/en/english-vectors.html" target="_parent" title="FastText English vectors">FastText English vectors</a></li>
+    
+  </ul>
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="DEFAULT_DIMENSION-constant" class="">DEFAULT_DIMENSION =
+          <div class="docstring">
+  <div class="discussion">
+    <p>Standard FastText dimension for crawl vectors</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>300</span></pre></dd>
+      
+        <dt id="DEFAULT_MAX_VECTORS-constant" class="">DEFAULT_MAX_VECTORS =
+          <div class="docstring">
+  <div class="discussion">
+    <p>Number of vectors to load when reading from file
+FastText .vec files contain up to 2M words; we load a subset by default</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>1_000_000</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#embeddings-instance_method" title="#embeddings (instance method)">#<strong>embeddings</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute embeddings.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#max_vectors-instance_method" title="#max_vectors (instance method)">#<strong>max_vectors</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute max_vectors.</p></div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="EmbeddingModel.html" title="Kotoshu::Models::EmbeddingModel (class)">EmbeddingModel</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="EmbeddingModel.html#dimension-instance_method" title="Kotoshu::Models::EmbeddingModel#dimension (method)">#dimension</a></span>, <span class='object_link'><a href="EmbeddingModel.html#language_code-instance_method" title="Kotoshu::Models::EmbeddingModel#language_code (method)">#language_code</a></span>, <span class='object_link'><a href="EmbeddingModel.html#vocabulary_size-instance_method" title="Kotoshu::Models::EmbeddingModel#vocabulary_size (method)">#vocabulary_size</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#detect_language_from_path-class_method" title="detect_language_from_path (class method)">.<strong>detect_language_from_path</strong>(path)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Detect language code from file path.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#from_file-class_method" title="from_file (class method)">.<strong>from_file</strong>(file_path, max_vectors: DEFAULT_MAX_VECTORS, language_code: nil)  &#x21d2; FastTextModel </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Load FastText model from a .vec file.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#from_github-class_method" title="from_github (class method)">.<strong>from_github</strong>(language_code, max_vectors: 500_000, cache: nil)  &#x21d2; FastTextModel </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Load FastText model from GitHub (via ModelCache).</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#batch_embeddings-instance_method" title="#batch_embeddings (instance method)">#<strong>batch_embeddings</strong>(words)  &#x21d2; Hash&lt;String, WordEmbedding&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get batch embeddings for multiple words.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#batch_similarities-instance_method" title="#batch_similarities (instance method)">#<strong>batch_similarities</strong>(pairs)  &#x21d2; Array&lt;Float&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get batch similarities for word pairs.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#embedding_for-instance_method" title="#embedding_for (instance method)">#<strong>embedding_for</strong>(word)  &#x21d2; WordEmbedding<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get embedding vector for a word.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(language_code:, dimension: DEFAULT_DIMENSION, embeddings: {}, max_vectors: DEFAULT_MAX_VECTORS)  &#x21d2; FastTextModel </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Create a new FastText model.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#loaded%3F-instance_method" title="#loaded? (instance method)">#<strong>loaded?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Check if model is loaded.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#nearest_neighbors-instance_method" title="#nearest_neighbors (instance method)">#<strong>nearest_neighbors</strong>(word, k: 10)  &#x21d2; Array&lt;NearestNeighbor&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Find k nearest neighbors for a word (optimized version).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#nearest_neighbors_for_embedding-instance_method" title="#nearest_neighbors_for_embedding (instance method)">#<strong>nearest_neighbors_for_embedding</strong>(embedding, k: 10)  &#x21d2; Array&lt;NearestNeighbor&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Find k nearest neighbors for an embedding vector (optimized version).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vocabulary-instance_method" title="#vocabulary (instance method)">#<strong>vocabulary</strong>  &#x21d2; Array&lt;String&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get the vocabulary (all words in the model).</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="EmbeddingModel.html" title="Kotoshu::Models::EmbeddingModel (class)">EmbeddingModel</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="EmbeddingModel.html#distance-instance_method" title="Kotoshu::Models::EmbeddingModel#distance (method)">#distance</a></span>, <span class='object_link'><a href="EmbeddingModel.html#has_word%3F-instance_method" title="Kotoshu::Models::EmbeddingModel#has_word? (method)">#has_word?</a></span>, <span class='object_link'><a href="EmbeddingModel.html#metadata-instance_method" title="Kotoshu::Models::EmbeddingModel#metadata (method)">#metadata</a></span>, <span class='object_link'><a href="EmbeddingModel.html#similarity-instance_method" title="Kotoshu::Models::EmbeddingModel#similarity (method)">#similarity</a></span>, <span class='object_link'><a href="EmbeddingModel.html#statistics-instance_method" title="Kotoshu::Models::EmbeddingModel#statistics (method)">#statistics</a></span>, <span class='object_link'><a href="EmbeddingModel.html#to_s-instance_method" title="Kotoshu::Models::EmbeddingModel#to_s (method)">#to_s</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(language_code:, dimension: DEFAULT_DIMENSION, embeddings: {}, max_vectors: DEFAULT_MAX_VECTORS)  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::Models::FastTextModel (class)">FastTextModel</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Create a new FastText model.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>language_code</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>ISO 639-1 language code</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>dimension</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>DEFAULT_DIMENSION</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Vector dimension (default: 300)</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>embeddings</span>
+      
+      
+        <span class='type'>(<tt>Hash&lt;String, <span class='object_link'><a href="WordEmbedding.html" title="Kotoshu::Models::WordEmbedding (class)">WordEmbedding</a></span>&gt;</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Pre-loaded embeddings</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>max_vectors</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>DEFAULT_MAX_VECTORS</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Maximum vectors to load from file</p></div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+36
+37
+38
+39
+40
+41</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/fasttext_model.rb', line 36</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>language_code:</span><span class='comma'>,</span> <span class='label'>dimension:</span> <span class='const'><span class='object_link'><a href="#DEFAULT_DIMENSION-constant" title="Kotoshu::Models::FastTextModel::DEFAULT_DIMENSION (constant)">DEFAULT_DIMENSION</a></span></span><span class='comma'>,</span> <span class='label'>embeddings:</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='label'>max_vectors:</span> <span class='const'><span class='object_link'><a href="#DEFAULT_MAX_VECTORS-constant" title="Kotoshu::Models::FastTextModel::DEFAULT_MAX_VECTORS (constant)">DEFAULT_MAX_VECTORS</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='label'>language_code:</span> <span class='id identifier rubyid_language_code'>language_code</span><span class='comma'>,</span> <span class='label'>dimension:</span> <span class='id identifier rubyid_dimension'>dimension</span><span class='rparen'>)</span>
+  <span class='ivar'>@embeddings</span> <span class='op'>=</span> <span class='id identifier rubyid_embeddings'>embeddings</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+  <span class='ivar'>@max_vectors</span> <span class='op'>=</span> <span class='id identifier rubyid_max_vectors'>max_vectors</span>
+  <span class='ivar'>@vocabulary_size</span> <span class='op'>=</span> <span class='ivar'>@embeddings</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="embeddings-instance_method">
+  
+    #<strong>embeddings</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the value of attribute embeddings.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+28
+29
+30</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/fasttext_model.rb', line 28</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_embeddings'>embeddings</span>
+  <span class='ivar'>@embeddings</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="max_vectors-instance_method">
+  
+    #<strong>max_vectors</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the value of attribute max_vectors.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+28
+29
+30</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/fasttext_model.rb', line 28</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_max_vectors'>max_vectors</span>
+  <span class='ivar'>@max_vectors</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="detect_language_from_path-class_method">
+  
+    .<strong>detect_language_from_path</strong>(path)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Detect language code from file path.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>File path</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Detected language code</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+202
+203
+204
+205
+206
+207
+208
+209</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/fasttext_model.rb', line 202</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_detect_language_from_path'>detect_language_from_path</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='comment'># Extract from path like &quot;cc.en.300.vec&quot; or &quot;wiki.de.vec&quot;
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_path'>path</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\.([a-z]{2})\.</span><span class='regexp_end'>/i</span></span>
+    <span class='const'>Regexp</span><span class='period'>.</span><span class='id identifier rubyid_last_match'>last_match</span><span class='lparen'>(</span><span class='int'>1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+  <span class='kw'>else</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en</span><span class='tstring_end'>&#39;</span></span> <span class='comment'># Default to English
+</span>  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="from_file-class_method">
+  
+    .<strong>from_file</strong>(file_path, max_vectors: DEFAULT_MAX_VECTORS, language_code: nil)  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::Models::FastTextModel (class)">FastTextModel</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Load FastText model from a .vec file.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>file_path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Path to FastText .vec file</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>max_vectors</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>DEFAULT_MAX_VECTORS</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Maximum vectors to load (default: 1M)</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>language_code</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Language code (auto-detected from filename)</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Kotoshu::Models::FastTextModel (class)">FastTextModel</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Loaded model</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>if file doesn't exist</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/fasttext_model.rb', line 50</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_from_file'>from_file</span><span class='lparen'>(</span><span class='id identifier rubyid_file_path'>file_path</span><span class='comma'>,</span> <span class='label'>max_vectors:</span> <span class='const'><span class='object_link'><a href="#DEFAULT_MAX_VECTORS-constant" title="Kotoshu::Models::FastTextModel::DEFAULT_MAX_VECTORS (constant)">DEFAULT_MAX_VECTORS</a></span></span><span class='comma'>,</span> <span class='label'>language_code:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>File not found: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_file_path'>file_path</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_file_path'>file_path</span><span class='rparen'>)</span>
+
+  <span class='comment'># Detect language from filename if not provided
+</span>  <span class='id identifier rubyid_language_code'>language_code</span> <span class='op'>||=</span> <span class='id identifier rubyid_detect_language_from_path'>detect_language_from_path</span><span class='lparen'>(</span><span class='id identifier rubyid_file_path'>file_path</span><span class='rparen'>)</span>
+
+  <span class='comment'># Parse the .vec file
+</span>  <span class='id identifier rubyid_embeddings'>embeddings</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_dimension'>dimension</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_count'>count</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_file_path'>file_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>r</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>encoding:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>UTF-8</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_file'>file</span><span class='op'>|</span>
+    <span class='comment'># First line: vocab_size dimension
+</span>    <span class='id identifier rubyid_first_line'>first_line</span> <span class='op'>=</span> <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_getline'>getline</span>
+    <span class='id identifier rubyid_metadata'>metadata</span> <span class='op'>=</span> <span class='id identifier rubyid_first_line'>first_line</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span>
+    <span class='id identifier rubyid__vocab_size'>_vocab_size</span> <span class='op'>=</span> <span class='id identifier rubyid_metadata'>metadata</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+    <span class='id identifier rubyid_dimension'>dimension</span> <span class='op'>=</span> <span class='id identifier rubyid_metadata'>metadata</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+
+    <span class='comment'># Read vectors
+</span>    <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_each_line'>each_line</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+      <span class='kw'>break</span> <span class='kw'>if</span> <span class='id identifier rubyid_count'>count</span> <span class='op'>&gt;=</span> <span class='id identifier rubyid_max_vectors'>max_vectors</span>
+
+      <span class='id identifier rubyid_parts'>parts</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span>
+      <span class='id identifier rubyid_word'>word</span> <span class='op'>=</span> <span class='id identifier rubyid_parts'>parts</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_vector'>vector</span> <span class='op'>=</span> <span class='id identifier rubyid_parts'>parts</span><span class='lbracket'>[</span><span class='int'>1</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_f</span><span class='rparen'>)</span>
+
+      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_vector'>vector</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>==</span> <span class='id identifier rubyid_dimension'>dimension</span>
+
+      <span class='id identifier rubyid_embeddings'>embeddings</span><span class='lbracket'>[</span><span class='id identifier rubyid_word'>word</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="WordEmbedding.html" title="Kotoshu::Models::WordEmbedding (class)">WordEmbedding</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="WordEmbedding.html#initialize-instance_method" title="Kotoshu::Models::WordEmbedding#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='id identifier rubyid_vector'>vector</span><span class='comma'>,</span> <span class='id identifier rubyid_language_code'>language_code</span><span class='comma'>,</span> <span class='label'>dimension:</span> <span class='id identifier rubyid_dimension'>dimension</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_count'>count</span> <span class='op'>+=</span> <span class='int'>1</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>language_code:</span> <span class='id identifier rubyid_language_code'>language_code</span><span class='comma'>,</span> <span class='label'>dimension:</span> <span class='id identifier rubyid_dimension'>dimension</span><span class='comma'>,</span> <span class='label'>embeddings:</span> <span class='id identifier rubyid_embeddings'>embeddings</span><span class='comma'>,</span> <span class='label'>max_vectors:</span> <span class='id identifier rubyid_max_vectors'>max_vectors</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="from_github-class_method">
+  
+    .<strong>from_github</strong>(language_code, max_vectors: 500_000, cache: nil)  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::Models::FastTextModel (class)">FastTextModel</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Load FastText model from GitHub (via ModelCache).</p>
+<p>Downloads the .vec file from kotoshu/dictionaries repository.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>language_code</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>ISO 639-1 language code (de, en, es, fr, pt, ru)</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>max_vectors</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>500_000</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Maximum vectors to load (default: 500K for GitHub)</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>cache</span>
+      
+      
+        <span class='type'>(<tt>ModelCache</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Optional cache instance</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Kotoshu::Models::FastTextModel (class)">FastTextModel</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Loaded model</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>if language not supported</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+95
+96
+97
+98
+99
+100
+101
+102</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/fasttext_model.rb', line 95</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_from_github'>from_github</span><span class='lparen'>(</span><span class='id identifier rubyid_language_code'>language_code</span><span class='comma'>,</span> <span class='label'>max_vectors:</span> <span class='int'>500_000</span><span class='comma'>,</span> <span class='label'>cache:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cache'>cache</span> <span class='op'>||=</span> <span class='const'><span class='object_link'><a href="../Cache.html" title="Kotoshu::Cache (module)">Cache</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Cache/ModelCache.html" title="Kotoshu::Cache::ModelCache (class)">ModelCache</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Cache/BaseCache.html#initialize-instance_method" title="Kotoshu::Cache::BaseCache#initialize (method)">new</a></span></span>
+
+  <span class='comment'># Get the .vec file path from cache
+</span>  <span class='id identifier rubyid_vec_file'>vec_file</span> <span class='op'>=</span> <span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_get_fasttext_model'>get_fasttext_model</span><span class='lparen'>(</span><span class='id identifier rubyid_language_code'>language_code</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_from_file'>from_file</span><span class='lparen'>(</span><span class='id identifier rubyid_vec_file'>vec_file</span><span class='comma'>,</span> <span class='label'>max_vectors:</span> <span class='id identifier rubyid_max_vectors'>max_vectors</span><span class='comma'>,</span> <span class='label'>language_code:</span> <span class='id identifier rubyid_language_code'>language_code</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="batch_embeddings-instance_method">
+  
+    #<strong>batch_embeddings</strong>(words)  &#x21d2; <tt>Hash&lt;String, <span class='object_link'><a href="WordEmbedding.html" title="Kotoshu::Models::WordEmbedding (class)">WordEmbedding</a></span>&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get batch embeddings for multiple words.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>words</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Words to lookup</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash&lt;String, <span class='object_link'><a href="WordEmbedding.html" title="Kotoshu::Models::WordEmbedding (class)">WordEmbedding</a></span>&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Mapping of word to embedding</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+183
+184
+185
+186
+187
+188</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/fasttext_model.rb', line 183</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_batch_embeddings'>batch_embeddings</span><span class='lparen'>(</span><span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_words'>words</span><span class='period'>.</span><span class='id identifier rubyid_each_with_object'>each_with_object</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='id identifier rubyid_hash'>hash</span><span class='op'>|</span>
+    <span class='id identifier rubyid_emb'>emb</span> <span class='op'>=</span> <span class='id identifier rubyid_embedding_for'>embedding_for</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_word'>word</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_emb'>emb</span> <span class='kw'>if</span> <span class='id identifier rubyid_emb'>emb</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="batch_similarities-instance_method">
+  
+    #<strong>batch_similarities</strong>(pairs)  &#x21d2; <tt>Array&lt;Float&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get batch similarities for word pairs.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>pairs</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;Array&lt;String, String&gt;&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Word pairs</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;Float&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Similarity scores</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+194
+195
+196</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/fasttext_model.rb', line 194</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_batch_similarities'>batch_similarities</span><span class='lparen'>(</span><span class='id identifier rubyid_pairs'>pairs</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_pairs'>pairs</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_word1'>word1</span><span class='comma'>,</span> <span class='id identifier rubyid_word2'>word2</span><span class='op'>|</span> <span class='id identifier rubyid_similarity'>similarity</span><span class='lparen'>(</span><span class='id identifier rubyid_word1'>word1</span><span class='comma'>,</span> <span class='id identifier rubyid_word2'>word2</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="embedding_for-instance_method">
+  
+    #<strong>embedding_for</strong>(word)  &#x21d2; <tt><span class='object_link'><a href="WordEmbedding.html" title="Kotoshu::Models::WordEmbedding (class)">WordEmbedding</a></span></tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get embedding vector for a word.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The word to lookup</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="WordEmbedding.html" title="Kotoshu::Models::WordEmbedding (class)">WordEmbedding</a></span></tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Embedding vector or nil if not found</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+108
+109
+110
+111
+112
+113</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/fasttext_model.rb', line 108</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_embedding_for'>embedding_for</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_word'>word</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_word'>word</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='comment'># Direct lookup
+</span>  <span class='ivar'>@embeddings</span><span class='lbracket'>[</span><span class='id identifier rubyid_word'>word</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="loaded?-instance_method">
+  
+    #<strong>loaded?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Check if model is loaded.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>True if embeddings are loaded</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+125
+126
+127</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/fasttext_model.rb', line 125</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_loaded?'>loaded?</span>
+  <span class='ivar'>@embeddings</span><span class='op'>&amp;.</span><span class='id identifier rubyid_any?'>any?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="nearest_neighbors-instance_method">
+  
+    #<strong>nearest_neighbors</strong>(word, k: 10)  &#x21d2; <tt>Array&lt;<span class='object_link'><a href="NearestNeighbor.html" title="Kotoshu::Models::NearestNeighbor (class)">NearestNeighbor</a></span>&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Find k nearest neighbors for a word (optimized version).</p>
+<p>Overrides the base implementation for better performance using
+pre-loaded embeddings instead of repeated lookups.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The query word</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>k</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>10</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Number of neighbors to return</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;<span class='object_link'><a href="NearestNeighbor.html" title="Kotoshu::Models::NearestNeighbor (class)">NearestNeighbor</a></span>&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Nearest neighbors sorted by similarity</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/fasttext_model.rb', line 137</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_nearest_neighbors'>nearest_neighbors</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='label'>k:</span> <span class='int'>10</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_embedding'>embedding</span> <span class='op'>=</span> <span class='id identifier rubyid_embedding_for'>embedding_for</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='kw'>unless</span> <span class='id identifier rubyid_embedding'>embedding</span>
+
+  <span class='comment'># Calculate similarity with all words in vocabulary
+</span>  <span class='id identifier rubyid_neighbors'>neighbors</span> <span class='op'>=</span> <span class='ivar'>@embeddings</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_vocab_word'>vocab_word</span><span class='comma'>,</span> <span class='id identifier rubyid_vocab_embedding'>vocab_embedding</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_vocab_word'>vocab_word</span> <span class='op'>==</span> <span class='id identifier rubyid_word'>word</span>
+
+    <span class='id identifier rubyid_sim'>sim</span> <span class='op'>=</span> <span class='id identifier rubyid_embedding'>embedding</span><span class='period'>.</span><span class='id identifier rubyid_similarity'>similarity</span><span class='lparen'>(</span><span class='id identifier rubyid_vocab_embedding'>vocab_embedding</span><span class='rparen'>)</span>
+    <span class='const'><span class='object_link'><a href="NearestNeighbor.html" title="Kotoshu::Models::NearestNeighbor (class)">NearestNeighbor</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="NearestNeighbor.html#initialize-instance_method" title="Kotoshu::Models::NearestNeighbor#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+      <span class='label'>word:</span> <span class='id identifier rubyid_vocab_word'>vocab_word</span><span class='comma'>,</span>
+      <span class='label'>similarity:</span> <span class='id identifier rubyid_sim'>sim</span><span class='comma'>,</span>
+      <span class='label'>embedding:</span> <span class='id identifier rubyid_vocab_embedding'>vocab_embedding</span>
+    <span class='rparen'>)</span>
+  <span class='kw'>end</span><span class='period'>.</span><span class='id identifier rubyid_compact'>compact</span>
+
+  <span class='comment'># Sort by similarity (descending) and take top k
+</span>  <span class='id identifier rubyid_neighbors'>neighbors</span><span class='period'>.</span><span class='id identifier rubyid_sort'>sort</span><span class='period'>.</span><span class='id identifier rubyid_reverse'>reverse</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span><span class='lparen'>(</span><span class='id identifier rubyid_k'>k</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="nearest_neighbors_for_embedding-instance_method">
+  
+    #<strong>nearest_neighbors_for_embedding</strong>(embedding, k: 10)  &#x21d2; <tt>Array&lt;<span class='object_link'><a href="NearestNeighbor.html" title="Kotoshu::Models::NearestNeighbor (class)">NearestNeighbor</a></span>&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Find k nearest neighbors for an embedding vector (optimized version).</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>embedding</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="WordEmbedding.html" title="Kotoshu::Models::WordEmbedding (class)">WordEmbedding</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The query embedding</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>k</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>10</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Number of neighbors to return</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;<span class='object_link'><a href="NearestNeighbor.html" title="Kotoshu::Models::NearestNeighbor (class)">NearestNeighbor</a></span>&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Nearest neighbors sorted by similarity</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/fasttext_model.rb', line 162</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_nearest_neighbors_for_embedding'>nearest_neighbors_for_embedding</span><span class='lparen'>(</span><span class='id identifier rubyid_embedding'>embedding</span><span class='comma'>,</span> <span class='label'>k:</span> <span class='int'>10</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='kw'>unless</span> <span class='id identifier rubyid_embedding'>embedding</span>
+
+  <span class='comment'># Calculate similarity with all words in vocabulary
+</span>  <span class='id identifier rubyid_neighbors'>neighbors</span> <span class='op'>=</span> <span class='ivar'>@embeddings</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_vocab_word'>vocab_word</span><span class='comma'>,</span> <span class='id identifier rubyid_vocab_embedding'>vocab_embedding</span><span class='op'>|</span>
+    <span class='id identifier rubyid_sim'>sim</span> <span class='op'>=</span> <span class='id identifier rubyid_embedding'>embedding</span><span class='period'>.</span><span class='id identifier rubyid_similarity'>similarity</span><span class='lparen'>(</span><span class='id identifier rubyid_vocab_embedding'>vocab_embedding</span><span class='rparen'>)</span>
+    <span class='const'><span class='object_link'><a href="NearestNeighbor.html" title="Kotoshu::Models::NearestNeighbor (class)">NearestNeighbor</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="NearestNeighbor.html#initialize-instance_method" title="Kotoshu::Models::NearestNeighbor#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+      <span class='label'>word:</span> <span class='id identifier rubyid_vocab_word'>vocab_word</span><span class='comma'>,</span>
+      <span class='label'>similarity:</span> <span class='id identifier rubyid_sim'>sim</span><span class='comma'>,</span>
+      <span class='label'>embedding:</span> <span class='id identifier rubyid_vocab_embedding'>vocab_embedding</span>
+    <span class='rparen'>)</span>
+  <span class='kw'>end</span><span class='period'>.</span><span class='id identifier rubyid_compact'>compact</span>
+
+  <span class='comment'># Sort by similarity (descending) and take top k
+</span>  <span class='id identifier rubyid_neighbors'>neighbors</span><span class='period'>.</span><span class='id identifier rubyid_sort'>sort</span><span class='period'>.</span><span class='id identifier rubyid_reverse'>reverse</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span><span class='lparen'>(</span><span class='id identifier rubyid_k'>k</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="vocabulary-instance_method">
+  
+    #<strong>vocabulary</strong>  &#x21d2; <tt>Array&lt;String&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get the vocabulary (all words in the model).</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Vocabulary words</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+118
+119
+120</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/fasttext_model.rb', line 118</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_vocabulary'>vocabulary</span>
+  <span class='ivar'>@embeddings</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:45 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,2217 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Kotoshu::Algorithms::Suggest::Suggester
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Algorithms::Suggest::Suggester";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Algorithms.html" title="Kotoshu::Algorithms (module)">Algorithms</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Suggest.html" title="Kotoshu::Algorithms::Suggest (module)">Suggest</a></span></span>
+     &raquo; 
+    <span class="title">Suggester</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Kotoshu::Algorithms::Suggest::Suggester
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Kotoshu::Algorithms::Suggest::Suggester</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/algorithms/suggest.rb
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>Main suggestion class.</p>
+<p>Typically, you would not use this directly, but you might want to for
+experiments.</p>
+<p>Example:</p>
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_dictionary'>dictionary</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Dictionary.html" title="Kotoshu::Dictionary (module)">Dictionary</a></span></span><span class='period'>.</span><span class='id identifier rubyid_load'><span class='object_link'><a href="../../Dictionary.html#load-class_method" title="Kotoshu::Dictionary.load (method)">load</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en_US</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_suggester'>suggester</span> <span class='op'>=</span> <span class='id identifier rubyid_dictionary'>dictionary</span><span class='period'>.</span><span class='id identifier rubyid_suggester'>suggester</span>
+
+<span class='id identifier rubyid_suggester'>suggester</span><span class='period'>.</span><span class='id identifier rubyid_suggestions'>suggestions</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>spylls</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='op'>|</span>
+<span class='id identifier rubyid_puts'>puts</span> <span class='id identifier rubyid_suggestion'>suggestion</span>
+<span class='kw'>end</span>
+
+<span class='comment'># Output:
+</span><span class='comment'># Suggestion[badchar](spell)
+</span><span class='comment'># Suggestion[badchar](spill)</span></code></pre>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#aff-instance_method" title="#aff (instance method)">#<strong>aff</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Aff data structure (from aff file).</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#dic-instance_method" title="#dic (instance method)">#<strong>dic</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Dic data structure (from dic file).</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#lookup-instance_method" title="#lookup (instance method)">#<strong>lookup</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Lookup object.</p></div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#call-instance_method" title="#call (instance method)">#<strong>call</strong>(word)  &#x21d2; Enumerator&lt;String&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Outer &quot;public&quot; interface: returns all valid suggestions as strings.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#collect_variant_suggestions-instance_method" title="#collect_variant_suggestions (instance method)">#<strong>collect_variant_suggestions</strong>(variant, idx, word:, captype:, is_forbidden:, handled:, is_good_suggestion:)  &#x21d2; Array&lt;Array&lt;Suggestion&gt;, Boolean, Boolean, Boolean&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Collect every valid suggestion of one capitalization variant.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#edit_suggestions-instance_method" title="#edit_suggestions (instance method)">#<strong>edit_suggestions</strong>(word, compounds:, limit:) {|Suggestion, MultiWordSuggestion| ... } &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Generate edit suggestions and filter for valid words.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#edits-instance_method" title="#edits (instance method)">#<strong>edits</strong>(word) {|Suggestion, MultiWordSuggestion| ... } &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Generate all possible word edits in order of priority.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(aff, dic, lookup)  &#x21d2; Suggester </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>A new instance of Suggester.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#move_space_splits_to_front-instance_method" title="#move_space_splits_to_front (instance method)">#<strong>move_space_splits_to_front</strong>(suggestions, word)  &#x21d2; Array&lt;Suggestion&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Move space-containing suggestions to the front of the pass.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ngram_suggestions-instance_method" title="#ngram_suggestions (instance method)">#<strong>ngram_suggestions</strong>(word, captype:, handled:) {|String| ... } &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Generate ngram-based suggestions.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#phonet_suggestions-instance_method" title="#phonet_suggestions (instance method)">#<strong>phonet_suggestions</strong>(word) {|String| ... } &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Generate phonetic suggestions.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#suggestions-instance_method" title="#suggestions (instance method)">#<strong>suggestions</strong>(word) {|Suggestion, MultiWordSuggestion| ... } &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Main suggestion search loop.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#use_dash%3F-instance_method" title="#use_dash? (instance method)">#<strong>use_dash?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Check if dashes are allowed for joining words.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(aff, dic, lookup)  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::Algorithms::Suggest::Suggester (class)">Suggester</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns a new instance of Suggester.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/algorithms/suggest.rb', line 130</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_aff'>aff</span><span class='comma'>,</span> <span class='id identifier rubyid_dic'>dic</span><span class='comma'>,</span> <span class='id identifier rubyid_lookup'>lookup</span><span class='rparen'>)</span>
+  <span class='ivar'>@aff</span> <span class='op'>=</span> <span class='id identifier rubyid_aff'>aff</span>
+  <span class='ivar'>@dic</span> <span class='op'>=</span> <span class='id identifier rubyid_dic'>dic</span>
+  <span class='ivar'>@lookup</span> <span class='op'>=</span> <span class='id identifier rubyid_lookup'>lookup</span>
+
+  <span class='comment'># Prepare words for ngram (exclude those with bad flags)
+</span>  <span class='id identifier rubyid_bad_flags'>bad_flags</span> <span class='op'>=</span> <span class='lbracket'>[</span>
+    <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:FORBIDDENWORD</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:NOSUGGEST</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:ONLYINCOMPOUND</span><span class='rbracket'>]</span>
+  <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_compact'>compact</span>
+
+  <span class='ivar'>@words_for_ngram</span> <span class='op'>=</span> <span class='ivar'>@dic</span><span class='lbracket'>[</span><span class='symbol'>:words</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_word'>word</span><span class='op'>|</span>
+    <span class='id identifier rubyid_flags'>flags</span> <span class='op'>=</span> <span class='id identifier rubyid_word'>word</span><span class='lbracket'>[</span><span class='symbol'>:flags</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='lparen'>(</span><span class='id identifier rubyid_flags'>flags</span> <span class='op'>&amp;</span> <span class='id identifier rubyid_bad_flags'>bad_flags</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="aff-instance_method">
+  
+    #<strong>aff</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns Aff data structure (from aff file).</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Object</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Aff data structure (from aff file)</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+122
+123
+124</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/algorithms/suggest.rb', line 122</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_aff'>aff</span>
+  <span class='ivar'>@aff</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="dic-instance_method">
+  
+    #<strong>dic</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns Dic data structure (from dic file).</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Object</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Dic data structure (from dic file)</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+125
+126
+127</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/algorithms/suggest.rb', line 125</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_dic'>dic</span>
+  <span class='ivar'>@dic</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="lookup-instance_method">
+  
+    #<strong>lookup</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns Lookup object.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Object</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Lookup object</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+128
+129
+130</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/algorithms/suggest.rb', line 128</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_lookup'>lookup</span>
+  <span class='ivar'>@lookup</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="call-instance_method">
+  
+    #<strong>call</strong>(word)  &#x21d2; <tt>Enumerator&lt;String&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Outer &quot;public&quot; interface: returns all valid suggestions as strings.</p>
+<p>Returns an enumerator for lazy evaluation.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Word to check</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Enumerator&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Suggestions as strings</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+154
+155
+156
+157
+158
+159
+160</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/algorithms/suggest.rb', line 154</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_enum_for'>enum_for</span><span class='lparen'>(</span><span class='symbol'>:call</span><span class='comma'>,</span> <span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_block_given?'>block_given?</span>
+
+  <span class='id identifier rubyid_suggestions'>suggestions</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='op'>|</span>
+    <span class='kw'>yield</span> <span class='id identifier rubyid_suggestion'>suggestion</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="collect_variant_suggestions-instance_method">
+  
+    #<strong>collect_variant_suggestions</strong>(variant, idx, word:, captype:, is_forbidden:, handled:, is_good_suggestion:)  &#x21d2; <tt>Array&lt;Array&lt;<span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span>&gt;, Boolean, Boolean, Boolean&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Collect every valid suggestion of one capitalization variant.</p>
+<p>Buffers instead of yielding so the caller can reorder the pass
+(see move_space_splits_to_front) before emitting it. Mirrors
+the per-variant part of Hunspell's suggest flow: the lowercased
+form itself first (if valid), then the non-compound edit pass,
+then the compound edit pass — the latter skipped after a &quot;good&quot;
+edit (uppercase/replchars/mapchars) or a dictionary word-pair
+spaceword, which ends the whole search.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>variant</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Capitalization variant to process</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>idx</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Index of the variant (0 = as typed)</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Original misspelled word</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>captype</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Capitalization type of the original word</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>is_forbidden</span>
+      
+      
+        <span class='type'>(<tt>Proc</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Function to check if word is forbidden</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>handled</span>
+      
+      
+        <span class='type'>(<tt>Set&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Already suggested words</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>is_good_suggestion</span>
+      
+      
+        <span class='type'>(<tt>Proc</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Function to check a candidate</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;Array&lt;<span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span>&gt;, Boolean, Boolean, Boolean&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Collected suggestions, stop flag, nocompound flag, good-edits
+flag — in that order</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/algorithms/suggest.rb', line 500</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_collect_variant_suggestions'>collect_variant_suggestions</span><span class='lparen'>(</span><span class='id identifier rubyid_variant'>variant</span><span class='comma'>,</span> <span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='label'>word:</span><span class='comma'>,</span> <span class='label'>captype:</span><span class='comma'>,</span> <span class='label'>is_forbidden:</span><span class='comma'>,</span> <span class='label'>handled:</span><span class='comma'>,</span>
+                                 <span class='label'>is_good_suggestion:</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_collected'>collected</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_stop'>stop</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_nocompound'>nocompound</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_good_edits'>good_edits</span> <span class='op'>=</span> <span class='kw'>false</span>
+
+  <span class='comment'># If different from original and is good, suggest it
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_idx'>idx</span><span class='period'>.</span><span class='id identifier rubyid_positive?'>positive?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_is_good_suggestion'>is_good_suggestion</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_variant'>variant</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_handle_found'>handle_found</span><span class='lparen'>(</span>
+      <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_variant'>variant</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>case</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='label'>word:</span> <span class='id identifier rubyid_word'>word</span><span class='comma'>,</span>
+      <span class='label'>captype:</span> <span class='id identifier rubyid_captype'>captype</span><span class='comma'>,</span>
+      <span class='label'>is_forbidden:</span> <span class='id identifier rubyid_is_forbidden'>is_forbidden</span><span class='comma'>,</span>
+      <span class='label'>handled:</span> <span class='id identifier rubyid_handled'>handled</span>
+    <span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_handled_suggestion'>handled_suggestion</span><span class='op'>|</span>
+      <span class='id identifier rubyid_collected'>collected</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_handled_suggestion'>handled_suggestion</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Generate and check edits (non-compound first)
+</span>  <span class='id identifier rubyid_edit_suggestions'>edit_suggestions</span><span class='lparen'>(</span><span class='id identifier rubyid_variant'>variant</span><span class='comma'>,</span> <span class='label'>compounds:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>limit:</span> <span class='const'><span class='object_link'><a href="../Suggest.html#MAXSUGGESTIONS-constant" title="Kotoshu::Algorithms::Suggest::MAXSUGGESTIONS (constant)">MAXSUGGESTIONS</a></span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='op'>|</span>
+    <span class='id identifier rubyid_handle_found'>handle_found</span><span class='lparen'>(</span>
+      <span class='id identifier rubyid_suggestion'>suggestion</span><span class='comma'>,</span>
+      <span class='label'>word:</span> <span class='id identifier rubyid_word'>word</span><span class='comma'>,</span>
+      <span class='label'>captype:</span> <span class='id identifier rubyid_captype'>captype</span><span class='comma'>,</span>
+      <span class='label'>is_forbidden:</span> <span class='id identifier rubyid_is_forbidden'>is_forbidden</span><span class='comma'>,</span>
+      <span class='label'>handled:</span> <span class='id identifier rubyid_handled'>handled</span><span class='comma'>,</span>
+      <span class='label'>check_inclusion:</span> <span class='kw'>false</span>
+    <span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_handled_suggestion'>handled_suggestion</span><span class='op'>|</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_stop'>stop</span>
+
+      <span class='id identifier rubyid_collected'>collected</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_handled_suggestion'>handled_suggestion</span>
+
+      <span class='id identifier rubyid_kind'>kind</span> <span class='op'>=</span> <span class='id identifier rubyid_handled_suggestion'>handled_suggestion</span><span class='period'>.</span><span class='id identifier rubyid_kind'>kind</span>
+      <span class='id identifier rubyid_good_edits'>good_edits</span> <span class='op'>=</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="../Suggest.html#GOOD_EDITS-constant" title="Kotoshu::Algorithms::Suggest::GOOD_EDITS (constant)">GOOD_EDITS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_kind'>kind</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_nocompound'>nocompound</span> <span class='op'>=</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='qwords_beg'>%w[</span><span class='tstring_content'>uppercase</span><span class='words_sep'> </span><span class='tstring_content'>replchars</span><span class='words_sep'> </span><span class='tstring_content'>mapchars</span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_kind'>kind</span><span class='rparen'>)</span>
+
+      <span class='comment'># If we found a spaceword that&#39;s in the dictionary as a whole,
+</span>      <span class='comment'># that&#39;s the only suggestion we need
+</span>      <span class='id identifier rubyid_stop'>stop</span> <span class='op'>=</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='id identifier rubyid_kind'>kind</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>spaceword</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Generate compound suggestions if not excluded
+</span>  <span class='kw'>unless</span> <span class='id identifier rubyid_nocompound'>nocompound</span> <span class='op'>||</span> <span class='id identifier rubyid_stop'>stop</span>
+    <span class='id identifier rubyid_limit'>limit</span> <span class='op'>=</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:MAXCPDSUGS</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="../Suggest.html#MAXSUGGESTIONS-constant" title="Kotoshu::Algorithms::Suggest::MAXSUGGESTIONS (constant)">MAXSUGGESTIONS</a></span></span>
+    <span class='id identifier rubyid_edit_suggestions'>edit_suggestions</span><span class='lparen'>(</span><span class='id identifier rubyid_variant'>variant</span><span class='comma'>,</span> <span class='label'>compounds:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>limit:</span> <span class='id identifier rubyid_limit'>limit</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='op'>|</span>
+      <span class='id identifier rubyid_handle_found'>handle_found</span><span class='lparen'>(</span>
+        <span class='id identifier rubyid_suggestion'>suggestion</span><span class='comma'>,</span>
+        <span class='label'>word:</span> <span class='id identifier rubyid_word'>word</span><span class='comma'>,</span>
+        <span class='label'>captype:</span> <span class='id identifier rubyid_captype'>captype</span><span class='comma'>,</span>
+        <span class='label'>is_forbidden:</span> <span class='id identifier rubyid_is_forbidden'>is_forbidden</span><span class='comma'>,</span>
+        <span class='label'>handled:</span> <span class='id identifier rubyid_handled'>handled</span><span class='comma'>,</span>
+        <span class='label'>check_inclusion:</span> <span class='kw'>false</span>
+      <span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_handled_suggestion'>handled_suggestion</span><span class='op'>|</span>
+        <span class='id identifier rubyid_collected'>collected</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_handled_suggestion'>handled_suggestion</span>
+        <span class='id identifier rubyid_good_edits'>good_edits</span> <span class='op'>=</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="../Suggest.html#GOOD_EDITS-constant" title="Kotoshu::Algorithms::Suggest::GOOD_EDITS (constant)">GOOD_EDITS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_handled_suggestion'>handled_suggestion</span><span class='period'>.</span><span class='id identifier rubyid_kind'>kind</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='lbracket'>[</span><span class='id identifier rubyid_collected'>collected</span><span class='comma'>,</span> <span class='id identifier rubyid_stop'>stop</span><span class='comma'>,</span> <span class='id identifier rubyid_nocompound'>nocompound</span><span class='comma'>,</span> <span class='id identifier rubyid_good_edits'>good_edits</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="edit_suggestions-instance_method">
+  
+    #<strong>edit_suggestions</strong>(word, compounds:, limit:) {|Suggestion, MultiWordSuggestion| ... } &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Generate edit suggestions and filter for valid words.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Word to generate edits for</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>compounds</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Whether to check compound words</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>limit</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Maximum number of suggestions to yield</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></tt>, <tt><span class='object_link'><a href="MultiWordSuggestion.html" title="Kotoshu::Algorithms::Suggest::MultiWordSuggestion (class)">MultiWordSuggestion</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Each valid edit suggestion</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/algorithms/suggest.rb', line 416</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_edit_suggestions'>edit_suggestions</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='label'>compounds:</span><span class='comma'>,</span> <span class='label'>limit:</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_count'>count</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='id identifier rubyid_edits'>edits</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='op'>|</span>
+    <span class='kw'>break</span> <span class='kw'>if</span> <span class='id identifier rubyid_count'>count</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_limit'>limit</span>
+
+    <span class='id identifier rubyid_filtered'>filtered</span> <span class='op'>=</span> <span class='id identifier rubyid_filter_suggestion'>filter_suggestion</span><span class='lparen'>(</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='comma'>,</span> <span class='id identifier rubyid_compounds'>compounds</span><span class='rparen'>)</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_filtered'>filtered</span>
+
+    <span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_filtered'>filtered</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_sug'>sug</span><span class='op'>|</span>
+      <span class='kw'>yield</span> <span class='id identifier rubyid_sug'>sug</span>
+      <span class='id identifier rubyid_count'>count</span> <span class='op'>+=</span> <span class='int'>1</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="edits-instance_method">
+  
+    #<strong>edits</strong>(word) {|Suggestion, MultiWordSuggestion| ... } &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Generate all possible word edits in order of priority.</p>
+<p>Order is important - it's the order user receives suggestions.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Word to mutate</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></tt>, <tt><span class='object_link'><a href="MultiWordSuggestion.html" title="Kotoshu::Algorithms::Suggest::MultiWordSuggestion (class)">MultiWordSuggestion</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Each edit suggestion</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/algorithms/suggest.rb', line 332</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_edits'>edits</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span>
+  <span class='comment'># Uppercase suggestion (html -&gt; HTML)
+</span>  <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:casing</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_upper'>upper</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uppercase</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='comment'># REP table replacements
+</span>  <span class='id identifier rubyid_reptable'>reptable</span> <span class='op'>=</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:REP</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='const'><span class='object_link'><a href="../Permutations.html" title="Kotoshu::Algorithms::Permutations (module)">Permutations</a></span></span><span class='period'>.</span><span class='id identifier rubyid_replchars'><span class='object_link'><a href="../Permutations.html#replchars-class_method" title="Kotoshu::Algorithms::Permutations.replchars (method)">replchars</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='id identifier rubyid_reptable'>reptable</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_suggestion'>suggestion</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Array</span><span class='rparen'>)</span>
+      <span class='comment'># Multi-word suggestion from REP with underscore
+</span>      <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>replchars</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="MultiWordSuggestion.html" title="Kotoshu::Algorithms::Suggest::MultiWordSuggestion (class)">MultiWordSuggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="MultiWordSuggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::MultiWordSuggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>replchars</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>allow_dash:</span> <span class='kw'>false</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>replchars</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Split into two words (spaceword)
+</span>  <span class='const'><span class='object_link'><a href="../Permutations.html" title="Kotoshu::Algorithms::Permutations (module)">Permutations</a></span></span><span class='period'>.</span><span class='id identifier rubyid_twowords'><span class='object_link'><a href="../Permutations.html#twowords-class_method" title="Kotoshu::Algorithms::Permutations.twowords (method)">twowords</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_words'>words</span><span class='op'>|</span>
+    <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_words'>words</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>spaceword</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_words'>words</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>spaceword</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_use_dash?'>use_dash?</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># MAP table (related character replacements)
+</span>  <span class='id identifier rubyid_maptable'>maptable</span> <span class='op'>=</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:MAP</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='const'><span class='object_link'><a href="../Permutations.html" title="Kotoshu::Algorithms::Permutations (module)">Permutations</a></span></span><span class='period'>.</span><span class='id identifier rubyid_mapchars'><span class='object_link'><a href="../Permutations.html#mapchars-class_method" title="Kotoshu::Algorithms::Permutations.mapchars (method)">mapchars</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='id identifier rubyid_maptable'>maptable</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='op'>|</span>
+    <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mapchars</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Swap adjacent characters
+</span>  <span class='const'><span class='object_link'><a href="../Permutations.html" title="Kotoshu::Algorithms::Permutations (module)">Permutations</a></span></span><span class='period'>.</span><span class='id identifier rubyid_swapchar'><span class='object_link'><a href="../Permutations.html#swapchar-class_method" title="Kotoshu::Algorithms::Permutations.swapchar (method)">swapchar</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='op'>|</span>
+    <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>swapchar</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Long swaps (up to 4 chars distance)
+</span>  <span class='const'><span class='object_link'><a href="../Permutations.html" title="Kotoshu::Algorithms::Permutations (module)">Permutations</a></span></span><span class='period'>.</span><span class='id identifier rubyid_longswapchar'><span class='object_link'><a href="../Permutations.html#longswapchar-class_method" title="Kotoshu::Algorithms::Permutations.longswapchar (method)">longswapchar</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='op'>|</span>
+    <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>longswapchar</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Replace with keyboard-adjacent chars
+</span>  <span class='id identifier rubyid_layout'>layout</span> <span class='op'>=</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:KEY</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='const'><span class='object_link'><a href="../Permutations.html" title="Kotoshu::Algorithms::Permutations (module)">Permutations</a></span></span><span class='period'>.</span><span class='id identifier rubyid_badcharkey'><span class='object_link'><a href="../Permutations.html#badcharkey-class_method" title="Kotoshu::Algorithms::Permutations.badcharkey (method)">badcharkey</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='id identifier rubyid_layout'>layout</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='op'>|</span>
+    <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>badcharkey</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Remove one character
+</span>  <span class='const'><span class='object_link'><a href="../Permutations.html" title="Kotoshu::Algorithms::Permutations (module)">Permutations</a></span></span><span class='period'>.</span><span class='id identifier rubyid_extrachar'><span class='object_link'><a href="../Permutations.html#extrachar-class_method" title="Kotoshu::Algorithms::Permutations.extrachar (method)">extrachar</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='op'>|</span>
+    <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>extrachar</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Insert one character (from TRY string)
+</span>  <span class='id identifier rubyid_trystring'>trystring</span> <span class='op'>=</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:TRY</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='const'><span class='object_link'><a href="../Permutations.html" title="Kotoshu::Algorithms::Permutations (module)">Permutations</a></span></span><span class='period'>.</span><span class='id identifier rubyid_forgotchar'><span class='object_link'><a href="../Permutations.html#forgotchar-class_method" title="Kotoshu::Algorithms::Permutations.forgotchar (method)">forgotchar</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='id identifier rubyid_trystring'>trystring</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='op'>|</span>
+    <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>forgotchar</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Move character forward/backward
+</span>  <span class='const'><span class='object_link'><a href="../Permutations.html" title="Kotoshu::Algorithms::Permutations (module)">Permutations</a></span></span><span class='period'>.</span><span class='id identifier rubyid_movechar'><span class='object_link'><a href="../Permutations.html#movechar-class_method" title="Kotoshu::Algorithms::Permutations.movechar (method)">movechar</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='op'>|</span>
+    <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>movechar</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Replace each character
+</span>  <span class='const'><span class='object_link'><a href="../Permutations.html" title="Kotoshu::Algorithms::Permutations (module)">Permutations</a></span></span><span class='period'>.</span><span class='id identifier rubyid_badchar'><span class='object_link'><a href="../Permutations.html#badchar-class_method" title="Kotoshu::Algorithms::Permutations.badchar (method)">badchar</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='id identifier rubyid_trystring'>trystring</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='op'>|</span>
+    <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>badchar</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Fix two-character doubling
+</span>  <span class='const'><span class='object_link'><a href="../Permutations.html" title="Kotoshu::Algorithms::Permutations (module)">Permutations</a></span></span><span class='period'>.</span><span class='id identifier rubyid_doubletwochars'><span class='object_link'><a href="../Permutations.html#doubletwochars-class_method" title="Kotoshu::Algorithms::Permutations.doubletwochars (method)">doubletwochars</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='op'>|</span>
+    <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>doubletwochars</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Split by space in all positions
+</span>  <span class='kw'>unless</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:NOSPLITSUGS</span><span class='rbracket'>]</span>
+    <span class='const'><span class='object_link'><a href="../Permutations.html" title="Kotoshu::Algorithms::Permutations (module)">Permutations</a></span></span><span class='period'>.</span><span class='id identifier rubyid_twowords'><span class='object_link'><a href="../Permutations.html#twowords-class_method" title="Kotoshu::Algorithms::Permutations.twowords (method)">twowords</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_words'>words</span><span class='op'>|</span>
+      <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="MultiWordSuggestion.html" title="Kotoshu::Algorithms::Suggest::MultiWordSuggestion (class)">MultiWordSuggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="MultiWordSuggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::MultiWordSuggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_words'>words</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>twowords</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>allow_dash:</span> <span class='id identifier rubyid_use_dash?'>use_dash?</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="move_space_splits_to_front-instance_method">
+  
+    #<strong>move_space_splits_to_front</strong>(suggestions, word)  &#x21d2; <tt>Array&lt;<span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span>&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Move space-containing suggestions to the front of the pass.</p>
+<p>Ported from Hunspell's &quot;aNew -&gt; a New&quot; loop in the HUHCAP/
+HUHINITCAP branch of suggest_internal (hunspell.cxx): a
+suggestion from the lowercased pass that contains a space moves
+to the front when the part after the space differs from the
+input's corresponding suffix. Spylls does not port this; the
+opentaal_keepcase fixture (word-TV -&gt; &quot;word -tv, word-tv, word&quot;)
+encodes it.</p>
+<p>Hunspell erases each matching suggestion and inserts it at the
+begin position in a single forward sweep, so with several
+matches the last one ends up first — mirrored here by reversing.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>suggestions</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;<span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span>&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Suggestions of one variant pass</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The original misspelled word</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;<span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span>&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Reordered suggestions</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599
+600
+601</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/algorithms/suggest.rb', line 582</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_move_space_splits_to_front'>move_space_splits_to_front</span><span class='lparen'>(</span><span class='id identifier rubyid_suggestions'>suggestions</span><span class='comma'>,</span> <span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_moving'>moving</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_suggestions'>suggestions</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_s'>s</span><span class='op'>|</span>
+    <span class='id identifier rubyid_pos'>pos</span> <span class='op'>=</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_second'>second</span> <span class='op'>=</span> <span class='id identifier rubyid_pos'>pos</span> <span class='op'>?</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span><span class='lbracket'>[</span><span class='lparen'>(</span><span class='id identifier rubyid_pos'>pos</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span><span class='op'>..</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='kw'>nil</span>
+    <span class='id identifier rubyid_moves'>moves</span> <span class='op'>=</span> <span class='op'>!</span><span class='id identifier rubyid_second'>second</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span>
+      <span class='id identifier rubyid_second'>second</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_word'>word</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&amp;&amp;</span>
+      <span class='id identifier rubyid_word'>word</span><span class='lbracket'>[</span><span class='id identifier rubyid_word'>word</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='id identifier rubyid_second'>second</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span> <span class='id identifier rubyid_second'>second</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='id identifier rubyid_second'>second</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_moves'>moves</span>
+      <span class='id identifier rubyid_moving'>moving</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_s'>s</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_result'>result</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_s'>s</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_moving'>moving</span><span class='period'>.</span><span class='id identifier rubyid_reverse'>reverse</span> <span class='op'>+</span> <span class='id identifier rubyid_result'>result</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ngram_suggestions-instance_method">
+  
+    #<strong>ngram_suggestions</strong>(word, captype:, handled:) {|String| ... } &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Generate ngram-based suggestions.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Misspelled word</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>captype</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Capitalization type of the misspelled word</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>handled</span>
+      
+      
+        <span class='type'>(<tt>Set&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Already suggested words</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Each ngram suggestion</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/algorithms/suggest.rb', line 438</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ngram_suggestions'>ngram_suggestions</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='label'>captype:</span><span class='comma'>,</span> <span class='label'>handled:</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:MAXNGRAMSUGS</span><span class='rbracket'>]</span><span class='op'>&amp;.</span><span class='id identifier rubyid_positive?'>positive?</span>
+
+  <span class='id identifier rubyid_known_lower'>known_lower</span> <span class='op'>=</span> <span class='id identifier rubyid_handled'>handled</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:downcase</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_set'>to_set</span>
+
+  <span class='const'><span class='object_link'><a href="../NgramSuggest.html" title="Kotoshu::Algorithms::NgramSuggest (module)">NgramSuggest</a></span></span><span class='period'>.</span><span class='id identifier rubyid_suggest'><span class='object_link'><a href="../NgramSuggest.html#suggest-class_method" title="Kotoshu::Algorithms::NgramSuggest.suggest (method)">suggest</a></span></span><span class='lparen'>(</span>
+    <span class='id identifier rubyid_word'>word</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='comma'>,</span>
+    <span class='label'>dictionary_words:</span> <span class='id identifier rubyid_ngram_candidate_words'>ngram_candidate_words</span><span class='lparen'>(</span><span class='id identifier rubyid_captype'>captype</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>prefixes:</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:prefixes_by_flag</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='label'>suffixes:</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:suffixes_by_flag</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='label'>known:</span> <span class='id identifier rubyid_known_lower'>known_lower</span><span class='comma'>,</span>
+    <span class='label'>maxdiff:</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:MAXDIFF</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>2</span><span class='comma'>,</span>
+    <span class='label'>onlymaxdiff:</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:ONLYMAXDIFF</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>false</span><span class='comma'>,</span>
+    <span class='label'>has_phonetic:</span> <span class='op'>!</span><span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:PHONE</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="phonet_suggestions-instance_method">
+  
+    #<strong>phonet_suggestions</strong>(word) {|String| ... } &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Generate phonetic suggestions.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Misspelled word</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Each phonetic suggestion</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+459
+460
+461
+462
+463
+464
+465
+466
+467</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/algorithms/suggest.rb', line 459</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_phonet_suggestions'>phonet_suggestions</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:PHONE</span><span class='rbracket'>]</span>
+
+  <span class='const'><span class='object_link'><a href="../PhonetSuggest.html" title="Kotoshu::Algorithms::PhonetSuggest (module)">PhonetSuggest</a></span></span><span class='period'>.</span><span class='id identifier rubyid_suggest'><span class='object_link'><a href="../PhonetSuggest.html#suggest-class_method" title="Kotoshu::Algorithms::PhonetSuggest.suggest (method)">suggest</a></span></span><span class='lparen'>(</span>
+    <span class='id identifier rubyid_word'>word</span><span class='comma'>,</span>
+    <span class='label'>dictionary_words:</span> <span class='ivar'>@words_for_ngram</span><span class='comma'>,</span>
+    <span class='label'>table:</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:PHONE</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='op'>&amp;</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="suggestions-instance_method">
+  
+    #<strong>suggestions</strong>(word) {|Suggestion, MultiWordSuggestion| ... } &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Main suggestion search loop.</p>
+<p>What it does, in general:</p>
+<ol>
+<li>Generates possible misspelled word cases (capitalization variants)</li>
+<li>Produces word edits with edits, checks them with Lookup</li>
+<li>If needed, produces ngram-based suggestions</li>
+<li>If needed, produces phonetically similar suggestions</li>
+</ol>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Word to check</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></tt>, <tt><span class='object_link'><a href="MultiWordSuggestion.html" title="Kotoshu::Algorithms::Suggest::MultiWordSuggestion (class)">MultiWordSuggestion</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Each suggestion object</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/algorithms/suggest.rb', line 172</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_suggestions'>suggestions</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_enum_for'>enum_for</span><span class='lparen'>(</span><span class='symbol'>:suggestions</span><span class='comma'>,</span> <span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_block'>block</span>
+
+  <span class='comment'># Track all suggestions we&#39;ve already yielded
+</span>  <span class='id identifier rubyid_handled'>handled</span> <span class='op'>=</span> <span class='const'>Set</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
+  <span class='comment'># Helper: Check if suggestion is a valid word
+</span>  <span class='id identifier rubyid_is_good_suggestion'>is_good_suggestion</span> <span class='op'>=</span> <span class='tlambda'>-&gt;</span><span class='lparen'>(</span><span class='id identifier rubyid_w'>w</span><span class='rparen'>)</span> <span class='kw'>do</span>
+    <span class='comment'># Check if there&#39;s any good form of this exact word
+</span>    <span class='comment'># Note: We check good_forms directly to avoid ICONV and dash-breaking
+</span>    <span class='id identifier rubyid_good_forms'>good_forms</span> <span class='op'>=</span> <span class='ivar'>@lookup</span><span class='period'>.</span><span class='id identifier rubyid_good_forms'>good_forms</span><span class='lparen'>(</span><span class='id identifier rubyid_w'>w</span><span class='comma'>,</span> <span class='label'>capitalization:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>allow_nosuggest:</span> <span class='kw'>false</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_good_forms'>good_forms</span><span class='period'>.</span><span class='id identifier rubyid_any?'>any?</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Helper: same as is_good_suggestion but with capitalization variants.
+</span>  <span class='comment'># Used for CHECKSHARPS where the candidate differs in case from any
+</span>  <span class='comment'># dictionary entry (e.g. &quot;MÜSSIG&quot; vs stem &quot;müßig&quot;).
+</span>  <span class='id identifier rubyid_is_good_suggestion_cap'>is_good_suggestion_cap</span> <span class='op'>=</span> <span class='tlambda'>-&gt;</span><span class='lparen'>(</span><span class='id identifier rubyid_w'>w</span><span class='rparen'>)</span> <span class='kw'>do</span>
+    <span class='ivar'>@lookup</span><span class='period'>.</span><span class='id identifier rubyid_good_forms'>good_forms</span><span class='lparen'>(</span><span class='id identifier rubyid_w'>w</span><span class='comma'>,</span> <span class='label'>capitalization:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>allow_nosuggest:</span> <span class='kw'>false</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_any?'>any?</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Helper: Check if word is forbidden
+</span>  <span class='id identifier rubyid_is_forbidden'>is_forbidden</span> <span class='op'>=</span> <span class='tlambda'>-&gt;</span><span class='lparen'>(</span><span class='id identifier rubyid_w'>w</span><span class='rparen'>)</span> <span class='kw'>do</span>
+    <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:FORBIDDENWORD</span><span class='rbracket'>]</span>
+
+    <span class='ivar'>@dic</span><span class='lbracket'>[</span><span class='symbol'>:has_flag</span><span class='rbracket'>]</span><span class='op'>&amp;.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_w'>w</span><span class='comma'>,</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:FORBIDDENWORD</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Get capitalization type and variants
+</span>  <span class='id identifier rubyid_captype'>captype</span><span class='comma'>,</span> <span class='id identifier rubyid_variants'>variants</span> <span class='op'>=</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:casing</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_corrections'>corrections</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span>
+
+  <span class='comment'># Special case: CHECKSHARPS with sharp-s in word
+</span>  <span class='comment'>#
+</span>  <span class='comment'># German capitalizes sharp s as SS — when CHECKSHARPS is on, an
+</span>  <span class='comment'># ALLCAPS word like &quot;MÜßIG&quot; is wrong even though its stem &quot;müßig&quot;
+</span>  <span class='comment'># carries KEEPCASE. We replace ß→SS and try the result as a
+</span>  <span class='comment'># candidate.
+</span>  <span class='kw'>if</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:CHECKSHARPS</span><span class='rbracket'>]</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_captype'>captype</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="../Capitalization.html" title="Kotoshu::Algorithms::Capitalization (module)">Capitalization</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Capitalization/Type.html" title="Kotoshu::Algorithms::Capitalization::Type (module)">Type</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Capitalization/Type.html#ALL-constant" title="Kotoshu::Algorithms::Capitalization::Type::ALL (constant)">ALL</a></span></span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_word'>word</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ß</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_sharp_swapped'>sharp_swapped</span> <span class='op'>=</span> <span class='id identifier rubyid_word'>word</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ß</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SS</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_is_good_suggestion_cap'>is_good_suggestion_cap</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_sharp_swapped'>sharp_swapped</span><span class='rparen'>)</span>
+      <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_sharp_swapped'>sharp_swapped</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>checksharps</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Special case: FORCEUCASE with NO capitalization
+</span>  <span class='kw'>if</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:FORCEUCASE</span><span class='rbracket'>]</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_captype'>captype</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="../Capitalization.html" title="Kotoshu::Algorithms::Capitalization (module)">Capitalization</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Capitalization/Type.html" title="Kotoshu::Algorithms::Capitalization::Type (module)">Type</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Capitalization/Type.html#NO-constant" title="Kotoshu::Algorithms::Capitalization::Type::NO (constant)">NO</a></span></span>
+    <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:casing</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_capitalize'>capitalize</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_capitalized'>capitalized</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_is_good_suggestion'>is_good_suggestion</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_capitalized'>capitalized</span><span class='rparen'>)</span>
+        <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_capitalized'>capitalized</span><span class='period'>.</span><span class='id identifier rubyid_capitalize'>capitalize</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>forceucase</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+        <span class='kw'>return</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Dot-separated mixed-case misspelling: &quot;something.The&quot; is
+</span>  <span class='comment'># suggested as &quot;something. The&quot; (see try_dotsplit_suggestion).
+</span>  <span class='id identifier rubyid_try_dotsplit_suggestion'>try_dotsplit_suggestion</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='id identifier rubyid_captype'>captype</span><span class='comma'>,</span>
+                          <span class='label'>is_forbidden:</span> <span class='id identifier rubyid_is_forbidden'>is_forbidden</span><span class='comma'>,</span> <span class='label'>handled:</span> <span class='id identifier rubyid_handled'>handled</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_good_edits_found'>good_edits_found</span> <span class='op'>=</span> <span class='kw'>false</span>
+
+  <span class='comment'># Process each capitalization variant
+</span>  <span class='id identifier rubyid_variants'>variants</span><span class='period'>.</span><span class='id identifier rubyid_each_with_index'>each_with_index</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_variant'>variant</span><span class='comma'>,</span> <span class='id identifier rubyid_idx'>idx</span><span class='op'>|</span>
+    <span class='id identifier rubyid_collected'>collected</span><span class='comma'>,</span> <span class='id identifier rubyid_stop'>stop</span><span class='comma'>,</span> <span class='id identifier rubyid__nocompound'>_nocompound</span><span class='comma'>,</span> <span class='id identifier rubyid_good_edits'>good_edits</span> <span class='op'>=</span>
+      <span class='id identifier rubyid_collect_variant_suggestions'>collect_variant_suggestions</span><span class='lparen'>(</span>
+        <span class='id identifier rubyid_variant'>variant</span><span class='comma'>,</span> <span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span>
+        <span class='label'>word:</span> <span class='id identifier rubyid_word'>word</span><span class='comma'>,</span>
+        <span class='label'>captype:</span> <span class='id identifier rubyid_captype'>captype</span><span class='comma'>,</span>
+        <span class='label'>is_forbidden:</span> <span class='id identifier rubyid_is_forbidden'>is_forbidden</span><span class='comma'>,</span>
+        <span class='label'>handled:</span> <span class='id identifier rubyid_handled'>handled</span><span class='comma'>,</span>
+        <span class='label'>is_good_suggestion:</span> <span class='id identifier rubyid_is_good_suggestion'>is_good_suggestion</span>
+      <span class='rparen'>)</span>
+    <span class='id identifier rubyid_good_edits_found'>good_edits_found</span> <span class='op'>||=</span> <span class='id identifier rubyid_good_edits'>good_edits</span>
+
+    <span class='comment'># Upstream Hunspell (hunspell.cxx suggest_internal, the
+</span>    <span class='comment'># HUHCAP/HUHINITCAP &quot;aNew -&gt; a New&quot; loop) reorders the
+</span>    <span class='comment'># suggestions of the lowercased pass so that space-containing
+</span>    <span class='comment'># ones come first — in front of everything yielded so far,
+</span>    <span class='comment'># including the lowercased form itself.
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_idx'>idx</span><span class='period'>.</span><span class='id identifier rubyid_positive?'>positive?</span> <span class='op'>&amp;&amp;</span> <span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="../Capitalization.html" title="Kotoshu::Algorithms::Capitalization (module)">Capitalization</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Capitalization/Type.html" title="Kotoshu::Algorithms::Capitalization::Type (module)">Type</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Capitalization/Type.html#HUH-constant" title="Kotoshu::Algorithms::Capitalization::Type::HUH (constant)">HUH</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../Capitalization.html" title="Kotoshu::Algorithms::Capitalization (module)">Capitalization</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Capitalization/Type.html" title="Kotoshu::Algorithms::Capitalization::Type (module)">Type</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Capitalization/Type.html#HUHINIT-constant" title="Kotoshu::Algorithms::Capitalization::Type::HUHINIT (constant)">HUHINIT</a></span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_captype'>captype</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_collected'>collected</span> <span class='op'>=</span> <span class='id identifier rubyid_move_space_splits_to_front'>move_space_splits_to_front</span><span class='lparen'>(</span><span class='id identifier rubyid_collected'>collected</span><span class='comma'>,</span> <span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_collected'>collected</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_stop'>stop</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Skip ngram/phonetic if we found good edits
+</span>  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_good_edits_found'>good_edits_found</span>
+
+  <span class='comment'># Try fixing words with dashes
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_word'>word</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_handled'>handled</span><span class='period'>.</span><span class='id identifier rubyid_none?'>none?</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_s'>s</span><span class='op'>|</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+    <span class='id identifier rubyid_chunks'>chunks</span> <span class='op'>=</span> <span class='id identifier rubyid_word'>word</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_chunks'>chunks</span><span class='period'>.</span><span class='id identifier rubyid_each_with_index'>each_with_index</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_chunk'>chunk</span><span class='comma'>,</span> <span class='id identifier rubyid_idx'>idx</span><span class='op'>|</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_is_good_suggestion'>is_good_suggestion</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_chunk'>chunk</span><span class='rparen'>)</span>
+
+      <span class='comment'># Try all suggestions for this chunk
+</span>      <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_chunk'>chunk</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_sug'>sug</span><span class='op'>|</span>
+        <span class='id identifier rubyid_candidate'>candidate</span> <span class='op'>=</span> <span class='id identifier rubyid_chunks'>chunks</span><span class='lbracket'>[</span><span class='int'>0</span><span class='op'>...</span><span class='id identifier rubyid_idx'>idx</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='lbracket'>[</span><span class='id identifier rubyid_sug'>sug</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='id identifier rubyid_chunks'>chunks</span><span class='lbracket'>[</span><span class='lparen'>(</span><span class='id identifier rubyid_idx'>idx</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span><span class='op'>..</span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_candidate_str'>candidate_str</span> <span class='op'>=</span> <span class='id identifier rubyid_candidate'>candidate</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+        <span class='comment'># Check if the whole word with replacement is good
+</span>        <span class='kw'>if</span> <span class='ivar'>@lookup</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_candidate_str'>candidate_str</span><span class='comma'>,</span> <span class='label'>capitalization:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>allow_nosuggest:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+          <span class='kw'>yield</span> <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_candidate_str'>candidate_str</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dashes</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># Only try one misspelled chunk
+</span>      <span class='kw'>break</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Ngram-based suggestions
+</span>  <span class='kw'>if</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:MAXNGRAMSUGS</span><span class='rbracket'>]</span><span class='op'>&amp;.</span><span class='id identifier rubyid_positive?'>positive?</span>
+    <span class='id identifier rubyid_limit'>limit</span> <span class='op'>=</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:MAXNGRAMSUGS</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_ngrams_seen'>ngrams_seen</span> <span class='op'>=</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_ngram_suggestions'>ngram_suggestions</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='label'>captype:</span> <span class='id identifier rubyid_captype'>captype</span><span class='comma'>,</span> <span class='label'>handled:</span> <span class='id identifier rubyid_handled'>handled</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_sug'>sug</span><span class='op'>|</span>
+      <span class='id identifier rubyid_handle_found'>handle_found</span><span class='lparen'>(</span>
+        <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_sug'>sug</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ngram</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='label'>word:</span> <span class='id identifier rubyid_word'>word</span><span class='comma'>,</span>
+        <span class='label'>captype:</span> <span class='id identifier rubyid_captype'>captype</span><span class='comma'>,</span>
+        <span class='label'>is_forbidden:</span> <span class='id identifier rubyid_is_forbidden'>is_forbidden</span><span class='comma'>,</span>
+        <span class='label'>handled:</span> <span class='id identifier rubyid_handled'>handled</span><span class='comma'>,</span>
+        <span class='label'>check_inclusion:</span> <span class='kw'>true</span>
+      <span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='op'>|</span>
+        <span class='kw'>yield</span> <span class='id identifier rubyid_suggestion'>suggestion</span>
+        <span class='id identifier rubyid_ngrams_seen'>ngrams_seen</span> <span class='op'>+=</span> <span class='int'>1</span>
+      <span class='kw'>end</span>
+      <span class='comment'># break out of ngram_suggestions, not just handle_found
+</span>      <span class='kw'>break</span> <span class='kw'>if</span> <span class='id identifier rubyid_ngrams_seen'>ngrams_seen</span> <span class='op'>&gt;=</span> <span class='id identifier rubyid_limit'>limit</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Phonetic suggestions
+</span>  <span class='kw'>if</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:PHONE</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_phonet_seen'>phonet_seen</span> <span class='op'>=</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_phonet_suggestions'>phonet_suggestions</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_sug'>sug</span><span class='op'>|</span>
+      <span class='id identifier rubyid_handle_found'>handle_found</span><span class='lparen'>(</span>
+        <span class='const'><span class='object_link'><a href="Suggestion.html" title="Kotoshu::Algorithms::Suggest::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestion.html#initialize-instance_method" title="Kotoshu::Algorithms::Suggest::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_sug'>sug</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>phonet</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='label'>word:</span> <span class='id identifier rubyid_word'>word</span><span class='comma'>,</span>
+        <span class='label'>captype:</span> <span class='id identifier rubyid_captype'>captype</span><span class='comma'>,</span>
+        <span class='label'>is_forbidden:</span> <span class='id identifier rubyid_is_forbidden'>is_forbidden</span><span class='comma'>,</span>
+        <span class='label'>handled:</span> <span class='id identifier rubyid_handled'>handled</span><span class='comma'>,</span>
+        <span class='label'>check_inclusion:</span> <span class='kw'>true</span>
+      <span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='op'>|</span>
+        <span class='kw'>yield</span> <span class='id identifier rubyid_suggestion'>suggestion</span>
+        <span class='id identifier rubyid_phonet_seen'>phonet_seen</span> <span class='op'>+=</span> <span class='int'>1</span>
+      <span class='kw'>end</span>
+      <span class='kw'>break</span> <span class='kw'>if</span> <span class='id identifier rubyid_phonet_seen'>phonet_seen</span> <span class='op'>&gt;=</span> <span class='const'><span class='object_link'><a href="../Suggest.html#MAXPHONSUGS-constant" title="Kotoshu::Algorithms::Suggest::MAXPHONSUGS (constant)">MAXPHONSUGS</a></span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="use_dash?-instance_method">
+  
+    #<strong>use_dash?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Check if dashes are allowed for joining words.</p>
+<p>Definition from Hunspell: Either dash is in TRY directive, or TRY
+indicates Latinic script (by having 'a').</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Whether dashes are allowed</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+475
+476
+477
+478</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/algorithms/suggest.rb', line 475</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_use_dash?'>use_dash?</span>
+  <span class='id identifier rubyid_try_chars'>try_chars</span> <span class='op'>=</span> <span class='ivar'>@aff</span><span class='lbracket'>[</span><span class='symbol'>:TRY</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_try_chars'>try_chars</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_try_chars'>try_chars</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>a</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:40 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

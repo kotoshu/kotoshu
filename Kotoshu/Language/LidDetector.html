@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Kotoshu::Language::LidDetector
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Language::LidDetector";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (L)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Language.html" title="Kotoshu::Language (module)">Language</a></span></span>
+     &raquo; 
+    <span class="title">LidDetector</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Kotoshu::Language::LidDetector
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Kotoshu::Language::LidDetector</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/language/lid_detector.rb<span class="defines">,<br>
+  sig/kotoshu.rbs</span>
+
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>Document language detection through the pure-Rust LID reader
+(plan 106): kotoshu://models/lid/lid-176 scored by the native
+extension, Language::Detector heuristic as the fallback.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#available%3F-class_method" title="available? (class method)">.<strong>available?</strong>(config: Kotoshu.configuration)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Whether <span class='object_link'><a href="#detect-class_method" title="Kotoshu::Language::LidDetector.detect (method)">LidDetector.detect</a></span> would run the native engine for this configuration — the extension is built, the backend is not &quot;ruby&quot;, and the artifact pair is cached.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#detect-class_method" title="detect (class method)">.<strong>detect</strong>(text, config: Kotoshu.configuration)  &#x21d2; Detection </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Detect the language of text.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reset-class_method" title="reset (class method)">.<strong>reset</strong>  &#x21d2; nil </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Drop the memoized native model.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup-class_method" title="setup (class method)">.<strong>setup</strong>(config: Kotoshu.configuration, force: false)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Download the LID artifact pair into the model cache (stage one of the two-stage model; registry-resolved, sha-verified).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup%3F-class_method" title="setup? (class method)">.<strong>setup?</strong>(config: Kotoshu.configuration)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Whether the LID artifact pair is cached (cache-only check).</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="available?-class_method">
+  
+    .<strong>available?</strong>(config: Kotoshu.configuration)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Whether <span class='object_link'><a href="#detect-class_method" title="Kotoshu::Language::LidDetector.detect (method)">detect</a></span> would run the native engine for this
+configuration — the extension is built, the backend is not
+&quot;ruby&quot;, and the artifact pair is cached.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>config</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span></tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>Kotoshu.configuration</tt>)</em>
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>config:</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span></tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>Kotoshu.configuration</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+77
+78
+79</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/language/lid_detector.rb', line 77</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_available?'>available?</span><span class='lparen'>(</span><span class='label'>config:</span> <span class='const'><span class='object_link'><a href="../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'><span class='object_link'><a href="../../Kotoshu.html#configuration-class_method" title="Kotoshu.configuration (method)">configuration</a></span></span><span class='rparen'>)</span>
+  <span class='op'>!</span><span class='id identifier rubyid_native_model'>native_model</span><span class='lparen'>(</span><span class='label'>config:</span> <span class='id identifier rubyid_config'>config</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="detect-class_method">
+  
+    .<strong>detect</strong>(text, config: Kotoshu.configuration)  &#x21d2; <tt><span class='object_link'><a href="Detection.html" title="Kotoshu::Language::Detection (class)">Detection</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Detect the language of text.</p>
+<p>Native LID when available (see <span class='object_link'><a href="" title="Kotoshu::Language::LidDetector (class)">Kotoshu::Language::LidDetector</a></span> for the
+selection rules), the <span class='object_link'><a href="Detector.html" title="Kotoshu::Language::Detector (class)">Detector</a></span> heuristic otherwise.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>text</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Text to analyze</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>config</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span></tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>Kotoshu.configuration</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>configuration to consult
+(defaults to the global instance)</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>config:</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span></tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>Kotoshu.configuration</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Detection.html" title="Kotoshu::Language::Detection (class)">Detection</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>code (nil when the heuristic is
+uncertain) and score in [0, 1]</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/language/lid_detector.rb', line 58</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_detect'>detect</span><span class='lparen'>(</span><span class='id identifier rubyid_text'>text</span><span class='comma'>,</span> <span class='label'>config:</span> <span class='const'><span class='object_link'><a href="../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'><span class='object_link'><a href="../../Kotoshu.html#configuration-class_method" title="Kotoshu.configuration (method)">configuration</a></span></span><span class='rparen'>)</span>
+  <span class='comment'># nil is not text; an empty/blank string IS (the native
+</span>  <span class='comment'># reader scores its EOS token row — &quot;en&quot;, ~0.12 — exactly
+</span>  <span class='comment'># like the fastText bindings, per the frozen corpus).
+</span>  <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="Detection.html" title="Kotoshu::Language::Detection (class)">Detection</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Detection.html#initialize-instance_method" title="Kotoshu::Language::Detection#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='label'>code:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>score:</span> <span class='float'>0.0</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='id identifier rubyid_model'>model</span> <span class='op'>=</span> <span class='id identifier rubyid_native_model'>native_model</span><span class='lparen'>(</span><span class='label'>config:</span> <span class='id identifier rubyid_config'>config</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_heuristic_detection'>heuristic_detection</span><span class='lparen'>(</span><span class='id identifier rubyid_text'>text</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_model'>model</span>
+
+  <span class='id identifier rubyid_row'>row</span> <span class='op'>=</span> <span class='id identifier rubyid_model'>model</span><span class='period'>.</span><span class='id identifier rubyid_detect'>detect</span><span class='lparen'>(</span><span class='id identifier rubyid_text'>text</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="Detection.html" title="Kotoshu::Language::Detection (class)">Detection</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Detection.html#initialize-instance_method" title="Kotoshu::Language::Detection#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='label'>code:</span> <span class='id identifier rubyid_row'>row</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>code</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='comma'>,</span> <span class='label'>score:</span> <span class='id identifier rubyid_row'>row</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>score</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="reset-class_method">
+  
+    .<strong>reset</strong>  &#x21d2; <tt>nil</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Drop the memoized native model. The next <span class='object_link'><a href="#detect-class_method" title="Kotoshu::Language::LidDetector.detect (method)">detect</a></span> re-resolves
+from the cache — the seam tests and embedders use after
+<span class='object_link'><a href="#setup-class_method" title="Kotoshu::Language::LidDetector.setup (method)">setup</a></span> or a cache purge (mirrors Kotoshu.reset_spellchecker).</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>nil</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+111
+112
+113
+114</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/language/lid_detector.rb', line 111</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_reset'>reset</span>
+  <span class='ivar'>@native_model</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="setup-class_method">
+  
+    .<strong>setup</strong>(config: Kotoshu.configuration, force: false)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Download the LID artifact pair into the model cache (stage
+one of the two-stage model; registry-resolved, sha-verified).</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>config</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span></tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>Kotoshu.configuration</tt>)</em>
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>force</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>re-fetch even if already cached</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>config:</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span></tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>Kotoshu.configuration</tt>)</em>
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>force:</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>{ onnx_path:, vocab_path:, metadata }</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Error.html" title="Kotoshu::Error (class)">Kotoshu::Error</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>no registry entry, or offline with
+no cached registry (KOTOSHU_OFFLINE=1)</p></div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../IntegrityError.html" title="Kotoshu::IntegrityError (class)">Kotoshu::IntegrityError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>downloaded bytes fail the
+registry checksum</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+91
+92
+93
+94
+95
+96</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/language/lid_detector.rb', line 91</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_setup'>setup</span><span class='lparen'>(</span><span class='label'>config:</span> <span class='const'><span class='object_link'><a href="../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'><span class='object_link'><a href="../../Kotoshu.html#configuration-class_method" title="Kotoshu.configuration (method)">configuration</a></span></span><span class='comma'>,</span> <span class='label'>force:</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_pair'>pair</span> <span class='op'>=</span> <span class='id identifier rubyid_model_cache'>model_cache</span><span class='lparen'>(</span><span class='label'>config:</span> <span class='id identifier rubyid_config'>config</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_load_cached_lid'>load_cached_lid</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_pair'>pair</span> <span class='kw'>if</span> <span class='id identifier rubyid_pair'>pair</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_force'>force</span>
+
+  <span class='id identifier rubyid_model_cache'>model_cache</span><span class='lparen'>(</span><span class='label'>config:</span> <span class='id identifier rubyid_config'>config</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_download_lid'>download_lid</span><span class='lparen'>(</span><span class='label'>force:</span> <span class='id identifier rubyid_force'>force</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="setup?-class_method">
+  
+    .<strong>setup?</strong>(config: Kotoshu.configuration)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Whether the LID artifact pair is cached (cache-only check).</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>config</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span></tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>Kotoshu.configuration</tt>)</em>
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>config:</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span></tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>Kotoshu.configuration</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+102
+103
+104</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/language/lid_detector.rb', line 102</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_setup?'>setup?</span><span class='lparen'>(</span><span class='label'>config:</span> <span class='const'><span class='object_link'><a href="../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'><span class='object_link'><a href="../../Kotoshu.html#configuration-class_method" title="Kotoshu.configuration (method)">configuration</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_model_cache'>model_cache</span><span class='lparen'>(</span><span class='label'>config:</span> <span class='id identifier rubyid_config'>config</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_lid_cached?'>lid_cached?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:43 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

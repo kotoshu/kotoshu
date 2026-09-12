@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Kotoshu::Cli::InteractiveReviewer
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Cli::InteractiveReviewer";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (I)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Cli.html" title="Kotoshu::Cli (module)">Cli</a></span></span>
+     &raquo; 
+    <span class="title">InteractiveReviewer</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Kotoshu::Cli::InteractiveReviewer
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Kotoshu::Cli::InteractiveReviewer</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/cli/interactive_reviewer.rb
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>Interactive review session for spell/grammar checking.</p>
+<p>Provides a user-friendly terminal interface for reviewing errors
+with full navigation support (forward, backward, jump, skip, accept).</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+        <h5 class="example_title"><div class='inline'><p>Starting an interactive session</p></div></h5>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_reviewer'>reviewer</span> <span class='op'>=</span> <span class='const'>InteractiveReviewer</span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="Kotoshu::Cli::InteractiveReviewer#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_document'>document</span><span class='comma'>,</span> <span class='id identifier rubyid_analyzer'>analyzer</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_reviewer'>reviewer</span><span class='period'>.</span><span class='id identifier rubyid_run'>run</span>  <span class='comment'># Enters interactive loop</span></code></pre>
+    
+      
+        <h5 class="example_title"><div class='inline'><p>Batch mode (non-interactive)</p></div></h5>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_reviewer'>reviewer</span> <span class='op'>=</span> <span class='const'>InteractiveReviewer</span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="Kotoshu::Cli::InteractiveReviewer#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_document'>document</span><span class='comma'>,</span> <span class='id identifier rubyid_analyzer'>analyzer</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_reporter'>reporter</span> <span class='op'>=</span> <span class='id identifier rubyid_reviewer'>reviewer</span><span class='period'>.</span><span class='id identifier rubyid_run_batch'>run_batch</span>  <span class='comment'># Returns BatchReporter</span></code></pre>
+    
+  </div>
+
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#analyzer-instance_method" title="#analyzer (instance method)">#<strong>analyzer</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute analyzer.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#document-instance_method" title="#document (instance method)">#<strong>document</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute document.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#formatter-instance_method" title="#formatter (instance method)">#<strong>formatter</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute formatter.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#navigation-instance_method" title="#navigation (instance method)">#<strong>navigation</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute navigation.</p></div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#has_errors%3F-instance_method" title="#has_errors? (instance method)">#<strong>has_errors?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Check if session has errors.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(document, analyzer, formatter: nil)  &#x21d2; InteractiveReviewer </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Create a new interactive reviewer.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#run-instance_method" title="#run (instance method)">#<strong>run</strong>  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Run the interactive review loop.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#run_batch-instance_method" title="#run_batch (instance method)">#<strong>run_batch</strong>  &#x21d2; BatchReporter </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Run in batch mode (non-interactive).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#statistics-instance_method" title="#statistics (instance method)">#<strong>statistics</strong>  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get session statistics.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(document, analyzer, formatter: nil)  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::Cli::InteractiveReviewer (class)">InteractiveReviewer</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Create a new interactive reviewer.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>document</span>
+      
+      
+        <span class='type'>(<tt>Object</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Document to review (responds to #content)</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>analyzer</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Analyzers/SemanticAnalyzer.html" title="Kotoshu::Analyzers::SemanticAnalyzer (class)">Analyzers::SemanticAnalyzer</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Error analyzer</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>formatter</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="DisplayFormatter.html" title="Kotoshu::Cli::DisplayFormatter (class)">DisplayFormatter</a></span></tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Display formatter (default: new instance)</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cli/interactive_reviewer.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_document'>document</span><span class='comma'>,</span> <span class='id identifier rubyid_analyzer'>analyzer</span><span class='comma'>,</span> <span class='label'>formatter:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Document required</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_document'>document</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Analyzer required</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_analyzer'>analyzer</span>
+
+  <span class='ivar'>@document</span> <span class='op'>=</span> <span class='id identifier rubyid_document'>document</span>
+  <span class='ivar'>@analyzer</span> <span class='op'>=</span> <span class='id identifier rubyid_analyzer'>analyzer</span>
+
+  <span class='comment'># Analyze document for errors
+</span>  <span class='id identifier rubyid_errors'>errors</span> <span class='op'>=</span> <span class='ivar'>@analyzer</span><span class='period'>.</span><span class='id identifier rubyid_analyze'>analyze</span><span class='lparen'>(</span><span class='ivar'>@document</span><span class='rparen'>)</span>
+
+  <span class='comment'># Create navigation manager
+</span>  <span class='ivar'>@navigation</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="NavigationManager.html" title="Kotoshu::Cli::NavigationManager (class)">NavigationManager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="NavigationManager.html#initialize-instance_method" title="Kotoshu::Cli::NavigationManager#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_errors'>errors</span><span class='rparen'>)</span>
+
+  <span class='comment'># Create display formatter
+</span>  <span class='ivar'>@formatter</span> <span class='op'>=</span> <span class='id identifier rubyid_formatter'>formatter</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="DisplayFormatter.html" title="Kotoshu::Cli::DisplayFormatter (class)">DisplayFormatter</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="DisplayFormatter.html#initialize-instance_method" title="Kotoshu::Cli::DisplayFormatter#initialize (method)">new</a></span></span>
+
+  <span class='ivar'>@running</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='ivar'>@show_context</span> <span class='op'>=</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="analyzer-instance_method">
+  
+    #<strong>analyzer</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the value of attribute analyzer.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cli/interactive_reviewer.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_analyzer'>analyzer</span>
+  <span class='ivar'>@analyzer</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="document-instance_method">
+  
+    #<strong>document</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the value of attribute document.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cli/interactive_reviewer.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_document'>document</span>
+  <span class='ivar'>@document</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="formatter-instance_method">
+  
+    #<strong>formatter</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the value of attribute formatter.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cli/interactive_reviewer.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_formatter'>formatter</span>
+  <span class='ivar'>@formatter</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="navigation-instance_method">
+  
+    #<strong>navigation</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the value of attribute navigation.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cli/interactive_reviewer.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_navigation'>navigation</span>
+  <span class='ivar'>@navigation</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="has_errors?-instance_method">
+  
+    #<strong>has_errors?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Check if session has errors.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>True if there are errors to review</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+91
+92
+93</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cli/interactive_reviewer.rb', line 91</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_has_errors?'>has_errors?</span>
+  <span class='ivar'>@navigation</span><span class='period'>.</span><span class='id identifier rubyid_errors'>errors</span><span class='period'>.</span><span class='id identifier rubyid_any?'>any?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="run-instance_method">
+  
+    #<strong>run</strong>  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Run the interactive review loop.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Session summary with statistics</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cli/interactive_reviewer.rb', line 48</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_run'>run</span>
+  <span class='ivar'>@running</span> <span class='op'>=</span> <span class='kw'>true</span>
+
+  <span class='comment'># Show welcome message
+</span>  <span class='id identifier rubyid_show_welcome'>show_welcome</span>
+
+  <span class='comment'># Show summary screen
+</span>  <span class='id identifier rubyid_puts'>puts</span> <span class='ivar'>@formatter</span><span class='period'>.</span><span class='id identifier rubyid_summary_screen'>summary_screen</span><span class='lparen'>(</span><span class='ivar'>@document</span><span class='comma'>,</span> <span class='ivar'>@navigation</span><span class='rparen'>)</span>
+
+  <span class='comment'># Main interactive loop
+</span>  <span class='kw'>while</span> <span class='ivar'>@running</span> <span class='op'>&amp;&amp;</span> <span class='ivar'>@navigation</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span>
+    <span class='id identifier rubyid_show_current_error'>show_current_error</span>
+    <span class='id identifier rubyid_process_input'>process_input</span><span class='lparen'>(</span><span class='id identifier rubyid_get_user_input'>get_user_input</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Show exit message
+</span>  <span class='id identifier rubyid_show_exit_summary'>show_exit_summary</span>
+
+  <span class='comment'># Return session summary
+</span>  <span class='id identifier rubyid_session_summary'>session_summary</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="run_batch-instance_method">
+  
+    #<strong>run_batch</strong>  &#x21d2; <tt><span class='object_link'><a href="BatchReporter.html" title="Kotoshu::Cli::BatchReporter (class)">BatchReporter</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Run in batch mode (non-interactive).</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="BatchReporter.html" title="Kotoshu::Cli::BatchReporter (class)">BatchReporter</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Reporter with results</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cli/interactive_reviewer.rb', line 73</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_run_batch'>run_batch</span>
+  <span class='comment'># Analyze all errors without user interaction
+</span>  <span class='id identifier rubyid_errors'>errors</span> <span class='op'>=</span> <span class='ivar'>@navigation</span><span class='period'>.</span><span class='id identifier rubyid_errors'>errors</span>
+
+  <span class='comment'># Apply all high-confidence corrections automatically
+</span>  <span class='id identifier rubyid_errors'>errors</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_error'>error</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_error'>error</span><span class='period'>.</span><span class='id identifier rubyid_high_confidence?'>high_confidence?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_error'>error</span><span class='period'>.</span><span class='id identifier rubyid_suggestions'>suggestions</span><span class='op'>&amp;.</span><span class='id identifier rubyid_any?'>any?</span>
+      <span class='ivar'>@navigation</span><span class='period'>.</span><span class='id identifier rubyid_accept_suggestion'>accept_suggestion</span><span class='lparen'>(</span><span class='id identifier rubyid_error'>error</span><span class='period'>.</span><span class='id identifier rubyid_recommended_suggestion'>recommended_suggestion</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Return batch reporter
+</span>  <span class='const'><span class='object_link'><a href="BatchReporter.html" title="Kotoshu::Cli::BatchReporter (class)">BatchReporter</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="BatchReporter.html#initialize-instance_method" title="Kotoshu::Cli::BatchReporter#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='ivar'>@document</span><span class='comma'>,</span> <span class='ivar'>@navigation</span><span class='comma'>,</span> <span class='ivar'>@formatter</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="statistics-instance_method">
+  
+    #<strong>statistics</strong>  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get session statistics.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Statistics hash</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+98
+99
+100</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cli/interactive_reviewer.rb', line 98</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_statistics'>statistics</span>
+  <span class='ivar'>@navigation</span><span class='period'>.</span><span class='id identifier rubyid_statistics'>statistics</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:46 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

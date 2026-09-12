@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Kotoshu::Keyboard::Layouts::Latin
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Keyboard::Layouts::Latin";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (L)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Keyboard.html" title="Kotoshu::Keyboard (module)">Keyboard</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Layouts.html" title="Kotoshu::Keyboard::Layouts (module)">Layouts</a></span></span>
+     &raquo; 
+    <span class="title">Latin</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Kotoshu::Keyboard::Layouts::Latin
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="../Layout.html" title="Kotoshu::Keyboard::Layout (class)">Kotoshu::Keyboard::Layout</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../Layout.html" title="Kotoshu::Keyboard::Layout (class)">Kotoshu::Keyboard::Layout</a></span></li>
+          
+            <li class="next">Kotoshu::Keyboard::Layouts::Latin</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/keyboard/layouts/latin.rb<span class="defines">,<br>
+  sig/kotoshu.rbs</span>
+
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>Parameterized Latin layout family (plan 84): members declare a
+name, language codes, a qwerty/qwertz base grid and optional
+extra physical keys (the Nordic å/æ/ø, å/ä/ö).</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Latin/Catalan.html" title="Kotoshu::Keyboard::Layouts::Latin::Catalan (class)">Catalan</a></span>, <span class='object_link'><a href="Latin/Czech.html" title="Kotoshu::Keyboard::Layouts::Latin::Czech (class)">Czech</a></span>, <span class='object_link'><a href="Latin/Danish.html" title="Kotoshu::Keyboard::Layouts::Latin::Danish (class)">Danish</a></span>, <span class='object_link'><a href="Latin/Dutch.html" title="Kotoshu::Keyboard::Layouts::Latin::Dutch (class)">Dutch</a></span>, <span class='object_link'><a href="Latin/Estonian.html" title="Kotoshu::Keyboard::Layouts::Latin::Estonian (class)">Estonian</a></span>, <span class='object_link'><a href="Latin/Hungarian.html" title="Kotoshu::Keyboard::Layouts::Latin::Hungarian (class)">Hungarian</a></span>, <span class='object_link'><a href="Latin/Indonesian.html" title="Kotoshu::Keyboard::Layouts::Latin::Indonesian (class)">Indonesian</a></span>, <span class='object_link'><a href="Latin/Italian.html" title="Kotoshu::Keyboard::Layouts::Latin::Italian (class)">Italian</a></span>, <span class='object_link'><a href="Latin/Latvian.html" title="Kotoshu::Keyboard::Layouts::Latin::Latvian (class)">Latvian</a></span>, <span class='object_link'><a href="Latin/Lithuanian.html" title="Kotoshu::Keyboard::Layouts::Latin::Lithuanian (class)">Lithuanian</a></span>, <span class='object_link'><a href="Latin/Norwegian.html" title="Kotoshu::Keyboard::Layouts::Latin::Norwegian (class)">Norwegian</a></span>, <span class='object_link'><a href="Latin/Polish.html" title="Kotoshu::Keyboard::Layouts::Latin::Polish (class)">Polish</a></span>, <span class='object_link'><a href="Latin/Romanian.html" title="Kotoshu::Keyboard::Layouts::Latin::Romanian (class)">Romanian</a></span>, <span class='object_link'><a href="Latin/Slovak.html" title="Kotoshu::Keyboard::Layouts::Latin::Slovak (class)">Slovak</a></span>, <span class='object_link'><a href="Latin/Swedish.html" title="Kotoshu::Keyboard::Layouts::Latin::Swedish (class)">Swedish</a></span>, <span class='object_link'><a href="Latin/Vietnamese.html" title="Kotoshu::Keyboard::Layouts::Latin::Vietnamese (class)">Vietnamese</a></span>
+    
+  
+</p>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="NOT_SET-constant" class="">NOT_SET =
+          <div class="docstring">
+  <div class="discussion">
+    <p>Sentinel distinguishing &quot;reader call&quot; from &quot;writer call&quot;.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Object</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'>Object</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../Layout.html" title="Kotoshu::Keyboard::Layout (class)">Kotoshu::Keyboard::Layout</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Layout.html#key_positions-instance_method" title="Kotoshu::Keyboard::Layout#key_positions (method)">#key_positions</a></span>, <span class='object_link'><a href="../Layout.html#language_codes-instance_method" title="Kotoshu::Keyboard::Layout#language_codes (method)">#language_codes</a></span>, <span class='object_link'><a href="../Layout.html#name-instance_method" title="Kotoshu::Keyboard::Layout#name (method)">#name</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#base_grid-class_method" title="base_grid (class method)">.<strong>base_grid</strong>(value = NOT_SET)  &#x21d2; Symbol<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get or set the base physical grid.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#extra_positions-class_method" title="extra_positions (class method)">.<strong>extra_positions</strong>(value = NOT_SET)  &#x21d2; Hash{String =&gt; Array&lt;Integer&gt;}<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get or set extra physical keys merged over the base grid.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#languages-class_method" title="languages (class method)">.<strong>languages</strong>(value = NOT_SET)  &#x21d2; Array&lt;String&gt;<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get or set the supported language codes.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#layout_name-class_method" title="layout_name (class method)">.<strong>layout_name</strong>(value = NOT_SET)  &#x21d2; String<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get or set the layout display name.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#removed_keys-class_method" title="removed_keys (class method)">.<strong>removed_keys</strong>(value = NOT_SET)  &#x21d2; Array&lt;String&gt;<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get or set keys removed from the base grid.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>  &#x21d2; Latin </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Build the layout from the class declarations: the base grid, minus removed keys, plus extra physical keys.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../Layout.html" title="Kotoshu::Keyboard::Layout (class)">Kotoshu::Keyboard::Layout</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Layout.html#adjacent_keys-instance_method" title="Kotoshu::Keyboard::Layout#adjacent_keys (method)">#adjacent_keys</a></span>, <span class='object_link'><a href="../Layout.html#distance-instance_method" title="Kotoshu::Keyboard::Layout#distance (method)">#distance</a></span>, <span class='object_link'><a href="../Layout.html#inspect-instance_method" title="Kotoshu::Keyboard::Layout#inspect (method)">#inspect</a></span>, <span class='object_link'><a href="../Layout.html#position-instance_method" title="Kotoshu::Keyboard::Layout#position (method)">#position</a></span>, <span class='object_link'><a href="../Layout.html#supports_language%3F-instance_method" title="Kotoshu::Keyboard::Layout#supports_language? (method)">#supports_language?</a></span>, <span class='object_link'><a href="../Layout.html#to_s-instance_method" title="Kotoshu::Keyboard::Layout#to_s (method)">#to_s</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::Keyboard::Layouts::Latin (class)">Latin</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Build the layout from the class declarations: the base grid,
+minus removed keys, plus extra physical keys.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+93
+94
+95
+96
+97
+98
+99</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/keyboard/layouts/latin.rb', line 93</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span>
+  <span class='kw'>super</span><span class='lparen'>(</span>
+    <span class='label'>name:</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_layout_name'>layout_name</span><span class='comma'>,</span>
+    <span class='label'>language_codes:</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_languages'>languages</span><span class='comma'>,</span>
+    <span class='label'>key_positions:</span> <span class='id identifier rubyid_build_positions'>build_positions</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="base_grid-class_method">
+  
+    
+      <span class="overload">.<strong>base_grid</strong>(value)  &#x21d2; <tt>Symbol</tt> </span>
+    
+      <span class="overload">.<strong>base_grid</strong>  &#x21d2; <tt>Symbol</tt><sup>?</sup> </span>
+    
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get or set the base physical grid.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <p class="tag_title">Overloads:</p>
+  <ul class="overload">
+    
+      
+      <li class="overload_item">
+        <span class="signature">.<strong>base_grid</strong>(value)  &#x21d2; <tt>Symbol</tt> </span>
+        <div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>value</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+      </li>
+    
+      
+      <li class="overload_item">
+        <span class="signature">.<strong>base_grid</strong>  &#x21d2; <tt>Symbol</tt><sup>?</sup> </span>
+        <div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+      </li>
+    
+  </ul>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>value</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>, <tt><span class='object_link'><a href="#NOT_SET-constant" title="Kotoshu::Keyboard::Layouts::Latin::NOT_SET (constant)">NOT_SET</a></span></tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>NOT_SET</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>:qwerty or :qwertz</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>the declared base grid</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+60
+61
+62
+63
+64</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/keyboard/layouts/latin.rb', line 60</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_base_grid'>base_grid</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#NOT_SET-constant" title="Kotoshu::Keyboard::Layouts::Latin::NOT_SET (constant)">NOT_SET</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='ivar'>@base_grid</span> <span class='kw'>if</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_equal?'>equal?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#NOT_SET-constant" title="Kotoshu::Keyboard::Layouts::Latin::NOT_SET (constant)">NOT_SET</a></span></span><span class='rparen'>)</span>
+
+  <span class='ivar'>@base_grid</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="extra_positions-class_method">
+  
+    
+      <span class="overload">.<strong>extra_positions</strong>(value)  &#x21d2; <tt>Hash[String, [Integer, Integer]]</tt> </span>
+    
+      <span class="overload">.<strong>extra_positions</strong>  &#x21d2; <tt>Hash[String, [Integer, Integer]]</tt><sup>?</sup> </span>
+    
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get or set extra physical keys merged over the base grid.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <p class="tag_title">Overloads:</p>
+  <ul class="overload">
+    
+      
+      <li class="overload_item">
+        <span class="signature">.<strong>extra_positions</strong>(value)  &#x21d2; <tt>Hash[String, [Integer, Integer]]</tt> </span>
+        <div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>value</span>
+      
+      
+        <span class='type'>(<tt>Hash[String, [Integer, Integer]]</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash[String, [Integer, Integer]]</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+      </li>
+    
+      
+      <li class="overload_item">
+        <span class="signature">.<strong>extra_positions</strong>  &#x21d2; <tt>Hash[String, [Integer, Integer]]</tt><sup>?</sup> </span>
+        <div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash[String, [Integer, Integer]]</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+      </li>
+    
+  </ul>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>value</span>
+      
+      
+        <span class='type'>(<tt>Hash{String =&gt; Array&lt;Integer&gt;}</tt>, <tt><span class='object_link'><a href="#NOT_SET-constant" title="Kotoshu::Keyboard::Layouts::Latin::NOT_SET (constant)">NOT_SET</a></span></tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>NOT_SET</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>key =&gt; [row, col] pairs</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash{String =&gt; Array&lt;Integer&gt;}</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>the extras</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+84
+85
+86
+87
+88</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/keyboard/layouts/latin.rb', line 84</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_extra_positions'>extra_positions</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#NOT_SET-constant" title="Kotoshu::Keyboard::Layouts::Latin::NOT_SET (constant)">NOT_SET</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='ivar'>@extra_positions</span> <span class='kw'>if</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_equal?'>equal?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#NOT_SET-constant" title="Kotoshu::Keyboard::Layouts::Latin::NOT_SET (constant)">NOT_SET</a></span></span><span class='rparen'>)</span>
+
+  <span class='ivar'>@extra_positions</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="languages-class_method">
+  
+    
+      <span class="overload">.<strong>languages</strong>(value)  &#x21d2; <tt>Array[String]</tt> </span>
+    
+      <span class="overload">.<strong>languages</strong>  &#x21d2; <tt>Array[String]</tt><sup>?</sup> </span>
+    
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get or set the supported language codes.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <p class="tag_title">Overloads:</p>
+  <ul class="overload">
+    
+      
+      <li class="overload_item">
+        <span class="signature">.<strong>languages</strong>(value)  &#x21d2; <tt>Array[String]</tt> </span>
+        <div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>value</span>
+      
+      
+        <span class='type'>(<tt>Array[String]</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array[String]</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+      </li>
+    
+      
+      <li class="overload_item">
+        <span class="signature">.<strong>languages</strong>  &#x21d2; <tt>Array[String]</tt><sup>?</sup> </span>
+        <div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array[String]</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+      </li>
+    
+  </ul>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>value</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>, <tt><span class='object_link'><a href="#NOT_SET-constant" title="Kotoshu::Keyboard::Layouts::Latin::NOT_SET (constant)">NOT_SET</a></span></tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>NOT_SET</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>codes when declaring</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>the declared codes</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+50
+51
+52
+53
+54</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/keyboard/layouts/latin.rb', line 50</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_languages'>languages</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#NOT_SET-constant" title="Kotoshu::Keyboard::Layouts::Latin::NOT_SET (constant)">NOT_SET</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='ivar'>@languages</span> <span class='kw'>if</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_equal?'>equal?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#NOT_SET-constant" title="Kotoshu::Keyboard::Layouts::Latin::NOT_SET (constant)">NOT_SET</a></span></span><span class='rparen'>)</span>
+
+  <span class='ivar'>@languages</span> <span class='op'>=</span> <span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="layout_name-class_method">
+  
+    
+      <span class="overload">.<strong>layout_name</strong>(value)  &#x21d2; <tt>String</tt> </span>
+    
+      <span class="overload">.<strong>layout_name</strong>  &#x21d2; <tt>String</tt><sup>?</sup> </span>
+    
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get or set the layout display name.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <p class="tag_title">Overloads:</p>
+  <ul class="overload">
+    
+      
+      <li class="overload_item">
+        <span class="signature">.<strong>layout_name</strong>(value)  &#x21d2; <tt>String</tt> </span>
+        <div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>value</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+      </li>
+    
+      
+      <li class="overload_item">
+        <span class="signature">.<strong>layout_name</strong>  &#x21d2; <tt>String</tt><sup>?</sup> </span>
+        <div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+      </li>
+    
+  </ul>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>value</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt><span class='object_link'><a href="#NOT_SET-constant" title="Kotoshu::Keyboard::Layouts::Latin::NOT_SET (constant)">NOT_SET</a></span></tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>NOT_SET</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>name when declaring</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>the declared name</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41
+42
+43
+44</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/keyboard/layouts/latin.rb', line 40</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_layout_name'>layout_name</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#NOT_SET-constant" title="Kotoshu::Keyboard::Layouts::Latin::NOT_SET (constant)">NOT_SET</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='ivar'>@layout_name</span> <span class='kw'>if</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_equal?'>equal?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#NOT_SET-constant" title="Kotoshu::Keyboard::Layouts::Latin::NOT_SET (constant)">NOT_SET</a></span></span><span class='rparen'>)</span>
+
+  <span class='ivar'>@layout_name</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="removed_keys-class_method">
+  
+    
+      <span class="overload">.<strong>removed_keys</strong>(value)  &#x21d2; <tt>Array[String]</tt> </span>
+    
+      <span class="overload">.<strong>removed_keys</strong>  &#x21d2; <tt>Array[String]</tt><sup>?</sup> </span>
+    
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get or set keys removed from the base grid.</p>
+<p>Used by the Nordic members, whose å/æ/ø keys replace the
+US bracket and semicolon keys.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <p class="tag_title">Overloads:</p>
+  <ul class="overload">
+    
+      
+      <li class="overload_item">
+        <span class="signature">.<strong>removed_keys</strong>(value)  &#x21d2; <tt>Array[String]</tt> </span>
+        <div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>value</span>
+      
+      
+        <span class='type'>(<tt>Array[String]</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array[String]</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+      </li>
+    
+      
+      <li class="overload_item">
+        <span class="signature">.<strong>removed_keys</strong>  &#x21d2; <tt>Array[String]</tt><sup>?</sup> </span>
+        <div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array[String]</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+      </li>
+    
+  </ul>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>value</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>, <tt><span class='object_link'><a href="#NOT_SET-constant" title="Kotoshu::Keyboard::Layouts::Latin::NOT_SET (constant)">NOT_SET</a></span></tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>NOT_SET</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>keys to remove</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>the removed keys</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+73
+74
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/keyboard/layouts/latin.rb', line 73</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_removed_keys'>removed_keys</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#NOT_SET-constant" title="Kotoshu::Keyboard::Layouts::Latin::NOT_SET (constant)">NOT_SET</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='ivar'>@removed_keys</span> <span class='kw'>if</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_equal?'>equal?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#NOT_SET-constant" title="Kotoshu::Keyboard::Layouts::Latin::NOT_SET (constant)">NOT_SET</a></span></span><span class='rparen'>)</span>
+
+  <span class='ivar'>@removed_keys</span> <span class='op'>=</span> <span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:45 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

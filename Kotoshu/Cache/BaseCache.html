@@ -1,0 +1,3050 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Kotoshu::Cache::BaseCache
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Cache::BaseCache";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (B)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Cache.html" title="Kotoshu::Cache (module)">Cache</a></span></span>
+     &raquo; 
+    <span class="title">BaseCache</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Kotoshu::Cache::BaseCache
+  <span class="abstract note title">Abstract</span>
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Kotoshu::Cache::BaseCache</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/cache/base_cache.rb
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <div class="note abstract">
+  <strong>This class is abstract.</strong>
+  <div class='inline'><p>Subclass must implement <span class='object_link'><a href="#download_resource-instance_method" title="Kotoshu::Cache::BaseCache#download_resource (method)">#download_resource</a></span>, <span class='object_link'><a href="#load_cached-instance_method" title="Kotoshu::Cache::BaseCache#load_cached (method)">#load_cached</a></span></p></div>
+</div>
+<p>Abstract base class for all cache implementations.</p>
+<p>Provides common functionality for:</p>
+<ul>
+<li>HTTP downloads with metadata</li>
+<li>Cache validation (exists, expired)</li>
+<li>Statistics tracking (hits, misses, hit rate)</li>
+<li>TTL management</li>
+</ul>
+<p>Subclasses implement specific download and loading logic.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="FrequencyCache.html" title="Kotoshu::Cache::FrequencyCache (class)">FrequencyCache</a></span>, <span class='object_link'><a href="LanguageCache.html" title="Kotoshu::Cache::LanguageCache (class)">LanguageCache</a></span>, <span class='object_link'><a href="ModelCache.html" title="Kotoshu::Cache::ModelCache (class)">ModelCache</a></span></p>
+</div>
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cache_path-instance_method" title="#cache_path (instance method)">#<strong>cache_path</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Path to the cache directory.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cache_ttl-instance_method" title="#cache_ttl (instance method)">#<strong>cache_ttl</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Cache TTL in seconds.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#github_url-instance_method" title="#github_url (instance method)">#<strong>github_url</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>GitHub repository URL.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#max_cache_size-instance_method" title="#max_cache_size (instance method)">#<strong>max_cache_size</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Maximum total cache size in bytes.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#source_registry-instance_method" title="#source_registry (instance method)">#<strong>source_registry</strong>  &#x21d2; Kotoshu::SourceRegistry </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Single source of truth for per-repo URLs and pins.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#url_base-instance_method" title="#url_base (instance method)">#<strong>url_base</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Base URL for downloading resources.</p></div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#available%3F-instance_method" title="#available? (instance method)">#<strong>available?</strong>(resource_id)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Check if a resource is available in cache.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cache_kind-instance_method" title="#cache_kind (instance method)">#<strong>cache_kind</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Short label for error messages (&quot;frequency&quot;, &quot;language&quot;, &quot;model&quot;) derived from the nearest named class — anonymous subclasses (test recorders) fall back to their parent's name.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cached_data%3F-instance_method" title="#cached_data? (instance method)">#<strong>cached_data?</strong>(resource_id)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Whether readable cached data exists for <code>resource_id</code>, TTL ignored (plan 117).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cached_resources-instance_method" title="#cached_resources (instance method)">#<strong>cached_resources</strong>  &#x21d2; Array&lt;String&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>List all cached resources.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#clean-instance_method" title="#clean (instance method)">#<strong>clean</strong>  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Clean expired cache entries.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#clear-instance_method" title="#clear (instance method)">#<strong>clear</strong>(resource_id)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Clear a specific resource from cache.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#clear_all-instance_method" title="#clear_all (instance method)">#<strong>clear_all</strong>  </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Clear all cached resources.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#download-instance_method" title="#download (instance method)">#<strong>download</strong>(resource_id)  &#x21d2; Object<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Download a resource from GitHub.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#download_resource-instance_method" title="#download_resource (instance method)">#<strong>download_resource</strong>(resource_id, dest_path)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  <span class="abstract note title">abstract</span>
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Abstract: Download a specific resource.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#evict-instance_method" title="#evict (instance method)">#<strong>evict</strong>(dry_run: false)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Enforce the cache size cap by evicting the oldest entries (LRU by <code>cached_at</code>).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get-instance_method" title="#get (instance method)">#<strong>get</strong>(resource_id, force_download: false)  &#x21d2; Object<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get a resource from cache or download it.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(cache_path: nil, url_base: nil, cache_ttl: nil, github_url: nil, resource_pin: nil, manifest_url: nil, audit_log: nil, source_registry: nil, max_cache_size: nil)  &#x21d2; BaseCache </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Create a new cache.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#load_cached-instance_method" title="#load_cached (instance method)">#<strong>load_cached</strong>(resource_id)  &#x21d2; Object<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  <span class="abstract note title">abstract</span>
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Abstract: Load cached resource data.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#metadata_path_for-instance_method" title="#metadata_path_for (instance method)">#<strong>metadata_path_for</strong>(resource_id)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  <span class="abstract note title">abstract</span>
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Abstract: Get metadata file path for a resource.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#offline%3F-instance_method" title="#offline? (instance method)">#<strong>offline?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>True when downloads are forbidden (config.offline / KOTOSHU_OFFLINE=1).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read_metadata-instance_method" title="#read_metadata (instance method)">#<strong>read_metadata</strong>(path)  &#x21d2; Hash<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Read metadata from file.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reset_stats-instance_method" title="#reset_stats (instance method)">#<strong>reset_stats</strong>  &#x21d2; self </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Reset statistics counters.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#resource_dir_for-instance_method" title="#resource_dir_for (instance method)">#<strong>resource_dir_for</strong>(resource_id)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  <span class="abstract note title">abstract</span>
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Abstract: Get resource directory path.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#resource_files_exist%3F-instance_method" title="#resource_files_exist? (instance method)">#<strong>resource_files_exist?</strong>(resource_id)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  <span class="abstract note title">abstract</span>
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Abstract: Check if all resource files exist.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stats-instance_method" title="#stats (instance method)">#<strong>stats</strong>  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get cache statistics.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#supports_resource%3F-instance_method" title="#supports_resource? (instance method)">#<strong>supports_resource?</strong>(resource_id)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Check if a resource type is supported.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(cache_path: nil, url_base: nil, cache_ttl: nil, github_url: nil, resource_pin: nil, manifest_url: nil, audit_log: nil, source_registry: nil, max_cache_size: nil)  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::Cache::BaseCache (class)">BaseCache</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Create a new cache.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>cache_path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Path to cache directory</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>url_base</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Base URL for downloads (deprecated; pass source_registry instead).
+When given, it still controls where downloads come from: the
+registry is derived from it so the deprecated parameter keeps
+its documented meaning.</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>cache_ttl</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Cache TTL in seconds</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>github_url</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>GitHub repository URL</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>resource_pin</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Branch/tag/commit for URL templates (deprecated; use source_registry)</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>manifest_url</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Override manifest.json URL</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>audit_log</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Integrity/AuditLog.html" title="Kotoshu::Integrity::AuditLog (class)">Integrity::AuditLog</a></span></tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Override audit log</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>source_registry</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../SourceRegistry.html" title="Kotoshu::SourceRegistry (class)">Kotoshu::SourceRegistry</a></span></tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Single source of truth for URLs/pins</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>max_cache_size</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Maximum cache size in bytes (default 1 GB)</p></div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 61</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>cache_path:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>url_base:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>cache_ttl:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>github_url:</span> <span class='kw'>nil</span><span class='comma'>,</span>
+               <span class='label'>resource_pin:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>manifest_url:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>audit_log:</span> <span class='kw'>nil</span><span class='comma'>,</span>
+               <span class='label'>source_registry:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>max_cache_size:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='ivar'>@cache_path</span> <span class='op'>=</span> <span class='id identifier rubyid_cache_path'>cache_path</span> <span class='op'>||</span> <span class='id identifier rubyid_default_cache_path'>default_cache_path</span>
+  <span class='ivar'>@source_registry</span> <span class='op'>=</span> <span class='id identifier rubyid_source_registry'>source_registry</span> <span class='op'>||</span> <span class='id identifier rubyid_source_registry_for'>source_registry_for</span><span class='lparen'>(</span><span class='id identifier rubyid_url_base'>url_base</span><span class='rparen'>)</span>
+  <span class='ivar'>@url_base</span> <span class='op'>=</span> <span class='id identifier rubyid_url_base'>url_base</span> <span class='op'>||</span> <span class='ivar'>@source_registry</span><span class='period'>.</span><span class='id identifier rubyid_base_url'>base_url</span>
+  <span class='ivar'>@cache_ttl</span> <span class='op'>=</span> <span class='id identifier rubyid_cache_ttl'>cache_ttl</span> <span class='op'>||</span> <span class='id identifier rubyid_default_cache_ttl'>default_cache_ttl</span>
+  <span class='ivar'>@github_url</span> <span class='op'>=</span> <span class='id identifier rubyid_github_url'>github_url</span> <span class='op'>||</span> <span class='id identifier rubyid_default_github_url'>default_github_url</span>
+  <span class='ivar'>@resource_pin</span> <span class='op'>=</span> <span class='id identifier rubyid_resource_pin'>resource_pin</span> <span class='op'>||</span> <span class='ivar'>@source_registry</span><span class='period'>.</span><span class='id identifier rubyid_pin_for_source'>pin_for_source</span><span class='lparen'>(</span><span class='symbol'>:spelling</span><span class='rparen'>)</span>
+  <span class='ivar'>@manifest_url</span> <span class='op'>=</span> <span class='id identifier rubyid_manifest_url'>manifest_url</span>
+  <span class='ivar'>@audit_log</span> <span class='op'>=</span> <span class='id identifier rubyid_audit_log'>audit_log</span> <span class='op'>||</span> <span class='id identifier rubyid_default_audit_log'>default_audit_log</span>
+  <span class='ivar'>@max_cache_size</span> <span class='op'>=</span> <span class='id identifier rubyid_max_cache_size'>max_cache_size</span> <span class='op'>||</span> <span class='id identifier rubyid_default_max_cache_size'>default_max_cache_size</span>
+  <span class='ivar'>@manifest</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@manifest_loaded</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='ivar'>@hits</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='ivar'>@misses</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='comment'># Ensure cache directory exists
+</span>  <span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_mkdir_p'>mkdir_p</span><span class='lparen'>(</span><span class='ivar'>@cache_path</span><span class='rparen'>)</span>
+  <span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_mkdir_p'>mkdir_p</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='ivar'>@cache_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>tmp</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="cache_path-instance_method">
+  
+    #<strong>cache_path</strong>  &#x21d2; <tt>String</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns Path to the cache directory.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Path to the cache directory</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cache_path'>cache_path</span>
+  <span class='ivar'>@cache_path</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="cache_ttl-instance_method">
+  
+    #<strong>cache_ttl</strong>  &#x21d2; <tt>Integer</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns Cache TTL in seconds.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Cache TTL in seconds</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+31
+32
+33</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 31</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cache_ttl'>cache_ttl</span>
+  <span class='ivar'>@cache_ttl</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="github_url-instance_method">
+  
+    #<strong>github_url</strong>  &#x21d2; <tt>String</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns GitHub repository URL.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>GitHub repository URL</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41
+42</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 40</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_github_url'>github_url</span>
+  <span class='ivar'>@github_url</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="max_cache_size-instance_method">
+  
+    #<strong>max_cache_size</strong>  &#x21d2; <tt>Integer</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns Maximum total cache size in bytes. Enforced
+by <span class='object_link'><a href="#evict-instance_method" title="Kotoshu::Cache::BaseCache#evict (method)">#evict</a></span>; the value is pulled from
+<code>Kotoshu::Configuration.instance.max_cache_size</code> by default
+(env: <code>KOTOSHU_MAX_CACHE_SIZE</code>).</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Maximum total cache size in bytes. Enforced
+by <span class='object_link'><a href="#evict-instance_method" title="Kotoshu::Cache::BaseCache#evict (method)">#evict</a></span>; the value is pulled from
+<code>Kotoshu::Configuration.instance.max_cache_size</code> by default
+(env: <code>KOTOSHU_MAX_CACHE_SIZE</code>).</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+37
+38
+39</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 37</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_max_cache_size'>max_cache_size</span>
+  <span class='ivar'>@max_cache_size</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="source_registry-instance_method">
+  
+    #<strong>source_registry</strong>  &#x21d2; <tt><span class='object_link'><a href="../SourceRegistry.html" title="Kotoshu::SourceRegistry (class)">Kotoshu::SourceRegistry</a></span></tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns Single source of truth for
+per-repo URLs and pins. Subclasses MUST build URLs through
+this registry rather than constructing URL strings inline.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../SourceRegistry.html" title="Kotoshu::SourceRegistry (class)">Kotoshu::SourceRegistry</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Single source of truth for
+per-repo URLs and pins. Subclasses MUST build URLs through
+this registry rather than constructing URL strings inline.</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46
+47</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_source_registry'>source_registry</span>
+  <span class='ivar'>@source_registry</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="url_base-instance_method">
+  
+    #<strong>url_base</strong>  &#x21d2; <tt>String</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns Base URL for downloading resources.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Base URL for downloading resources</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+28
+29
+30</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 28</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_url_base'>url_base</span>
+  <span class='ivar'>@url_base</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="available?-instance_method">
+  
+    #<strong>available?</strong>(resource_id)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Check if a resource is available in cache.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>resource_id</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The resource identifier (e.g., language code)</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>True if resource is cached and valid</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+87
+88
+89
+90
+91
+92
+93
+94
+95</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 87</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_available?'>available?</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_supports_resource?'>supports_resource?</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_metadata_path'>metadata_path</span> <span class='op'>=</span> <span class='id identifier rubyid_metadata_path_for'>metadata_path_for</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_metadata_path'>metadata_path</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>if</span> <span class='id identifier rubyid_expired?'>expired?</span><span class='lparen'>(</span><span class='id identifier rubyid_metadata_path'>metadata_path</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_resource_files_exist?'>resource_files_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cache_kind-instance_method">
+  
+    #<strong>cache_kind</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Short label for error messages (&quot;frequency&quot;, &quot;language&quot;,
+&quot;model&quot;) derived from the nearest named class — anonymous
+subclasses (test recorders) fall back to their parent's name.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The cache kind</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+290
+291
+292
+293
+294</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 290</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cache_kind'>cache_kind</span>
+  <span class='id identifier rubyid_klass'>klass</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span>
+  <span class='id identifier rubyid_klass'>klass</span> <span class='op'>=</span> <span class='id identifier rubyid_klass'>klass</span><span class='period'>.</span><span class='id identifier rubyid_superclass'>superclass</span> <span class='kw'>while</span> <span class='id identifier rubyid_klass'>klass</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_klass'>klass</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='id identifier rubyid_klass'>klass</span><span class='op'>&amp;.</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='lbracket'>[</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>(\w+)Cache\z</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span><span class='op'>&amp;.</span><span class='id identifier rubyid_downcase'>downcase</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>resource</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cached_data?-instance_method">
+  
+    #<strong>cached_data?</strong>(resource_id)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Whether readable cached data exists for <code>resource_id</code>, TTL
+ignored (plan 117). Expiry is a refresh signal for the setup /
+download paths, never a reason for readers to behave as if the
+data were absent: the bytes are checksummed at write time, so
+present-but-expired data is exactly the dataset it was.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>resource_id</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The resource identifier</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>True if metadata and data files exist</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+105
+106
+107
+108
+109</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 105</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cached_data?'>cached_data?</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_supports_resource?'>supports_resource?</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+
+  <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_metadata_path_for'>metadata_path_for</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_resource_files_exist?'>resource_files_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cached_resources-instance_method">
+  
+    #<strong>cached_resources</strong>  &#x21d2; <tt>Array&lt;String&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>List all cached resources.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>List of cached resource identifiers</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+224
+225
+226</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 224</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cached_resources'>cached_resources</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Subclass must implement</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="clean-instance_method">
+  
+    #<strong>clean</strong>  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Clean expired cache entries.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Cleanup statistics</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+187
+188
+189
+190
+191
+192
+193
+194
+195</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 187</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_clean'>clean</span>
+  <span class='id identifier rubyid_expired_count'>expired_count</span> <span class='op'>=</span> <span class='id identifier rubyid_clean_expired'>clean_expired</span>
+  <span class='id identifier rubyid_size_reclaimed'>size_reclaimed</span> <span class='op'>=</span> <span class='id identifier rubyid_clean_by_size'>clean_by_size</span>
+
+  <span class='lbrace'>{</span>
+    <span class='label'>expired_entries_removed:</span> <span class='id identifier rubyid_expired_count'>expired_count</span><span class='comma'>,</span>
+    <span class='label'>bytes_reclaimed:</span> <span class='id identifier rubyid_size_reclaimed'>size_reclaimed</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="clear-instance_method">
+  
+    #<strong>clear</strong>(resource_id)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Clear a specific resource from cache.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>resource_id</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The resource identifier</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>True if cache was cleared</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 134</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_clear'>clear</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_supports_resource?'>supports_resource?</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_resource_dir'>resource_dir</span> <span class='op'>=</span> <span class='id identifier rubyid_resource_dir_for'>resource_dir_for</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_dir'>resource_dir</span><span class='rparen'>)</span>
+    <span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_rm_rf'>rm_rf</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_dir'>resource_dir</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="clear_all-instance_method">
+  
+    #<strong>clear_all</strong>  
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p><p>Clear all cached resources.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+149
+150
+151
+152
+153
+154
+155</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 149</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_clear_all'>clear_all</span>
+  <span class='ivar'>@hits</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='ivar'>@misses</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_rm_rf'>rm_rf</span><span class='lparen'>(</span><span class='ivar'>@cache_path</span><span class='rparen'>)</span>
+  <span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_mkdir_p'>mkdir_p</span><span class='lparen'>(</span><span class='ivar'>@cache_path</span><span class='rparen'>)</span>
+  <span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_mkdir_p'>mkdir_p</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='ivar'>@cache_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>tmp</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="download-instance_method">
+  
+    #<strong>download</strong>(resource_id)  &#x21d2; <tt>Object</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Download a resource from GitHub.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>resource_id</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The resource identifier</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Object</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Downloaded resource or nil on error</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../DictionaryNotFoundError.html" title="Kotoshu::DictionaryNotFoundError (class)">Kotoshu::DictionaryNotFoundError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>when the fetch fails
+(unreachable source, HTTP error); the documented cache API
+boundary raises the public error class rather than leaking
+transport errors</p></div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../ResourceNotCachedError.html" title="Kotoshu::ResourceNotCachedError (class)">Kotoshu::ResourceNotCachedError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>in offline mode —
+only explicit paths (Kotoshu.setup, kotoshu cache download)
+reach here, so fail loudly instead of silently skipping</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 247</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_download'>download</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_supports_resource?'>supports_resource?</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_language'>language</span><span class='comma'>,</span> <span class='id identifier rubyid_explicit_type'>explicit_type</span> <span class='op'>=</span> <span class='id identifier rubyid_resource_id'>resource_id</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>:</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../ResourceNotCachedError.html" title="Kotoshu::ResourceNotCachedError (class)">ResourceNotCachedError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../ResourceNotCachedError.html#initialize-instance_method" title="Kotoshu::ResourceNotCachedError#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_language'>language</span><span class='comma'>,</span> <span class='id identifier rubyid_explicit_type'>explicit_type</span> <span class='op'>||</span> <span class='id identifier rubyid_cache_kind'>cache_kind</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_offline?'>offline?</span>
+
+  <span class='id identifier rubyid_resource_dir'>resource_dir</span> <span class='op'>=</span> <span class='id identifier rubyid_resource_dir_for'>resource_dir_for</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+  <span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_mkdir_p'>mkdir_p</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_dir'>resource_dir</span><span class='rparen'>)</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_download_resource'>download_resource</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='comma'>,</span> <span class='id identifier rubyid_resource_dir'>resource_dir</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../DictionaryNotFoundError.html" title="Kotoshu::DictionaryNotFoundError (class)">DictionaryNotFoundError</a></span></span>
+    <span class='id identifier rubyid_raise'>raise</span>
+  <span class='kw'>rescue</span> <span class='const'>StandardError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_warn'>warn</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Error downloading </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='gvar'>$VERBOSE</span>
+    <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="download_resource-instance_method">
+  
+    #<strong>download_resource</strong>(resource_id, dest_path)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <div class="note abstract">
+  <strong>This method is abstract.</strong>
+  <div class='inline'><p>Subclass must implement</p></div>
+</div>
+<p>Abstract: Download a specific resource.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>resource_id</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The resource identifier</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>dest_path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Destination directory</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Object</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Downloaded resource</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+272
+273
+274</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 272</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_download_resource'>download_resource</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='comma'>,</span> <span class='id identifier rubyid_dest_path'>dest_path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Subclass must implement</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="evict-instance_method">
+  
+    #<strong>evict</strong>(dry_run: false)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Enforce the cache size cap by evicting the oldest entries
+(LRU by <code>cached_at</code>). When <code>dry_run:</code> true, returns the plan
+without modifying the disk; otherwise removes the evicted
+entries via <code>FileUtils.rm_rf</code> and returns the same plan.</p>
+<p>The plan is computed by <span class='object_link'><a href="EvictionPolicy.html" title="Kotoshu::Cache::EvictionPolicy (class)">EvictionPolicy</a></span> — a pure value
+object that performs no IO. This method is the only place that
+collects on-disk entries and the only place that mutates the
+cache directory based on the plan, keeping the policy testable
+in isolation.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>dry_run</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>return the plan without writing</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>{ evict: Array<Hash>, keep: Array<Hash>,
+bytes_reclaimed: Integer } where each entry hash carries
+:path, :size, :cached_at</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+212
+213
+214
+215
+216
+217
+218
+219</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 212</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_evict'>evict</span><span class='lparen'>(</span><span class='label'>dry_run:</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_policy'>policy</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="EvictionPolicy.html" title="Kotoshu::Cache::EvictionPolicy (class)">EvictionPolicy</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="EvictionPolicy.html#initialize-instance_method" title="Kotoshu::Cache::EvictionPolicy#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='label'>max_size:</span> <span class='ivar'>@max_cache_size</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_plan'>plan</span> <span class='op'>=</span> <span class='id identifier rubyid_policy'>policy</span><span class='period'>.</span><span class='id identifier rubyid_plan'>plan</span><span class='lparen'>(</span><span class='id identifier rubyid_collect_eviction_entries'>collect_eviction_entries</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_plan'>plan</span> <span class='kw'>if</span> <span class='id identifier rubyid_dry_run'>dry_run</span>
+
+  <span class='id identifier rubyid_plan'>plan</span><span class='lbracket'>[</span><span class='symbol'>:evict</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span> <span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_rm_rf'>rm_rf</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='lbracket'>[</span><span class='symbol'>:path</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_plan'>plan</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get-instance_method">
+  
+    #<strong>get</strong>(resource_id, force_download: false)  &#x21d2; <tt>Object</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get a resource from cache or download it.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>resource_id</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The resource identifier</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>force_download</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Force re-download even if cached</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Object</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The cached resource or nil if not available</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 116</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='comma'>,</span> <span class='label'>force_download:</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_supports_resource?'>supports_resource?</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_metadata_path'>metadata_path</span> <span class='op'>=</span> <span class='id identifier rubyid_metadata_path_for'>metadata_path_for</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_force_download'>force_download</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_cached?'>cached?</span><span class='lparen'>(</span><span class='id identifier rubyid_metadata_path'>metadata_path</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_expired?'>expired?</span><span class='lparen'>(</span><span class='id identifier rubyid_metadata_path'>metadata_path</span><span class='rparen'>)</span>
+    <span class='ivar'>@hits</span> <span class='op'>+=</span> <span class='int'>1</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_load_cached'>load_cached</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@misses</span> <span class='op'>+=</span> <span class='int'>1</span>
+  <span class='id identifier rubyid_download'>download</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load_cached-instance_method">
+  
+    #<strong>load_cached</strong>(resource_id)  &#x21d2; <tt>Object</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <div class="note abstract">
+  <strong>This method is abstract.</strong>
+  <div class='inline'><p>Subclass must implement</p></div>
+</div>
+<p>Abstract: Load cached resource data.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>resource_id</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The resource identifier</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Object</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Loaded resource or nil</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+301
+302
+303</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 301</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load_cached'>load_cached</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Subclass must implement</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="metadata_path_for-instance_method">
+  
+    #<strong>metadata_path_for</strong>(resource_id)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <div class="note abstract">
+  <strong>This method is abstract.</strong>
+  <div class='inline'><p>Subclass must implement</p></div>
+</div>
+<p>Abstract: Get metadata file path for a resource.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>resource_id</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The resource identifier</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Metadata file path</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+310
+311
+312</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 310</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_metadata_path_for'>metadata_path_for</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Subclass must implement</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="offline?-instance_method">
+  
+    #<strong>offline?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>True when downloads are forbidden (config.offline /
+KOTOSHU_OFFLINE=1). Checked in #download so every cache
+subclass inherits the enforcement.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Whether offline mode is on</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+281
+282
+283</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 281</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_offline?'>offline?</span>
+  <span class='const'><span class='object_link'><a href="../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'><span class='object_link'><a href="../../Kotoshu.html#configuration-class_method" title="Kotoshu.configuration (method)">configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_offline'><span class='object_link'><a href="../Configuration.html#offline-instance_method" title="Kotoshu::Configuration#offline (method)">offline</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read_metadata-instance_method">
+  
+    #<strong>read_metadata</strong>(path)  &#x21d2; <tt>Hash</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Read metadata from file.</p>
+<p>Public because the CLI cache subcommand and other inspection
+paths consume it to display cache state without going through
+the full download-and-load pipeline.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Metadata file path</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Metadata or nil</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+769
+770
+771
+772
+773
+774
+775</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 769</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read_metadata'>read_metadata</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+
+  <span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>rescue</span> <span class='const'>JSON</span><span class='op'>::</span><span class='const'>ParserError</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="reset_stats-instance_method">
+  
+    #<strong>reset_stats</strong>  &#x21d2; <tt>self</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Reset statistics counters.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>self</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Self for chaining</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+178
+179
+180
+181
+182</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 178</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_reset_stats'>reset_stats</span>
+  <span class='ivar'>@hits</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='ivar'>@misses</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='kw'>self</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="resource_dir_for-instance_method">
+  
+    #<strong>resource_dir_for</strong>(resource_id)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <div class="note abstract">
+  <strong>This method is abstract.</strong>
+  <div class='inline'><p>Subclass must implement</p></div>
+</div>
+<p>Abstract: Get resource directory path.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>resource_id</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The resource identifier</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Resource directory path</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+319
+320
+321</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 319</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_resource_dir_for'>resource_dir_for</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Subclass must implement</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="resource_files_exist?-instance_method">
+  
+    #<strong>resource_files_exist?</strong>(resource_id)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <div class="note abstract">
+  <strong>This method is abstract.</strong>
+  <div class='inline'><p>Subclass must implement</p></div>
+</div>
+<p>Abstract: Check if all resource files exist.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>resource_id</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The resource identifier</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>True if all files exist</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+328
+329
+330</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 328</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_resource_files_exist?'>resource_files_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Subclass must implement</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stats-instance_method">
+  
+    #<strong>stats</strong>  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get cache statistics.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Statistics including :hits, :misses, :hit_rate, :size</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 160</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stats'>stats</span>
+  <span class='id identifier rubyid_total'>total</span> <span class='op'>=</span> <span class='ivar'>@hits</span> <span class='op'>+</span> <span class='ivar'>@misses</span>
+  <span class='id identifier rubyid_hit_rate'>hit_rate</span> <span class='op'>=</span> <span class='id identifier rubyid_total'>total</span><span class='period'>.</span><span class='id identifier rubyid_positive?'>positive?</span> <span class='op'>?</span> <span class='lparen'>(</span><span class='ivar'>@hits</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>/</span> <span class='id identifier rubyid_total'>total</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='float'>0.0</span>
+
+  <span class='lbrace'>{</span>
+    <span class='label'>hits:</span> <span class='ivar'>@hits</span><span class='comma'>,</span>
+    <span class='label'>misses:</span> <span class='ivar'>@misses</span><span class='comma'>,</span>
+    <span class='label'>total:</span> <span class='id identifier rubyid_total'>total</span><span class='comma'>,</span>
+    <span class='label'>hit_rate:</span> <span class='id identifier rubyid_hit_rate'>hit_rate</span><span class='comma'>,</span>
+    <span class='label'>cached_resources:</span> <span class='id identifier rubyid_cached_resources'>cached_resources</span><span class='comma'>,</span>
+    <span class='label'>size_bytes:</span> <span class='id identifier rubyid_cache_size'>cache_size</span><span class='comma'>,</span>
+    <span class='label'>oldest_entry:</span> <span class='id identifier rubyid_oldest_entry'>oldest_entry</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="supports_resource?-instance_method">
+  
+    #<strong>supports_resource?</strong>(resource_id)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Check if a resource type is supported.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>resource_id</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The resource identifier</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>True if supported</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+232
+233
+234</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/base_cache.rb', line 232</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_supports_resource?'>supports_resource?</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Subclass must implement</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:38 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

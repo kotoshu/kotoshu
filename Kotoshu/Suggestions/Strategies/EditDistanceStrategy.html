@@ -1,0 +1,2205 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Kotoshu::Suggestions::Strategies::EditDistanceStrategy
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Suggestions::Strategies::EditDistanceStrategy";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (E)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Suggestions.html" title="Kotoshu::Suggestions (module)">Suggestions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Strategies.html" title="Kotoshu::Suggestions::Strategies (module)">Strategies</a></span></span>
+     &raquo; 
+    <span class="title">EditDistanceStrategy</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Kotoshu::Suggestions::Strategies::EditDistanceStrategy
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="BaseStrategy.html" title="Kotoshu::Suggestions::Strategies::BaseStrategy (class)">BaseStrategy</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="BaseStrategy.html" title="Kotoshu::Suggestions::Strategies::BaseStrategy (class)">BaseStrategy</a></span></li>
+          
+            <li class="next">Kotoshu::Suggestions::Strategies::EditDistanceStrategy</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/suggestions/strategies/edit_distance_strategy.rb
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>Edit distance suggestion strategy with enhanced ranking.
+Generates suggestions by finding words with small edit distance,
+ranked by word frequency, keyboard proximity, and common typo patterns.</p>
+<p>Multi-language support:</p>
+<ul>
+<li>Automatically selects keyboard layout based on language_code</li>
+<li>Loads frequency data from YAML files (Phase 1) or GitHub (Phase 2)</li>
+<li>Supports language-specific typo patterns</li>
+</ul>
+<p>This is MORE OOP than Spylls which uses standalone functions
+for edit distance operations.</p>
+<p>Follows Open-Closed Principle: Extend by adding YAML files,
+NOT by modifying this class.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#keyboard_layout-instance_method" title="#keyboard_layout (instance method)">#<strong>keyboard_layout</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute keyboard_layout.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#language_code-instance_method" title="#language_code (instance method)">#<strong>language_code</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute language_code.</p></div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="BaseStrategy.html" title="Kotoshu::Suggestions::Strategies::BaseStrategy (class)">BaseStrategy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="BaseStrategy.html#config-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#config (method)">#config</a></span>, <span class='object_link'><a href="BaseStrategy.html#name-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#name (method)">#name</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#adjacent_key_typo%3F-instance_method" title="#adjacent_key_typo? (instance method)">#<strong>adjacent_key_typo?</strong>(char1, char2)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Check if a substitution is a keyboard-adjacent typo.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#adjacent_keys-instance_method" title="#adjacent_keys (instance method)">#<strong>adjacent_keys</strong>(key)  &#x21d2; Array&lt;String&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get adjacent keys for a given key.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#calculate_enhanced_score-instance_method" title="#calculate_enhanced_score (instance method)">#<strong>calculate_enhanced_score</strong>(original, suggestion, distance)  &#x21d2; Float </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Calculate enhanced score combining multiple factors.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#frequency_bonus-instance_method" title="#frequency_bonus (instance method)">#<strong>frequency_bonus</strong>(word)  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get frequency bonus for a word.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#frequency_tiers-instance_method" title="#frequency_tiers (instance method)">#<strong>frequency_tiers</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Frequency tiers used for ranking.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate-instance_method" title="#generate (instance method)">#<strong>generate</strong>(context)  &#x21d2; SuggestionSet </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Generate suggestions based on enhanced edit distance scoring.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handles%3F-instance_method" title="#handles? (instance method)">#<strong>handles?</strong>(context)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Check if this strategy should handle the context.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(name: :edit_distance, language_code: &#39;en&#39;, keyboard_layout: nil, frequency_tiers: nil, frequency_provider: nil, **config)  &#x21d2; EditDistanceStrategy </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>A new instance of EditDistanceStrategy.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#keyboard-instance_method" title="#keyboard (instance method)">#<strong>keyboard</strong>  &#x21d2; Keyboard::Layout </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Public method to get current keyboard being used.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#keyboard_name-instance_method" title="#keyboard_name (instance method)">#<strong>keyboard_name</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Public method to get keyboard name.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#keyboard_penalty-instance_method" title="#keyboard_penalty (instance method)">#<strong>keyboard_penalty</strong>(original, suggestion)  &#x21d2; Float </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Calculate keyboard proximity penalty.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#transposition_bonus-instance_method" title="#transposition_bonus (instance method)">#<strong>transposition_bonus</strong>(original, suggestion)  &#x21d2; Float </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Calculate bonus for transposition (swap adjacent characters).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#typo_pattern_bonus-instance_method" title="#typo_pattern_bonus (instance method)">#<strong>typo_pattern_bonus</strong>(original, suggestion)  &#x21d2; Float </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Calculate bonus for common typo patterns.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="BaseStrategy.html" title="Kotoshu::Suggestions::Strategies::BaseStrategy (class)">BaseStrategy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="BaseStrategy.html#calculate_ngram_similarity-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#calculate_ngram_similarity (method)">#calculate_ngram_similarity</a></span>, <span class='object_link'><a href="BaseStrategy.html#create_suggestion-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#create_suggestion (method)">#create_suggestion</a></span>, <span class='object_link'><a href="BaseStrategy.html#create_suggestion_set-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#create_suggestion_set (method)">#create_suggestion_set</a></span>, <span class='object_link'><a href="BaseStrategy.html#enabled%3F-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#enabled? (method)">#enabled?</a></span>, <span class='object_link'><a href="BaseStrategy.html#generate_ngrams-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#generate_ngrams (method)">#generate_ngrams</a></span>, <span class='object_link'><a href="BaseStrategy.html#get_config-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#get_config (method)">#get_config</a></span>, <span class='object_link'><a href="BaseStrategy.html#has_config%3F-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#has_config? (method)">#has_config?</a></span>, <span class='object_link'><a href="BaseStrategy.html#max_results-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#max_results (method)">#max_results</a></span>, <span class='object_link'><a href="BaseStrategy.html#priority-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#priority (method)">#priority</a></span>, <span class='object_link'><a href="BaseStrategy.html#skip_when_confident%3F-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#skip_when_confident? (method)">#skip_when_confident?</a></span>, <span class='object_link'><a href="BaseStrategy.html#to_s-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#to_s (method)">#to_s</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(name: :edit_distance, language_code: &#39;en&#39;, keyboard_layout: nil, frequency_tiers: nil, frequency_provider: nil, **config)  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::Suggestions::Strategies::EditDistanceStrategy (class)">EditDistanceStrategy</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns a new instance of EditDistanceStrategy.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Symbol</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>:edit_distance</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Name of the strategy</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>config</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Configuration options</p></div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <p class="tag_title">Options Hash (<tt>**config</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:language_code</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'><p>Language code for keyboard layout (default: 'en')</p></div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:keyboard_layout</span>
+          <span class="type">(<tt><span class='object_link'><a href="../../Keyboard/Layout.html" title="Kotoshu::Keyboard::Layout (class)">Keyboard::Layout</a></span></tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'><p>Custom keyboard layout (optional)</p></div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:frequency_tiers</span>
+          <span class="type">(<tt>Hash</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'><p>Custom frequency tiers (optional)</p></div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:max_distance</span>
+          <span class="type">(<tt>Integer</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'><p>Maximum edit distance (default: 2)</p></div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:max_results</span>
+          <span class="type">(<tt>Integer</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'><p>Maximum results to return (default: 10)</p></div>
+          
+        </li>
+      
+    </ul>
+  
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/edit_distance_strategy.rb', line 32</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>name:</span> <span class='symbol'>:edit_distance</span><span class='comma'>,</span> <span class='label'>language_code:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>keyboard_layout:</span> <span class='kw'>nil</span><span class='comma'>,</span>
+               <span class='label'>frequency_tiers:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>frequency_provider:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_config'>config</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='label'>name:</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_config'>config</span><span class='rparen'>)</span>
+  <span class='ivar'>@language_code</span> <span class='op'>=</span> <span class='id identifier rubyid_language_code'>language_code</span>
+
+  <span class='comment'># Use OOP registry for keyboard layout lookup
+</span>  <span class='ivar'>@keyboard_layout</span> <span class='op'>=</span> <span class='id identifier rubyid_resolve_keyboard_layout'>resolve_keyboard_layout</span><span class='lparen'>(</span><span class='id identifier rubyid_keyboard_layout'>keyboard_layout</span><span class='rparen'>)</span>
+
+  <span class='comment'># Frequency data comes from a provider (extracted in TODO 56
+</span>  <span class='comment'># T5.1 step 3 Phase A) so the strategy constructor no longer
+</span>  <span class='comment'># performs disk IO or network access. Callers can inject a
+</span>  <span class='comment'># custom provider for testing.
+</span>  <span class='ivar'>@frequency_provider</span> <span class='op'>=</span> <span class='id identifier rubyid_frequency_provider'>frequency_provider</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="../FrequencyProvider.html" title="Kotoshu::Suggestions::FrequencyProvider (class)">FrequencyProvider</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../FrequencyProvider.html#initialize-instance_method" title="Kotoshu::Suggestions::FrequencyProvider#initialize (method)">new</a></span></span>
+
+  <span class='comment'># Use custom frequency tiers if provided, otherwise resolve
+</span>  <span class='comment'># lazily through the provider on first use.
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_frequency_tiers'>frequency_tiers</span>
+    <span class='ivar'>@frequency_tiers</span> <span class='op'>=</span> <span class='id identifier rubyid_frequency_tiers'>frequency_tiers</span>
+    <span class='ivar'>@common_words</span> <span class='op'>=</span> <span class='const'>Set</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='kw'>else</span>
+    <span class='ivar'>@frequency_tiers</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="keyboard_layout-instance_method">
+  
+    #<strong>keyboard_layout</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the value of attribute keyboard_layout.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+23
+24
+25</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/edit_distance_strategy.rb', line 23</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_keyboard_layout'>keyboard_layout</span>
+  <span class='ivar'>@keyboard_layout</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="language_code-instance_method">
+  
+    #<strong>language_code</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the value of attribute language_code.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+23
+24
+25</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/edit_distance_strategy.rb', line 23</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_language_code'>language_code</span>
+  <span class='ivar'>@language_code</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="adjacent_key_typo?-instance_method">
+  
+    #<strong>adjacent_key_typo?</strong>(char1, char2)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Check if a substitution is a keyboard-adjacent typo</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>char1</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>First character</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>char2</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Second character</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>True if keys are adjacent</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/edit_distance_strategy.rb', line 75</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_adjacent_key_typo?'>adjacent_key_typo?</span><span class='lparen'>(</span><span class='id identifier rubyid_char1'>char1</span><span class='comma'>,</span> <span class='id identifier rubyid_char2'>char2</span><span class='rparen'>)</span>
+  <span class='ivar'>@keyboard_layout</span><span class='period'>.</span><span class='id identifier rubyid_adjacent_keys'>adjacent_keys</span><span class='lparen'>(</span><span class='id identifier rubyid_char1'>char1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_char2'>char2</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="adjacent_keys-instance_method">
+  
+    #<strong>adjacent_keys</strong>(key)  &#x21d2; <tt>Array&lt;String&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get adjacent keys for a given key</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>key</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The key to find adjacent keys for</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>List of adjacent key characters</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+83
+84
+85</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/edit_distance_strategy.rb', line 83</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_adjacent_keys'>adjacent_keys</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='ivar'>@keyboard_layout</span><span class='period'>.</span><span class='id identifier rubyid_adjacent_keys'>adjacent_keys</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="calculate_enhanced_score-instance_method">
+  
+    #<strong>calculate_enhanced_score</strong>(original, suggestion, distance)  &#x21d2; <tt>Float</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Calculate enhanced score combining multiple factors.</p>
+<p>Lower score = better suggestion</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>original</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The original misspelled word</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>suggestion</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The suggested word</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>distance</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Edit distance</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Float</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Enhanced score (lower is better)</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/edit_distance_strategy.rb', line 469</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_calculate_enhanced_score'>calculate_enhanced_score</span><span class='lparen'>(</span><span class='id identifier rubyid_original'>original</span><span class='comma'>,</span> <span class='id identifier rubyid_suggestion'>suggestion</span><span class='comma'>,</span> <span class='id identifier rubyid_distance'>distance</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_score'>score</span> <span class='op'>=</span> <span class='id identifier rubyid_distance'>distance</span> <span class='op'>*</span> <span class='float'>1000.0</span> <span class='comment'># Base score from edit distance
+</span>
+  <span class='comment'># Factor 1: Word frequency bonus (common words get lower score)
+</span>  <span class='id identifier rubyid_score'>score</span> <span class='op'>-=</span> <span class='id identifier rubyid_frequency_bonus'>frequency_bonus</span><span class='lparen'>(</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='rparen'>)</span>
+
+  <span class='comment'># Factor 2: Keyboard proximity penalty (typo-like patterns get lower score)
+</span>  <span class='id identifier rubyid_score'>score</span> <span class='op'>+=</span> <span class='id identifier rubyid_keyboard_penalty'>keyboard_penalty</span><span class='lparen'>(</span><span class='id identifier rubyid_original'>original</span><span class='comma'>,</span> <span class='id identifier rubyid_suggestion'>suggestion</span><span class='rparen'>)</span>
+
+  <span class='comment'># Factor 3: Common typo pattern bonus
+</span>  <span class='comment'># Transposition (swap adjacent chars) is the MOST common typo
+</span>  <span class='id identifier rubyid_trans_bonus'>trans_bonus</span> <span class='op'>=</span> <span class='id identifier rubyid_transposition_bonus'>transposition_bonus</span><span class='lparen'>(</span><span class='id identifier rubyid_original'>original</span><span class='comma'>,</span> <span class='id identifier rubyid_suggestion'>suggestion</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_score'>score</span> <span class='op'>-=</span> <span class='id identifier rubyid_trans_bonus'>trans_bonus</span>
+
+  <span class='comment'># Factor 4: Missing double letter bonus (helo -&gt; hello)
+</span>  <span class='id identifier rubyid_score'>score</span> <span class='op'>-=</span> <span class='id identifier rubyid_typo_pattern_bonus'>typo_pattern_bonus</span><span class='lparen'>(</span><span class='id identifier rubyid_original'>original</span><span class='comma'>,</span> <span class='id identifier rubyid_suggestion'>suggestion</span><span class='rparen'>)</span>
+
+  <span class='comment'># Factor 5: Length similarity bonus (similar length is better)
+</span>  <span class='id identifier rubyid_length_diff'>length_diff</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_original'>original</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='id identifier rubyid_suggestion'>suggestion</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_abs'>abs</span>
+  <span class='id identifier rubyid_score'>score</span> <span class='op'>+=</span> <span class='id identifier rubyid_length_diff'>length_diff</span> <span class='op'>*</span> <span class='int'>50</span>
+
+  <span class='id identifier rubyid_score'>score</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="frequency_bonus-instance_method">
+  
+    #<strong>frequency_bonus</strong>(word)  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get frequency bonus for a word</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The word to check</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Frequency bonus (0-200)</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/edit_distance_strategy.rb', line 91</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_frequency_bonus'>frequency_bonus</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_tiers'>tiers</span> <span class='op'>=</span> <span class='id identifier rubyid_frequency_tiers'>frequency_tiers</span>
+  <span class='kw'>return</span> <span class='int'>0</span> <span class='kw'>unless</span> <span class='id identifier rubyid_tiers'>tiers</span>
+
+  <span class='id identifier rubyid_word_downcase'>word_downcase</span> <span class='op'>=</span> <span class='id identifier rubyid_word'>word</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+
+  <span class='comment'># Top 50: 200 bonus
+</span>  <span class='kw'>return</span> <span class='int'>200</span> <span class='kw'>if</span> <span class='id identifier rubyid_tiers'>tiers</span><span class='lbracket'>[</span><span class='symbol'>:top_50</span><span class='rbracket'>]</span><span class='op'>&amp;.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_word_downcase'>word_downcase</span><span class='rparen'>)</span>
+
+  <span class='comment'># Top 200: 100 bonus
+</span>  <span class='kw'>return</span> <span class='int'>100</span> <span class='kw'>if</span> <span class='id identifier rubyid_tiers'>tiers</span><span class='lbracket'>[</span><span class='symbol'>:top_200</span><span class='rbracket'>]</span><span class='op'>&amp;.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_word_downcase'>word_downcase</span><span class='rparen'>)</span>
+
+  <span class='comment'># Top 1000: 50 bonus
+</span>  <span class='kw'>return</span> <span class='int'>50</span> <span class='kw'>if</span> <span class='id identifier rubyid_tiers'>tiers</span><span class='lbracket'>[</span><span class='symbol'>:top_1000</span><span class='rbracket'>]</span><span class='op'>&amp;.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_word_downcase'>word_downcase</span><span class='rparen'>)</span>
+
+  <span class='comment'># Not in common words: no bonus
+</span>  <span class='int'>0</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="frequency_tiers-instance_method">
+  
+    #<strong>frequency_tiers</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Frequency tiers used for ranking. Lazy-loads from the
+provider on first access when not set at construction.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+112
+113
+114</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/edit_distance_strategy.rb', line 112</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_frequency_tiers'>frequency_tiers</span>
+  <span class='ivar'>@frequency_tiers</span> <span class='op'>||=</span> <span class='ivar'>@frequency_provider</span><span class='period'>.</span><span class='id identifier rubyid_tiers_for'>tiers_for</span><span class='lparen'>(</span><span class='ivar'>@language_code</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate-instance_method">
+  
+    #<strong>generate</strong>(context)  &#x21d2; <tt><span class='object_link'><a href="../SuggestionSet.html" title="Kotoshu::Suggestions::SuggestionSet (class)">SuggestionSet</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Generate suggestions based on enhanced edit distance scoring.</p>
+<p>Scoring factors:</p>
+<ul>
+<li>Edit distance (primary factor)</li>
+<li>Word frequency (common words rank higher)</li>
+<li>Keyboard proximity (adjacent key typos rank higher)</li>
+<li>Common typo patterns (missing double letters, etc.)</li>
+</ul>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>context</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Context.html" title="Kotoshu::Suggestions::Context (class)">Context</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The suggestion context</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../SuggestionSet.html" title="Kotoshu::Suggestions::SuggestionSet (class)">SuggestionSet</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Suggestions within max_distance</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/edit_distance_strategy.rb', line 126</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_word'>word</span> <span class='op'>=</span> <span class='id identifier rubyid_context'>context</span><span class='period'>.</span><span class='id identifier rubyid_word'>word</span>
+  <span class='id identifier rubyid_max_dist'>max_dist</span> <span class='op'>=</span> <span class='id identifier rubyid_get_config'>get_config</span><span class='lparen'>(</span><span class='symbol'>:max_distance</span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_min_confidence'>min_confidence</span> <span class='op'>=</span> <span class='id identifier rubyid_get_config'>get_config</span><span class='lparen'>(</span><span class='symbol'>:min_confidence</span><span class='comma'>,</span> <span class='float'>0.75</span><span class='rparen'>)</span> <span class='comment'># Higher threshold for quality
+</span>  <span class='id identifier rubyid_min_similarity'>min_similarity</span> <span class='op'>=</span> <span class='id identifier rubyid_get_config'>get_config</span><span class='lparen'>(</span><span class='symbol'>:min_jaro_similarity</span><span class='comma'>,</span> <span class='float'>0.70</span><span class='rparen'>)</span> <span class='comment'># Minimum Jaro-Winkler similarity (0.0-1.0)
+</span>  <span class='id identifier rubyid_min_results'>min_results</span> <span class='op'>=</span> <span class='id identifier rubyid_get_config'>get_config</span><span class='lparen'>(</span><span class='symbol'>:min_results</span><span class='comma'>,</span> <span class='int'>3</span><span class='rparen'>)</span> <span class='comment'># Always return at least 3 suggestions if available
+</span>
+  <span class='comment'># When the dictionary is case-insensitive, normalize case before
+</span>  <span class='comment'># edit-distance comparison — otherwise &quot;HELO&quot; can never match
+</span>  <span class='comment'># &quot;Hello&quot; within distance 2 (case differences alone cost 4).
+</span>  <span class='comment'># The original dictionary casing is preserved on the returned
+</span>  <span class='comment'># suggestion (we only normalize for the comparison).
+</span>  <span class='id identifier rubyid_case_insensitive'>case_insensitive</span> <span class='op'>=</span> <span class='id identifier rubyid_dictionary_case_insensitive?'>dictionary_case_insensitive?</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_compare_word'>compare_word</span> <span class='op'>=</span> <span class='id identifier rubyid_case_insensitive'>case_insensitive</span> <span class='op'>?</span> <span class='id identifier rubyid_word'>word</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span> <span class='op'>:</span> <span class='id identifier rubyid_word'>word</span>
+
+  <span class='comment'># Calculate enhanced scores for all candidates
+</span>  <span class='id identifier rubyid_candidates'>candidates</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='comment'># Length filter: edit distance cannot be less than the length
+</span>  <span class='comment'># difference. Skip dictionary words whose length differs from
+</span>  <span class='comment'># the input by more than max_dist — they can&#39;t possibly match.
+</span>  <span class='comment'># This is the single biggest performance win for this strategy:
+</span>  <span class='comment'># without it, we pay the full O(m*n) DP cost on every word in
+</span>  <span class='comment'># the dictionary. When the dictionary is an IndexedDictionary,
+</span>  <span class='comment'># the lookup is O(buckets_in_range) instead of O(n) scan.
+</span>  <span class='id identifier rubyid_target_length'>target_length</span> <span class='op'>=</span> <span class='id identifier rubyid_compare_word'>compare_word</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='id identifier rubyid_length_min'>length_min</span> <span class='op'>=</span> <span class='id identifier rubyid_target_length'>target_length</span> <span class='op'>-</span> <span class='id identifier rubyid_max_dist'>max_dist</span>
+  <span class='id identifier rubyid_length_max'>length_max</span> <span class='op'>=</span> <span class='id identifier rubyid_target_length'>target_length</span> <span class='op'>+</span> <span class='id identifier rubyid_max_dist'>max_dist</span>
+
+  <span class='id identifier rubyid_words_to_check'>words_to_check</span> <span class='op'>=</span> <span class='id identifier rubyid_dictionary_words_in_length_range'>dictionary_words_in_length_range</span><span class='lparen'>(</span>
+    <span class='id identifier rubyid_context'>context</span><span class='comma'>,</span> <span class='label'>min:</span> <span class='id identifier rubyid_length_min'>length_min</span><span class='comma'>,</span> <span class='label'>max:</span> <span class='id identifier rubyid_length_max'>length_max</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_words_to_check'>words_to_check</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_dict_word'>dict_word</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_dict_word'>dict_word</span> <span class='op'>==</span> <span class='id identifier rubyid_word'>word</span>
+
+    <span class='id identifier rubyid_compare_dict'>compare_dict</span> <span class='op'>=</span> <span class='id identifier rubyid_case_insensitive'>case_insensitive</span> <span class='op'>?</span> <span class='id identifier rubyid_dict_word'>dict_word</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span> <span class='op'>:</span> <span class='id identifier rubyid_dict_word'>dict_word</span>
+    <span class='comment'># distance_with_threshold bails out early when the row
+</span>    <span class='comment'># minimum exceeds max_dist — avoids computing the full
+</span>    <span class='comment'># DP for clearly-different pairs of similar-length words.
+</span>    <span class='id identifier rubyid_dist'>dist</span> <span class='op'>=</span> <span class='id identifier rubyid_edit_distance_with_threshold'>edit_distance_with_threshold</span><span class='lparen'>(</span><span class='id identifier rubyid_compare_word'>compare_word</span><span class='comma'>,</span> <span class='id identifier rubyid_compare_dict'>compare_dict</span><span class='comma'>,</span> <span class='id identifier rubyid_max_dist'>max_dist</span><span class='rparen'>)</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_dist'>dist</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_dist'>dist</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+
+    <span class='comment'># Calculate enhanced score (lower is better)
+</span>    <span class='id identifier rubyid_score'>score</span> <span class='op'>=</span> <span class='id identifier rubyid_calculate_enhanced_score'>calculate_enhanced_score</span><span class='lparen'>(</span><span class='id identifier rubyid_compare_word'>compare_word</span><span class='comma'>,</span> <span class='id identifier rubyid_compare_dict'>compare_dict</span><span class='comma'>,</span> <span class='id identifier rubyid_dist'>dist</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_candidates'>candidates</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_dict_word'>dict_word</span><span class='comma'>,</span> <span class='id identifier rubyid_dist'>dist</span><span class='comma'>,</span> <span class='id identifier rubyid_score'>score</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Single-edit sweep: enumerate the distance-1 edits of the
+</span>  <span class='comment'># misspelling itself (adjacent transposition, substitution,
+</span>  <span class='comment'># insertion, deletion) and keep the ones the dictionary
+</span>  <span class='comment'># accepts. The headword loop above can only ever surface raw
+</span>  <span class='comment'># dictionary stems — without this sweep, valid dictionary
+</span>  <span class='comment'># FORMS (affixed like &quot;definately&quot; -&gt; &quot;definitely&quot;, or
+</span>  <span class='comment'># capitalization variants like &quot;Teh&quot; -&gt; &quot;The&quot;) can never be
+</span>  <span class='comment'># suggested, no matter how close they are. Transposition is
+</span>  <span class='comment'># enumerated as a single operation (restricted Damerau), so
+</span>  <span class='comment'># a swapped pair costs 1, not 2.
+</span>  <span class='id identifier rubyid_edit_sweep_candidates'>edit_sweep_candidates</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='comma'>,</span> <span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='label'>case_insensitive:</span> <span class='id identifier rubyid_case_insensitive'>case_insensitive</span><span class='comma'>,</span>
+                                       <span class='label'>max_dist:</span> <span class='id identifier rubyid_max_dist'>max_dist</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_candidate'>candidate</span><span class='comma'>,</span> <span class='id identifier rubyid_dist'>dist</span><span class='op'>|</span>
+    <span class='id identifier rubyid_compare_candidate'>compare_candidate</span> <span class='op'>=</span> <span class='id identifier rubyid_case_insensitive'>case_insensitive</span> <span class='op'>?</span> <span class='id identifier rubyid_candidate'>candidate</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span> <span class='op'>:</span> <span class='id identifier rubyid_candidate'>candidate</span>
+    <span class='id identifier rubyid_score'>score</span> <span class='op'>=</span> <span class='id identifier rubyid_calculate_enhanced_score'>calculate_enhanced_score</span><span class='lparen'>(</span><span class='id identifier rubyid_compare_word'>compare_word</span><span class='comma'>,</span> <span class='id identifier rubyid_compare_candidate'>compare_candidate</span><span class='comma'>,</span> <span class='id identifier rubyid_dist'>dist</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_candidates'>candidates</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_candidate'>candidate</span><span class='comma'>,</span> <span class='id identifier rubyid_dist'>dist</span><span class='comma'>,</span> <span class='id identifier rubyid_score'>score</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Sort by enhanced score (lower is better)
+</span>  <span class='id identifier rubyid_sorted_candidates'>sorted_candidates</span> <span class='op'>=</span> <span class='id identifier rubyid_candidates'>candidates</span><span class='period'>.</span><span class='id identifier rubyid_sort_by'>sort_by</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid__'>_</span><span class='comma'>,</span> <span class='id identifier rubyid__'>_</span><span class='comma'>,</span> <span class='id identifier rubyid_score'>score</span><span class='op'>|</span> <span class='id identifier rubyid_score'>score</span> <span class='rbrace'>}</span>
+
+  <span class='comment'># Drop case variants of the same word, keeping the
+</span>  <span class='comment'># best-scoring form (first after the sort). The headword
+</span>  <span class='comment'># loop and the edit sweep can both propose a word — e.g.
+</span>  <span class='comment'># &quot;the&quot; (stem) and &quot;The&quot; (lookup-valid INITCAP form of the
+</span>  <span class='comment'># same stem) — and the final SuggestionSet would deduplicate
+</span>  <span class='comment'># them anyway; deduplicating here keeps the strategy output
+</span>  <span class='comment'># free of case duplicates and the score range used for
+</span>  <span class='comment'># confidence normalization honest.
+</span>  <span class='id identifier rubyid_seen_words'>seen_words</span> <span class='op'>=</span> <span class='const'>Set</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_sorted_candidates'>sorted_candidates</span> <span class='op'>=</span> <span class='id identifier rubyid_sorted_candidates'>sorted_candidates</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_dict_word'>dict_word</span><span class='comma'>,</span> <span class='id identifier rubyid__'>_</span><span class='comma'>,</span> <span class='id identifier rubyid__'>_</span><span class='op'>|</span> <span class='id identifier rubyid_seen_words'>seen_words</span><span class='period'>.</span><span class='id identifier rubyid_add?'>add?</span><span class='lparen'>(</span><span class='id identifier rubyid_dict_word'>dict_word</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+
+  <span class='comment'># Calculate confidence scores with threshold filtering
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_sorted_candidates'>sorted_candidates</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="../SuggestionSet.html" title="Kotoshu::Suggestions::SuggestionSet (class)">SuggestionSet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_empty'><span class='object_link'><a href="../SuggestionSet.html#empty-class_method" title="Kotoshu::Suggestions::SuggestionSet.empty (method)">empty</a></span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_max_score'>max_score</span> <span class='op'>=</span> <span class='id identifier rubyid_sorted_candidates'>sorted_candidates</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid__'>_</span><span class='comma'>,</span> <span class='id identifier rubyid__'>_</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='op'>|</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_max'>max</span>
+  <span class='id identifier rubyid_min_score'>min_score</span> <span class='op'>=</span> <span class='id identifier rubyid_sorted_candidates'>sorted_candidates</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid__'>_</span><span class='comma'>,</span> <span class='id identifier rubyid__'>_</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='op'>|</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_min'>min</span>
+  <span class='id identifier rubyid_score_range'>score_range</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_max_score'>max_score</span> <span class='op'>-</span> <span class='id identifier rubyid_min_score'>min_score</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_abs'>abs</span>
+
+  <span class='comment'># Create suggestions with confidence-based filtering
+</span>  <span class='id identifier rubyid_suggestions'>suggestions</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_sorted_candidates'>sorted_candidates</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_dict_word'>dict_word</span><span class='comma'>,</span> <span class='id identifier rubyid_dist'>dist</span><span class='comma'>,</span> <span class='id identifier rubyid_score'>score</span><span class='op'>|</span>
+    <span class='comment'># Normalize score to confidence (0.0 to 1.0)
+</span>    <span class='comment'># Lower score = higher confidence
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_score_range'>score_range</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_normalized'>normalized</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_score'>score</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>-</span> <span class='id identifier rubyid_min_score'>min_score</span><span class='rparen'>)</span> <span class='op'>/</span> <span class='id identifier rubyid_score_range'>score_range</span> <span class='comment'># 0 to 1
+</span>      <span class='id identifier rubyid_confidence'>confidence</span> <span class='op'>=</span> <span class='float'>1.0</span> <span class='op'>-</span> <span class='id identifier rubyid_normalized'>normalized</span> <span class='comment'># Invert: lower score = higher confidence
+</span>    <span class='kw'>else</span>
+      <span class='id identifier rubyid_confidence'>confidence</span> <span class='op'>=</span> <span class='float'>1.0</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Calculate Jaro-Winkler similarity for additional filtering.
+</span>    <span class='comment'># Use the same case normalization as the edit distance so the
+</span>    <span class='comment'># similarity score is consistent with the distance threshold.
+</span>    <span class='id identifier rubyid_compare_dict'>compare_dict</span> <span class='op'>=</span> <span class='id identifier rubyid_case_insensitive'>case_insensitive</span> <span class='op'>?</span> <span class='id identifier rubyid_dict_word'>dict_word</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span> <span class='op'>:</span> <span class='id identifier rubyid_dict_word'>dict_word</span>
+    <span class='id identifier rubyid_jaro_similarity'>jaro_similarity</span> <span class='op'>=</span> <span class='id identifier rubyid_calculate_ngram_similarity'>calculate_ngram_similarity</span><span class='lparen'>(</span><span class='id identifier rubyid_compare_word'>compare_word</span><span class='comma'>,</span> <span class='id identifier rubyid_compare_dict'>compare_dict</span><span class='rparen'>)</span>
+
+    <span class='comment'># Skip low-confidence or low-similarity suggestions (unless we need more for min_results)
+</span>    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_confidence'>confidence</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_min_confidence'>min_confidence</span> <span class='op'>||</span> <span class='id identifier rubyid_jaro_similarity'>jaro_similarity</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_min_similarity'>min_similarity</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_suggestions'>suggestions</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>&gt;=</span> <span class='id identifier rubyid_min_results'>min_results</span><span class='rparen'>)</span>
+      <span class='kw'>next</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_suggestions'>suggestions</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="../Suggestion.html" title="Kotoshu::Suggestions::Suggestion (class)">Suggestion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Suggestion.html#initialize-instance_method" title="Kotoshu::Suggestions::Suggestion#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+      <span class='label'>word:</span> <span class='id identifier rubyid_dict_word'>dict_word</span><span class='comma'>,</span>
+      <span class='label'>distance:</span> <span class='id identifier rubyid_dist'>dist</span><span class='comma'>,</span>
+      <span class='label'>confidence:</span> <span class='id identifier rubyid_confidence'>confidence</span><span class='comma'>,</span>
+      <span class='label'>source:</span> <span class='ivar'>@name</span><span class='comma'>,</span>
+      <span class='label'>original_length:</span> <span class='id identifier rubyid_word'>word</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>
+      <span class='label'>ngram_score:</span> <span class='id identifier rubyid_jaro_similarity'>jaro_similarity</span><span class='comma'>,</span> <span class='comment'># Now stores Jaro-Winkler similarity (0.0-1.0)
+</span>      <span class='label'>enhanced_score:</span> <span class='id identifier rubyid_score'>score</span>
+    <span class='rparen'>)</span>
+
+    <span class='comment'># Stop when we have enough high-quality suggestions
+</span>    <span class='kw'>break</span> <span class='kw'>if</span> <span class='id identifier rubyid_suggestions'>suggestions</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>&gt;=</span> <span class='id identifier rubyid_max_results'>max_results</span>
+  <span class='kw'>end</span>
+
+  <span class='const'><span class='object_link'><a href="../SuggestionSet.html" title="Kotoshu::Suggestions::SuggestionSet (class)">SuggestionSet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../SuggestionSet.html#initialize-instance_method" title="Kotoshu::Suggestions::SuggestionSet#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_suggestions'>suggestions</span><span class='comma'>,</span> <span class='label'>max_size:</span> <span class='id identifier rubyid_max_results'>max_results</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handles?-instance_method">
+  
+    #<strong>handles?</strong>(context)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Check if this strategy should handle the context.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>context</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Context.html" title="Kotoshu::Suggestions::Context (class)">Context</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The suggestion context</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>True if the word needs correction</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+257
+258
+259
+260
+261
+262</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/edit_distance_strategy.rb', line 257</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handles?'>handles?</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_enabled?'>enabled?</span>
+
+  <span class='comment'># Only handle if the word is not in the dictionary
+</span>  <span class='op'>!</span><span class='id identifier rubyid_dictionary_lookup'>dictionary_lookup</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='comma'>,</span> <span class='id identifier rubyid_context'>context</span><span class='period'>.</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="keyboard-instance_method">
+  
+    #<strong>keyboard</strong>  &#x21d2; <tt><span class='object_link'><a href="../../Keyboard/Layout.html" title="Kotoshu::Keyboard::Layout (class)">Keyboard::Layout</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Public method to get current keyboard being used</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../Keyboard/Layout.html" title="Kotoshu::Keyboard::Layout (class)">Keyboard::Layout</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The keyboard layout instance</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+59
+60
+61</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/edit_distance_strategy.rb', line 59</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_keyboard'>keyboard</span>
+  <span class='ivar'>@keyboard_layout</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="keyboard_name-instance_method">
+  
+    #<strong>keyboard_name</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Public method to get keyboard name</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Keyboard layout name</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+66
+67
+68</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/edit_distance_strategy.rb', line 66</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_keyboard_name'>keyboard_name</span>
+  <span class='ivar'>@keyboard_layout</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="keyboard_penalty-instance_method">
+  
+    #<strong>keyboard_penalty</strong>(original, suggestion)  &#x21d2; <tt>Float</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Calculate keyboard proximity penalty.</p>
+<p>Substitutions between adjacent keys get lower penalty.
+Uses OOP keyboard layout for language-aware distance calculations.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>original</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The original word</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>suggestion</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The suggested word</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Float</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Keyboard penalty (0-200)</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/edit_distance_strategy.rb', line 531</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_keyboard_penalty'>keyboard_penalty</span><span class='lparen'>(</span><span class='id identifier rubyid_original'>original</span><span class='comma'>,</span> <span class='id identifier rubyid_suggestion'>suggestion</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_penalty'>penalty</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='comment'># Find the edit script to see what changed
+</span>  <span class='id identifier rubyid_o_chars'>o_chars</span> <span class='op'>=</span> <span class='id identifier rubyid_original'>original</span><span class='period'>.</span><span class='id identifier rubyid_chars'>chars</span>
+  <span class='id identifier rubyid_s_chars'>s_chars</span> <span class='op'>=</span> <span class='id identifier rubyid_suggestion'>suggestion</span><span class='period'>.</span><span class='id identifier rubyid_chars'>chars</span>
+
+  <span class='comment'># Simple comparison for equal-length words (substitutions)
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_o_chars'>o_chars</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='id identifier rubyid_s_chars'>s_chars</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+    <span class='id identifier rubyid_o_chars'>o_chars</span><span class='period'>.</span><span class='id identifier rubyid_each_with_index'>each_with_index</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_c1'>c1</span><span class='comma'>,</span> <span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+      <span class='id identifier rubyid_c2'>c2</span> <span class='op'>=</span> <span class='id identifier rubyid_s_chars'>s_chars</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_c1'>c1</span> <span class='op'>==</span> <span class='id identifier rubyid_c2'>c2</span>
+
+      <span class='comment'># Use OOP keyboard layout for distance calculation
+</span>      <span class='id identifier rubyid_key_dist'>key_dist</span> <span class='op'>=</span> <span class='ivar'>@keyboard_layout</span><span class='period'>.</span><span class='id identifier rubyid_distance'>distance</span><span class='lparen'>(</span><span class='id identifier rubyid_c1'>c1</span><span class='comma'>,</span> <span class='id identifier rubyid_c2'>c2</span><span class='rparen'>)</span>
+
+      <span class='id identifier rubyid_penalty'>penalty</span> <span class='op'>+=</span> <span class='kw'>if</span> <span class='id identifier rubyid_key_dist'>key_dist</span> <span class='op'>==</span> <span class='const'>Float</span><span class='op'>::</span><span class='const'>INFINITY</span>
+                   <span class='comment'># Symbol or unknown key - medium penalty
+</span>                   <span class='int'>50</span>
+                 <span class='kw'>elsif</span> <span class='id identifier rubyid_key_dist'>key_dist</span> <span class='op'>==</span> <span class='int'>1</span>
+                   <span class='int'>10</span>  <span class='comment'># Very likely typo (adjacent keys)
+</span>                 <span class='kw'>elsif</span> <span class='id identifier rubyid_key_dist'>key_dist</span> <span class='op'>==</span> <span class='int'>2</span>
+                   <span class='int'>30</span>  <span class='comment'># Somewhat likely
+</span>                 <span class='kw'>else</span>
+                   <span class='int'>100</span> <span class='comment'># Unlikely to be typo (far keys)
+</span>                 <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_penalty'>penalty</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="transposition_bonus-instance_method">
+  
+    #<strong>transposition_bonus</strong>(original, suggestion)  &#x21d2; <tt>Float</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Calculate bonus for transposition (swap adjacent characters).
+This is the MOST common typing error, so it gets the highest bonus.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>original</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The original word</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>suggestion</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The suggested word</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Float</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Transposition bonus (0 or 200)</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/edit_distance_strategy.rb', line 499</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_transposition_bonus'>transposition_bonus</span><span class='lparen'>(</span><span class='id identifier rubyid_original'>original</span><span class='comma'>,</span> <span class='id identifier rubyid_suggestion'>suggestion</span><span class='rparen'>)</span>
+  <span class='comment'># Transposition only makes sense for same-length words
+</span>  <span class='kw'>return</span> <span class='int'>0</span> <span class='kw'>unless</span> <span class='id identifier rubyid_original'>original</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='id identifier rubyid_suggestion'>suggestion</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+  <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='id identifier rubyid_original'>original</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid_suggestion'>suggestion</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+
+  <span class='comment'># Count transpositions needed
+</span>  <span class='id identifier rubyid_transpositions'>transpositions</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='lparen'>(</span><span class='int'>0</span><span class='op'>...</span><span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_o'>o</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span>
+
+    <span class='comment'># Find matching char in suggestion
+</span>    <span class='id identifier rubyid_match_idx'>match_idx</span> <span class='op'>=</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_o'>o</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_i'>i</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_match_idx'>match_idx</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_match_idx'>match_idx</span> <span class='op'>==</span> <span class='id identifier rubyid_i'>i</span> <span class='op'>+</span> <span class='int'>1</span> <span class='op'>||</span> <span class='lparen'>(</span><span class='id identifier rubyid_match_idx'>match_idx</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_i'>i</span> <span class='op'>+</span> <span class='int'>1</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_o'>o</span><span class='lbracket'>[</span><span class='id identifier rubyid_match_idx'>match_idx</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='comment'># This is a simple adjacent swap
+</span>      <span class='id identifier rubyid_transpositions'>transpositions</span> <span class='op'>+=</span> <span class='int'>1</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Only give bonus for single transposition
+</span>  <span class='id identifier rubyid_transpositions'>transpositions</span> <span class='op'>==</span> <span class='int'>1</span> <span class='op'>?</span> <span class='int'>200</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='id identifier rubyid_transpositions'>transpositions</span> <span class='op'>*</span> <span class='int'>100</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="typo_pattern_bonus-instance_method">
+  
+    #<strong>typo_pattern_bonus</strong>(original, suggestion)  &#x21d2; <tt>Float</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Calculate bonus for common typo patterns.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>original</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The original word</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>suggestion</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The suggested word</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Float</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Pattern bonus (0-300)</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+568
+569
+570
+571
+572
+573
+574
+575
+576
+577
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599
+600
+601
+602
+603
+604
+605
+606
+607
+608
+609</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/edit_distance_strategy.rb', line 568</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_typo_pattern_bonus'>typo_pattern_bonus</span><span class='lparen'>(</span><span class='id identifier rubyid_original'>original</span><span class='comma'>,</span> <span class='id identifier rubyid_suggestion'>suggestion</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_bonus'>bonus</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='comment'># Pattern 1: Missing double letter (helo -&gt; hello)
+</span>  <span class='comment'># This is the MOST COMMON typo after transposition, give it highest bonus
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_suggestion'>suggestion</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='id identifier rubyid_original'>original</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>+</span> <span class='int'>1</span>
+    <span class='comment'># Check if suggestion has a double letter that original is missing
+</span>    <span class='id identifier rubyid_suggestion'>suggestion</span><span class='period'>.</span><span class='id identifier rubyid_chars'>chars</span><span class='period'>.</span><span class='id identifier rubyid_each_cons'>each_cons</span><span class='lparen'>(</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_with_index'>with_index</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_pair'>pair</span><span class='comma'>,</span> <span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_pair'>pair</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_pair'>pair</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='comment'># Found double letter at positions i and i+1
+</span>        <span class='comment'># Check if removing the second occurrence (at i+1) gives us the original word
+</span>        <span class='comment'># For &quot;hello&quot; with &quot;ll&quot; at position 2, remove position 3: &quot;hel&quot; + &quot;o&quot; = &quot;helo&quot;
+</span>        <span class='id identifier rubyid_expected'>expected</span> <span class='op'>=</span> <span class='id identifier rubyid_suggestion'>suggestion</span><span class='lbracket'>[</span><span class='int'>0</span><span class='op'>...</span><span class='id identifier rubyid_i'>i</span> <span class='op'>+</span> <span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='id identifier rubyid_suggestion'>suggestion</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span> <span class='op'>+</span> <span class='int'>2</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_expected'>expected</span> <span class='op'>==</span> <span class='id identifier rubyid_original'>original</span>
+          <span class='id identifier rubyid_bonus'>bonus</span> <span class='op'>+=</span> <span class='int'>300</span> <span class='comment'># Strong bonus for missing double letter (MORE than transposition!)
+</span>          <span class='kw'>break</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Pattern 2: Extra double letter (helllo -&gt; hello)
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_original'>original</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='id identifier rubyid_suggestion'>suggestion</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>+</span> <span class='int'>1</span>
+    <span class='comment'># Check if original has a double letter that suggestion doesn&#39;t
+</span>    <span class='id identifier rubyid_original'>original</span><span class='period'>.</span><span class='id identifier rubyid_chars'>chars</span><span class='period'>.</span><span class='id identifier rubyid_each_cons'>each_cons</span><span class='lparen'>(</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_with_index'>with_index</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_pair'>pair</span><span class='comma'>,</span> <span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_pair'>pair</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_pair'>pair</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='comment'># Found double letter in original
+</span>        <span class='comment'># Check if removing it gives the suggestion
+</span>        <span class='id identifier rubyid_reconstructed'>reconstructed</span> <span class='op'>=</span> <span class='id identifier rubyid_original'>original</span><span class='lbracket'>[</span><span class='int'>0</span><span class='op'>...</span><span class='id identifier rubyid_i'>i</span> <span class='op'>+</span> <span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='id identifier rubyid_original'>original</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span> <span class='op'>+</span> <span class='int'>1</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_reconstructed'>reconstructed</span> <span class='op'>==</span> <span class='id identifier rubyid_suggestion'>suggestion</span>
+          <span class='id identifier rubyid_bonus'>bonus</span> <span class='op'>+=</span> <span class='int'>100</span> <span class='comment'># Bonus for extra double letter
+</span>          <span class='kw'>break</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Pattern 3: Common prefixes/suffixes
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_original'>original</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span><span class='lparen'>(</span><span class='id identifier rubyid_suggestion'>suggestion</span><span class='lbracket'>[</span><span class='int'>0</span><span class='op'>...</span><span class='int'>3</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_suggestion'>suggestion</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_original'>original</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+    <span class='id identifier rubyid_bonus'>bonus</span> <span class='op'>+=</span> <span class='int'>30</span> <span class='comment'># Suggestion extends common prefix
+</span>  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_bonus'>bonus</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:49 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

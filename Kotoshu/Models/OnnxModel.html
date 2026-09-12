@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Kotoshu::Models::OnnxModel
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Models::OnnxModel";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (O)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Models.html" title="Kotoshu::Models (module)">Models</a></span></span>
+     &raquo; 
+    <span class="title">OnnxModel</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Kotoshu::Models::OnnxModel
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="EmbeddingModel.html" title="Kotoshu::Models::EmbeddingModel (class)">EmbeddingModel</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="EmbeddingModel.html" title="Kotoshu::Models::EmbeddingModel (class)">EmbeddingModel</a></span></li>
+          
+            <li class="next">Kotoshu::Models::OnnxModel</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/models/onnx_model.rb
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>ONNX embedding model implementation.</p>
+<p>Loads FastText models converted to ONNX format for faster inference.
+Uses ONNX Runtime for efficient embedding lookup.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+        <h5 class="example_title"><div class='inline'><p>Loading from file</p></div></h5>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_model'>model</span> <span class='op'>=</span> <span class='const'>OnnxModel</span><span class='period'>.</span><span class='id identifier rubyid_from_file'><span class='object_link'><a href="#from_file-class_method" title="Kotoshu::Models::OnnxModel.from_file (method)">from_file</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>fasttext.en.onnx</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_embedding'>embedding</span> <span class='op'>=</span> <span class='id identifier rubyid_model'>model</span><span class='period'>.</span><span class='id identifier rubyid_embedding_for'>embedding_for</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></code></pre>
+    
+      
+        <h5 class="example_title"><div class='inline'><p>Loading from GitHub (via ModelCache)</p></div></h5>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_model'>model</span> <span class='op'>=</span> <span class='const'>OnnxModel</span><span class='period'>.</span><span class='id identifier rubyid_from_github'><span class='object_link'><a href="#from_github-class_method" title="Kotoshu::Models::OnnxModel.from_github (method)">from_github</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_neighbors'>neighbors</span> <span class='op'>=</span> <span class='id identifier rubyid_model'>model</span><span class='period'>.</span><span class='id identifier rubyid_nearest_neighbors'>nearest_neighbors</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>k:</span> <span class='int'>10</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="OnnxModel/OnnxUnavailable.html" title="Kotoshu::Models::OnnxModel::OnnxUnavailable (class)">OnnxUnavailable</a></span>
+    
+  
+</p>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="ONNX_LOADED-constant" class="">ONNX_LOADED =
+          <div class="docstring">
+  <div class="discussion">
+    <p>Soft-load onnxruntime. The gem is intentionally NOT a hard runtime
+dependency — it fails to build on some platforms and would block
+install for users who only want traditional spell-checking. Semantic
+features light up automatically when the gem is present.</p>
+<p>KOTOSHU_NO_ONNX=1 forces semantic analysis off even when the gem is
+installed (useful for benchmarks / CI determinism).</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='kw'>begin</span>
+  <span class='kw'>if</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KOTOSHU_NO_ONNX</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>1</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>false</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>onnxruntime</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>true</span>
+  <span class='kw'>end</span>
+<span class='kw'>rescue</span> <span class='const'>LoadError</span>
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre></dd>
+      
+        <dt id="DEFAULT_DIMENSION-constant" class="">DEFAULT_DIMENSION =
+          <div class="docstring">
+  <div class="discussion">
+    <p>Default dimension for FastText models</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>300</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#embedding_matrix-instance_method" title="#embedding_matrix (instance method)">#<strong>embedding_matrix</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute embedding_matrix.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#onnx_path-instance_method" title="#onnx_path (instance method)">#<strong>onnx_path</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute onnx_path.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vocabulary-instance_method" title="#vocabulary (instance method)">#<strong>vocabulary</strong>  &#x21d2; Array&lt;String&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get the vocabulary (all words in the model).</p></div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="EmbeddingModel.html" title="Kotoshu::Models::EmbeddingModel (class)">EmbeddingModel</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="EmbeddingModel.html#dimension-instance_method" title="Kotoshu::Models::EmbeddingModel#dimension (method)">#dimension</a></span>, <span class='object_link'><a href="EmbeddingModel.html#language_code-instance_method" title="Kotoshu::Models::EmbeddingModel#language_code (method)">#language_code</a></span>, <span class='object_link'><a href="EmbeddingModel.html#vocabulary_size-instance_method" title="Kotoshu::Models::EmbeddingModel#vocabulary_size (method)">#vocabulary_size</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#detect_language_from_path-class_method" title="detect_language_from_path (class method)">.<strong>detect_language_from_path</strong>(path)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Detect language code from file path.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#from_file-class_method" title="from_file (class method)">.<strong>from_file</strong>(onnx_path, language_code: nil)  &#x21d2; OnnxModel </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Load ONNX model from a file.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#from_github-class_method" title="from_github (class method)">.<strong>from_github</strong>(language_code, cache: nil)  &#x21d2; OnnxModel </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Load ONNX model from GitHub (via ModelCache).</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#batch_embeddings-instance_method" title="#batch_embeddings (instance method)">#<strong>batch_embeddings</strong>(words)  &#x21d2; Hash&lt;String, WordEmbedding&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Batch lookup of embeddings for multiple words.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#embedding_for-instance_method" title="#embedding_for (instance method)">#<strong>embedding_for</strong>(word)  &#x21d2; WordEmbedding<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get embedding vector for a word.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(language_code:, onnx_path:, vocabulary:, dimension: DEFAULT_DIMENSION, embedding_matrix: nil)  &#x21d2; OnnxModel </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Create a new ONNX model.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#loaded%3F-instance_method" title="#loaded? (instance method)">#<strong>loaded?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Check if model is loaded.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#nearest_neighbors-instance_method" title="#nearest_neighbors (instance method)">#<strong>nearest_neighbors</strong>(word, k: 10)  &#x21d2; Array&lt;NearestNeighbor&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Find k nearest neighbors for a word.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#preload_embedding_matrix-instance_method" title="#preload_embedding_matrix (instance method)">#<strong>preload_embedding_matrix</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Preload the embedding matrix into memory for faster nearest neighbor search.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="EmbeddingModel.html" title="Kotoshu::Models::EmbeddingModel (class)">EmbeddingModel</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="EmbeddingModel.html#distance-instance_method" title="Kotoshu::Models::EmbeddingModel#distance (method)">#distance</a></span>, <span class='object_link'><a href="EmbeddingModel.html#has_word%3F-instance_method" title="Kotoshu::Models::EmbeddingModel#has_word? (method)">#has_word?</a></span>, <span class='object_link'><a href="EmbeddingModel.html#metadata-instance_method" title="Kotoshu::Models::EmbeddingModel#metadata (method)">#metadata</a></span>, <span class='object_link'><a href="EmbeddingModel.html#nearest_neighbors_for_embedding-instance_method" title="Kotoshu::Models::EmbeddingModel#nearest_neighbors_for_embedding (method)">#nearest_neighbors_for_embedding</a></span>, <span class='object_link'><a href="EmbeddingModel.html#similarity-instance_method" title="Kotoshu::Models::EmbeddingModel#similarity (method)">#similarity</a></span>, <span class='object_link'><a href="EmbeddingModel.html#statistics-instance_method" title="Kotoshu::Models::EmbeddingModel#statistics (method)">#statistics</a></span>, <span class='object_link'><a href="EmbeddingModel.html#to_s-instance_method" title="Kotoshu::Models::EmbeddingModel#to_s (method)">#to_s</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(language_code:, onnx_path:, vocabulary:, dimension: DEFAULT_DIMENSION, embedding_matrix: nil)  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::Models::OnnxModel (class)">OnnxModel</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Create a new ONNX model.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>language_code</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>ISO 639-1 language code</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>dimension</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>DEFAULT_DIMENSION</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Vector dimension</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>onnx_path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Path to .onnx file</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>vocabulary</span>
+      
+      
+        <span class='type'>(<tt>Hash&lt;String, Integer&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Word-to-index mapping</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>embedding_matrix</span>
+      
+      
+        <span class='type'>(<tt>Numo::SFloat</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Pre-loaded embeddings (optional)</p></div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/onnx_model.rb', line 60</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>language_code:</span><span class='comma'>,</span> <span class='label'>onnx_path:</span><span class='comma'>,</span> <span class='label'>vocabulary:</span><span class='comma'>,</span> <span class='label'>dimension:</span> <span class='const'><span class='object_link'><a href="#DEFAULT_DIMENSION-constant" title="Kotoshu::Models::OnnxModel::DEFAULT_DIMENSION (constant)">DEFAULT_DIMENSION</a></span></span><span class='comma'>,</span> <span class='label'>embedding_matrix:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='label'>language_code:</span> <span class='id identifier rubyid_language_code'>language_code</span><span class='comma'>,</span> <span class='label'>dimension:</span> <span class='id identifier rubyid_dimension'>dimension</span><span class='rparen'>)</span>
+  <span class='ivar'>@onnx_path</span> <span class='op'>=</span> <span class='id identifier rubyid_onnx_path'>onnx_path</span>
+  <span class='ivar'>@vocabulary</span> <span class='op'>=</span> <span class='id identifier rubyid_vocabulary'>vocabulary</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+  <span class='ivar'>@vocabulary_size</span> <span class='op'>=</span> <span class='ivar'>@vocabulary</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+
+  <span class='comment'># Pre-load embedding matrix if provided (for faster nearest neighbor search)
+</span>  <span class='ivar'>@embedding_matrix</span> <span class='op'>=</span> <span class='id identifier rubyid_embedding_matrix'>embedding_matrix</span>
+
+  <span class='comment'># Lazy load session
+</span>  <span class='ivar'>@session</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@input_name</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@output_name</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@loaded</span> <span class='op'>=</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="embedding_matrix-instance_method">
+  
+    #<strong>embedding_matrix</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the value of attribute embedding_matrix.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+51
+52
+53</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/onnx_model.rb', line 51</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_embedding_matrix'>embedding_matrix</span>
+  <span class='ivar'>@embedding_matrix</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="onnx_path-instance_method">
+  
+    #<strong>onnx_path</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the value of attribute onnx_path.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+51
+52
+53</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/onnx_model.rb', line 51</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_onnx_path'>onnx_path</span>
+  <span class='ivar'>@onnx_path</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="vocabulary-instance_method">
+  
+    #<strong>vocabulary</strong>  &#x21d2; <tt>Array&lt;String&gt;</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get the vocabulary (all words in the model).</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Vocabulary words</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+155
+156
+157</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/onnx_model.rb', line 155</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_vocabulary'>vocabulary</span>
+  <span class='ivar'>@vocabulary</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="detect_language_from_path-class_method">
+  
+    .<strong>detect_language_from_path</strong>(path)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Detect language code from file path.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>File path</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Detected language code</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+320
+321
+322
+323
+324
+325
+326
+327</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/onnx_model.rb', line 320</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_detect_language_from_path'>detect_language_from_path</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='comment'># Extract from path like &quot;fasttext.en.onnx&quot;
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_path'>path</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\.([a-z]{2})\.</span><span class='regexp_end'>/i</span></span>
+    <span class='const'>Regexp</span><span class='period'>.</span><span class='id identifier rubyid_last_match'>last_match</span><span class='lparen'>(</span><span class='int'>1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+  <span class='kw'>else</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en</span><span class='tstring_end'>&#39;</span></span> <span class='comment'># Default to English
+</span>  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="from_file-class_method">
+  
+    .<strong>from_file</strong>(onnx_path, language_code: nil)  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::Models::OnnxModel (class)">OnnxModel</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Load ONNX model from a file.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>onnx_path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Path to .onnx file</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>language_code</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Language code (auto-detected from filename)</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Kotoshu::Models::OnnxModel (class)">OnnxModel</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Loaded model</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>if file doesn't exist</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/onnx_model.rb', line 82</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_from_file'>from_file</span><span class='lparen'>(</span><span class='id identifier rubyid_onnx_path'>onnx_path</span><span class='comma'>,</span> <span class='label'>language_code:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>File not found: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_onnx_path'>onnx_path</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_onnx_path'>onnx_path</span><span class='rparen'>)</span>
+
+  <span class='comment'># Detect language from filename if not provided
+</span>  <span class='id identifier rubyid_language_code'>language_code</span> <span class='op'>||=</span> <span class='id identifier rubyid_detect_language_from_path'>detect_language_from_path</span><span class='lparen'>(</span><span class='id identifier rubyid_onnx_path'>onnx_path</span><span class='rparen'>)</span>
+
+  <span class='comment'># Load vocabulary from .vocab.json file
+</span>  <span class='id identifier rubyid_vocab_path'>vocab_path</span> <span class='op'>=</span> <span class='id identifier rubyid_onnx_path'>onnx_path</span><span class='period'>.</span><span class='id identifier rubyid_sub'>sub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.onnx</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.vocab.json</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_vocab_path'>vocab_path</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Vocabulary file not found: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vocab_path'>vocab_path</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>json</span><span class='tstring_end'>&#39;</span></span>
+  <span class='comment'># The vocab sibling ships in the wrapped {&quot;vocab_size&quot;, &quot;word_to_idx&quot;}
+</span>  <span class='comment'># shape (written by fasttext_to_onnx.py); normalize it to a flat
+</span>  <span class='comment'># word-to-index map via the shared Vocabulary parser.
+</span>  <span class='id identifier rubyid_vocabulary'>vocabulary</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Embeddings.html" title="Kotoshu::Embeddings (module)">Embeddings</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Embeddings/Vocabulary.html" title="Kotoshu::Embeddings::Vocabulary (class)">Vocabulary</a></span></span><span class='period'>.</span><span class='id identifier rubyid_word_to_index_from_document'><span class='object_link'><a href="../Embeddings/Vocabulary.html#word_to_index_from_document-class_method" title="Kotoshu::Embeddings::Vocabulary.word_to_index_from_document (method)">word_to_index_from_document</a></span></span><span class='lparen'>(</span>
+    <span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_vocab_path'>vocab_path</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='rparen'>)</span>
+
+  <span class='comment'># Load metadata
+</span>  <span class='id identifier rubyid_metadata_path'>metadata_path</span> <span class='op'>=</span> <span class='id identifier rubyid_onnx_path'>onnx_path</span><span class='period'>.</span><span class='id identifier rubyid_sub'>sub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.onnx</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.metadata.json</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dimension'>dimension</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#DEFAULT_DIMENSION-constant" title="Kotoshu::Models::OnnxModel::DEFAULT_DIMENSION (constant)">DEFAULT_DIMENSION</a></span></span>
+
+  <span class='kw'>if</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_metadata_path'>metadata_path</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_metadata'>metadata</span> <span class='op'>=</span> <span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_metadata_path'>metadata_path</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_dimension'>dimension</span> <span class='op'>=</span> <span class='id identifier rubyid_metadata'>metadata</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dimension</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='label'>language_code:</span> <span class='id identifier rubyid_language_code'>language_code</span><span class='comma'>,</span>
+    <span class='label'>dimension:</span> <span class='id identifier rubyid_dimension'>dimension</span><span class='comma'>,</span>
+    <span class='label'>onnx_path:</span> <span class='id identifier rubyid_onnx_path'>onnx_path</span><span class='comma'>,</span>
+    <span class='label'>vocabulary:</span> <span class='id identifier rubyid_vocabulary'>vocabulary</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="from_github-class_method">
+  
+    .<strong>from_github</strong>(language_code, cache: nil)  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::Models::OnnxModel (class)">OnnxModel</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Load ONNX model from GitHub (via ModelCache).</p>
+<p>Downloads the .onnx file from kotoshu/dictionaries repository.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>language_code</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>ISO 639-1 language code (de, en, es, fr, pt, ru)</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>cache</span>
+      
+      
+        <span class='type'>(<tt>ModelCache</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Optional cache instance</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Kotoshu::Models::OnnxModel (class)">OnnxModel</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Loaded model</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>if language not supported</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+127
+128
+129
+130
+131
+132
+133
+134</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/onnx_model.rb', line 127</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_from_github'>from_github</span><span class='lparen'>(</span><span class='id identifier rubyid_language_code'>language_code</span><span class='comma'>,</span> <span class='label'>cache:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cache'>cache</span> <span class='op'>||=</span> <span class='const'><span class='object_link'><a href="../Cache.html" title="Kotoshu::Cache (module)">Cache</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Cache/ModelCache.html" title="Kotoshu::Cache::ModelCache (class)">ModelCache</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Cache/BaseCache.html#initialize-instance_method" title="Kotoshu::Cache::BaseCache#initialize (method)">new</a></span></span>
+
+  <span class='comment'># Get the .onnx file path from cache
+</span>  <span class='id identifier rubyid_onnx_file'>onnx_file</span> <span class='op'>=</span> <span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_get_onnx_model'>get_onnx_model</span><span class='lparen'>(</span><span class='id identifier rubyid_language_code'>language_code</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_from_file'>from_file</span><span class='lparen'>(</span><span class='id identifier rubyid_onnx_file'>onnx_file</span><span class='comma'>,</span> <span class='label'>language_code:</span> <span class='id identifier rubyid_language_code'>language_code</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="batch_embeddings-instance_method">
+  
+    #<strong>batch_embeddings</strong>(words)  &#x21d2; <tt>Hash&lt;String, <span class='object_link'><a href="WordEmbedding.html" title="Kotoshu::Models::WordEmbedding (class)">WordEmbedding</a></span>&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Batch lookup of embeddings for multiple words.</p>
+<p>More efficient than individual lookups when using ONNX.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>words</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Words to lookup</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash&lt;String, <span class='object_link'><a href="WordEmbedding.html" title="Kotoshu::Models::WordEmbedding (class)">WordEmbedding</a></span>&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Word to embedding mapping</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/onnx_model.rb', line 192</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_batch_embeddings'>batch_embeddings</span><span class='lparen'>(</span><span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ensure_session_loaded'>ensure_session_loaded</span>
+
+  <span class='id identifier rubyid_indices'>indices</span> <span class='op'>=</span> <span class='id identifier rubyid_words'>words</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_w'>w</span><span class='op'>|</span> <span class='ivar'>@vocabulary</span><span class='lbracket'>[</span><span class='id identifier rubyid_w'>w</span><span class='rbracket'>]</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_vectors'>vectors</span> <span class='op'>=</span> <span class='id identifier rubyid_batch_get_embeddings'>batch_get_embeddings</span><span class='lparen'>(</span><span class='id identifier rubyid_indices'>indices</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_words'>words</span><span class='period'>.</span><span class='id identifier rubyid_zip'>zip</span><span class='lparen'>(</span><span class='id identifier rubyid_indices'>indices</span><span class='comma'>,</span> <span class='id identifier rubyid_vectors'>vectors</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each_with_object'>each_with_object</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_vec'>vec</span><span class='rparen'>)</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_idx'>idx</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_vec'>vec</span>
+
+    <span class='lbracket'>[</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="WordEmbedding.html" title="Kotoshu::Models::WordEmbedding (class)">WordEmbedding</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="WordEmbedding.html#initialize-instance_method" title="Kotoshu::Models::WordEmbedding#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='id identifier rubyid_vec'>vec</span><span class='comma'>,</span> <span class='ivar'>@language_code</span><span class='comma'>,</span> <span class='label'>dimension:</span> <span class='ivar'>@dimension</span><span class='rparen'>)</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="embedding_for-instance_method">
+  
+    #<strong>embedding_for</strong>(word)  &#x21d2; <tt><span class='object_link'><a href="WordEmbedding.html" title="Kotoshu::Models::WordEmbedding (class)">WordEmbedding</a></span></tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get embedding vector for a word.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The word to lookup</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="WordEmbedding.html" title="Kotoshu::Models::WordEmbedding (class)">WordEmbedding</a></span></tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Embedding vector or nil if not found</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/onnx_model.rb', line 140</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_embedding_for'>embedding_for</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_word'>word</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_word'>word</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='id identifier rubyid_index'>index</span> <span class='op'>=</span> <span class='ivar'>@vocabulary</span><span class='lbracket'>[</span><span class='id identifier rubyid_word'>word</span><span class='rbracket'>]</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_index'>index</span>
+
+  <span class='comment'># Get embedding from ONNX model
+</span>  <span class='id identifier rubyid_vector'>vector</span> <span class='op'>=</span> <span class='id identifier rubyid_get_embedding_vector'>get_embedding_vector</span><span class='lparen'>(</span><span class='id identifier rubyid_index'>index</span><span class='rparen'>)</span>
+
+  <span class='const'><span class='object_link'><a href="WordEmbedding.html" title="Kotoshu::Models::WordEmbedding (class)">WordEmbedding</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="WordEmbedding.html#initialize-instance_method" title="Kotoshu::Models::WordEmbedding#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='id identifier rubyid_vector'>vector</span><span class='comma'>,</span> <span class='ivar'>@language_code</span><span class='comma'>,</span> <span class='label'>dimension:</span> <span class='ivar'>@dimension</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="loaded?-instance_method">
+  
+    #<strong>loaded?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Check if model is loaded.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>True if ONNX session is loaded</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+162
+163
+164</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/onnx_model.rb', line 162</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_loaded?'>loaded?</span>
+  <span class='ivar'>@loaded</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="nearest_neighbors-instance_method">
+  
+    #<strong>nearest_neighbors</strong>(word, k: 10)  &#x21d2; <tt>Array&lt;<span class='object_link'><a href="NearestNeighbor.html" title="Kotoshu::Models::NearestNeighbor (class)">NearestNeighbor</a></span>&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Find k nearest neighbors for a word.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The query word</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>k</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>10</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Number of neighbors to return</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;<span class='object_link'><a href="NearestNeighbor.html" title="Kotoshu::Models::NearestNeighbor (class)">NearestNeighbor</a></span>&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Nearest neighbors sorted by similarity</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/onnx_model.rb', line 171</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_nearest_neighbors'>nearest_neighbors</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='label'>k:</span> <span class='int'>10</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ensure_session_loaded'>ensure_session_loaded</span>
+
+  <span class='comment'># Get query embedding
+</span>  <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='id identifier rubyid_embedding_for'>embedding_for</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='kw'>unless</span> <span class='id identifier rubyid_query'>query</span>
+
+  <span class='comment'># If embedding matrix is pre-loaded, use it for faster search
+</span>  <span class='kw'>if</span> <span class='ivar'>@embedding_matrix</span>
+    <span class='id identifier rubyid_nearest_neighbors_from_matrix'>nearest_neighbors_from_matrix</span><span class='lparen'>(</span><span class='id identifier rubyid_query'>query</span><span class='comma'>,</span> <span class='id identifier rubyid_k'>k</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='kw'>super</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="preload_embedding_matrix-instance_method">
+  
+    #<strong>preload_embedding_matrix</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Preload the embedding matrix into memory for faster nearest neighbor search.</p>
+<p>Useful when doing many nearest neighbor queries.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>True if loaded successfully</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/models/onnx_model.rb', line 210</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_preload_embedding_matrix'>preload_embedding_matrix</span>
+  <span class='id identifier rubyid_ensure_session_loaded'>ensure_session_loaded</span>
+
+  <span class='comment'># Get all embeddings at once
+</span>  <span class='id identifier rubyid_all_indices'>all_indices</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='int'>0</span><span class='op'>...</span><span class='ivar'>@vocabulary_size</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>
+  <span class='id identifier rubyid_vectors'>vectors</span> <span class='op'>=</span> <span class='id identifier rubyid_batch_get_embeddings'>batch_get_embeddings</span><span class='lparen'>(</span><span class='id identifier rubyid_all_indices'>all_indices</span><span class='rparen'>)</span>
+
+  <span class='comment'># Convert to matrix (using Numo::SFloat for efficiency)
+</span>  <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>numo/narray</span><span class='tstring_end'>&#39;</span></span>
+  <span class='ivar'>@embedding_matrix</span> <span class='op'>=</span> <span class='const'>Numo</span><span class='op'>::</span><span class='const'>Sfloat</span><span class='period'>.</span><span class='id identifier rubyid_cast'>cast</span><span class='lparen'>(</span><span class='id identifier rubyid_vectors'>vectors</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_reshape'>reshape</span><span class='lparen'>(</span><span class='ivar'>@vocabulary_size</span><span class='comma'>,</span> <span class='ivar'>@dimension</span><span class='rparen'>)</span>
+
+  <span class='kw'>true</span>
+<span class='kw'>rescue</span> <span class='const'>StandardError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='id identifier rubyid_warn'>warn</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Failed to preload embedding matrix: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:40 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

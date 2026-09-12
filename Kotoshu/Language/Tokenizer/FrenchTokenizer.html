@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Kotoshu::Language::Tokenizer::FrenchTokenizer
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Language::Tokenizer::FrenchTokenizer";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (F)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Language.html" title="Kotoshu::Language (module)">Language</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Tokenizer.html" title="Kotoshu::Language::Tokenizer (module)">Tokenizer</a></span></span>
+     &raquo; 
+    <span class="title">FrenchTokenizer</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Kotoshu::Language::Tokenizer::FrenchTokenizer
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="Base.html" title="Kotoshu::Language::Tokenizer::Base (class)">Base</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="Base.html" title="Kotoshu::Language::Tokenizer::Base (class)">Base</a></span></li>
+          
+            <li class="next">Kotoshu::Language::Tokenizer::FrenchTokenizer</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/language/tokenizer/french_tokenizer.rb
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>Tokenizer for French text.</p>
+<p>Ported from LanguageTool's FrenchWordTokenizer.</p>
+<p>Handles:</p>
+<ul>
+<li>Apostrophes (l', d', qu', c'est, j'ai, etc.)</li>
+<li>Hyphens (c'est-à-dire, rendez-vous, etc.)</li>
+<li>Decimal points/commas</li>
+<li>Multiple contraction patterns (7 total)</li>
+</ul>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="../../Languages/French/Tokenizer.html" title="Kotoshu::Languages::French::Tokenizer (class)">Kotoshu::Languages::French::Tokenizer</a></span></p>
+</div>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="WORD_SEPARATORS-constant" class="">WORD_SEPARATORS =
+          <div class="docstring">
+  <div class="discussion">
+    <p>French word separators - most punctuation and whitespace
+Note: apostrophe (') is NOT a separator in French (used for contractions)</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[\s&quot;()\[\]{}&lt;&gt;,.;:!?\\\/|`~@</span><span class='tstring_content'>#$%^&amp;*·]</span><span class='regexp_end'>/</span></span></pre></dd>
+      
+        <dt id="DO_NOT_SPLIT-constant" class="">DO_NOT_SPLIT =
+          <div class="docstring">
+  <div class="discussion">
+    <p>Do-not-split list (from LanguageTool)</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='qwords_beg'>%w[</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>mers-cov</span><span class='words_sep'> </span><span class='tstring_content'>mcgraw-hill</span><span class='words_sep'> </span><span class='tstring_content'>sars-cov-2</span><span class='words_sep'> </span><span class='tstring_content'>sars-cov</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>ph-metre</span><span class='words_sep'> </span><span class='tstring_content'>ph-metres</span><span class='words_sep'> </span><span class='tstring_content'>anti-ivg</span><span class='words_sep'> </span><span class='tstring_content'>anti-uv</span><span class='words_sep'> </span><span class='tstring_content'>anti-vih</span><span class='words_sep'> </span><span class='tstring_content'>al-qaïda</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>c&#39;est-à-dire</span><span class='words_sep'> </span><span class='tstring_content'>add-on</span><span class='words_sep'> </span><span class='tstring_content'>add-ons</span><span class='words_sep'> </span><span class='tstring_content'>rendez-vous</span><span class='words_sep'> </span><span class='tstring_content'>garde-à-vous</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>chez-eux</span><span class='words_sep'> </span><span class='tstring_content'>chez-moi</span><span class='words_sep'> </span><span class='tstring_content'>chez-nous</span><span class='words_sep'> </span><span class='tstring_content'>chez-soi</span><span class='words_sep'> </span><span class='tstring_content'>chez-toi</span><span class='words_sep'> </span><span class='tstring_content'>chez-vous</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>m&#39;as-tu-vu</span><span class='words_sep'>
+</span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+        <dt id="CONTRACTION_PATTERNS-constant" class="">CONTRACTION_PATTERNS =
+          <div class="docstring">
+  <div class="discussion">
+    <p>Contraction patterns (from LanguageTool)
+French contractions are complex: l', d', qu', c'est, j'ai, n'a, etc.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span>
+  <span class='comment'># c&#39; followed by word: c&#39;est, c&#39;était, etc.
+</span>  <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(c&#39;)$</span><span class='regexp_end'>/i</span></span><span class='comma'>,</span>
+  <span class='comment'># j&#39; (je): j&#39;ai, j&#39;aime, etc.
+</span>  <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(j&#39;)$</span><span class='regexp_end'>/i</span></span><span class='comma'>,</span>
+  <span class='comment'># n&#39; (ne): n&#39;a, n&#39;est, etc.
+</span>  <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(n&#39;)$</span><span class='regexp_end'>/i</span></span><span class='comma'>,</span>
+  <span class='comment'># m&#39; (me): m&#39;a, m&#39;appelle, etc.
+</span>  <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(m&#39;)$</span><span class='regexp_end'>/i</span></span><span class='comma'>,</span>
+  <span class='comment'># t&#39; (te): t&#39;a, t&#39;asseoir, etc.
+</span>  <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(t&#39;)$</span><span class='regexp_end'>/i</span></span><span class='comma'>,</span>
+  <span class='comment'># s&#39; (se): s&#39;a, s&#39;appelle, etc.
+</span>  <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(s&#39;)$</span><span class='regexp_end'>/i</span></span><span class='comma'>,</span>
+  <span class='comment'># l&#39; (le/la): l&#39;a, l&#39;homme, l&#39;eau, etc.
+</span>  <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(l&#39;)$</span><span class='regexp_end'>/i</span></span><span class='comma'>,</span>
+  <span class='comment'># d&#39; (de): d&#39;un, d&#39;une, d&#39;abord, etc.
+</span>  <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(d&#39;)$</span><span class='regexp_end'>/i</span></span><span class='comma'>,</span>
+  <span class='comment'># qu&#39; (que): qu&#39;un, qu&#39;une, qu&#39;est, etc.
+</span>  <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(qu&#39;)$</span><span class='regexp_end'>/i</span></span><span class='comma'>,</span>
+  <span class='comment'># jusqu&#39;à, jusqu&#39;aux, etc.
+</span>  <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(jusqu&#39;)$</span><span class='regexp_end'>/i</span></span><span class='comma'>,</span>
+  <span class='comment'># puisque, puisqu&#39;il, etc.
+</span>  <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(puisqu&#39;)$</span><span class='regexp_end'>/i</span></span><span class='comma'>,</span>
+  <span class='comment'># quoique, quoiqu&#39;il, etc.
+</span>  <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(quoiqu&#39;)$</span><span class='regexp_end'>/i</span></span><span class='comma'>,</span>
+  <span class='comment'># lorsque, lorsqu&#39;il, etc.
+</span>  <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(lorsqu&#39;)$</span><span class='regexp_end'>/i</span></span><span class='comma'>,</span>
+<span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#tokenize-instance_method" title="#tokenize (instance method)">#<strong>tokenize</strong>(text)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Base.html" title="Kotoshu::Language::Tokenizer::Base (class)">Base</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Base.html#normalize-instance_method" title="Kotoshu::Language::Tokenizer::Base#normalize (method)">#normalize</a></span>, <span class='object_link'><a href="Base.html#skip_token%3F-instance_method" title="Kotoshu::Language::Tokenizer::Base#skip_token? (method)">#skip_token?</a></span>, <span class='object_link'><a href="Base.html#spellcheck_word_regex-instance_method" title="Kotoshu::Language::Tokenizer::Base#spellcheck_word_regex (method)">#spellcheck_word_regex</a></span>, <span class='object_link'><a href="Base.html#tokenize_with_positions-instance_method" title="Kotoshu::Language::Tokenizer::Base#tokenize_with_positions (method)">#tokenize_with_positions</a></span>, <span class='object_link'><a href="Base.html#word_boundary_regex-instance_method" title="Kotoshu::Language::Tokenizer::Base#word_boundary_regex (method)">#word_boundary_regex</a></span>, <span class='object_link'><a href="Base.html#word_char%3F-instance_method" title="Kotoshu::Language::Tokenizer::Base#word_char? (method)">#word_char?</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="tokenize-instance_method">
+  
+    #<strong>tokenize</strong>(text)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/language/tokenizer/french_tokenizer.rb', line 60</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_tokenize'>tokenize</span><span class='lparen'>(</span><span class='id identifier rubyid_text'>text</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='comment'># Replace hyphen variants
+</span>  <span class='id identifier rubyid_text'>text</span> <span class='op'>=</span> <span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\u2010</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\u002d</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_text'>text</span> <span class='op'>=</span> <span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\u2011</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\u002d</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='comment'># Normalize apostrophes
+</span>  <span class='id identifier rubyid_text'>text</span> <span class='op'>=</span> <span class='id identifier rubyid_normalize_apostrophes'>normalize_apostrophes</span><span class='lparen'>(</span><span class='id identifier rubyid_text'>text</span><span class='rparen'>)</span>
+
+  <span class='comment'># Split on word boundaries
+</span>  <span class='id identifier rubyid_raw_tokens'>raw_tokens</span> <span class='op'>=</span> <span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#WORD_SEPARATORS-constant" title="Kotoshu::Language::Tokenizer::FrenchTokenizer::WORD_SEPARATORS (constant)">WORD_SEPARATORS</a></span></span><span class='rparen'>)</span>
+
+  <span class='comment'># Process each token
+</span>  <span class='id identifier rubyid_tokens'>tokens</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_raw_tokens'>raw_tokens</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_token'>token</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_token'>token</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+    <span class='comment'># Try to split contractions and hyphenated words
+</span>    <span class='id identifier rubyid_parts'>parts</span> <span class='op'>=</span> <span class='id identifier rubyid_split_french_word'>split_french_word</span><span class='lparen'>(</span><span class='id identifier rubyid_token'>token</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_tokens'>tokens</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='id identifier rubyid_parts'>parts</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Filter and normalize
+</span>  <span class='id identifier rubyid_tokens'>tokens</span>
+    <span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_token'>token</span><span class='op'>|</span> <span class='id identifier rubyid_normalize'>normalize</span><span class='lparen'>(</span><span class='id identifier rubyid_token'>token</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+    <span class='period'>.</span><span class='id identifier rubyid_reject'>reject</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_token'>token</span><span class='op'>|</span> <span class='id identifier rubyid_skip_token?'>skip_token?</span><span class='lparen'>(</span><span class='id identifier rubyid_token'>token</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:48 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

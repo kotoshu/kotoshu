@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Kotoshu::Embeddings::SimilaritySearch
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Embeddings::SimilaritySearch";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Embeddings.html" title="Kotoshu::Embeddings (module)">Embeddings</a></span></span>
+     &raquo; 
+    <span class="title">SimilaritySearch</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Kotoshu::Embeddings::SimilaritySearch
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Kotoshu::Embeddings::SimilaritySearch</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/embeddings/similarity_search.rb
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>Similarity search for embedding-based nearest neighbor lookup.</p>
+<p>Efficiently finds semantically similar words using cosine similarity.
+Supports both on-the-fly computation and pre-computed embedding matrices.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+        <h5 class="example_title"><div class='inline'><p>Basic usage</p></div></h5>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_search'>search</span> <span class='op'>=</span> <span class='const'>SimilaritySearch</span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="Kotoshu::Embeddings::SimilaritySearch#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='label'>vocabulary:</span> <span class='id identifier rubyid_vocab'>vocab</span><span class='comma'>,</span>
+  <span class='label'>model:</span> <span class='id identifier rubyid_model'>model</span>
+<span class='rparen'>)</span>
+<span class='id identifier rubyid_neighbors'>neighbors</span> <span class='op'>=</span> <span class='id identifier rubyid_search'>search</span><span class='period'>.</span><span class='id identifier rubyid_find_nearest'>find_nearest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>k:</span> <span class='int'>10</span><span class='rparen'>)</span></code></pre>
+    
+      
+        <h5 class="example_title"><div class='inline'><p>With pre-loaded embedding matrix (faster)</p></div></h5>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_search'>search</span> <span class='op'>=</span> <span class='const'>SimilaritySearch</span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="Kotoshu::Embeddings::SimilaritySearch#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='label'>vocabulary:</span> <span class='id identifier rubyid_vocab'>vocab</span><span class='comma'>,</span>
+  <span class='label'>model:</span> <span class='id identifier rubyid_model'>model</span><span class='comma'>,</span>
+  <span class='label'>preload_embeddings:</span> <span class='kw'>true</span>
+<span class='rparen'>)</span>
+<span class='id identifier rubyid_neighbors'>neighbors</span> <span class='op'>=</span> <span class='id identifier rubyid_search'>search</span><span class='period'>.</span><span class='id identifier rubyid_find_nearest'>find_nearest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>k:</span> <span class='int'>10</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#embeddings_loaded-instance_method" title="#embeddings_loaded (instance method)">#<strong>embeddings_loaded</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Whether embeddings are pre-loaded.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#model-instance_method" title="#model (instance method)">#<strong>model</strong>  &#x21d2; OnnxRuntimeModel </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The ONNX model.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vocabulary-instance_method" title="#vocabulary (instance method)">#<strong>vocabulary</strong>  &#x21d2; Vocabulary </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The vocabulary.</p></div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#from_cache-class_method" title="from_cache (class method)">.<strong>from_cache</strong>(language_code, cache: nil, preload: false)  &#x21d2; SimilaritySearch<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Create from cache.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cache_stats-instance_method" title="#cache_stats (instance method)">#<strong>cache_stats</strong>  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get cache statistics.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#clear_cache-instance_method" title="#clear_cache (instance method)">#<strong>clear_cache</strong>  &#x21d2; self </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Clear the embedding cache.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cosine_similarity-instance_method" title="#cosine_similarity (instance method)">#<strong>cosine_similarity</strong>(vec1, vec2)  &#x21d2; Float </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Compute similarity between two embedding vectors.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_nearest-instance_method" title="#find_nearest (instance method)">#<strong>find_nearest</strong>(query_word, k: 10, exclude_self: true, min_similarity: 0.0)  &#x21d2; Array&lt;Hash&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Find k nearest neighbors for a word.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_nearest_batch-instance_method" title="#find_nearest_batch (instance method)">#<strong>find_nearest_batch</strong>(query_words, k: 10)  &#x21d2; Hash&lt;String, Array&lt;Hash&gt;&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Find k nearest neighbors for multiple words.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(vocabulary:, model:, preload_embeddings: false, max_cache_size: 1000)  &#x21d2; SimilaritySearch </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Create a new similarity search instance.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#preload_embeddings!-instance_method" title="#preload_embeddings! (instance method)">#<strong>preload_embeddings!</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Preload all embeddings into memory for faster search.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#similarity-instance_method" title="#similarity (instance method)">#<strong>similarity</strong>(word1, word2)  &#x21d2; Float </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Compute similarity between two words.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_s-instance_method" title="#to_s (instance method)">#<strong>to_s</strong>  &#x21d2; String </a>
+    
+
+    
+      (also: #inspect)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>String representation.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(vocabulary:, model:, preload_embeddings: false, max_cache_size: 1000)  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::Embeddings::SimilaritySearch (class)">SimilaritySearch</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Create a new similarity search instance.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>vocabulary</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Vocabulary.html" title="Kotoshu::Embeddings::Vocabulary (class)">Vocabulary</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Word vocabulary</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>model</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="OnnxRuntimeModel.html" title="Kotoshu::Embeddings::OnnxRuntimeModel (class)">OnnxRuntimeModel</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>ONNX model for embeddings</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>preload_embeddings</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Whether to preload all embeddings</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>max_cache_size</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>1000</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Maximum embeddings to cache (if not preloading)</p></div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/embeddings/similarity_search.rb', line 40</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>vocabulary:</span><span class='comma'>,</span> <span class='label'>model:</span><span class='comma'>,</span> <span class='label'>preload_embeddings:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>max_cache_size:</span> <span class='int'>1000</span><span class='rparen'>)</span>
+  <span class='ivar'>@vocabulary</span> <span class='op'>=</span> <span class='id identifier rubyid_vocabulary'>vocabulary</span>
+  <span class='ivar'>@model</span> <span class='op'>=</span> <span class='id identifier rubyid_model'>model</span>
+  <span class='ivar'>@preload_embeddings</span> <span class='op'>=</span> <span class='id identifier rubyid_preload_embeddings'>preload_embeddings</span>
+  <span class='ivar'>@max_cache_size</span> <span class='op'>=</span> <span class='id identifier rubyid_max_cache_size'>max_cache_size</span>
+
+  <span class='comment'># Embedding cache (word -&gt; vector)
+</span>  <span class='ivar'>@embedding_cache</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+  <span class='comment'># Pre-loaded embedding matrix (for faster search)
+</span>  <span class='ivar'>@embedding_matrix</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='comment'># Track whether embeddings are preloaded
+</span>  <span class='ivar'>@embeddings_loaded</span> <span class='op'>=</span> <span class='kw'>false</span>
+
+  <span class='comment'># Load embeddings if requested
+</span>  <span class='id identifier rubyid_preload_embeddings!'>preload_embeddings!</span> <span class='kw'>if</span> <span class='id identifier rubyid_preload_embeddings'>preload_embeddings</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="embeddings_loaded-instance_method">
+  
+    #<strong>embeddings_loaded</strong>  &#x21d2; <tt>Boolean</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns Whether embeddings are pre-loaded.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Whether embeddings are pre-loaded</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+32
+33
+34</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/embeddings/similarity_search.rb', line 32</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_embeddings_loaded'>embeddings_loaded</span>
+  <span class='ivar'>@embeddings_loaded</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="model-instance_method">
+  
+    #<strong>model</strong>  &#x21d2; <tt><span class='object_link'><a href="OnnxRuntimeModel.html" title="Kotoshu::Embeddings::OnnxRuntimeModel (class)">OnnxRuntimeModel</a></span></tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns The ONNX model.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="OnnxRuntimeModel.html" title="Kotoshu::Embeddings::OnnxRuntimeModel (class)">OnnxRuntimeModel</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The ONNX model</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/embeddings/similarity_search.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_model'>model</span>
+  <span class='ivar'>@model</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="vocabulary-instance_method">
+  
+    #<strong>vocabulary</strong>  &#x21d2; <tt><span class='object_link'><a href="Vocabulary.html" title="Kotoshu::Embeddings::Vocabulary (class)">Vocabulary</a></span></tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns The vocabulary.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Vocabulary.html" title="Kotoshu::Embeddings::Vocabulary (class)">Vocabulary</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The vocabulary</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/embeddings/similarity_search.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_vocabulary'>vocabulary</span>
+  <span class='ivar'>@vocabulary</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="from_cache-class_method">
+  
+    .<strong>from_cache</strong>(language_code, cache: nil, preload: false)  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::Embeddings::SimilaritySearch (class)">SimilaritySearch</a></span></tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Create from cache.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>language_code</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>ISO 639-1 language code</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>cache</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Cache/ModelCache.html" title="Kotoshu::Cache::ModelCache (class)">Cache::ModelCache</a></span></tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Optional cache instance</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>preload</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Whether to preload embeddings</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Kotoshu::Embeddings::SimilaritySearch (class)">SimilaritySearch</a></span></tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>New search instance or nil if not available</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/embeddings/similarity_search.rb', line 314</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_from_cache'>from_cache</span><span class='lparen'>(</span><span class='id identifier rubyid_language_code'>language_code</span><span class='comma'>,</span> <span class='label'>cache:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>preload:</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_vocab'>vocab</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Vocabulary.html" title="Kotoshu::Embeddings::Vocabulary (class)">Vocabulary</a></span></span><span class='period'>.</span><span class='id identifier rubyid_from_cache'><span class='object_link'><a href="Vocabulary.html#from_cache-class_method" title="Kotoshu::Embeddings::Vocabulary.from_cache (method)">from_cache</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_language_code'>language_code</span><span class='comma'>,</span> <span class='label'>cache:</span> <span class='id identifier rubyid_cache'>cache</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_model'>model</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="OnnxRuntimeModel.html" title="Kotoshu::Embeddings::OnnxRuntimeModel (class)">OnnxRuntimeModel</a></span></span><span class='period'>.</span><span class='id identifier rubyid_from_cache'><span class='object_link'><a href="OnnxRuntimeModel.html#from_cache-class_method" title="Kotoshu::Embeddings::OnnxRuntimeModel.from_cache (method)">from_cache</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_language_code'>language_code</span><span class='comma'>,</span> <span class='label'>cache:</span> <span class='id identifier rubyid_cache'>cache</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_vocab'>vocab</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_model'>model</span>
+
+  <span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='label'>vocabulary:</span> <span class='id identifier rubyid_vocab'>vocab</span><span class='comma'>,</span>
+    <span class='label'>model:</span> <span class='id identifier rubyid_model'>model</span><span class='comma'>,</span>
+    <span class='label'>preload_embeddings:</span> <span class='id identifier rubyid_preload'>preload</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="cache_stats-instance_method">
+  
+    #<strong>cache_stats</strong>  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get cache statistics.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Cache statistics</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+163
+164
+165
+166
+167
+168
+169
+170</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/embeddings/similarity_search.rb', line 163</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cache_stats'>cache_stats</span>
+  <span class='id identifier rubyid_stats'>stats</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='label'>size:</span> <span class='ivar'>@embedding_cache</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='comma'>,</span>
+    <span class='label'>max_size:</span> <span class='ivar'>@max_cache_size</span>
+  <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_stats'>stats</span><span class='lbracket'>[</span><span class='symbol'>:hit_rate</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='ivar'>@cache_hits</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>/</span> <span class='lparen'>(</span><span class='ivar'>@cache_hits</span> <span class='op'>+</span> <span class='ivar'>@cache_misses</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='ivar'>@cache_hits</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_stats'>stats</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="clear_cache-instance_method">
+  
+    #<strong>clear_cache</strong>  &#x21d2; <tt>self</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Clear the embedding cache.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>self</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Self for chaining</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+153
+154
+155
+156
+157
+158</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/embeddings/similarity_search.rb', line 153</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_clear_cache'>clear_cache</span>
+  <span class='ivar'>@embedding_cache</span><span class='period'>.</span><span class='id identifier rubyid_clear'>clear</span>
+  <span class='ivar'>@embedding_matrix</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@embeddings_loaded</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>self</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cosine_similarity-instance_method">
+  
+    #<strong>cosine_similarity</strong>(vec1, vec2)  &#x21d2; <tt>Float</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Compute similarity between two embedding vectors.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>vec1</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;Float&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>First vector</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>vec2</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;Float&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Second vector</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Float</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Cosine similarity (-1.0 to 1.0)</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/embeddings/similarity_search.rb', line 109</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cosine_similarity'>cosine_similarity</span><span class='lparen'>(</span><span class='id identifier rubyid_vec1'>vec1</span><span class='comma'>,</span> <span class='id identifier rubyid_vec2'>vec2</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='float'>0.0</span> <span class='kw'>if</span> <span class='id identifier rubyid_vec1'>vec1</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_vec2'>vec2</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='comment'># Compute dot product
+</span>  <span class='id identifier rubyid_dot'>dot</span> <span class='op'>=</span> <span class='id identifier rubyid_vec1'>vec1</span><span class='period'>.</span><span class='id identifier rubyid_zip'>zip</span><span class='lparen'>(</span><span class='id identifier rubyid_vec2'>vec2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_sum'>sum</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_a'>a</span><span class='comma'>,</span> <span class='id identifier rubyid_b'>b</span><span class='op'>|</span> <span class='id identifier rubyid_a'>a</span> <span class='op'>*</span> <span class='id identifier rubyid_b'>b</span> <span class='rbrace'>}</span>
+
+  <span class='comment'># Compute magnitudes
+</span>  <span class='id identifier rubyid_norm1'>norm1</span> <span class='op'>=</span> <span class='const'>Math</span><span class='period'>.</span><span class='id identifier rubyid_sqrt'>sqrt</span><span class='lparen'>(</span><span class='id identifier rubyid_vec1'>vec1</span><span class='period'>.</span><span class='id identifier rubyid_sum'>sum</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span> <span class='id identifier rubyid_x'>x</span> <span class='op'>*</span> <span class='id identifier rubyid_x'>x</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_norm2'>norm2</span> <span class='op'>=</span> <span class='const'>Math</span><span class='period'>.</span><span class='id identifier rubyid_sqrt'>sqrt</span><span class='lparen'>(</span><span class='id identifier rubyid_vec2'>vec2</span><span class='period'>.</span><span class='id identifier rubyid_sum'>sum</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span> <span class='id identifier rubyid_x'>x</span> <span class='op'>*</span> <span class='id identifier rubyid_x'>x</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='float'>0.0</span> <span class='kw'>if</span> <span class='id identifier rubyid_norm1'>norm1</span><span class='period'>.</span><span class='id identifier rubyid_zero?'>zero?</span> <span class='op'>||</span> <span class='id identifier rubyid_norm2'>norm2</span><span class='period'>.</span><span class='id identifier rubyid_zero?'>zero?</span>
+
+  <span class='id identifier rubyid_dot'>dot</span> <span class='op'>/</span> <span class='lparen'>(</span><span class='id identifier rubyid_norm1'>norm1</span> <span class='op'>*</span> <span class='id identifier rubyid_norm2'>norm2</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_nearest-instance_method">
+  
+    #<strong>find_nearest</strong>(query_word, k: 10, exclude_self: true, min_similarity: 0.0)  &#x21d2; <tt>Array&lt;Hash&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Find k nearest neighbors for a word.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>query_word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The query word</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>k</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>10</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Number of neighbors to return</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>exclude_self</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>true</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Whether to exclude the query word itself</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>min_similarity</span>
+      
+      
+        <span class='type'>(<tt>Float</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>0.0</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Minimum similarity threshold (0.0 to 1.0)</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;Hash&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Array of similarity hashes</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/embeddings/similarity_search.rb', line 66</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_nearest'>find_nearest</span><span class='lparen'>(</span><span class='id identifier rubyid_query_word'>query_word</span><span class='comma'>,</span> <span class='label'>k:</span> <span class='int'>10</span><span class='comma'>,</span> <span class='label'>exclude_self:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>min_similarity:</span> <span class='float'>0.0</span><span class='rparen'>)</span>
+  <span class='comment'># Get query embedding
+</span>  <span class='id identifier rubyid_query_vec'>query_vec</span> <span class='op'>=</span> <span class='id identifier rubyid_get_embedding'>get_embedding</span><span class='lparen'>(</span><span class='id identifier rubyid_query_word'>query_word</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='kw'>unless</span> <span class='id identifier rubyid_query_vec'>query_vec</span>
+
+  <span class='comment'># Find neighbors
+</span>  <span class='kw'>if</span> <span class='ivar'>@embedding_matrix</span>
+    <span class='id identifier rubyid_nearest_from_matrix'>nearest_from_matrix</span><span class='lparen'>(</span><span class='id identifier rubyid_query_vec'>query_vec</span><span class='comma'>,</span> <span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_exclude_self'>exclude_self</span><span class='comma'>,</span> <span class='id identifier rubyid_min_similarity'>min_similarity</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_nearest_from_cache'>nearest_from_cache</span><span class='lparen'>(</span><span class='id identifier rubyid_query_vec'>query_vec</span><span class='comma'>,</span> <span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_exclude_self'>exclude_self</span><span class='comma'>,</span> <span class='id identifier rubyid_min_similarity'>min_similarity</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_nearest_batch-instance_method">
+  
+    #<strong>find_nearest_batch</strong>(query_words, k: 10)  &#x21d2; <tt>Hash&lt;String, Array&lt;Hash&gt;&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Find k nearest neighbors for multiple words.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>query_words</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Query words</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>k</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>10</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Number of neighbors per word</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash&lt;String, Array&lt;Hash&gt;&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Word to neighbors mapping</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+84
+85
+86
+87
+88</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/embeddings/similarity_search.rb', line 84</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_nearest_batch'>find_nearest_batch</span><span class='lparen'>(</span><span class='id identifier rubyid_query_words'>query_words</span><span class='comma'>,</span> <span class='label'>k:</span> <span class='int'>10</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_query_words'>query_words</span><span class='period'>.</span><span class='id identifier rubyid_each_with_object'>each_with_object</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='id identifier rubyid_result'>result</span><span class='op'>|</span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='id identifier rubyid_word'>word</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_find_nearest'>find_nearest</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='label'>k:</span> <span class='id identifier rubyid_k'>k</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="preload_embeddings!-instance_method">
+  
+    #<strong>preload_embeddings!</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Preload all embeddings into memory for faster search.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>True if loaded successfully</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/embeddings/similarity_search.rb', line 127</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_preload_embeddings!'>preload_embeddings!</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>if</span> <span class='ivar'>@embedding_matrix</span>
+
+  <span class='comment'># Get all indices
+</span>  <span class='id identifier rubyid_all_indices'>all_indices</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='int'>0</span><span class='op'>...</span><span class='ivar'>@vocabulary</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>
+
+  <span class='comment'># Batch load embeddings
+</span>  <span class='id identifier rubyid_vectors'>vectors</span> <span class='op'>=</span> <span class='ivar'>@model</span><span class='period'>.</span><span class='id identifier rubyid_get_embeddings'>get_embeddings</span><span class='lparen'>(</span><span class='id identifier rubyid_all_indices'>all_indices</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>if</span> <span class='id identifier rubyid_vectors'>vectors</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_vectors'>vectors</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='comment'># Store as hash for now (could use Numo::SFloat for efficiency)
+</span>  <span class='ivar'>@embedding_matrix</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_all_indices'>all_indices</span><span class='period'>.</span><span class='id identifier rubyid_zip'>zip</span><span class='lparen'>(</span><span class='id identifier rubyid_vectors'>vectors</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_vec'>vec</span><span class='op'>|</span>
+    <span class='ivar'>@embedding_matrix</span><span class='lbracket'>[</span><span class='id identifier rubyid_idx'>idx</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_vec'>vec</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@embeddings_loaded</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='kw'>true</span>
+<span class='kw'>rescue</span> <span class='const'>StandardError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='id identifier rubyid_warn'>warn</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Failed to preload embeddings: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="similarity-instance_method">
+  
+    #<strong>similarity</strong>(word1, word2)  &#x21d2; <tt>Float</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Compute similarity between two words.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>word1</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>First word</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>word2</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Second word</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Float</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Cosine similarity (-1.0 to 1.0, or nil if either word not found)</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+95
+96
+97
+98
+99
+100
+101
+102</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/embeddings/similarity_search.rb', line 95</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_similarity'>similarity</span><span class='lparen'>(</span><span class='id identifier rubyid_word1'>word1</span><span class='comma'>,</span> <span class='id identifier rubyid_word2'>word2</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_vec1'>vec1</span> <span class='op'>=</span> <span class='id identifier rubyid_get_embedding'>get_embedding</span><span class='lparen'>(</span><span class='id identifier rubyid_word1'>word1</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_vec2'>vec2</span> <span class='op'>=</span> <span class='id identifier rubyid_get_embedding'>get_embedding</span><span class='lparen'>(</span><span class='id identifier rubyid_word2'>word2</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_vec1'>vec1</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_vec2'>vec2</span>
+
+  <span class='id identifier rubyid_cosine_similarity'>cosine_similarity</span><span class='lparen'>(</span><span class='id identifier rubyid_vec1'>vec1</span><span class='comma'>,</span> <span class='id identifier rubyid_vec2'>vec2</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_s-instance_method">
+  
+    #<strong>to_s</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='inspect-instance_method'>inspect</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>String representation.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>String representation</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+175
+176
+177</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/embeddings/similarity_search.rb', line 175</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SimilaritySearch(vocab_size: </span><span class='embexpr_beg'>#{</span><span class='ivar'>@vocabulary</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='embexpr_end'>}</span><span class='tstring_content'>, loaded: </span><span class='embexpr_beg'>#{</span><span class='ivar'>@embeddings_loaded</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:47 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

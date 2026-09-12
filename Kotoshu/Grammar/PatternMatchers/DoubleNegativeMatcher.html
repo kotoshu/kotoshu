@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Kotoshu::Grammar::PatternMatchers::DoubleNegativeMatcher
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Grammar::PatternMatchers::DoubleNegativeMatcher";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (D)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Grammar.html" title="Kotoshu::Grammar (module)">Grammar</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../PatternMatchers.html" title="Kotoshu::Grammar::PatternMatchers (module)">PatternMatchers</a></span></span>
+     &raquo; 
+    <span class="title">DoubleNegativeMatcher</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Kotoshu::Grammar::PatternMatchers::DoubleNegativeMatcher
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="BaseMatcher.html" title="Kotoshu::Grammar::PatternMatchers::BaseMatcher (class)">BaseMatcher</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="BaseMatcher.html" title="Kotoshu::Grammar::PatternMatchers::BaseMatcher (class)">BaseMatcher</a></span></li>
+          
+            <li class="next">Kotoshu::Grammar::PatternMatchers::DoubleNegativeMatcher</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/grammar/pattern_matchers/double_negative_matcher.rb
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>Matcher for double negative rules.</p>
+<p>Detects when multiple negative words appear within a certain
+distance, with support for declared exception phrases. The
+canonical exception is the &quot;not only...but also&quot; correlative
+conjunction: both &quot;not&quot; and &quot;also&quot; are flagged as negatives,
+but the construction is grammatical and must not fire.</p>
+<p>Exception phrases use the literal <code>...</code> separator to indicate
+arbitrary text between the prefix and suffix:</p>
+<pre class="code ruby"><code class="ruby"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>not only...but also</span><span class='tstring_end'>&quot;</span></span>
+</code></pre>
+<p>means &quot;not only&quot; at some position, then any text, then &quot;but
+also&quot;. Every negative inside such a region is suppressed.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#match-instance_method" title="#match (instance method)">#<strong>match</strong>(tokens, rule)  &#x21d2; Array&lt;Hash&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Match tokens against the double negative pattern.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="BaseMatcher.html" title="Kotoshu::Grammar::PatternMatchers::BaseMatcher (class)">BaseMatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="BaseMatcher.html#initialize-instance_method" title="Kotoshu::Grammar::PatternMatchers::BaseMatcher#initialize (method)">#initialize</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <p class="notice">This class inherits a constructor from <span class='object_link'><a href="BaseMatcher.html#initialize-instance_method" title="Kotoshu::Grammar::PatternMatchers::BaseMatcher#initialize (method)">Kotoshu::Grammar::PatternMatchers::BaseMatcher</a></span></p>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="match-instance_method">
+  
+    #<strong>match</strong>(tokens, rule)  &#x21d2; <tt>Array&lt;Hash&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Match tokens against the double negative pattern.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>tokens</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;Hash&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Array of token hashes</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>rule</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Rule.html" title="Kotoshu::Grammar::Rule (class)">Rule</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The rule being checked</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;Hash&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Array of error hashes</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/grammar/pattern_matchers/double_negative_matcher.rb', line 27</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='id identifier rubyid_tokens'>tokens</span><span class='comma'>,</span> <span class='id identifier rubyid_rule'>rule</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_errors'>errors</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_exceptions'>exceptions</span> <span class='op'>=</span> <span class='id identifier rubyid_rule'>rule</span><span class='period'>.</span><span class='id identifier rubyid_exceptions'>exceptions</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_exception_phrases'>exception_phrases</span> <span class='op'>=</span> <span class='id identifier rubyid_exceptions'>exceptions</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>phrases</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_conditions'>conditions</span> <span class='op'>=</span> <span class='ivar'>@pattern</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>conditions</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_distance_condition'>distance_condition</span> <span class='op'>=</span> <span class='id identifier rubyid_conditions'>conditions</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span> <span class='id identifier rubyid_c'>c</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>type</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>distance_check</span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_max_distance'>max_distance</span> <span class='op'>=</span> <span class='id identifier rubyid_distance_condition'>distance_condition</span><span class='op'>&amp;.</span><span class='id identifier rubyid_dig'>dig</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>max_distance</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='int'>15</span>
+
+  <span class='id identifier rubyid_regions'>regions</span> <span class='op'>=</span> <span class='id identifier rubyid_exception_regions'>exception_regions</span><span class='lparen'>(</span><span class='id identifier rubyid_tokens'>tokens</span><span class='comma'>,</span> <span class='id identifier rubyid_exception_phrases'>exception_phrases</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_negative_indices'>negative_indices</span> <span class='op'>=</span> <span class='id identifier rubyid_tokens'>tokens</span><span class='period'>.</span><span class='id identifier rubyid_each_with_index'>each_with_index</span><span class='period'>.</span><span class='id identifier rubyid_filter_map'>filter_map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_token'>token</span><span class='comma'>,</span> <span class='id identifier rubyid_idx'>idx</span><span class='op'>|</span>
+    <span class='id identifier rubyid_word'>word</span> <span class='op'>=</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='symbol'>:token</span><span class='rbracket'>]</span><span class='op'>&amp;.</span><span class='id identifier rubyid_downcase'>downcase</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_negative?'>negative?</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_regions'>regions</span><span class='period'>.</span><span class='id identifier rubyid_any?'>any?</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_range'>range</span><span class='op'>|</span> <span class='id identifier rubyid_range'>range</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_idx'>idx</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+
+    <span class='id identifier rubyid_idx'>idx</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_negative_indices'>negative_indices</span><span class='period'>.</span><span class='id identifier rubyid_each_cons'>each_cons</span><span class='lparen'>(</span><span class='int'>2</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_idx1'>idx1</span><span class='comma'>,</span> <span class='id identifier rubyid_idx2'>idx2</span><span class='op'>|</span>
+    <span class='id identifier rubyid_pos1'>pos1</span> <span class='op'>=</span> <span class='id identifier rubyid_tokens'>tokens</span><span class='lbracket'>[</span><span class='id identifier rubyid_idx1'>idx1</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:position</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_pos2'>pos2</span> <span class='op'>=</span> <span class='id identifier rubyid_tokens'>tokens</span><span class='lbracket'>[</span><span class='id identifier rubyid_idx2'>idx2</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:position</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_distance'>distance</span> <span class='op'>=</span> <span class='id identifier rubyid_pos2'>pos2</span> <span class='op'>-</span> <span class='id identifier rubyid_pos1'>pos1</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_distance'>distance</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_max_distance'>max_distance</span>
+
+    <span class='id identifier rubyid_error'>error</span> <span class='op'>=</span> <span class='id identifier rubyid_build_error'>build_error</span><span class='lparen'>(</span><span class='id identifier rubyid_tokens'>tokens</span><span class='comma'>,</span> <span class='id identifier rubyid_idx1'>idx1</span><span class='comma'>,</span> <span class='id identifier rubyid_idx2'>idx2</span><span class='comma'>,</span> <span class='id identifier rubyid_rule'>rule</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_errors'>errors</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_error'>error</span> <span class='kw'>if</span> <span class='id identifier rubyid_error'>error</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_errors'>errors</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:49 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

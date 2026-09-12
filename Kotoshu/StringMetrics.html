@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Kotoshu::StringMetrics
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::StringMetrics";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span>
+     &raquo; 
+    <span class="title">StringMetrics</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Kotoshu::StringMetrics
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/string_metrics.rb
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>String similarity metrics for spell checking.</p>
+<p>Ported from Spylls (Python) string_metrics.py</p>
+<p>These metrics are used for:</p>
+<ul>
+<li>Computing word similarity</li>
+<li>Ranking suggestions</li>
+<li>N-gram based scoring</li>
+</ul>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#commoncharacters-class_method" title="commoncharacters (class method)">.<strong>commoncharacters</strong>(s1, s2)  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Number of occurrences of the exactly same characters in exactly same position.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#lcslen-class_method" title="lcslen (class method)">.<strong>lcslen</strong>(s1, s2)  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Calculate LCS (Longest Common Subsequence) length.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#leftcommonsubstring-class_method" title="leftcommonsubstring (class method)">.<strong>leftcommonsubstring</strong>(s1, s2)  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Size of the common start of two strings.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ngram-class_method" title="ngram (class method)">.<strong>ngram</strong>(max_ngram_size, s1, s2, weighted: false, any_mismatch: false, longer_worse: false)  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Calculate n-gram similarity between two strings.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="commoncharacters-class_method">
+  
+    .<strong>commoncharacters</strong>(s1, s2)  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Number of occurrences of the exactly same characters in exactly same position.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Kotoshu::StringMetrics (module)">StringMetrics</a></span></span><span class='period'>.</span><span class='id identifier rubyid_commoncharacters'>commoncharacters</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hallo</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>  <span class='comment'># =&gt; 4 (&#39;h&#39;, &#39;l&#39;, &#39;l&#39;, &#39;o&#39; match)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>s1</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>First string</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>s2</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Second string</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Count of matching characters at same positions</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23
+24
+25
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/string_metrics.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_commoncharacters'>commoncharacters</span><span class='lparen'>(</span><span class='id identifier rubyid_s1'>s1</span><span class='comma'>,</span> <span class='id identifier rubyid_s2'>s2</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='int'>0</span> <span class='kw'>if</span> <span class='id identifier rubyid_s1'>s1</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_s2'>s2</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='comment'># Zip strings and count matching character pairs
+</span>  <span class='lbracket'>[</span><span class='id identifier rubyid_s1'>s1</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span> <span class='id identifier rubyid_s2'>s2</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_min'>min</span><span class='period'>.</span><span class='id identifier rubyid_times'>times</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+    <span class='id identifier rubyid_s1'>s1</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_s2'>s2</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="lcslen-class_method">
+  
+    .<strong>lcslen</strong>(s1, s2)  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Calculate LCS (Longest Common Subsequence) length.</p>
+<p>Classic dynamic programming algorithm. This is different from
+longest common substring - subsequence doesn't require contiguity.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Kotoshu::StringMetrics (module)">StringMetrics</a></span></span><span class='period'>.</span><span class='id identifier rubyid_lcslen'>lcslen</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>AGGTAB</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GXTXAYB</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>  <span class='comment'># =&gt; 4 (&quot;GTAB&quot;)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>s1</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>First string</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>s2</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Second string</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Length of longest common subsequence</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/string_metrics.rb', line 126</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_lcslen'>lcslen</span><span class='lparen'>(</span><span class='id identifier rubyid_s1'>s1</span><span class='comma'>,</span> <span class='id identifier rubyid_s2'>s2</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='int'>0</span> <span class='kw'>if</span> <span class='id identifier rubyid_s1'>s1</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_s2'>s2</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_s1'>s1</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>||</span> <span class='id identifier rubyid_s2'>s2</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='id identifier rubyid_m'>m</span> <span class='op'>=</span> <span class='id identifier rubyid_s1'>s1</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='id identifier rubyid_n'>n</span> <span class='op'>=</span> <span class='id identifier rubyid_s2'>s2</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+  <span class='comment'># Create DP table
+</span>  <span class='comment'># Using a 2D array for clarity, though we could optimize space
+</span>  <span class='id identifier rubyid_c'>c</span> <span class='op'>=</span> <span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_m'>m</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_n'>n</span> <span class='op'>+</span> <span class='int'>1</span><span class='comma'>,</span> <span class='int'>0</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+
+  <span class='lparen'>(</span><span class='int'>0</span><span class='op'>...</span><span class='id identifier rubyid_m'>m</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+    <span class='lparen'>(</span><span class='int'>0</span><span class='op'>...</span><span class='id identifier rubyid_n'>n</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_j'>j</span><span class='op'>|</span>
+      <span class='id identifier rubyid_c'>c</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span> <span class='op'>+</span> <span class='int'>1</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_j'>j</span> <span class='op'>+</span> <span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='id identifier rubyid_s1'>s1</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_s2'>s2</span><span class='lbracket'>[</span><span class='id identifier rubyid_j'>j</span><span class='rbracket'>]</span>
+                          <span class='comment'># Characters match - extend diagonal
+</span>                          <span class='id identifier rubyid_c'>c</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_j'>j</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='int'>1</span>
+                        <span class='kw'>elsif</span> <span class='id identifier rubyid_c'>c</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_j'>j</span> <span class='op'>+</span> <span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>&gt;=</span> <span class='id identifier rubyid_c'>c</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span> <span class='op'>+</span> <span class='int'>1</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_j'>j</span><span class='rbracket'>]</span>
+                          <span class='comment'># Take max from top or left
+</span>                          <span class='id identifier rubyid_c'>c</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_j'>j</span> <span class='op'>+</span> <span class='int'>1</span><span class='rbracket'>]</span>
+                        <span class='kw'>else</span>
+                          <span class='id identifier rubyid_c'>c</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span> <span class='op'>+</span> <span class='int'>1</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_j'>j</span><span class='rbracket'>]</span>
+                        <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_c'>c</span><span class='lbracket'>[</span><span class='id identifier rubyid_m'>m</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_n'>n</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="leftcommonsubstring-class_method">
+  
+    .<strong>leftcommonsubstring</strong>(s1, s2)  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Size of the common start of two strings.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Kotoshu::StringMetrics (module)">StringMetrics</a></span></span><span class='period'>.</span><span class='id identifier rubyid_leftcommonsubstring'>leftcommonsubstring</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>foo</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>bar</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>       <span class='comment'># =&gt; 0
+</span><span class='const'><span class='object_link'><a href="../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Kotoshu::StringMetrics (module)">StringMetrics</a></span></span><span class='period'>.</span><span class='id identifier rubyid_leftcommonsubstring'>leftcommonsubstring</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>built</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>build</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>   <span class='comment'># =&gt; 4
+</span><span class='const'><span class='object_link'><a href="../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Kotoshu::StringMetrics (module)">StringMetrics</a></span></span><span class='period'>.</span><span class='id identifier rubyid_leftcommonsubstring'>leftcommonsubstring</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cat</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cats</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>      <span class='comment'># =&gt; 3</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>s1</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>First string</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>s2</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Second string</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Length of common prefix</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/string_metrics.rb', line 40</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_leftcommonsubstring'>leftcommonsubstring</span><span class='lparen'>(</span><span class='id identifier rubyid_s1'>s1</span><span class='comma'>,</span> <span class='id identifier rubyid_s2'>s2</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='int'>0</span> <span class='kw'>if</span> <span class='id identifier rubyid_s1'>s1</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_s2'>s2</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='comment'># Find first position where characters differ
+</span>  <span class='id identifier rubyid_s1'>s1</span><span class='period'>.</span><span class='id identifier rubyid_chars'>chars</span><span class='period'>.</span><span class='id identifier rubyid_zip'>zip</span><span class='lparen'>(</span><span class='id identifier rubyid_s2'>s2</span><span class='period'>.</span><span class='id identifier rubyid_chars'>chars</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each_with_index'>each_with_index</span> <span class='kw'>do</span> <span class='op'>|</span><span class='lparen'>(</span><span class='id identifier rubyid_c1'>c1</span><span class='comma'>,</span> <span class='id identifier rubyid_c2'>c2</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_i'>i</span> <span class='kw'>if</span> <span class='id identifier rubyid_c1'>c1</span> <span class='op'>!=</span> <span class='id identifier rubyid_c2'>c2</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># All characters matched up to shorter string length
+</span>  <span class='lbracket'>[</span><span class='id identifier rubyid_s1'>s1</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span> <span class='id identifier rubyid_s2'>s2</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_min'>min</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ngram-class_method">
+  
+    .<strong>ngram</strong>(max_ngram_size, s1, s2, weighted: false, any_mismatch: false, longer_worse: false)  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Calculate n-gram similarity between two strings.</p>
+<p>Calculates how many n-grams of s1 are contained in s2 (the more the number,
+the more words are similar).</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Kotoshu::StringMetrics (module)">StringMetrics</a></span></span><span class='period'>.</span><span class='id identifier rubyid_ngram'>ngram</span><span class='lparen'>(</span><span class='int'>4</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>help</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>                 <span class='comment'># =&gt; 6
+</span><span class='const'><span class='object_link'><a href="../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Kotoshu::StringMetrics (module)">StringMetrics</a></span></span><span class='period'>.</span><span class='id identifier rubyid_ngram'>ngram</span><span class='lparen'>(</span><span class='int'>4</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>teachings</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>teaching</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>       <span class='comment'># =&gt; higher score</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>max_ngram_size</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Maximum n-gram size to check</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>s1</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>String to compare</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>s2</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>String to compare</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>weighted</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Subtract from result for ngrams NOT contained</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>any_mismatch</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Add penalty for any string length difference</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>longer_worse</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Add penalty when second string is longer</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>N-gram similarity score (higher is more similar)</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/string_metrics.rb', line 68</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ngram'>ngram</span><span class='lparen'>(</span><span class='id identifier rubyid_max_ngram_size'>max_ngram_size</span><span class='comma'>,</span> <span class='id identifier rubyid_s1'>s1</span><span class='comma'>,</span> <span class='id identifier rubyid_s2'>s2</span><span class='comma'>,</span> <span class='label'>weighted:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>any_mismatch:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>longer_worse:</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_l2'>l2</span> <span class='op'>=</span> <span class='id identifier rubyid_s2'>s2</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='kw'>return</span> <span class='int'>0</span> <span class='kw'>if</span> <span class='id identifier rubyid_l2'>l2</span><span class='period'>.</span><span class='id identifier rubyid_zero?'>zero?</span>
+
+  <span class='id identifier rubyid_l1'>l1</span> <span class='op'>=</span> <span class='id identifier rubyid_s1'>s1</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='id identifier rubyid_nscore'>nscore</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='comment'># For all sizes of ngram up to desired...
+</span>  <span class='lparen'>(</span><span class='int'>1</span><span class='op'>..</span><span class='id identifier rubyid_max_ngram_size'>max_ngram_size</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ngram_size'>ngram_size</span><span class='op'>|</span>
+    <span class='id identifier rubyid_ns'>ns</span> <span class='op'>=</span> <span class='int'>0</span>
+
+    <span class='comment'># Check every position in the first string
+</span>    <span class='lparen'>(</span><span class='int'>0</span><span class='op'>..</span><span class='lparen'>(</span><span class='id identifier rubyid_l1'>l1</span> <span class='op'>-</span> <span class='id identifier rubyid_ngram_size'>ngram_size</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_pos'>pos</span><span class='op'>|</span>
+      <span class='id identifier rubyid_ngram'>ngram</span> <span class='op'>=</span> <span class='id identifier rubyid_s1'>s1</span><span class='lbracket'>[</span><span class='id identifier rubyid_pos'>pos</span><span class='comma'>,</span> <span class='id identifier rubyid_ngram_size'>ngram_size</span><span class='rbracket'>]</span>
+
+      <span class='comment'># If the ngram is present in ANY place in second string, increase score
+</span>      <span class='kw'>if</span> <span class='id identifier rubyid_s2'>s2</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_ngram'>ngram</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_ns'>ns</span> <span class='op'>+=</span> <span class='int'>1</span>
+      <span class='kw'>elsif</span> <span class='id identifier rubyid_weighted'>weighted</span>
+        <span class='comment'># For &quot;weighted&quot; ngrams, decrease score if ngram is not found
+</span>        <span class='id identifier rubyid_ns'>ns</span> <span class='op'>-=</span> <span class='int'>1</span>
+        <span class='comment'># Decrease once more if it was the beginning or end of first string
+</span>        <span class='id identifier rubyid_ns'>ns</span> <span class='op'>-=</span> <span class='int'>1</span> <span class='kw'>if</span> <span class='id identifier rubyid_pos'>pos</span><span class='period'>.</span><span class='id identifier rubyid_zero?'>zero?</span> <span class='op'>||</span> <span class='id identifier rubyid_pos'>pos</span> <span class='op'>+</span> <span class='id identifier rubyid_ngram_size'>ngram_size</span> <span class='op'>==</span> <span class='id identifier rubyid_l1'>l1</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_nscore'>nscore</span> <span class='op'>+=</span> <span class='id identifier rubyid_ns'>ns</span>
+
+    <span class='comment'># There is no need to check for 4-gram if there were only one 3-gram
+</span>    <span class='kw'>break</span> <span class='kw'>if</span> <span class='id identifier rubyid_ns'>ns</span> <span class='op'>&lt;</span> <span class='int'>2</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_weighted'>weighted</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Calculate penalty based on settings
+</span>  <span class='id identifier rubyid_penalty'>penalty</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='id identifier rubyid_longer_worse'>longer_worse</span>
+              <span class='comment'># Add penalty when second string is longer
+</span>              <span class='lparen'>(</span><span class='id identifier rubyid_l2'>l2</span> <span class='op'>-</span> <span class='id identifier rubyid_l1'>l1</span><span class='rparen'>)</span> <span class='op'>-</span> <span class='int'>2</span>
+            <span class='kw'>elsif</span> <span class='id identifier rubyid_any_mismatch'>any_mismatch</span>
+              <span class='comment'># Add penalty for any string length difference
+</span>              <span class='lparen'>(</span><span class='id identifier rubyid_l2'>l2</span> <span class='op'>-</span> <span class='id identifier rubyid_l1'>l1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_abs'>abs</span> <span class='op'>-</span> <span class='int'>2</span>
+            <span class='kw'>else</span>
+              <span class='int'>0</span>
+            <span class='kw'>end</span>
+
+  <span class='comment'># Apply penalty if positive
+</span>  <span class='id identifier rubyid_penalty'>penalty</span> <span class='op'>&gt;</span> <span class='int'>0</span> <span class='op'>?</span> <span class='id identifier rubyid_nscore'>nscore</span> <span class='op'>-</span> <span class='id identifier rubyid_penalty'>penalty</span> <span class='op'>:</span> <span class='id identifier rubyid_nscore'>nscore</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:36 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

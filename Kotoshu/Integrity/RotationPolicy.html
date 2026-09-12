@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Kotoshu::Integrity::RotationPolicy
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Integrity::RotationPolicy";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Integrity.html" title="Kotoshu::Integrity (module)">Integrity</a></span></span>
+     &raquo; 
+    <span class="title">RotationPolicy</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Kotoshu::Integrity::RotationPolicy
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Kotoshu::Integrity::RotationPolicy</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/integrity/rotation_policy.rb
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>Pure value object that decides when an <span class='object_link'><a href="AuditLog.html" title="Kotoshu::Integrity::AuditLog (class)">AuditLog</a></span> should rotate
+and produces the rename plan that realises the rotation.</p>
+<p>The policy is intentionally IO-free so it can be unit-tested in
+isolation. <span class='object_link'><a href="AuditLog.html#record-instance_method" title="Kotoshu::Integrity::AuditLog#record (method)">AuditLog#record</a></span> consults the policy on every write
+and executes the returned plan via <code>FileUtils</code>.</p>
+<p>Rotation scheme: keep <code>rotations</code> historical files alongside the
+current one. On rotation:</p>
+<pre class="code ruby"><code class="ruby">1. Drop the oldest rotation slot (&lt;path&gt;.&lt;rotations&gt;).
+2. Shift each remaining rotation up by one suffix.
+3. Promote the current log to &lt;path&gt;.1.
+</code></pre>
+<p>Net effect: current + N rotated files, total bounded at
++max_bytes * (rotations + 1)+.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="DEFAULT_MAX_BYTES-constant" class="">DEFAULT_MAX_BYTES =
+          <div class="docstring">
+  <div class="discussion">
+    <p>10 MB</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>10</span> <span class='op'>*</span> <span class='int'>1024</span> <span class='op'>*</span> <span class='int'>1024</span></pre></dd>
+      
+        <dt id="DEFAULT_ROTATIONS-constant" class="">DEFAULT_ROTATIONS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#max_bytes-instance_method" title="#max_bytes (instance method)">#<strong>max_bytes</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute max_bytes.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rotations-instance_method" title="#rotations (instance method)">#<strong>rotations</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute rotations.</p></div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(max_bytes: DEFAULT_MAX_BYTES, rotations: DEFAULT_ROTATIONS)  &#x21d2; RotationPolicy </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>A new instance of RotationPolicy.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#plan_for-instance_method" title="#plan_for (instance method)">#<strong>plan_for</strong>(path)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Plan the file operations required to rotate <code>path</code>.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rotate%3F-instance_method" title="#rotate? (instance method)">#<strong>rotate?</strong>(current_size)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>True when the current file size exceeds the configured ceiling.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(max_bytes: DEFAULT_MAX_BYTES, rotations: DEFAULT_ROTATIONS)  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::Integrity::RotationPolicy (class)">RotationPolicy</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns a new instance of RotationPolicy.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+27
+28
+29
+30
+31
+32</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/integrity/rotation_policy.rb', line 27</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>max_bytes:</span> <span class='const'><span class='object_link'><a href="#DEFAULT_MAX_BYTES-constant" title="Kotoshu::Integrity::RotationPolicy::DEFAULT_MAX_BYTES (constant)">DEFAULT_MAX_BYTES</a></span></span><span class='comma'>,</span> <span class='label'>rotations:</span> <span class='const'><span class='object_link'><a href="#DEFAULT_ROTATIONS-constant" title="Kotoshu::Integrity::RotationPolicy::DEFAULT_ROTATIONS (constant)">DEFAULT_ROTATIONS</a></span></span><span class='rparen'>)</span>
+  <span class='ivar'>@max_bytes</span> <span class='op'>=</span> <span class='id identifier rubyid_max_bytes'>max_bytes</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+  <span class='ivar'>@rotations</span> <span class='op'>=</span> <span class='id identifier rubyid_rotations'>rotations</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>max_bytes must be &gt;= 0</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='ivar'>@max_bytes</span><span class='period'>.</span><span class='id identifier rubyid_negative?'>negative?</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rotations must be &gt;= 0</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='ivar'>@rotations</span><span class='period'>.</span><span class='id identifier rubyid_negative?'>negative?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="max_bytes-instance_method">
+  
+    #<strong>max_bytes</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the value of attribute max_bytes.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/integrity/rotation_policy.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_max_bytes'>max_bytes</span>
+  <span class='ivar'>@max_bytes</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="rotations-instance_method">
+  
+    #<strong>rotations</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the value of attribute rotations.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/integrity/rotation_policy.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rotations'>rotations</span>
+  <span class='ivar'>@rotations</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="plan_for-instance_method">
+  
+    #<strong>plan_for</strong>(path)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Plan the file operations required to rotate <code>path</code>.</p>
+<p>Returns a hash with two keys:</p>
+<pre class="code ruby"><code class="ruby">+:deletes+ — Array&lt;String&gt; of paths to remove (+FileUtils.rm_f+).
++:moves+   — Array&lt;[String, String]&gt; of (source, dest) pairs
+           (+FileUtils.mv+).
+</code></pre>
+<p>The plan is ordered so that a caller executing the deletes first
+and then the moves in array order will not clobber any still-live
+rotation. Sources that happen not to exist are silently skipped
+by <code>FileUtils.mv</code>, so the plan can be applied verbatim.</p>
+<p>When <code>rotations</code> is zero, the plan deletes the current path; the
+caller's next append recreates it as an empty file (effectively a
+truncate).</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The current log path (e.g. &quot;/x/audit.log&quot;).</p></div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/integrity/rotation_policy.rb', line 59</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_plan_for'>plan_for</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_rotations'>rotations</span><span class='period'>.</span><span class='id identifier rubyid_positive?'>positive?</span>
+    <span class='lbrace'>{</span>
+      <span class='label'>deletes:</span> <span class='lbracket'>[</span><span class='id identifier rubyid_rotated_path'>rotated_path</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_rotations'>rotations</span><span class='rparen'>)</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='label'>moves:</span> <span class='id identifier rubyid_shift_moves'>shift_moves</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_rotated_path'>rotated_path</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='int'>1</span><span class='rparen'>)</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>else</span>
+    <span class='lbrace'>{</span> <span class='label'>deletes:</span> <span class='lbracket'>[</span><span class='id identifier rubyid_path'>path</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>moves:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rotate?-instance_method">
+  
+    #<strong>rotate?</strong>(current_size)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>True when the current file size exceeds the configured ceiling.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>current_size</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Bytes of the current log file.</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+37
+38
+39</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/integrity/rotation_policy.rb', line 37</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rotate?'>rotate?</span><span class='lparen'>(</span><span class='id identifier rubyid_current_size'>current_size</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_current_size'>current_size</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_max_bytes'>max_bytes</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:47 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

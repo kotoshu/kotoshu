@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  File: README
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "README";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="file_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index</a> &raquo; 
+    <span class="title">File: README</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><div id='filecontents'><div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><span class="image"><img src="https://img.shields.io/gem/v/kotoshu.svg" alt="RubyGems Version"></span>
+<span class="image"><img src="https://img.shields.io/github/license/kotoshu/kotoshu.svg" alt="License"></span>
+<span class="image"><a class="image" href="https://github.com/kotoshu/kotoshu/actions/workflows/main.yml"><img src="https://github.com/kotoshu/kotoshu/actions/workflows/main.yml/badge.svg" alt="CI"></a></span></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_status">Status</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Kotoshu is <strong>v0.3.0</strong> — building on the 0.2 cut, this release adds a strict
+two-stage resource model (explicit <code>setup</code>, cache-only hot path), XDG base
+directory layout, SHA-256 integrity verification, SARIF output, an
+<code>--interactive</code> review loop, and ONNX model pipeline wiring.</p>
+</div>
+<div class="sect2">
+<h3 id="_what_works_in_0_3">What works in 0.3</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Two-stage resource model — <code>Kotoshu.setup(:en)</code> then <code>Kotoshu.correct?("hello")</code>. The hot path is cache-only and raises <code>ResourceNotSetupError</code> on miss; downloads are never implicit.</p>
+</li>
+<li>
+<p><code>Kotoshu.check(text, language: "en")</code> / <code>Kotoshu.suggest("helo")</code> — full document check and suggestions</p>
+</li>
+<li>
+<p><code>Kotoshu.spellchecker_for(lang)</code> — per-language checker resolved from the cache (<code>strict:</code> is a <code>Kotoshu.setup</code> option)</p>
+</li>
+<li>
+<p><code>kotoshu check FILE</code> CLI with these flags:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>--language LANG|auto</code> — any set-up language code, script variants included (<code>sr-Latn</code>) (default: <code>auto</code>)</p>
+</li>
+<li>
+<p><code>--format text|json|sarif</code></p>
+</li>
+<li>
+<p><code>--offline</code> — use only cached resources, never download</p>
+</li>
+<li>
+<p><code>--strict</code> — exit 3 if any optional resource (frequency, model) can&#8217;t load</p>
+</li>
+<li>
+<p><code>--interactive</code> — review each error after the check</p>
+</li>
+<li>
+<p><code>--verbose</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>kotoshu setup LANGUAGE [LANGUAGE &#8230;&#8203;]</code> — pre-warm spelling + frequency + ONNX caches for offline use (<code>fetch</code> is kept as a hidden deprecated alias)</p>
+</li>
+<li>
+<p>Local-source setup: <code>kotoshu setup en --aff path/to.en.aff --dic path/to.en.dic</code> or <code>kotoshu setup en --from /path/to/dict/dir/</code></p>
+</li>
+<li>
+<p>Exit codes: <code>0</code> clean, <code>1</code> errors found, <code>2</code> usage error, <code>3</code> resource setup failed</p>
+</li>
+<li>
+<p>SHA-256 integrity verification (manifest-based, with graceful degradation when manifest is absent)</p>
+</li>
+<li>
+<p>Offline mode via <code>KOTOSHU_OFFLINE=1</code> or <code>--offline</code></p>
+</li>
+<li>
+<p>XDG base directory layout — caches in <code>$XDG_CACHE_HOME/kotoshu/</code>, config in <code>$XDG_CONFIG_HOME/kotoshu/</code>, data in <code>$XDG_LOCAL_HOME/kotoshu/</code> (overridable via <code>KOTOSHU_CACHE_PATH</code>, <code>KOTOSHU_CONFIG_PATH</code>, <code>KOTOSHU_DATA_PATH</code>)</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_planned_for_0_4">Planned for 0.4+</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>--output</code> (file output redirection)</p>
+</li>
+<li>
+<p>ONNX semantic reranking as default path</p>
+</li>
+<li>
+<p>≥30 language modules wired</p>
+</li>
+<li>
+<p>Grammar rule packs</p>
+</li>
+<li>
+<p>CJK and RTL language support</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>See <a href="TODO.impl/00-cut-0.2.md">the 0.2 cut plan</a>, the 0.3 tasks under
+<code>TODO.impl/</code>, and <a href="TODO.impl/00-vision.md">the vision</a> for the path to 1.0.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_purpose">Purpose</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Kotoshu 「言修」 is a pure-Ruby spell checker that aims to work for every
+language by dynamically downloading the right combination of dictionary,
+frequency data, and embedding model on demand.</p>
+</div>
+<div class="paragraph">
+<p>The current release pairs a Ruby port of the Hunspell algorithm
+(traditional morphological lookup + affix rules) with optional FastText
+word embeddings converted to ONNX for context-aware reranking.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+The semantic (ONNX) path is an optional feature. <code>gem install kotoshu</code>
+works without <code>onnxruntime</code>; install it separately (<code>gem install onnxruntime</code>)
+to enable context-aware reranking. Set <code>KOTOSHU_NO_ONNX=1</code> to opt back out.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_features">Features</h2>
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+The list below describes the design vision. See <a href="#status">[status]</a> for
+exactly what works in 0.2 and what is planned for 0.3+.
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#multi-language">Multi-language support with automatic detection</a></p>
+</li>
+<li>
+<p><a href="#semantic-analysis">Semantic error detection using word embeddings</a> (opt-in via Ruby API in 0.2)</p>
+</li>
+<li>
+<p><a href="#interactive-mode">Interactive review mode with full navigation</a> (planned for 0.3)</p>
+</li>
+<li>
+<p><a href="#batch-processing">Batch processing for CI/CD</a> (JSON in 0.2; SARIF planned for 0.3)</p>
+</li>
+<li>
+<p><a href="#onnx-models">Fast ONNX inference via ONNX Runtime</a></p>
+</li>
+<li>
+<p><a href="#document-formats">Support for Markdown, AsciiDoc, and plain text</a></p>
+</li>
+<li>
+<p><a href="#multiple-models">Multiple analysis models (Hunspell, FastText, Hybrid)</a> (Hunspell path only in 0.2)</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_architecture">Architecture</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Kotoshu is built on a modern, semantic architecture:</p>
+</div>
+<div class="listingblock">
+<div class="title">Architecture overview</div>
+<div class="content">
+<pre class="code ruby"><code class="ruby">╔═══════════════════════════════════════════════════════════════════╗
+║                    Kotoshu Semantic Architecture                ║
+╠═══════════════════════════════════════════════════════════════════╣
+║                                                                   ║
+║  ┌─────────────────────────────────────────────────────────────┐  ║
+║  │                     Interface Layer                          │  ║
+║  │  ┌─────────────────────┐  ┌─────────────────────────────┐   │  ║
+║  │  │   CLI (Thor)        │  │      Ruby API               │   │  ║
+║  │  │   lib/kotoshu/cli/  │  │   Kotoshu module methods    │   │  ║
+║  │  └──────────┬──────────┘  └───────────┬─────────────────┘   │  ║
+║  │             │  Auto Language Detect   │                     │  ║
+║  └─────────────┼──────────────────────────┼─────────────────────┘  ║
+║                │                          │                        ║
+║                ▼                          ▼                        ║
+║  ┌─────────────────────────────────────────────────────────────┐  ║
+║  │                   Analysis Layer                             │  ║
+║  │  ┌──────────────┐  ┌─────────────┐  ┌───────────────────┐  │  ║
+║  │  │    Hunspell  │  │  FastText   │  │  Hybrid (Best!)   │  │  ║
+║  │  │  Dictionary  │  │  Embeddings │  │  Combined         │  │  ║
+║  │  │  (Traditional)│  │  (ONNX)    │  │  Approach         │  │  ║
+║  │  └──────────────┘  └─────────────┘  └───────────────────┘  │  ║
+║  └───────────────────────────┬─────────────────────────────────┘  ║
+║                              │                                    ║
+║  ┌───────────────────────────▼─────────────────────────────────┐  ║
+║  │                  Model Layer (ONNX)                          │  ║
+║  │  ┌──────────────────────────────────────────────────────┐  │  ║
+║  │  │  ONNX Runtime → Fast Embedding Lookup                 │  │  ║
+║  │  │  Semantic Similarity → Context-Aware Suggestions      │  │  ║
+║  │  │  Nearest Neighbor Search → Smart Corrections          │  │  ║
+║  │  └──────────────────────────────────────────────────────┘  │  ║
+║  └─────────────────────────────────────────────────────────────┘  ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝</code></pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_key_components">Key Components</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Kotoshu::Models::OnnxModel</code>: ONNX-based word embedding model for fast
+semantic similarity and nearest neighbor search.</p>
+</li>
+<li>
+<p><code>Kotoshu::Analyzers::SemanticAnalyzer</code>: Unified semantic error detection
+using word embeddings (no artificial spelling/grammar split).</p>
+</li>
+<li>
+<p><code>Kotoshu::Language::LanguageIdentifier</code>: Automatic language detection
+using FastText LID model (127 languages).</p>
+</li>
+<li>
+<p><code>Kotoshu::Cli::InteractiveReviewer</code>: Interactive CLI for error review
+with full navigation (forward, backward, jump, skip, accept).</p>
+</li>
+<li>
+<p><code>Kotoshu::Dictionary::Hunspell</code>: Traditional Hunspell dictionary backend
+for morphological analysis and affix rules.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_why_onnx">Why ONNX?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>ONNX Runtime provides:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Performance</strong>: C++ implementation, 10-100x faster than pure Ruby</p>
+</li>
+<li>
+<p><strong>Portability</strong>: Works on CPU, GPU, TPU, mobile devices</p>
+</li>
+<li>
+<p><strong>Optimization</strong>: Automatic graph optimization and quantization</p>
+</li>
+<li>
+<p><strong>Interoperability</strong>: Models can be trained in Python, deployed in Ruby</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Kotoshu uses FastText models converted to ONNX format for semantic spell checking.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="semantic-analysis">Semantic Analysis</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Unlike traditional spell checkers that only check dictionary membership and
+edit distance, Kotoshu uses semantic similarity to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Detect contextually appropriate corrections ("desert" vs "dessert")</p>
+</li>
+<li>
+<p>Handle out-of-vocabulary words via subword embeddings</p>
+</li>
+<li>
+<p>Provide ranked suggestions based on semantic similarity</p>
+</li>
+<li>
+<p>Support compound words and morphological variations</p>
+</li>
+</ul>
+</div>
+<div class="exampleblock">
+<div class="title">Example 1. Usage example</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="code ruby"><code class="ruby"><span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'><span class='object_link'><a href="Kotoshu.html#setup-class_method" title="Kotoshu.setup (method)">setup</a></span></span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='comma'>,</span> <span class='label'>want:</span> <span class='qsymbols_beg'>%i[</span><span class='tstring_content'>spelling</span><span class='words_sep'> </span><span class='tstring_content'>model</span><span class='tstring_end'>]</span></span><span class='rparen'>)</span>  <span class='comment'># one-time per language
+</span>
+<span class='comment'># Traditional: knows &quot;helo&quot; is wrong and lists edit-distance candidates
+</span><span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_suggest'><span class='object_link'><a href="Kotoshu.html#suggest-class_method" title="Kotoshu.suggest (method)">suggest</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>helo</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_words'><span class='object_link'><a href="Kotoshu/Suggestions/SuggestionSet.html#to_words-instance_method" title="Kotoshu::Suggestions::SuggestionSet#to_words (method)">to_words</a></span></span>
+<span class='comment'># =&gt; [&quot;hello&quot;, &quot;help&quot;, &quot;held&quot;, &quot;hell&quot;, &quot;hole&quot;]
+</span>
+<span class='comment'># Semantic: reranks candidates by context similarity
+</span><span class='id identifier rubyid_model'>model</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Models.html" title="Kotoshu::Models (module)">Models</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Models/OnnxModel.html" title="Kotoshu::Models::OnnxModel (class)">OnnxModel</a></span></span><span class='period'>.</span><span class='id identifier rubyid_from_github'><span class='object_link'><a href="Kotoshu/Models/OnnxModel.html#from_github-class_method" title="Kotoshu::Models::OnnxModel.from_github (method)">from_github</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>en</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_analyzer'>analyzer</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Analyzers.html" title="Kotoshu::Analyzers (module)">Analyzers</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Analyzers/SemanticAnalyzer.html" title="Kotoshu::Analyzers::SemanticAnalyzer (class)">SemanticAnalyzer</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/Analyzers/SemanticAnalyzer.html#initialize-instance_method" title="Kotoshu::Analyzers::SemanticAnalyzer#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_model'>model</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_analyzer'>analyzer</span><span class='period'>.</span><span class='id identifier rubyid_suggest_corrections'>suggest_corrections</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>helo</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>context:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>I said helo to the world</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:word</span><span class='rparen'>)</span>
+<span class='comment'># =&gt; [&quot;hello&quot;]  # &quot;hello&quot; makes more sense in greeting context</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+The semantic path requires the optional <code>onnxruntime</code> gem. See
+<a href="#_requirements">Requirements</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="confidence-cascade">Confidence cascade</h3>
+<div class="paragraph">
+<p>When the traditional (dictionary + edit distance) strategies are already
+confident about a word, the semantic rerank adds latency and model load
+without changing the answer. The confidence cascade formalizes the
+hybrid split: dictionary verdict first, ONNX rerank only for uncertain
+candidates.</p>
+</div>
+<div class="paragraph">
+<p>The <code>semantic_cascade_threshold</code> configuration option controls it:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Threshold</th>
+<th class="tableblock halign-left valign-top">Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>1.0</code> (default)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Always rerank — identical to the classic pipeline. This is the sentinel:
+the composite can legitimately score exactly <code>1.0</code>, so <code>1.0</code> never skips.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0.9</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rerank only when the top traditional candidate scores below <code>0.9</code>;
+otherwise skip the ONNX rerank for that word.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0.0</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Never rerank — the semantic path is bypassed entirely.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="content">
+<pre class="code bash"><code class="bash"># Tune via environment variable
+KOTOSHU_SEMANTIC_CASCADE_THRESHOLD=0.9 kotoshu check document.txt
+
+# Or via the Ruby API
+Kotoshu.configuration.semantic_cascade_threshold = 0.9</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Each skip is counted in the metrics registry
+(<code>Kotoshu::Metrics.stats[:semantic_cascade_skips]</code>, also exported in
+StatsD and Prometheus formats) and logged under debug/verbose output.</p>
+</div>
+<div class="paragraph">
+<p>Tuning guidance will come from the eval harness once the corpus
+benchmark lands; until then, <code>0.8</code>–<code>0.9</code> is a reasonable range for
+typo-heavy text.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="multi-language">Multi-Language Support</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Kotoshu serves every language staged in the dictionaries manifest —
+36 full-feature codes with per-language modules (script-aware
+tokenizer, national keyboard grid, engine-verified specimens) and the
+script-fallback basic tier for the rest; see the
+<a href="#language-matrix">Language Support Matrix</a> for the breakdown.
+Semantic reranking adds an ONNX model where the models registry pins
+one (50+ languages), for example:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>de</strong> - German (Deutsch)</p>
+</li>
+<li>
+<p><strong>en</strong> - English</p>
+</li>
+<li>
+<p><strong>es</strong> - Spanish (Español)</p>
+</li>
+<li>
+<p><strong>fr</strong> - French (Français)</p>
+</li>
+<li>
+<p><strong>pt</strong> - Portuguese (Português)</p>
+</li>
+<li>
+<p><strong>ru</strong> - Russian (Русский)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Automatic language detection is enabled by default:</p>
+</div>
+<div class="exampleblock">
+<div class="title">Example 2. Usage example</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="code bash"><code class="bash"># Language auto-detected from document content
+kotoshu check document.txt
+# Detected: en (95% confidence)
+# Analyzing document.txt (language: en)...
+
+# Explicit language specification
+kotoshu check document.txt --language de</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="onnx-models">ONNX Models</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Kotoshu uses FastText crawl vectors converted to ONNX format:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Source: <a href="https://fasttext.cc/docs/en/crawl-vectors.html">FastText Crawl Vectors</a></p>
+</li>
+<li>
+<p>Format: ONNX with optimized runtime</p>
+</li>
+<li>
+<p>Vocabulary: 2 million words per language (full coverage)</p>
+</li>
+<li>
+<p>Dimension: 300-dimensional word vectors</p>
+</li>
+<li>
+<p>Size: ~2.4GB per language</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_fasttext_file_formats">FastText File Formats</h3>
+<div class="paragraph">
+<p>FastText provides two file formats. Kotoshu uses the <code>.vec</code> format for ONNX conversion.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Aspect</th>
+<th class="tableblock halign-left valign-top"><code>.vec</code> (Text)</th>
+<th class="tableblock halign-left valign-top"><code>.bin</code> (Binary)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Word vectors only (pre-computed embeddings)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Full FastText model (trained model)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Structure</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Text: one word + 300 floats per line</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Binary: complete model with matrices</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">File Size</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">~1.3GB compressed (~2.4GB uncompressed)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">~1.8GB compressed (~4.8GB uncompressed)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Train New Words</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">✗ No (static lookup only)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">✓ Yes (can train/OOV with subword info)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Subword Embeddings</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">✗ No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">✓ Yes (n-gram character embeddings)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ONNX Converter</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">✓ Supported (what we use)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">✗ Not supported</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use Case</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Simple word vector lookup for spell checking</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Full FastText functionality (training, OOV)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Kotoshu uses <code>.vec</code> files because:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Simpler extraction: Just word → vector mapping</p>
+</li>
+<li>
+<p>No subword complexity needed: Dictionary-based spell checking doesn&#8217;t require OOV generation</p>
+</li>
+<li>
+<p>Smaller ONNX models: ~2.4GB vs ~4.8GB</p>
+</li>
+<li>
+<p>Faster conversion: Direct serialization to ONNX</p>
+</li>
+</ul>
+</div>
+<div class="exampleblock">
+<div class="title">Example 3. Model management</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="code bash"><code class="bash"># Set up a language with spelling + ONNX semantic model
+kotoshu setup en --want spelling,model
+
+# List what&#39;s set up in the cache
+kotoshu setup --list
+
+# Re-validate cached resources
+kotoshu cache validate</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+FastText <code>.vec</code> → ONNX conversion is done upstream in the
+<a href="https://github.com/kotoshu/models-fasttext-onnx">`kotoshu/models-fasttext-onnx'</a>
+repo. The CLI downloads pre-converted artifacts; users do not run
+conversion locally.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="model-tiers">Model tiers</h3>
+<div class="paragraph">
+<p>ONNX models come in three tiers, published by
+<a href="https://github.com/kotoshu/models-fasttext-onnx">models-fasttext-onnx</a>
+in a resource registry under stable ids (<code>kotoshu://models/{lang}/{tier}</code>):</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 33.3333%;">
+<col style="width: 50.0001%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Tier</th>
+<th class="tableblock halign-left valign-top">Approx. size</th>
+<th class="tableblock halign-left valign-top">What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>full</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">~120 MB</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unquantized, ~100k-word vocabulary. The same artifact and cache layout
+as before tiers existed.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fluency</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">~15-18 MB</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int8-quantized, reduced vocabulary (~50k-60k words).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mini</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">~3 MB</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int8-quantized, 10k-word vocabulary.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Tiered downloads are verified: the model bytes are fetched from the
+registry entry&#8217;s primary URL, falling back to its mirror, with the vocab
+sibling downloaded alongside; the SHA-256 is checked against the
+registry entry before the model is accepted into the cache.</p>
+</div>
+<div class="exampleblock">
+<div class="title">Example 4. Picking a tier</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="code ruby"><code class="ruby"><span class='comment'># One-time setup at a specific tier
+</span><span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'><span class='object_link'><a href="Kotoshu.html#setup-class_method" title="Kotoshu.setup (method)">setup</a></span></span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='comma'>,</span> <span class='label'>want:</span> <span class='qsymbols_beg'>%i[</span><span class='tstring_content'>model</span><span class='tstring_end'>]</span></span><span class='comma'>,</span> <span class='label'>tier:</span> <span class='symbol'>:fluency</span><span class='rparen'>)</span>
+
+<span class='comment'># Resolve stays cache-only: the requested tier must already be cached,
+</span><span class='comment'># otherwise ResourceNotSetupError is raised (no download, no fallback
+</span><span class='comment'># to another tier)
+</span><span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_resolve'><span class='object_link'><a href="Kotoshu.html#resolve-class_method" title="Kotoshu.resolve (method)">resolve</a></span></span><span class='lparen'>(</span><span class='label'>language:</span> <span class='symbol'>:en</span><span class='comma'>,</span> <span class='label'>want:</span> <span class='qsymbols_beg'>%i[</span><span class='tstring_content'>spelling</span><span class='words_sep'> </span><span class='tstring_content'>model</span><span class='tstring_end'>]</span></span><span class='comma'>,</span> <span class='label'>tier:</span> <span class='symbol'>:fluency</span><span class='rparen'>)</span>
+
+<span class='comment'># &quot;Is this tier cached?&quot; (tier: :any asks whether any tier is cached)
+</span><span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup?'><span class='object_link'><a href="Kotoshu.html#setup%3F-class_method" title="Kotoshu.setup? (method)">setup?</a></span></span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='comma'>,</span> <span class='label'>resource:</span> <span class='symbol'>:model</span><span class='comma'>,</span> <span class='label'>tier:</span> <span class='symbol'>:mini</span><span class='rparen'>)</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code bash"><code class="bash">kotoshu setup en --model --tier mini</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p><code>tier: :any</code> on resolve maps to the <strong>single</strong> cached tier. It resolves
+when exactly one tier is cached and raises otherwise: with no tier
+cached it raises <code>ResourceNotSetupError</code>, and with several it raises
+<code>Kotoshu::ResourceResolutionError</code> listing them. That listing uses the
+fixed order <code>mini</code>, <code>fluency</code>, <code>full</code> — a reporting order for
+deterministic error messages, not a fallback chain; tiers are never
+silently substituted for one another.</p>
+</div>
+<div class="paragraph">
+<p>The default tier is <code>fluency</code> (~15 MB, near-lossless; owner decision
+2026-09-04) — caches written under the old <code>full</code> default keep working
+via the tier-less legacy bridge. Override it per call with <code>tier:</code>, or set
+it globally via the <code>model_tier</code> configuration option (environment
+variable <code>KOTOSHU_MODEL_TIER</code>; one of <code>full</code>, <code>fluency</code>, <code>mini</code>):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code bash"><code class="bash">KOTOSHU_MODEL_TIER=mini kotoshu setup en --model</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="interactive-mode">Interactive Mode</h2>
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Interactive mode shipped in 0.3.0. It is navigation-only — the
+session records which suggestions the user accepted but does not rewrite
+the source file yet.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code bash"><code class="bash">kotoshu check README.md --interactive</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Features in 0.3:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Navigate</strong>: [n] / Enter next, [p] previous, [l] list</p>
+</li>
+<li>
+<p><strong>Accept</strong>: [1-9] record suggestion N for the current error</p>
+</li>
+<li>
+<p><strong>Skip</strong>: [s] skip the current error</p>
+</li>
+<li>
+<p><strong>Quit</strong>: [q] exit the review loop</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="batch-processing">Batch Processing</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>For CI/CD and automation, Kotoshu supports JSON and SARIF output in 0.3;
+<code>--output</code> file redirection is planned for 0.4+.</p>
+</div>
+<div class="exampleblock">
+<div class="title">Example 5. JSON output for CI/CD</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="code bash"><code class="bash"># JSON output to stdout (supported in 0.3)
+kotoshu check README.md --format json
+
+# SARIF 2.1.0 output (supported in 0.3)
+kotoshu check README.md --format sarif
+
+# Exit code for CI
+kotoshu check README.md
+echo $?  # 0 if no errors, 1 if errors found</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="ignoring-words">Ignoring Words Inline</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Words that are intentionally "wrong" - product names, code identifiers
+quoted in prose, dialect - can be suppressed in place instead of being
+added to the personal dictionary:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code ruby"><code class="ruby">kotoshu:disable-line                 suppress everything on this line
+kotoshu:disable-next-line            suppress the following line
+kotoshu:disable-next-line foo bar    suppress only these words
+kotoshu:disable-file / enable-file   block suppression (nestable)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Each format recognizes the directive in its own comment syntax, and the
+directive line itself is never spellchecked:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Format</th>
+<th class="tableblock halign-left valign-top">Form</th>
+<th class="tableblock halign-left valign-top">Trailing directive</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Plain text</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">a bare line: <code>kotoshu:disable-line</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">not supported</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Markdown</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;!-- kotoshu:disable-next-line -&#8594;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">supported</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">AsciiDoc</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>// kotoshu:disable-next-line</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">supported</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The Ruby API picks this up automatically:
+<code>Kotoshu.spellchecker_for("en").check(text)</code> moves suppressed words to
+<code>result.suppressed_errors</code> (each marked <code>suppressed: true</code> and
+<code>suppressed_by: "inline"</code>) so only real errors stay in <code>result.errors</code>.
+Pass <code>--show-suppressed</code> to <code>kotoshu check</code> to list them.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="ci-baselines">CI Baselines</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Freeze existing spelling debt so CI fails only on NEW errors:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code bash"><code class="bash"># Record current findings: one entry per file+word with a count,
+# stable across reformatting
+kotoshu baseline init README.md docs/*.adoc
+
+# CI: errors covered by the baseline pass, new errors fail
+kotoshu check README.md --baseline .kotoshu-baseline.json</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A summary line reports baseline entries that have gone stale (the error
+no longer exists), so the debt shrinks visibly; refresh by re-running
+<code>kotoshu baseline init</code>. JSON output adds <code>suppressedCount</code> /
+<code>suppressedErrors</code> plus a <code>baseline</code> block, and SARIF marks
+baseline-suppressed results with a <code>suppressions</code> entry
+(<code>justification: "baseline"</code>).</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="pre-commit">Git pre-commit Hook</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The gem repository ships a <a href="https://pre-commit.com">pre-commit</a> hook
+definition (<code>.pre-commit-hooks.yaml</code>):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code yaml"><code class="yaml">repos:
+  - repo: https://github.com/kotoshu/kotoshu
+    rev: v0.7.0   # pin to a released tag
+    hooks:
+      - id: kotoshu</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+The hook uses <code>language: system</code>: it runs the <code>kotoshu</code> executable
+from PATH, so it honestly requires a Ruby environment with the gem
+installed (<code>gem install kotoshu</code>, then <code>kotoshu setup en</code>). A
+WebAssembly client (in development) is the future zero-Ruby path.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="document-formats">Document Formats</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Kotoshu supports structured documents with AST parsing:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Plain text</strong>: Line-based error detection</p>
+</li>
+<li>
+<p><strong>Markdown</strong>: AST-based using Kramdown parser</p>
+</li>
+<li>
+<p><strong>AsciiDoc</strong>: AST-based using Asciidoctor parser</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Structured documents preserve node paths for precise error location.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="multiple-models">Analysis Models</h2>
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+In 0.2, the CLI runs the Hunspell traditional path only.
+The <code>--model</code> flag and FastText/Hybrid paths are planned for 0.3+.
+The Ruby API can opt into the semantic path today via
+<code>Kotoshu::Models::OnnxModel</code> (auto-available when <code>onnxruntime</code> is installed).
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Kotoshu is designed to support three analysis models:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Dictionary backend comparison</caption>
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Model</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Best For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>hunspell</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Traditional dictionary-based with morphological rules</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fast checking, compound words, languages with complex morphology</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>fasttext</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pure semantic embeddings via ONNX</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Context awareness, out-of-vocabulary words, semantic similarity</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>hybrid</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Hunspell candidates + FastText reranking (recommended)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum accuracy, best of both worlds</p></td>
+</tr>
+</tbody>
+</table>
+<div class="exampleblock">
+<div class="title">Example 6. Intended usage (0.3+)</div>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="code bash"><code class="bash"># Fast dictionary-based checking (default in 0.2)
+kotoshu check document.txt                # 0.2: Hunspell path
+
+# Semantic / hybrid paths: planned for 0.3
+# kotoshu check document.txt --model fasttext
+# kotoshu check document.txt --model hybrid</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_installation">Installation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Add this line to your application&#8217;s Gemfile:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_gem'>gem</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kotoshu</span><span class='tstring_end'>&#39;</span></span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And then execute:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code sh"><code class="sh">bundle install</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Or install it yourself as:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code sh"><code class="sh">gem install kotoshu</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<code>onnxruntime</code> is an optional dependency. Install it separately
+(<code>gem install onnxruntime</code>) to enable semantic analysis; the
+traditional Hunspell path works without it.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_quick_start">Quick Start</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="code sh"><code class="sh"># One-time per language: download spelling dictionary from
+# github.com/kotoshu/dictionaries (idempotent, ~5 MB)
+kotoshu setup en
+
+# Then check files instantly, cache-only
+kotoshu check README.md</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Or skip the explicit setup — the CLI will prompt interactively the
+first time you check a file in a non-cached language (TTY only; in
+non-TTY or <code>KOTOSHU_OFFLINE=1</code> mode it exits with code 3).</p>
+</div>
+<div class="listingblock">
+<div class="title">Command-line usage</div>
+<div class="content">
+<pre class="code bash"><code class="bash"># Check a file (uses --language, or auto-detects from content)
+kotoshu check README.md
+
+# Explicit language
+kotoshu check README.md --language en
+
+# JSON output for programmatic use
+kotoshu check README.md --format json
+
+# Offline mode — use only cached dictionaries, never download
+kotoshu check README.md --offline
+
+# Check stdin
+echo &quot;helo wrld&quot; | kotoshu check</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Exit codes: <code>0</code> (no errors), <code>1</code> (errors found), <code>2</code> (usage error),
+<code>3</code> (language not set up — run <code>kotoshu setup LANG</code>, or run <code>kotoshu check</code>
+in a TTY to be prompted).</p>
+</div>
+<div class="listingblock">
+<div class="title">Ruby API usage</div>
+<div class="content">
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kotoshu</span><span class='tstring_end'>&#39;</span></span>
+
+<span class='comment'># Stage 1: set up the language once (downloads from github.com/kotoshu/dictionaries)
+</span><span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'><span class='object_link'><a href="Kotoshu.html#setup-class_method" title="Kotoshu.setup (method)">setup</a></span></span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='rparen'>)</span>
+
+<span class='comment'># Stage 2: hot-path checks are cache-only and never touch the network
+</span><span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_correct?'><span class='object_link'><a href="Kotoshu.html#correct%3F-class_method" title="Kotoshu.correct? (method)">correct?</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>  <span class='comment'># =&gt; true
+</span><span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_correct?'><span class='object_link'><a href="Kotoshu.html#correct%3F-class_method" title="Kotoshu.correct? (method)">correct?</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>helo</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>   <span class='comment'># =&gt; false
+</span>
+<span class='comment'># Suggestions return a SuggestionSet; call #to_words for an Array
+</span><span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_suggest'><span class='object_link'><a href="Kotoshu.html#suggest-class_method" title="Kotoshu.suggest (method)">suggest</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>helo</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_words'><span class='object_link'><a href="Kotoshu/Suggestions/SuggestionSet.html#to_words-instance_method" title="Kotoshu::Suggestions::SuggestionSet#to_words (method)">to_words</a></span></span>  <span class='comment'># =&gt; [&quot;hello&quot;, &quot;help&quot;, &quot;held&quot;, ...]
+</span>
+<span class='comment'># Check a document
+</span><span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_check'><span class='object_link'><a href="Kotoshu.html#check-class_method" title="Kotoshu.check (method)">check</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hello wrold</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_errors'>errors</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:word</span><span class='rparen'>)</span>  <span class='comment'># =&gt; [&quot;wrold&quot;]
+</span>
+<span class='comment'># Each error carries position + suggestions
+</span><span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_check_file'><span class='object_link'><a href="Kotoshu.html#check_file-class_method" title="Kotoshu.check_file (method)">check_file</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>README.md</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_errors'>errors</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_error'>error</span><span class='op'>|</span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_error'>error</span><span class='period'>.</span><span class='id identifier rubyid_word'>word</span><span class='embexpr_end'>}</span><span class='tstring_content'> at offset </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_error'>error</span><span class='period'>.</span><span class='id identifier rubyid_position'>position</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_error'>error</span><span class='period'>.</span><span class='id identifier rubyid_top_suggestions'>top_suggestions</span><span class='lparen'>(</span><span class='int'>3</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span>
+
+<span class='comment'># Semantic analysis is optional — requires the onnxruntime gem
+</span><span class='comment'># (gem install onnxruntime). Skip this block if you only want Hunspell.
+</span><span class='kw'>if</span> <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Models.html" title="Kotoshu::Models (module)">Models</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Models/OnnxModel.html" title="Kotoshu::Models::OnnxModel (class)">OnnxModel</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Models/OnnxModel.html#ONNX_LOADED-constant" title="Kotoshu::Models::OnnxModel::ONNX_LOADED (constant)">ONNX_LOADED</a></span></span>
+  <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'><span class='object_link'><a href="Kotoshu.html#setup-class_method" title="Kotoshu.setup (method)">setup</a></span></span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='comma'>,</span> <span class='label'>want:</span> <span class='qsymbols_beg'>%i[</span><span class='tstring_content'>spelling</span><span class='words_sep'> </span><span class='tstring_content'>model</span><span class='tstring_end'>]</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_model'>model</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Models.html" title="Kotoshu::Models (module)">Models</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Models/OnnxModel.html" title="Kotoshu::Models::OnnxModel (class)">OnnxModel</a></span></span><span class='period'>.</span><span class='id identifier rubyid_from_github'><span class='object_link'><a href="Kotoshu/Models/OnnxModel.html#from_github-class_method" title="Kotoshu::Models::OnnxModel.from_github (method)">from_github</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_analyzer'>analyzer</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Analyzers.html" title="Kotoshu::Analyzers (module)">Analyzers</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Analyzers/SemanticAnalyzer.html" title="Kotoshu::Analyzers::SemanticAnalyzer (class)">SemanticAnalyzer</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/Analyzers/SemanticAnalyzer.html#initialize-instance_method" title="Kotoshu::Analyzers::SemanticAnalyzer#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_model'>model</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_analyzer'>analyzer</span><span class='period'>.</span><span class='id identifier rubyid_analyze'>analyze</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_check'><span class='object_link'><a href="Kotoshu.html#check-class_method" title="Kotoshu.check (method)">check</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hello wrold</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+The library API is strict: calls like <code>Kotoshu.correct?</code> raise
+<code>Kotoshu::ResourceNotSetupError</code> until you&#8217;ve run <code>Kotoshu.setup</code>. This
+prevents surprise downloads on metered networks. The CLI (<code>kotoshu check</code>)
+intercepts the error and prompts to download interactively.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_requirements">Requirements</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Ruby 3.1+</p>
+</li>
+<li>
+<p><code>onnxruntime</code> gem (optional — enables semantic spell checking; install separately with <code>gem install onnxruntime</code>)</p>
+</li>
+<li>
+<p>Python 3 + fasttext (optional, only if you want to convert <code>.vec</code> → <code>.onnx</code> upstream)</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_resource_caching_and_language_support">Resource Caching and Language Support</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Kotoshu uses a sophisticated multi-layer caching system to manage dictionaries,
+frequency lists, and embedding models. Resources are downloaded explicitly via
+<code>Kotoshu.setup</code> (or <code>kotoshu setup</code>) and cached under the XDG base directory
+layout (<code>~/.cache/kotoshu/</code> by default; override via <code>KOTOSHU_CACHE_PATH</code>,
+<code>KOTOSHU_CONFIG_PATH</code>, <code>KOTOSHU_DATA_PATH</code>, or the <code>XDG_*_HOME</code> vars).</p>
+</div>
+<div class="sect2">
+<h3 id="_cache_architecture">Cache Architecture</h3>
+<div class="listingblock">
+<div class="title">Cache System Class Diagram</div>
+<div class="content">
+<pre class="code ruby"><code class="ruby">┌────────────────────────────────────────────────────────────────────────────┐
+│                              BaseCache (Abstract)                        │
+│  ┌────────────────────────────────────────────────────────────────────┐   │
+│  │ Common: download, metadata, validation, stats, TTL management     │   │
+│  └────────────────────────────────────────────────────────────────────┘   │
+└────────────────────┬───────────────────┬────────────────────┬──────────────┘
+                     │                   │                    │
+        ┌────────────▼────────┐  ┌──────▼──────┐  ┌───────▼─────────┐
+        │   LanguageCache     │  │ModelCache   │  │ FrequencyCache  │
+        │  (Dictionaries)     │  │ (Embeddings)│  │  (Kelly Lists)  │
+        └─────────────────────┘  └─────────────┘  └─────────────────┘
+                     │                   │                    │
+        ┌────────────▼────────┐  ┌──────▼──────┐  ┌───────▼─────────┐
+        │ ~/.cache/kotoshu/  │  │~/.cache/    │  │ ~/.cache/kotoshu/│
+        │   languages/       │  │  kotoshu/   │  │frequency-lists/ │
+        │                    │  │  models/    │  │                 │
+        └─────────────────────┘  └─────────────┘  └─────────────────┘</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cache_types">Cache Types</h3>
+<div class="sect3">
+<h4 id="_languagecache_dictionaries">LanguageCache (Dictionaries)</h4>
+<div class="paragraph">
+<p>Manages Hunspell dictionaries and grammar rules for spell checking.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Cache Path</strong>: <code>~/.cache/kotoshu/languages/{code}/</code></p>
+</li>
+<li>
+<p><strong>TTL</strong>: 7 days (604,800 seconds)</p>
+</li>
+<li>
+<p><strong>Source</strong>: <a href="https://github.com/kotoshu/dictionaries">kotoshu/dictionaries</a></p>
+</li>
+<li>
+<p><strong>Resources per language</strong>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>spelling/</code>**: Hunspell dictionary (<code>index.dic</code>, <code>index.aff</code>)</p>
+</li>
+<li>
+<p><code>grammar/</code><strong>*: Grammar rules (<code>rules.yaml</code>) - *future</strong></p>
+</li>
+<li>
+<p><code>frequency/</code><strong>*: Frequency data - *deprecated, use FrequencyCache</strong></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">Usage</div>
+<div class="content">
+<pre class="code ruby"><code class="ruby"><span class='comment'># Access via cache
+</span><span class='id identifier rubyid_cache'>cache</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Cache.html" title="Kotoshu::Cache (module)">Cache</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Cache/LanguageCache.html" title="Kotoshu::Cache::LanguageCache (class)">LanguageCache</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/Cache/BaseCache.html#initialize-instance_method" title="Kotoshu::Cache::BaseCache#initialize (method)">new</a></span></span>
+<span class='id identifier rubyid_dict'>dict</span> <span class='op'>=</span> <span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_get_spelling'>get_spelling</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+<span class='comment'># Result:
+</span><span class='comment'># {
+</span><span class='comment'>#   aff_path: &quot;~/.cache/kotoshu/languages/en/spelling/index.aff&quot;,
+</span><span class='comment'>#   dic_path: &quot;~/.cache/kotoshu/languages/en/spelling/index.dic&quot;,
+</span><span class='comment'>#   cached: true,
+</span><span class='comment'>#   metadata: { ... }
+</span><span class='comment'># }</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_frequencycache_kelly_project">FrequencyCache (Kelly Project)</h4>
+<div class="paragraph">
+<p>Manages Kelly Project frequency lists for intelligent suggestion ranking.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Cache Path</strong>: <code>~/.cache/kotoshu/frequency-lists/{code}/</code></p>
+</li>
+<li>
+<p><strong>TTL</strong>: 7 days (604,800 seconds)</p>
+</li>
+<li>
+<p><strong>Source</strong>: <a href="https://github.com/kotoshu/frequency-list-kelly">kotoshu/frequency-list-kelly</a></p>
+</li>
+<li>
+<p><strong>Format</strong>: JSON with tiered word frequency data</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">Kelly Frequency Data Structure</div>
+<div class="content">
+<pre class="code json"><code class="json">{
+  &quot;metadata&quot;: {
+    &quot;language&quot;: &quot;en&quot;,
+    &quot;source&quot;: &quot;Kelly Project (University of Leeds)&quot;,
+    &quot;total_words_analyzed&quot;: 1500000
+  },
+  &quot;tiers&quot;: {
+    &quot;top_50&quot;: {
+      &quot;words&quot;: [&quot;the&quot;, &quot;be&quot;, &quot;to&quot;, &quot;of&quot;, &quot;and&quot;, ...],
+      &quot;info&quot;: &quot;Most common 50 words&quot;
+    },
+    &quot;top_200&quot;: {
+      &quot;words&quot;: [&quot;will&quot;, &quot;my&quot;, &quot;one&quot;, &quot;all&quot;, ...],
+      &quot;info&quot;: &quot;Most common 200 words&quot;
+    },
+    &quot;top_1000&quot;: {
+      &quot;words&quot;: [&quot;however&quot;, &quot;although&quot;, ...],
+      &quot;info&quot;: &quot;Most common 1000 words&quot;
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Usage</div>
+<div class="content">
+<pre class="code ruby"><code class="ruby"><span class='comment'># Access via cache
+</span><span class='id identifier rubyid_cache'>cache</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Cache.html" title="Kotoshu::Cache (module)">Cache</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Cache/FrequencyCache.html" title="Kotoshu::Cache::FrequencyCache (class)">FrequencyCache</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/Cache/FrequencyCache.html#initialize-instance_method" title="Kotoshu::Cache::FrequencyCache#initialize (method)">new</a></span></span>
+<span class='id identifier rubyid_freq_data'>freq_data</span> <span class='op'>=</span> <span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>force_download:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+
+<span class='comment'># Result:
+</span><span class='comment'># {
+</span><span class='comment'>#   frequency_path: &quot;~/.cache/kotoshu/frequency-lists/en/frequency.json&quot;,
+</span><span class='comment'>#   tiers: {
+</span><span class='comment'>#     top_50: Set&lt;...&gt;,
+</span><span class='comment'>#     top_200: Set&lt;...&gt;,
+</span><span class='comment'>#     top_1000: Set&lt;...&gt;
+</span><span class='comment'>#   },
+</span><span class='comment'>#   metadata: { ... }
+</span><span class='comment'># }
+</span>
+<span class='comment'># Integrated into EditDistanceStrategy
+</span><span class='id identifier rubyid_strategy'>strategy</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Suggestions.html" title="Kotoshu::Suggestions (module)">Suggestions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Suggestions/Strategies.html" title="Kotoshu::Suggestions::Strategies (module)">Strategies</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Suggestions/Strategies/EditDistanceStrategy.html" title="Kotoshu::Suggestions::Strategies::EditDistanceStrategy (class)">EditDistanceStrategy</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/Suggestions/Strategies/EditDistanceStrategy.html#initialize-instance_method" title="Kotoshu::Suggestions::Strategies::EditDistanceStrategy#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='label'>language_code:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en</span><span class='tstring_end'>&#39;</span></span>
+<span class='rparen'>)</span>
+<span class='id identifier rubyid_strategy'>strategy</span><span class='period'>.</span><span class='id identifier rubyid_frequency_bonus'>frequency_bonus</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>the</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>   <span class='comment'># =&gt; 200 (top 50)
+</span><span class='id identifier rubyid_strategy'>strategy</span><span class='period'>.</span><span class='id identifier rubyid_frequency_bonus'>frequency_bonus</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'># =&gt; 100 (top 200)
+</span><span class='id identifier rubyid_strategy'>strategy</span><span class='period'>.</span><span class='id identifier rubyid_frequency_bonus'>frequency_bonus</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>xyz</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>   <span class='comment'># =&gt; 0 (not in lists)</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_modelcache_embedding_models">ModelCache (Embedding Models)</h4>
+<div class="paragraph">
+<p>Manages FastText and ONNX embedding models for semantic spell checking.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Cache Path</strong>: <code>~/.cache/kotoshu/models/{code}/models/{type}/</code></p>
+</li>
+<li>
+<p><strong>TTL</strong>: 30 days (2,592,000 seconds)</p>
+</li>
+<li>
+<p><strong>Sources</strong>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>FastText (.vec): Facebook CDN (<a href="https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/">dl.fbaipublicfiles.com</a>)</p>
+</li>
+<li>
+<p>ONNX (.onnx): Converted locally from FastText models</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Supported Types</strong>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>fasttext</code>: FastText word vectors (.vec files, 300D) - Downloaded from Facebook CDN</p>
+</li>
+<li>
+<p><code>onnx</code>: ONNX-converted models (.onnx files) - Auto-converted from FastText</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+ONNX models are automatically converted from FastText models on first use.
+The conversion uses <code>lib/kotoshu/scripts/fasttext_to_onnx.py</code> and requires Python 3 with
+<code>numpy</code> and <code>onnx</code> packages installed.
+</td>
+</tr>
+</table>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 2. Model Files by Language</caption>
+<colgroup>
+<col style="width: 75%;">
+<col style="width: 25%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Language</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>FastText File</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ONNX File</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>| de (German)       | cc.de.300.vec  | fasttext.de.onnx |
+| en (English)      | cc.en.300.vec  | fasttext.en.onnx |
+| es (Spanish)      | cc.es.300.vec  | fasttext.es.onnx |
+| fr (French)       | cc.fr.300.vec  | fasttext.fr.onnx |
+| pt (Portuguese)   | cc.pt.300.vec  | fasttext.pt.onnx |
+| ru (Russian)      | cc.ru.300.vec  | fasttext.ru.onnx |
+|=========================================|</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cli_cache_management">CLI Cache Management</h3>
+<div class="paragraph">
+<p>Kotoshu provides CLI commands for managing cached resources:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code bash"><code class="bash"># List all cached resources
+kotoshu cache list
+
+# List specific cache type
+kotoshu cache list language
+kotoshu cache list model
+kotoshu cache list frequency
+
+# Show cache statistics
+kotoshu cache status
+
+# Show detailed status (verbose)
+kotoshu cache status --verbose
+
+# Download a resource
+kotoshu cache download language en
+kotoshu cache download model en:fasttext
+kotoshu cache download frequency en
+
+# Get information about a resource
+kotoshu cache info language en
+kotoshu cache info model en:fasttext
+kotoshu cache info frequency en
+
+# Purge cached data
+kotoshu cache purge all
+kotoshu cache purge language en
+kotoshu cache purge frequency
+
+# Clean expired entries
+kotoshu cache clean</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cache_statistics">Cache Statistics</h3>
+<div class="paragraph">
+<p>Each cache type tracks statistics:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Hits</strong>: Number of cache hits (resource found locally)</p>
+</li>
+<li>
+<p><strong>Misses</strong>: Number of cache misses (had to download)</p>
+</li>
+<li>
+<p><strong>Hit Rate</strong>: Percentage of cache hits</p>
+</li>
+<li>
+<p><strong>Size</strong>: Total disk space used</p>
+</li>
+<li>
+<p><strong>Cached Resources</strong>: Number of resources cached</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code bash"><code class="bash">$ kotoshu cache status
+======================================================================
+Kotoshu Cache Status
+======================================================================
+
+Language Cache:
+  Directory: /Users/username/.cache/kotoshu/languages
+  Resources cached: 2
+  Size: 2.45 MB
+  Hits: 15, Misses: 2
+  Hit rate: 88.2%
+
+Frequency Cache:
+  Directory: /Users/username/.cache/kotoshu/frequency-lists
+  Resources cached: 1
+  Size: 815.84 KB
+  Hits: 42, Misses: 1
+  Hit rate: 97.7%
+
+Model Cache:
+  Directory: /Users/username/.cache/kotoshu/models
+  Resources cached: 0
+  Size: 0 B
+  Hits: 0, Misses: 0
+  Hit rate: 0.0%
+
+Total:
+  Total size: 3.26 MB
+  Overall hit rate: 93.5%
+======================================================================</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_shell_completion">Shell Completion</h3>
+<div class="paragraph">
+<p>Kotoshu ships tab-completion scripts for bash, zsh, and fish. The scripts
+complete subcommands for <code>kotoshu &lt;TAB&gt;</code> and language codes for
+<code>kotoshu setup &lt;TAB&gt;</code> (the language list is read dynamically via
+<code>kotoshu completions languages</code>, so newly registered languages appear
+without re-running the install step).</p>
+</div>
+<div class="paragraph">
+<p>Install for your shell:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code bash"><code class="bash"># bash (system-wide)
+kotoshu completions bash &gt; /etc/bash_completion.d/kotoshu
+
+# bash (single user)
+kotoshu completions bash &gt; ~/.local/share/bash-completion/completions/kotoshu
+
+# zsh — drop into any directory on your $fpath
+kotoshu completions zsh &gt; &quot;${fpath[1]}/_kotoshu&quot;
+
+# fish
+kotoshu completions fish &gt; ~/.config/fish/completions/kotoshu.fish</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To see the supported language codes without installing a completion
+script:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code bash"><code class="bash">kotoshu completions languages</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="language-matrix">Language Support Matrix</h3>
+<div class="paragraph">
+<p>Kotoshu serves languages in tiers. Every language staged in the
+kotoshu/dictionaries manifest downloads through <code>kotoshu setup</code> and
+checks through the Hunspell engine. Region variants fold onto their
+base dictionary (<code>en-GB</code> resolves <code>en</code>, <code>es-MX</code> resolves <code>es</code>);
+script variants keep a dictionary of their own (<code>sr-Latn</code> stages the
+Latin Serbian dictionary alongside the Cyrillic <code>sr</code>).</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 3. Language Support Matrix</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 37.5%;">
+<col style="width: 37.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-center valign-top">Tier</th>
+<th class="tableblock halign-center valign-top">Languages</th>
+<th class="tableblock halign-center valign-top">What it carries</th>
+</tr>
+</thead>
+</table>
+<div class="paragraph">
+<p>| Full feature (35 languages, 36 codes) | ar bg ca cs da de el en es et fa fr he hr hu id it ko lt lv nb ne nl nn pl pt ro ru sk sl sr sr-Latn sv tr uk vi | Per-language module: staged dictionary + Hunspell affix rules, script-aware tokenizer, national keyboard grid for typo-proximity suggestions, engine-verified specimens |
+| Basic (26 languages) | br cy eo eu fo fur fy ga gd gl hy hyw ia ie is ka la lb ltg mk mn nds oc rw tk tlh | Staged dictionary + script-fallback word extraction and the generic keyboard |
+| Kelly frequency (8 languages) | ar el en it no ru sv zh | Top-1000 frequency list wired into suggestion ranking, on top of either tier |
+|=========================================+</p>
+</div>
+<div class="paragraph">
+<p>ONNX semantic models (opt-in, <code>--model</code>) resolve per the registry the
+<a href="https://github.com/kotoshu/models-fasttext-onnx">models repo</a>
+pins — 50+ languages across the tiers, in full/fluency/mini sizes.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 4. Dictionary Sources</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-center valign-top">Language</th>
+<th class="tableblock halign-center valign-top">Word Count</th>
+<th class="tableblock halign-center valign-top">License</th>
+<th class="tableblock halign-center valign-top">Source</th>
+</tr>
+</thead>
+</table>
+<div class="paragraph">
+<p>| de (German)       | 75,873 | GPL | igerman98                 |
+| en (English)      | 49,568 | LGPL/MPL/GPL | SCOWL                  |
+| es (Spanish)      | 57,344 | GPL | LibreOffice               |
+| fr (French)       | 84,310 | MPL 2.0 | Grammalecte              |
+| pt (Portuguese)   | 312,368 | LGPLv3 + MPL | VERO                   |
+| ru (Russian)      | 146,269 | BSD-style | Alexander Lebedev       |
+|=========================================+</p>
+</div>
+<div class="paragraph">
+<p>Staged dictionaries for the other tiers carry their provenance in the
+dictionaries repo manifest (<code>LICENSE</code> and source per file; LibreOffice
+/ wooorm-dictionaries derivations dominate).</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 5. Kelly Frequency Lists</caption>
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-center valign-top">Language</th>
+<th class="tableblock halign-center valign-top">Size</th>
+<th class="tableblock halign-center valign-top">Coverage</th>
+</tr>
+</thead>
+</table>
+<div class="paragraph">
+<p>| ar (Arabic)       | ~750 KB | Top 1000 words |
+| zh (Chinese)      | ~800 KB | Top 1000 words |
+| en (English)      | 815 KB | Top 1000 words |
+| el (Greek)        | ~780 KB | Top 1000 words |
+| it (Italian)      | ~790 KB | Top 1000 words |
+| no (Norwegian)     | ~770 KB | Top 1000 words |
+| ru (Russian)      | 780 KB | Top 1000 words |
+| sv (Swedish)      | ~775 KB | Top 1000 words |
+|=========================================+</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Kelly frequency lists provide the top 1000 most common words from
+the Kelly Project (University of Leeds &amp; University of Gothenburg).
+Languages not listed here require external frequency data sources.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_programmatic_usage">Programmatic Usage</h3>
+<div class="sect3">
+<h4 id="_using_language_cache">Using Language Cache</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kotoshu/cache/language_cache</span><span class='tstring_end'>&#39;</span></span>
+
+<span class='id identifier rubyid_cache'>cache</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Cache.html" title="Kotoshu::Cache (module)">Cache</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Cache/LanguageCache.html" title="Kotoshu::Cache::LanguageCache (class)">LanguageCache</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/Cache/BaseCache.html#initialize-instance_method" title="Kotoshu::Cache::BaseCache#initialize (method)">new</a></span></span>
+
+<span class='comment'># Get spelling dictionary
+</span><span class='id identifier rubyid_dict'>dict</span> <span class='op'>=</span> <span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_get_spelling'>get_spelling</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Dictionary: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dict'>dict</span><span class='lbracket'>[</span><span class='symbol'>:dic_path</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Words: </span><span class='embexpr_beg'>#{</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_readlines'>readlines</span><span class='lparen'>(</span><span class='id identifier rubyid_dict'>dict</span><span class='lbracket'>[</span><span class='symbol'>:dic_path</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='comment'># Get available languages
+</span><span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_available_languages'>available_languages</span>  <span class='comment'># =&gt; [&quot;de&quot;, &quot;en&quot;, &quot;es&quot;, &quot;fr&quot;, &quot;pt&quot;, &quot;ru&quot;]
+</span>
+<span class='comment'># Check if resource is cached
+</span><span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_available?'>available?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en:spelling</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>  <span class='comment'># =&gt; true
+</span>
+<span class='comment'># Get language info
+</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_language_info'>language_info</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Language: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Words: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:word_count</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>License: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:license</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_using_frequency_cache">Using Frequency Cache</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kotoshu/cache/frequency_cache</span><span class='tstring_end'>&#39;</span></span>
+
+<span class='id identifier rubyid_cache'>cache</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Cache.html" title="Kotoshu::Cache (module)">Cache</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Cache/FrequencyCache.html" title="Kotoshu::Cache::FrequencyCache (class)">FrequencyCache</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/Cache/FrequencyCache.html#initialize-instance_method" title="Kotoshu::Cache::FrequencyCache#initialize (method)">new</a></span></span>
+
+<span class='comment'># Get frequency data
+</span><span class='id identifier rubyid_freq_data'>freq_data</span> <span class='op'>=</span> <span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+<span class='comment'># Access frequency tiers
+</span><span class='id identifier rubyid_top_50'>top_50</span> <span class='op'>=</span> <span class='id identifier rubyid_freq_data'>freq_data</span><span class='lbracket'>[</span><span class='symbol'>:tiers</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:top_50</span><span class='rbracket'>]</span>
+<span class='id identifier rubyid_top_50'>top_50</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>the</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>  <span class='comment'># =&gt; true
+</span><span class='id identifier rubyid_top_50'>top_50</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>  <span class='comment'># =&gt; true (in top 200)
+</span>
+<span class='comment'># Get available languages
+</span><span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_available_languages'>available_languages</span>  <span class='comment'># =&gt; [&quot;ar&quot;, &quot;zh&quot;, &quot;en&quot;, &quot;el&quot;, &quot;it&quot;, &quot;no&quot;, &quot;ru&quot;, &quot;sv&quot;]</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_integration_with_suggestion_strategies">Integration with Suggestion Strategies</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kotoshu/suggestions/strategies/edit_distance_strategy</span><span class='tstring_end'>&#39;</span></span>
+
+<span class='comment'># Frequency bonuses automatically applied
+</span><span class='id identifier rubyid_strategy'>strategy</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Suggestions.html" title="Kotoshu::Suggestions (module)">Suggestions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Suggestions/Strategies.html" title="Kotoshu::Suggestions::Strategies (module)">Strategies</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Suggestions/Strategies/EditDistanceStrategy.html" title="Kotoshu::Suggestions::Strategies::EditDistanceStrategy (class)">EditDistanceStrategy</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/Suggestions/Strategies/EditDistanceStrategy.html#initialize-instance_method" title="Kotoshu::Suggestions::Strategies::EditDistanceStrategy#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='label'>language_code:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en</span><span class='tstring_end'>&#39;</span></span>
+<span class='rparen'>)</span>
+
+<span class='comment'># Suggestions are ranked by frequency
+</span><span class='id identifier rubyid_suggestions'>suggestions</span> <span class='op'>=</span> <span class='id identifier rubyid_strategy'>strategy</span><span class='period'>.</span><span class='id identifier rubyid_suggest'>suggest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>helo</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>max_results:</span> <span class='int'>5</span><span class='rparen'>)</span>
+<span class='comment'># =&gt; [
+</span><span class='comment'>#   { word: &quot;hello&quot;, score: 1200 },  # High frequency word
+</span><span class='comment'>#   { word: &quot;help&quot;, score: 1150 },   # Medium frequency word
+</span><span class='comment'>#   ...
+</span><span class='comment'># ]</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cache_ttl_and_expiration">Cache TTL and Expiration</h3>
+<div class="paragraph">
+<p>All cached resources have a Time-To-Live (TTL) and automatically expire:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>LanguageCache</strong>: 7 days (dictionaries change infrequently)</p>
+</li>
+<li>
+<p><strong>FrequencyCache</strong>: 7 days (frequency lists are stable)</p>
+</li>
+<li>
+<p><strong>ModelCache</strong>: 30 days (models are large and change rarely)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Expired resources are automatically re-downloaded on next access.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_cache'>cache</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Cache.html" title="Kotoshu::Cache (module)">Cache</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Cache/FrequencyCache.html" title="Kotoshu::Cache::FrequencyCache (class)">FrequencyCache</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/Cache/FrequencyCache.html#initialize-instance_method" title="Kotoshu::Cache::FrequencyCache#initialize (method)">new</a></span></span>
+
+<span class='comment'># Force re-download (ignores cache)
+</span><span class='id identifier rubyid_freq_data'>freq_data</span> <span class='op'>=</span> <span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>force_download:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+
+<span class='comment'># Clean expired entries manually
+</span><span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_clean'>clean</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_manual_cache_management">Manual Cache Management</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_cache'>cache</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Cache.html" title="Kotoshu::Cache (module)">Cache</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Cache/LanguageCache.html" title="Kotoshu::Cache::LanguageCache (class)">LanguageCache</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/Cache/BaseCache.html#initialize-instance_method" title="Kotoshu::Cache::BaseCache#initialize (method)">new</a></span></span>
+
+<span class='comment'># Clear specific resource
+</span><span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_clear'>clear</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en:spelling</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+<span class='comment'># Clear all resources
+</span><span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_clear_all'>clear_all</span>
+
+<span class='comment'># Check if resource exists
+</span><span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_available?'>available?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en:spelling</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>  <span class='comment'># =&gt; true after download
+</span>
+<span class='comment'># Get statistics
+</span><span class='id identifier rubyid_stats'>stats</span> <span class='op'>=</span> <span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_stats'>stats</span>
+<span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hit rate: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_stats'>stats</span><span class='lbracket'>[</span><span class='symbol'>:hit_rate</span><span class='rbracket'>]</span> <span class='op'>*</span> <span class='int'>100</span><span class='embexpr_end'>}</span><span class='tstring_content'>%</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Size: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_stats'>stats</span><span class='lbracket'>[</span><span class='symbol'>:size_bytes</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> bytes</span><span class='tstring_end'>&quot;</span></span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_github_repository_structure">GitHub Repository Structure</h3>
+<div class="paragraph">
+<p>The kotoshu/dictionaries repository follows this structure:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code ruby"><code class="ruby">kotoshu/dictionaries/
+├── en/
+│   ├── spelling/
+│   │   ├── index.dic          # Hunspell dictionary
+│   │   ├── index.aff          # Hunspell affix rules
+│   │   └── metadata.json      # Version info
+│   ├── grammar/
+│   │   └── rules.yaml         # Grammar rules (future)
+│   └── models/
+│       ├── fasttext/
+│       │   └── cc.en.300.vec  # FastText vectors
+│       └── onnx/
+│           └── fasttext.en.onnx # ONNX model
+├── de/
+│   └── ... (same structure)
+└── README.md
+
+kotoshu/frequency-list-kelly/
+├── data/
+│   ├── en.json               # Kelly frequency data
+│   ├── ru.json
+│   └── ...
+└── README.md</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_adding_new_languages">Adding New Languages</h3>
+<div class="paragraph">
+<p>To add support for a new language:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Dictionary</strong>: Add Hunspell dictionary to <code>kotoshu/dictionaries/{code}/spelling/</code></p>
+</li>
+<li>
+<p><strong>Frequency</strong>: Add Kelly frequency data to <code>kotoshu/frequency-list-kelly/data/{code}.json</code></p>
+</li>
+<li>
+<p><strong>Register</strong>: Add to <code>AVAILABLE_LANGUAGES</code> in <code>LanguageCache</code></p>
+</li>
+<li>
+<p><strong>Test</strong>: Run integration tests to verify</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>See CONTRIBUTING.adoc for detailed guidelines.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_model_repository">Model Repository</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>ONNX models are hosted at: <a href="https://github.com/kotoshu/dictionaries">kotoshu/dictionaries</a></p>
+</div>
+<div class="paragraph">
+<p>Download and setup:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code bash"><code class="bash"># Preferred: let kotoshu fetch and verify the model
+kotoshu setup en --want spelling,model
+
+# Manual clone (advanced; bypasses manifest verification)
+git clone https://github.com/kotoshu/dictionaries.git ~/src/kotoshu/dictionaries</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_writing_a_document_plugin">Writing a Document Plugin</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Kotoshu ships only <code>Kotoshu::Documents::PlainTextDocument</code> for the
+plain-text case. Format-specific parsers (Markdown, AsciiDoc,
+reStructuredText, LaTeX, …) live in plugins — see the
+<code>kotoshu-document-plugin-boundary</code> design note. Kotoshu auto-discovers
+plugin files via <code>Gem.find_files("kotoshu_plugin/document/*.rb")</code> — install
+the gem and the parser registers itself on first use.</p>
+</div>
+<div class="paragraph">
+<p>A plugin has three pieces:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Parser class</strong> — responds to
+<code>.from_string(text, language_code:)</code> (and optionally
+<code>.from_file(path, language_code:)</code>). Returns a
+<code>Kotoshu::Documents::Document</code> whose <code>text_nodes</code> carry proper
+`Documents::SourceRange`s.</p>
+</li>
+<li>
+<p><strong>Plugin file</strong> — placed at
+<code>lib/kotoshu_plugin/document/&lt;format&gt;.rb</code> in the gem. The file body
+calls <code>Kotoshu::Documents.register(format, ParserClass)</code> at load
+time.</p>
+</li>
+<li>
+<p><strong>Gem dependency</strong> — <code>kotoshu</code> (this gem) and whatever
+format-parsing library the parser wraps (e.g. <code>kramdown</code> for
+Markdown, <code>asciidoctor</code> for AsciiDoc).</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Example skeleton (<code>my_markdown_parser</code> gem):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code ruby"><code class="ruby"><span class='comment'># lib/my_markdown_parser/document_parser.rb
+</span><span class='kw'>module</span> <span class='const'>MyMarkdownParser</span>
+  <span class='kw'>class</span> <span class='const'>DocumentParser</span>
+    <span class='comment'># Build one or more TextNodes from the Markdown AST, each
+</span>    <span class='comment'># carrying a SourceRange that points at the original source.
+</span>    <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_from_string'>from_string</span><span class='lparen'>(</span><span class='id identifier rubyid_text'>text</span><span class='comma'>,</span> <span class='label'>language_code:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+      <span class='comment'># ... walk the AST, collect (text, source_offset) per text run,
+</span>      <span class='comment'># build TextNodes with SourceRanges ...
+</span>      <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Documents.html" title="Kotoshu::Documents (module)">Documents</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Documents/Document.html" title="Kotoshu::Documents::Document (class)">Document</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/Documents/Document.html#initialize-instance_method" title="Kotoshu::Documents::Document#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+        <span class='label'>text_nodes:</span> <span class='id identifier rubyid_nodes'>nodes</span><span class='comma'>,</span>
+        <span class='label'>source:</span> <span class='id identifier rubyid_text'>text</span><span class='comma'>,</span>
+        <span class='label'>format:</span> <span class='symbol'>:markdown</span><span class='comma'>,</span>
+        <span class='label'>language_code:</span> <span class='id identifier rubyid_language_code'>language_code</span>
+      <span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code ruby"><code class="ruby"><span class='comment'># lib/kotoshu_plugin/document/markdown.rb
+</span><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>kotoshu</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>my_markdown_parser/document_parser</span><span class='tstring_end'>&quot;</span></span>
+<span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Documents.html" title="Kotoshu::Documents (module)">Documents</a></span></span><span class='period'>.</span><span class='id identifier rubyid_register'><span class='object_link'><a href="Kotoshu/Documents.html#register-class_method" title="Kotoshu::Documents.register (method)">register</a></span></span><span class='lparen'>(</span><span class='symbol'>:markdown</span><span class='comma'>,</span> <span class='const'>MyMarkdownParser</span><span class='op'>::</span><span class='const'>DocumentParser</span><span class='rparen'>)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>After installing the gem, callers get Markdown parsing for free:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>kotoshu</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='id identifier rubyid_doc'>doc</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Documents.html" title="Kotoshu::Documents (module)">Documents</a></span></span><span class='period'>.</span><span class='id identifier rubyid_parse'><span class='object_link'><a href="Kotoshu/Documents.html#parse-class_method" title="Kotoshu::Documents.parse (method)">parse</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='comma'>,</span> <span class='label'>format:</span> <span class='symbol'>:markdown</span><span class='comma'>,</span>
+                              <span class='label'>language_code:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>en</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_errors'>errors</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Spellchecker.html" title="Kotoshu::Spellchecker (class)">Spellchecker</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/Spellchecker.html#initialize-instance_method" title="Kotoshu::Spellchecker#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='label'>resource_bundle:</span> <span class='const'><span class='object_link'><a href="Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/ResourceManager.html" title="Kotoshu::ResourceManager (class)">ResourceManager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_resolve'><span class='object_link'><a href="Kotoshu/ResourceManager.html#resolve-class_method" title="Kotoshu::ResourceManager.resolve (method)">resolve</a></span></span><span class='lparen'>(</span><span class='label'>language:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>en</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_check'><span class='object_link'><a href="Kotoshu/Spellchecker.html#check-instance_method" title="Kotoshu::Spellchecker#check (method)">check</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_doc'>doc</span><span class='period'>.</span><span class='id identifier rubyid_flattened_text'>flattened_text</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_errors'>errors</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_error'>error</span><span class='op'>|</span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_error'>error</span><span class='period'>.</span><span class='id identifier rubyid_source_range'>source_range</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_error'>error</span><span class='period'>.</span><span class='id identifier rubyid_original'>original</span><span class='embexpr_end'>}</span><span class='tstring_content'> → </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_error'>error</span><span class='period'>.</span><span class='id identifier rubyid_recommended_suggestion'>recommended_suggestion</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The structure-aware contract: the analyzer scans
+<code>doc.flattened_text</code> (concatenation of every node&#8217;s <code>text</code>), but every
+error carries a <code>source_range</code> from the original source. An editor can
+use that range to highlight the user&#8217;s actual markup, not the
+stripped text. For example, on the source</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre class="code ruby"><code class="ruby">I&#39;m an **friend** of Tom</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>a grammar error "an friend" → "a friend" carries a source_range
+pointing at the original <code>an <strong>friend</strong></code> range, not the flattened
+"an friend" range.</p>
+</div>
+<div class="paragraph">
+<p>Plugin gems should publish to RubyGems with a runtime dependency on
+<code>kotoshu &gt;= 0.5.0</code>. Format-specific parsers are the plugin&#8217;s
+responsibility — kotoshu never owns document parsing.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_api_documentation">API Documentation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The YARD API reference for the Ruby API builds in CI on every change
+to <code>lib/</code> (the <code>docs</code> workflow); the generated HTML is attached to each
+run as the <code>yard-docs</code> artifact. A hosted copy is pending — it will
+live either on this repository&#8217;s GitHub Pages or as an API subpath on
+<a href="https://kotoshu.github.io">kotoshu.github.io</a>.</p>
+</div>
+<div class="paragraph">
+<p>To build and browse it locally:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="code bash"><code class="bash">bundle install
+bundle exec yard doc
+open doc/index.html</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_license">License</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>BSD 2-Clause — see the <a href="LICENSE">LICENSE</a> file for details.</p>
+</div>
+<div class="paragraph">
+<p>Bundled dictionaries and frequency lists carry their own licenses; see the
+per-language <code>license</code> files in <a href="https://github.com/kotoshu/dictionaries">kotoshu/dictionaries</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_contributing">Contributing</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Contributions are welcome! Please see CONTRIBUTING.adoc for guidelines.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_acknowledgments">Acknowledgments</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>FastText: <a href="https://fasttext.cc/">Facebook Research</a></p>
+</li>
+<li>
+<p>ONNX Runtime: <a href="https://onnxruntime.ai/">Microsoft</a></p>
+</li>
+<li>
+<p>Hunspell: <a href="https://hunspell.github.io/">László Németh</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div></div></div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:35 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

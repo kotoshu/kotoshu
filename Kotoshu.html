@@ -1,0 +1,3665 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Kotoshu
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index (K)</a> &raquo;
+    
+    
+    <span class="title">Kotoshu</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Kotoshu
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/embeddings.rb<span class="defines">,<br>
+  lib/kotoshu.rb,<br> lib/kotoshu.rb,<br> lib/kotoshu/cli.rb,<br> lib/kotoshu/core.rb,<br> lib/kotoshu/data.rb,<br> lib/kotoshu/typo.rb,<br> lib/kotoshu/cache.rb,<br> lib/kotoshu/paths.rb,<br> lib/kotoshu/rspec.rb,<br> lib/kotoshu/jekyll.rb,<br> lib/kotoshu/models.rb,<br> lib/kotoshu/native.rb,<br> lib/kotoshu/grammar.rb,<br> lib/kotoshu/plugins.rb,<br> lib/kotoshu/readers.rb,<br> lib/kotoshu/results.rb,<br> lib/kotoshu/version.rb,<br> lib/kotoshu/baseline.rb,<br> lib/kotoshu/defaults.rb,<br> lib/kotoshu/keyboard.rb,<br> lib/kotoshu/language.rb,<br> lib/kotoshu/analyzers.rb,<br> lib/kotoshu/documents.rb,<br> lib/kotoshu/integrity.rb,<br> lib/kotoshu/languages.rb,<br> lib/kotoshu/algorithms.rb,<br> lib/kotoshu/cli/errors.rb,<br> lib/kotoshu/components.rb,<br> lib/kotoshu/debug_mode.rb,<br> lib/kotoshu/dictionary.rb,<br> lib/kotoshu/validators.rb,<br> lib/kotoshu/cache/cache.rb,<br> lib/kotoshu/suggestions.rb,<br> lib/kotoshu/typo/engine.rb,<br> lib/kotoshu/debug_logger.rb,<br> lib/kotoshu/dictionaries.rb,<br> lib/kotoshu/grammar/rule.rb,<br> lib/kotoshu/spellchecker.rb,<br> lib/kotoshu/configuration.rb,<br> lib/kotoshu/baseline/entry.rb,<br> lib/kotoshu/baseline/store.rb,<br> lib/kotoshu/cli/auto_setup.rb,<br> lib/kotoshu/core/trie/node.rb,<br> lib/kotoshu/core/trie/trie.rb,<br> lib/kotoshu/fluent_checker.rb,<br> lib/kotoshu/language/suika.rb,<br> lib/kotoshu/metrics_module.rb,<br> lib/kotoshu/models/context.rb,<br> lib/kotoshu/native_backend.rb,<br> lib/kotoshu/plugins/plugin.rb,<br> lib/kotoshu/project_config.rb,<br> lib/kotoshu/results/result.rb,<br> lib/kotoshu/string_metrics.rb,<br> lib/kotoshu/core/exceptions.rb,<br> lib/kotoshu/data_structures.rb,<br> lib/kotoshu/dictionary/base.rb,<br> lib/kotoshu/keyboard/layout.rb,<br> lib/kotoshu/language/script.rb,<br> lib/kotoshu/resource_bundle.rb,<br> lib/kotoshu/source_registry.rb,<br> lib/kotoshu/cache/base_cache.rb,<br> lib/kotoshu/cli/dict_command.rb,<br> lib/kotoshu/core/models/word.rb,<br> lib/kotoshu/plugins/registry.rb,<br> lib/kotoshu/readers/aff_data.rb,<br> lib/kotoshu/resource_manager.rb,<br> lib/kotoshu/tasks/check_task.rb,<br> lib/kotoshu/algorithms/lookup.rb,<br> lib/kotoshu/cache/model_cache.rb,<br> lib/kotoshu/cli/cache_command.rb,<br> lib/kotoshu/cli/status_report.rb,<br> lib/kotoshu/core/trie/builder.rb,<br> lib/kotoshu/data/frozen_kelly.rb,<br> lib/kotoshu/dictionary/cspell.rb,<br> lib/kotoshu/dictionary/custom.rb,<br> lib/kotoshu/embeddings/search.rb,<br> lib/kotoshu/keyboard/registry.rb,<br> lib/kotoshu/language/detector.rb,<br> lib/kotoshu/language/registry.rb,<br> lib/kotoshu/metrics_collector.rb,<br> lib/kotoshu/models/onnx_model.rb,<br> lib/kotoshu/models/suggestion.rb,<br> lib/kotoshu/algorithms/soundex.rb,<br> lib/kotoshu/algorithms/suggest.rb,<br> lib/kotoshu/cache/lookup_cache.rb,<br> lib/kotoshu/cli/batch_reporter.rb,<br> lib/kotoshu/cli/ignore_matcher.rb,<br> lib/kotoshu/conformance_runner.rb,<br> lib/kotoshu/dictionary/unified.rb,<br> lib/kotoshu/documents/document.rb,<br> lib/kotoshu/integrity/manifest.rb,<br> lib/kotoshu/integrity/net_http.rb,<br> lib/kotoshu/language/segmenter.rb,<br> lib/kotoshu/readers/aff_reader.rb,<br> lib/kotoshu/readers/dic_reader.rb,<br> lib/kotoshu/cli/directory_check.rb,<br> lib/kotoshu/dictionary/hunspell.rb,<br> lib/kotoshu/documents/text_node.rb,<br> lib/kotoshu/embeddings/protocol.rb,<br> lib/kotoshu/embeddings/registry.rb,<br> lib/kotoshu/grammar/rule_engine.rb,<br> lib/kotoshu/grammar/rule_loader.rb,<br> lib/kotoshu/integrity/audit_log.rb,<br> lib/kotoshu/language/identifier.rb,<br> lib/kotoshu/personal_dictionary.rb,<br> lib/kotoshu/readers/file_reader.rb,<br> lib/kotoshu/suggestions/context.rb,<br> lib/kotoshu/baseline/application.rb,<br> lib/kotoshu/cache/language_cache.rb,<br> lib/kotoshu/cache/model_registry.rb,<br> lib/kotoshu/cli/baseline_command.rb,<br> lib/kotoshu/cli/directory_walker.rb,<br> lib/kotoshu/cli/personal_command.rb,<br> lib/kotoshu/components/tokenizer.rb,<br> lib/kotoshu/conformance_exporter.rb,<br> lib/kotoshu/dictionaries/catalog.rb,<br> lib/kotoshu/embeddings/lru_cache.rb,<br> lib/kotoshu/languages/latin_base.rb,<br> lib/kotoshu/suggestions/pipeline.rb,<br> lib/kotoshu/cache/eviction_policy.rb,<br> lib/kotoshu/cache/frequency_cache.rb,<br> lib/kotoshu/cli/display_formatter.rb,<br> lib/kotoshu/cli/language_resolver.rb,<br> lib/kotoshu/cli/progress_reporter.rb,<br> lib/kotoshu/components/pos_tagger.rb,<br> lib/kotoshu/configuration/builder.rb,<br> lib/kotoshu/dictionary/plain_text.rb,<br> lib/kotoshu/dictionary/repository.rb,<br> lib/kotoshu/dictionary/unix_words.rb,<br> lib/kotoshu/embeddings/vocabulary.rb,<br> lib/kotoshu/keyboard/layouts/hrsl.rb,<br> lib/kotoshu/language/lid_detector.rb,<br> lib/kotoshu/languages/ar/language.rb,<br> lib/kotoshu/languages/bg/language.rb,<br> lib/kotoshu/languages/ca/language.rb,<br> lib/kotoshu/languages/cs/language.rb,<br> lib/kotoshu/languages/da/language.rb,<br> lib/kotoshu/languages/de/language.rb,<br> lib/kotoshu/languages/el/language.rb,<br> lib/kotoshu/languages/en/language.rb,<br> lib/kotoshu/languages/es/language.rb,<br> lib/kotoshu/languages/et/language.rb,<br> lib/kotoshu/languages/fa/language.rb,<br> lib/kotoshu/languages/fr/language.rb,<br> lib/kotoshu/languages/he/language.rb,<br> lib/kotoshu/languages/hr/language.rb,<br> lib/kotoshu/languages/hu/language.rb,<br> lib/kotoshu/languages/id/language.rb,<br> lib/kotoshu/languages/it/language.rb,<br> lib/kotoshu/languages/ja/language.rb,<br> lib/kotoshu/languages/ko/language.rb,<br> lib/kotoshu/languages/lt/language.rb,<br> lib/kotoshu/languages/lv/language.rb,<br> lib/kotoshu/languages/nb/language.rb,<br> lib/kotoshu/languages/ne/language.rb,<br> lib/kotoshu/languages/nl/language.rb,<br> lib/kotoshu/languages/nn/language.rb,<br> lib/kotoshu/languages/pl/language.rb,<br> lib/kotoshu/languages/pt/language.rb,<br> lib/kotoshu/languages/ro/language.rb,<br> lib/kotoshu/languages/ru/language.rb,<br> lib/kotoshu/languages/sk/language.rb,<br> lib/kotoshu/languages/sl/language.rb,<br> lib/kotoshu/languages/sr/language.rb,<br> lib/kotoshu/languages/sv/language.rb,<br> lib/kotoshu/languages/tr/language.rb,<br> lib/kotoshu/languages/uk/language.rb,<br> lib/kotoshu/languages/vi/language.rb,<br> lib/kotoshu/models/fasttext_model.rb,<br> lib/kotoshu/models/semantic_error.rb,<br> lib/kotoshu/models/word_embedding.rb,<br> lib/kotoshu/suggestions/generator.rb,<br> lib/kotoshu/cache/staged_languages.rb,<br> lib/kotoshu/cache/suggestion_cache.rb,<br> lib/kotoshu/cli/navigation_manager.rb,<br> lib/kotoshu/components/synthesizer.rb,<br> lib/kotoshu/configuration/resolver.rb,<br> lib/kotoshu/core/models/affix_rule.rb,<br> lib/kotoshu/documents/source_range.rb,<br> lib/kotoshu/documents/suppressions.rb,<br> lib/kotoshu/keyboard/layouts/greek.rb,<br> lib/kotoshu/keyboard/layouts/latin.rb,<br> lib/kotoshu/models/embedding_model.rb,<br> lib/kotoshu/multi_language_checker.rb,<br> lib/kotoshu/readers/lookup_builder.rb,<br> lib/kotoshu/suggestions/suggestion.rb,<br> lib/kotoshu/suggestions/typo_merge.rb,<br> lib/kotoshu/algorithms/permutations.rb,<br> lib/kotoshu/cli/completions_command.rb,<br> lib/kotoshu/core/indexed_dictionary.rb,<br> lib/kotoshu/keyboard/layouts/arabic.rb,<br> lib/kotoshu/keyboard/layouts/azerty.rb,<br> lib/kotoshu/keyboard/layouts/dvorak.rb,<br> lib/kotoshu/keyboard/layouts/hebrew.rb,<br> lib/kotoshu/keyboard/layouts/jcuken.rb,<br> lib/kotoshu/keyboard/layouts/qwerty.rb,<br> lib/kotoshu/keyboard/layouts/qwertz.rb,<br> lib/kotoshu/language/languages/base.rb,<br> lib/kotoshu/language/tokenizer/base.rb,<br> lib/kotoshu/models/nearest_neighbor.rb,<br> lib/kotoshu/suggestions/sweep_index.rb,<br> lib/kotoshu/algorithms/edit_distance.rb,<br> lib/kotoshu/algorithms/ngram_suggest.rb,<br> lib/kotoshu/cli/interactive_reviewer.rb,<br> lib/kotoshu/components/spell_checker.rb,<br> lib/kotoshu/data/common_words_loader.rb,<br> lib/kotoshu/keyboard/layouts/persian.rb,<br> lib/kotoshu/keyboard/layouts/serbian.rb,<br> lib/kotoshu/language/normalizer/base.rb,<br> lib/kotoshu/algorithms/capitalization.rb,<br> lib/kotoshu/algorithms/phonet_suggest.rb,<br> lib/kotoshu/documents/source_position.rb,<br> lib/kotoshu/integrity/rotation_policy.rb,<br> lib/kotoshu/language/normalizer/greek.rb,<br> lib/kotoshu/readers/condition_checker.rb,<br> lib/kotoshu/keyboard/layouts/bulgarian.rb,<br> lib/kotoshu/keyboard/layouts/dubeolsik.rb,<br> lib/kotoshu/keyboard/layouts/turkish_q.rb,<br> lib/kotoshu/keyboard/layouts/ukrainian.rb,<br> lib/kotoshu/language/normalizer/arabic.rb,<br> lib/kotoshu/language/normalizer/hebrew.rb,<br> lib/kotoshu/languages/sr-Latn/language.rb,<br> lib/kotoshu/suggestions/suggestion_set.rb,<br> lib/kotoshu/analyzers/semantic_analyzer.rb,<br> lib/kotoshu/language/normalizer/persian.rb,<br> lib/kotoshu/language/normalizer/turkish.rb,<br> lib/kotoshu/algorithms/lookup/affix_form.rb,<br> lib/kotoshu/data_structures/bloom_filter.rb,<br> lib/kotoshu/embeddings/similarity_engine.rb,<br> lib/kotoshu/embeddings/similarity_search.rb,<br> lib/kotoshu/suggestions/semantic_cascade.rb,<br> lib/kotoshu/documents/plain_text_document.rb,<br> lib/kotoshu/embeddings/embedding_pipeline.rb,<br> lib/kotoshu/embeddings/onnx_runtime_model.rb,<br> lib/kotoshu/spellchecker/parallel_checker.rb,<br> lib/kotoshu/validators/spelling_validator.rb,<br> lib/kotoshu/core/models/result/word_result.rb,<br> lib/kotoshu/documents/suppressions/scanner.rb,<br> lib/kotoshu/suggestions/frequency_provider.rb,<br> lib/kotoshu/algorithms/lookup/compound_form.rb,<br> lib/kotoshu/components/whitespace_tokenizer.rb,<br> lib/kotoshu/algorithms/lookup/compound_checks.rb,<br> lib/kotoshu/suggestions/strategies/word_index.rb,<br> lib/kotoshu/core/models/result/document_result.rb,<br> lib/kotoshu/documents/suppressions/suppression.rb,<br> lib/kotoshu/language/tokenizer/greek_tokenizer.rb,<br> lib/kotoshu/language/tokenizer/latin_tokenizer.rb,<br> lib/kotoshu/language/tokenizer/french_tokenizer.rb,<br> lib/kotoshu/language/tokenizer/german_tokenizer.rb,<br> lib/kotoshu/language/tokenizer/hangul_tokenizer.rb,<br> lib/kotoshu/language/tokenizer/script_tokenizer.rb,<br> lib/kotoshu/components/passthrough_spell_checker.rb,<br> lib/kotoshu/keyboard/layouts/devanagari_inscript.rb,<br> lib/kotoshu/language/tokenizer/russian_tokenizer.rb,<br> lib/kotoshu/language/tokenizer/spanish_tokenizer.rb,<br> lib/kotoshu/suggestions/strategies/base_strategy.rb,<br> lib/kotoshu/grammar/pattern_matchers/base_matcher.rb,<br> lib/kotoshu/language/tokenizer/cyrillic_tokenizer.rb,<br> lib/kotoshu/language/tokenizer/japanese_tokenizer.rb,<br> lib/kotoshu/suggestions/strategies/ngram_strategy.rb,<br> lib/kotoshu/grammar/pattern_matchers/phrase_matcher.rb,<br> lib/kotoshu/language/tokenizer/devanagari_tokenizer.rb,<br> lib/kotoshu/language/tokenizer/portuguese_tokenizer.rb,<br> lib/kotoshu/suggestions/strategies/phonetic_strategy.rb,<br> lib/kotoshu/suggestions/strategies/semantic_strategy.rb,<br> lib/kotoshu/suggestions/strategies/symspell_strategy.rb,<br> lib/kotoshu/suggestions/strategies/composite_strategy.rb,<br> lib/kotoshu/grammar/pattern_matchers/word_list_matcher.rb,<br> lib/kotoshu/grammar/pattern_matchers/vowel_sound_matcher.rb,<br> lib/kotoshu/suggestions/strategies/edit_distance_strategy.rb,<br> lib/kotoshu/suggestions/strategies/typo_retrieval_strategy.rb,<br> lib/kotoshu/grammar/pattern_matchers/sentence_start_matcher.rb,<br> lib/kotoshu/grammar/pattern_matchers/double_negative_matcher.rb,<br> lib/kotoshu/suggestions/strategies/keyboard_proximity_strategy.rb,<br> lib/kotoshu/grammar/pattern_matchers/possessive_context_matcher.rb,<br> lib/kotoshu/grammar/pattern_matchers/possessive_contraction_matcher.rb,<br> sig/kotoshu.rbs</span>
+
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>frozen_string: true</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Kotoshu/Algorithms.html" title="Kotoshu::Algorithms (module)">Algorithms</a></span>, <span class='object_link'><a href="Kotoshu/Analyzers.html" title="Kotoshu::Analyzers (module)">Analyzers</a></span>, <span class='object_link'><a href="Kotoshu/Baseline.html" title="Kotoshu::Baseline (module)">Baseline</a></span>, <span class='object_link'><a href="Kotoshu/Cache.html" title="Kotoshu::Cache (module)">Cache</a></span>, <span class='object_link'><a href="Kotoshu/Cli.html" title="Kotoshu::Cli (module)">Cli</a></span>, <span class='object_link'><a href="Kotoshu/Components.html" title="Kotoshu::Components (module)">Components</a></span>, <span class='object_link'><a href="Kotoshu/Core.html" title="Kotoshu::Core (module)">Core</a></span>, <span class='object_link'><a href="Kotoshu/Data.html" title="Kotoshu::Data (module)">Data</a></span>, <span class='object_link'><a href="Kotoshu/DataStructures.html" title="Kotoshu::DataStructures (module)">DataStructures</a></span>, <span class='object_link'><a href="Kotoshu/Debug.html" title="Kotoshu::Debug (module)">Debug</a></span>, <span class='object_link'><a href="Kotoshu/Defaults.html" title="Kotoshu::Defaults (module)">Defaults</a></span>, <span class='object_link'><a href="Kotoshu/Dictionaries.html" title="Kotoshu::Dictionaries (module)">Dictionaries</a></span>, <span class='object_link'><a href="Kotoshu/Dictionary.html" title="Kotoshu::Dictionary (module)">Dictionary</a></span>, <span class='object_link'><a href="Kotoshu/Documents.html" title="Kotoshu::Documents (module)">Documents</a></span>, <span class='object_link'><a href="Kotoshu/Embeddings.html" title="Kotoshu::Embeddings (module)">Embeddings</a></span>, <span class='object_link'><a href="Kotoshu/Grammar.html" title="Kotoshu::Grammar (module)">Grammar</a></span>, <span class='object_link'><a href="Kotoshu/Integrity.html" title="Kotoshu::Integrity (module)">Integrity</a></span>, <span class='object_link'><a href="Kotoshu/Jekyll.html" title="Kotoshu::Jekyll (module)">Jekyll</a></span>, <span class='object_link'><a href="Kotoshu/Keyboard.html" title="Kotoshu::Keyboard (module)">Keyboard</a></span>, <span class='object_link'><a href="Kotoshu/Language.html" title="Kotoshu::Language (module)">Language</a></span>, <span class='object_link'><a href="Kotoshu/Languages.html" title="Kotoshu::Languages (module)">Languages</a></span>, <span class='object_link'><a href="Kotoshu/Metrics.html" title="Kotoshu::Metrics (module)">Metrics</a></span>, <span class='object_link'><a href="Kotoshu/Models.html" title="Kotoshu::Models (module)">Models</a></span>, <span class='object_link'><a href="Kotoshu/Native.html" title="Kotoshu::Native (module)">Native</a></span>, <span class='object_link'><a href="Kotoshu/Paths.html" title="Kotoshu::Paths (module)">Paths</a></span>, <span class='object_link'><a href="Kotoshu/Plugins.html" title="Kotoshu::Plugins (module)">Plugins</a></span>, <span class='object_link'><a href="Kotoshu/Readers.html" title="Kotoshu::Readers (module)">Readers</a></span>, <span class='object_link'><a href="Kotoshu/Results.html" title="Kotoshu::Results (module)">Results</a></span>, <span class='object_link'><a href="Kotoshu/Rspec.html" title="Kotoshu::Rspec (module)">Rspec</a></span>, <span class='object_link'><a href="Kotoshu/StringMetrics.html" title="Kotoshu::StringMetrics (module)">StringMetrics</a></span>, <span class='object_link'><a href="Kotoshu/Suggestions.html" title="Kotoshu::Suggestions (module)">Suggestions</a></span>, <span class='object_link'><a href="Kotoshu/Tasks.html" title="Kotoshu::Tasks (module)">Tasks</a></span>, <span class='object_link'><a href="Kotoshu/Typo.html" title="Kotoshu::Typo (module)">Typo</a></span>, <span class='object_link'><a href="Kotoshu/Validators.html" title="Kotoshu::Validators (module)">Validators</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Kotoshu/AffixRuleError.html" title="Kotoshu::AffixRuleError (class)">AffixRuleError</a></span>, <span class='object_link'><a href="Kotoshu/Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span>, <span class='object_link'><a href="Kotoshu/ConfigurationError.html" title="Kotoshu::ConfigurationError (class)">ConfigurationError</a></span>, <span class='object_link'><a href="Kotoshu/ConformanceExporter.html" title="Kotoshu::ConformanceExporter (class)">ConformanceExporter</a></span>, <span class='object_link'><a href="Kotoshu/ConformanceRunner.html" title="Kotoshu::ConformanceRunner (class)">ConformanceRunner</a></span>, <span class='object_link'><a href="Kotoshu/DictionaryNotFoundError.html" title="Kotoshu::DictionaryNotFoundError (class)">DictionaryNotFoundError</a></span>, <span class='object_link'><a href="Kotoshu/Error.html" title="Kotoshu::Error (class)">Error</a></span>, <span class='object_link'><a href="Kotoshu/IntegrityError.html" title="Kotoshu::IntegrityError (class)">IntegrityError</a></span>, <span class='object_link'><a href="Kotoshu/InvalidDictionaryFormatError.html" title="Kotoshu::InvalidDictionaryFormatError (class)">InvalidDictionaryFormatError</a></span>, <span class='object_link'><a href="Kotoshu/MultiLanguageChecker.html" title="Kotoshu::MultiLanguageChecker (class)">MultiLanguageChecker</a></span>, <span class='object_link'><a href="Kotoshu/NativeBackend.html" title="Kotoshu::NativeBackend (class)">NativeBackend</a></span>, <span class='object_link'><a href="Kotoshu/PersonalDictionary.html" title="Kotoshu::PersonalDictionary (class)">PersonalDictionary</a></span>, <span class='object_link'><a href="Kotoshu/ProjectConfig.html" title="Kotoshu::ProjectConfig (class)">ProjectConfig</a></span>, <span class='object_link'><a href="Kotoshu/ResourceBundle.html" title="Kotoshu::ResourceBundle (class)">ResourceBundle</a></span>, <span class='object_link'><a href="Kotoshu/ResourceManager.html" title="Kotoshu::ResourceManager (class)">ResourceManager</a></span>, <span class='object_link'><a href="Kotoshu/ResourceNotCachedError.html" title="Kotoshu::ResourceNotCachedError (class)">ResourceNotCachedError</a></span>, <span class='object_link'><a href="Kotoshu/ResourceNotSetupError.html" title="Kotoshu::ResourceNotSetupError (class)">ResourceNotSetupError</a></span>, <span class='object_link'><a href="Kotoshu/ResourceResolutionError.html" title="Kotoshu::ResourceResolutionError (class)">ResourceResolutionError</a></span>, <span class='object_link'><a href="Kotoshu/SourceRegistry.html" title="Kotoshu::SourceRegistry (class)">SourceRegistry</a></span>, <span class='object_link'><a href="Kotoshu/SpellcheckError.html" title="Kotoshu::SpellcheckError (class)">SpellcheckError</a></span>, <span class='object_link'><a href="Kotoshu/Spellchecker.html" title="Kotoshu::Spellchecker (class)">Spellchecker</a></span>, <span class='object_link'><a href="Kotoshu/SuikaUnavailable.html" title="Kotoshu::SuikaUnavailable (class)">SuikaUnavailable</a></span>
+    
+  
+</p>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="VERSION-constant" class="">VERSION =
+          <div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>1.0.2</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#check-class_method" title="check (class method)">.<strong>check</strong>(text, language: nil, suggestions_filter: nil, **_options)  &#x21d2; Models::Result::DocumentResult </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Check text for spelling errors.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#check_file-class_method" title="check_file (class method)">.<strong>check_file</strong>(path, language: nil, **_options)  &#x21d2; Models::Result::DocumentResult </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Check a file for spelling errors.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#check_files-class_method" title="check_files (class method)">.<strong>check_files</strong>(paths, **options)  &#x21d2; Array&lt;Models::Result::DocumentResult&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Check multiple files for spelling errors.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#configuration-class_method" title="configuration (class method)">.<strong>configuration</strong>  &#x21d2; Configuration </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get the global configuration.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#configuration=-class_method" title="configuration= (class method)">.<strong>configuration=</strong>(config)  &#x21d2; Configuration </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Replace the global configuration.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#configure-class_method" title="configure (class method)">.<strong>configure</strong> {|configuration| ... } &#x21d2; Configuration </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Global configuration instance.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#correct%3F-class_method" title="correct? (class method)">.<strong>correct?</strong>(word, language: nil)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Check if a word is spelled correctly.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#detect_language-class_method" title="detect_language (class method)">.<strong>detect_language</strong>(text)  &#x21d2; Language::Detection </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Detect language of text.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#detect_language_with_confidence-class_method" title="detect_language_with_confidence (class method)">.<strong>detect_language_with_confidence</strong>(text)  &#x21d2; Array&lt;String, Float&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Detect language with confidence score.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#dictionary-class_method" title="dictionary (class method)">.<strong>dictionary</strong>(source = nil)  &#x21d2; Core::IndexedDictionary </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Convenience method for creating an indexed dictionary.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_language-class_method" title="get_language (class method)">.<strong>get_language</strong>(code)  &#x21d2; Class<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get language class by code.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#language-class_method" title="language (class method)">.<strong>language</strong>  &#x21d2; Module </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Access the language module.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#language_registered%3F-class_method" title="language_registered? (class method)">.<strong>language_registered?</strong>(code)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Check if a language is registered.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#languages_setup-class_method" title="languages_setup (class method)">.<strong>languages_setup</strong>  &#x21d2; Array&lt;String&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>List languages that have been set up.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#misspelled%3F-class_method" title="misspelled? (class method)">.<strong>misspelled?</strong>(word, language: nil)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Check if a word is misspelled.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#register_dictionary_type-class_method" title="register_dictionary_type (class method)">.<strong>register_dictionary_type</strong>(type, klass)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Register a custom dictionary type.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#register_suggestion_algorithm-class_method" title="register_suggestion_algorithm (class method)">.<strong>register_suggestion_algorithm</strong>(name, klass)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Register a custom suggestion algorithm.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reset_spellchecker-class_method" title="reset_spellchecker (class method)">.<strong>reset_spellchecker</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Reset the spellchecker cache.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#resolve-class_method" title="resolve (class method)">.<strong>resolve</strong>(language: nil, want: nil, tier: nil)  &#x21d2; ResourceBundle </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Resolve language resources from the cache (no download).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup-class_method" title="setup (class method)">.<strong>setup</strong>(*languages, want: nil, **opts)  &#x21d2; SetupResult<sup>+</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Set up resources for one or more languages (download or register local files).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup%3F-class_method" title="setup? (class method)">.<strong>setup?</strong>(language, resource = nil, tier: nil, **options)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Check if a language (or a specific resource for that language) is set up.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup_lid-class_method" title="setup_lid (class method)">.<strong>setup_lid</strong>(force: false)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Set up the language-identification model: downloads the lid.176.onnx + vocab.json pair from the models registry into the model cache (stage one of the two-stage model — <span class='object_link'><a href="#detect_language-class_method" title="Kotoshu.detect_language (method)">Kotoshu.detect_language</a></span> never downloads implicitly).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup_lid%3F-class_method" title="setup_lid? (class method)">.<strong>setup_lid?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Whether the language-identification model is cached (cache-only).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#spellchecker-class_method" title="spellchecker (class method)">.<strong>spellchecker</strong>  &#x21d2; Spellchecker </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Default spellchecker (singleton).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#spellchecker_for-class_method" title="spellchecker_for (class method)">.<strong>spellchecker_for</strong>(language)  &#x21d2; Spellchecker </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get a spellchecker for a specific language (cache-only, raises on miss).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#suggest-class_method" title="suggest (class method)">.<strong>suggest</strong>(word, language: nil, **options)  &#x21d2; Suggestions::SuggestionSet </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get spelling suggestions for a word.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#suggestion_pipeline-class_method" title="suggestion_pipeline (class method)">.<strong>suggestion_pipeline</strong>(*strategies)  &#x21d2; Suggestions::Strategies::CompositeStrategy </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Convenience method for creating a suggestion pipeline.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#supported_languages-class_method" title="supported_languages (class method)">.<strong>supported_languages</strong>  &#x21d2; Array&lt;String&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get all supported language codes.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#trie-class_method" title="trie (class method)">.<strong>trie</strong>(source = nil)  &#x21d2; Core::Trie::Trie </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Convenience method for creating a trie.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="check-class_method">
+  
+    .<strong>check</strong>(text, language: nil, suggestions_filter: nil, **_options)  &#x21d2; <tt><span class='object_link'><a href="Kotoshu/Models/Result/DocumentResult.html" title="Kotoshu::Models::Result::DocumentResult (class)">Models::Result::DocumentResult</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Check text for spelling errors. Hot path.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'><span class='object_link'><a href="#setup-class_method" title="Kotoshu.setup (method)">setup</a></span></span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_check'>check</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hello wrold</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_errors'>errors</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:word</span><span class='rparen'>)</span>  <span class='comment'># =&gt; [&quot;wrold&quot;]</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>text</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The text to check</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>language</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Symbol</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Language code; if nil, uses configured default</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>_options</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Accepted and ignored — kept so call sites can
+pass extra options without breaking</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/Models/Result/DocumentResult.html" title="Kotoshu::Models::Result::DocumentResult (class)">Models::Result::DocumentResult</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The check result</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/ResourceNotSetupError.html" title="Kotoshu::ResourceNotSetupError (class)">ResourceNotSetupError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>if the language hasn't been set up</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+327
+328
+329
+330</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 327</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_check'>check</span><span class='lparen'>(</span><span class='id identifier rubyid_text'>text</span><span class='comma'>,</span> <span class='label'>language:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>suggestions_filter:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid__options'>_options</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_checker'>checker</span> <span class='op'>=</span> <span class='id identifier rubyid_language'>language</span> <span class='op'>?</span> <span class='id identifier rubyid_spellchecker_for'>spellchecker_for</span><span class='lparen'>(</span><span class='id identifier rubyid_language'>language</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='id identifier rubyid_spellchecker'>spellchecker</span>
+  <span class='id identifier rubyid_checker'>checker</span><span class='period'>.</span><span class='id identifier rubyid_check'>check</span><span class='lparen'>(</span><span class='id identifier rubyid_text'>text</span><span class='comma'>,</span> <span class='label'>suggestions_filter:</span> <span class='id identifier rubyid_suggestions_filter'>suggestions_filter</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="check_file-class_method">
+  
+    .<strong>check_file</strong>(path, language: nil, **_options)  &#x21d2; <tt><span class='object_link'><a href="Kotoshu/Models/Result/DocumentResult.html" title="Kotoshu::Models::Result::DocumentResult (class)">Models::Result::DocumentResult</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Check a file for spelling errors. Hot path.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'><span class='object_link'><a href="#setup-class_method" title="Kotoshu.setup (method)">setup</a></span></span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_check_file'>check_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>README.md</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_success?'>success?</span>  <span class='comment'># =&gt; false</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The file path</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>language</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Symbol</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Language code</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>_options</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Accepted and ignored — kept so call sites can
+pass extra options without breaking</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/Models/Result/DocumentResult.html" title="Kotoshu::Models::Result::DocumentResult (class)">Models::Result::DocumentResult</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The check result</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/ResourceNotSetupError.html" title="Kotoshu::ResourceNotSetupError (class)">ResourceNotSetupError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>if the language hasn't been set up</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+345
+346
+347
+348</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 345</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_check_file'>check_file</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='label'>language:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid__options'>_options</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_checker'>checker</span> <span class='op'>=</span> <span class='id identifier rubyid_language'>language</span> <span class='op'>?</span> <span class='id identifier rubyid_spellchecker_for'>spellchecker_for</span><span class='lparen'>(</span><span class='id identifier rubyid_language'>language</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='id identifier rubyid_spellchecker'>spellchecker</span>
+  <span class='id identifier rubyid_checker'>checker</span><span class='period'>.</span><span class='id identifier rubyid_check_file'>check_file</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="check_files-class_method">
+  
+    .<strong>check_files</strong>(paths, **options)  &#x21d2; <tt>Array&lt;<span class='object_link'><a href="Kotoshu/Models/Result/DocumentResult.html" title="Kotoshu::Models::Result::DocumentResult (class)">Models::Result::DocumentResult</a></span>&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Check multiple files for spelling errors.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_results'>results</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_check_files'>check_files</span><span class='lparen'>(</span><span class='qwords_beg'>%w[</span><span class='tstring_content'>README.md</span><span class='words_sep'> </span><span class='tstring_content'>CHANGELOG.md</span><span class='tstring_end'>]</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_results'>results</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:failed?</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>paths</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The file paths</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>options</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Options</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;<span class='object_link'><a href="Kotoshu/Models/Result/DocumentResult.html" title="Kotoshu::Models::Result::DocumentResult (class)">Models::Result::DocumentResult</a></span>&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Results for each file</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+359
+360
+361</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 359</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_check_files'>check_files</span><span class='lparen'>(</span><span class='id identifier rubyid_paths'>paths</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_paths'>paths</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_path'>path</span><span class='op'>|</span> <span class='id identifier rubyid_check_file'>check_file</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="configuration-class_method">
+  
+    .<strong>configuration</strong>  &#x21d2; <tt><span class='object_link'><a href="Kotoshu/Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get the global configuration.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_config'>config</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'>configuration</span></code></pre>
+    
+  </div>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The global configuration</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+105
+106
+107</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 105</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_configuration'>configuration</span>
+  <span class='const'><span class='object_link'><a href="Kotoshu/Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance'><span class='object_link'><a href="Kotoshu/Configuration.html#instance-class_method" title="Kotoshu::Configuration.instance (method)">instance</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="configuration=-class_method">
+  
+    .<strong>configuration=</strong>(config)  &#x21d2; <tt><span class='object_link'><a href="Kotoshu/Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Replace the global configuration. Useful for tests and for
+embedding kotoshu in a larger application that wants to share a
+Configuration across multiple Spellcheckers without each one
+independently touching the singleton.</p>
+<p>The argument must be a Configuration instance (type-checked so a
+typo doesn't silently flip the global to nil and break every
+downstream lookup).</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+        <h5 class="example_title"><div class='inline'><p>Inject a test-only configuration</p></div></h5>
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'><span class='object_link'><a href="#configuration-class_method" title="Kotoshu.configuration (method)">configuration</a></span></span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu/Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/Configuration.html#initialize-instance_method" title="Kotoshu::Configuration#initialize (method)">new</a></span></span><span class='period'>.</span><span class='id identifier rubyid_tap'>tap</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span> <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_cache_ttl'>cache_ttl</span> <span class='op'>=</span> <span class='int'>1</span> <span class='rbrace'>}</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>config</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>the same instance, for chaining</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+123
+124
+125
+126
+127</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 123</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_configuration='>configuration=</span><span class='lparen'>(</span><span class='id identifier rubyid_config'>config</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>configuration must be a Configuration instance</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Kotoshu/Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span></span><span class='rparen'>)</span>
+
+  <span class='const'><span class='object_link'><a href="Kotoshu/Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance'><span class='object_link'><a href="Kotoshu/Configuration.html#instance-class_method" title="Kotoshu::Configuration.instance (method)">instance</a></span></span> <span class='op'>=</span> <span class='id identifier rubyid_config'>config</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="configure-class_method">
+  
+    .<strong>configure</strong> {|configuration| ... } &#x21d2; <tt><span class='object_link'><a href="Kotoshu/Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Global configuration instance.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configure'>configure</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_config'>config</span><span class='op'>|</span>
+  <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_dictionary_path'>dictionary_path</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/usr/share/dict/words</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_language'>language</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>en-US</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></code></pre>
+    
+  </div>
+
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="#configuration-class_method" title="Kotoshu.configuration (method)">configuration</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/Configuration.html" title="Kotoshu::Configuration (class)">Configuration</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The global configuration</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+94
+95
+96
+97</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 94</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_configure'>configure</span>
+  <span class='kw'>yield</span> <span class='id identifier rubyid_configuration'>configuration</span> <span class='kw'>if</span> <span class='id identifier rubyid_block_given?'>block_given?</span>
+  <span class='id identifier rubyid_configuration'>configuration</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="correct?-class_method">
+  
+    .<strong>correct?</strong>(word, language: nil)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Check if a word is spelled correctly.
+Hot path — cache-only, raises if language not set up.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'><span class='object_link'><a href="#setup-class_method" title="Kotoshu.setup (method)">setup</a></span></span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='rparen'>)</span>
+<span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_correct?'>correct?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>            <span class='comment'># =&gt; true
+</span><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_correct?'>correct?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hallo</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>language:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>de</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>  <span class='comment'># requires Kotoshu.setup(:de) first</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The word to check</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>language</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Symbol</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Language code; if nil, uses configured default</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>True if the word is correct</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/ResourceNotSetupError.html" title="Kotoshu::ResourceNotSetupError (class)">ResourceNotSetupError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>if the language hasn't been set up</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+282
+283
+284
+285</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 282</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_correct?'>correct?</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='label'>language:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_checker'>checker</span> <span class='op'>=</span> <span class='id identifier rubyid_language'>language</span> <span class='op'>?</span> <span class='id identifier rubyid_spellchecker_for'>spellchecker_for</span><span class='lparen'>(</span><span class='id identifier rubyid_language'>language</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='id identifier rubyid_spellchecker'>spellchecker</span>
+  <span class='id identifier rubyid_checker'>checker</span><span class='period'>.</span><span class='id identifier rubyid_correct?'>correct?</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="detect_language-class_method">
+  
+    .<strong>detect_language</strong>(text)  &#x21d2; <tt><span class='object_link'><a href="Kotoshu/Language/Detection.html" title="Kotoshu::Language::Detection (class)">Language::Detection</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Detect language of text.</p>
+<p>Native LID when available (plan 106): the Rust extension scoring
+the <code>kotoshu://models/lid/lid-176</code> artifact pair over 176
+languages, after a one-time <span class='object_link'><a href="#setup_lid-class_method" title="Kotoshu.setup_lid (method)">setup_lid</a></span>. Falls back to the
+<span class='object_link'><a href="Kotoshu/Language/Detector.html" title="Kotoshu::Language::Detector (class)">Kotoshu::Language::Detector</a></span> heuristic when the extension is absent,
+KOTOSHU_BACKEND=ruby, or the model is not set up — so pure-Ruby
+installs keep the previous behavior.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup_lid'><span class='object_link'><a href="#setup_lid-class_method" title="Kotoshu.setup_lid (method)">setup_lid</a></span></span>
+<span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_detect_language'>detect_language</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Bonjour le monde</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_code'><span class='object_link'><a href="Kotoshu/Language/Detection.html#code-instance_method" title="Kotoshu::Language::Detection#code (method)">code</a></span></span>  <span class='comment'># =&gt; &quot;fr&quot;
+</span><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_detect_language'>detect_language</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>こんにちは</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_score'><span class='object_link'><a href="Kotoshu/Language/Detection.html#score-instance_method" title="Kotoshu::Language::Detection#score (method)">score</a></span></span>        <span class='comment'># =&gt; 0.99</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>text</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Text to analyze</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/Language/Detection.html" title="Kotoshu::Language::Detection (class)">Language::Detection</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p><code>code</code> (String, or nil when the
+heuristic is uncertain) and <code>score</code> (Float in [0, 1]);
+interpolation yields the code</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+461
+462
+463</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 461</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_detect_language'>detect_language</span><span class='lparen'>(</span><span class='id identifier rubyid_text'>text</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="Kotoshu/Language.html" title="Kotoshu::Language (module)">Language</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Language/LidDetector.html" title="Kotoshu::Language::LidDetector (class)">LidDetector</a></span></span><span class='period'>.</span><span class='id identifier rubyid_detect'><span class='object_link'><a href="Kotoshu/Language/LidDetector.html#detect-class_method" title="Kotoshu::Language::LidDetector.detect (method)">detect</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_text'>text</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="detect_language_with_confidence-class_method">
+  
+    .<strong>detect_language_with_confidence</strong>(text)  &#x21d2; <tt>Array&lt;String, Float&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Detect language with confidence score.</p>
+<p>Same engine selection as <span class='object_link'><a href="#detect_language-class_method" title="Kotoshu.detect_language (method)">detect_language</a></span>, returned as the
+historical [code, confidence] pair.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_lang'>lang</span><span class='comma'>,</span> <span class='id identifier rubyid_conf'>conf</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_detect_language_with_confidence'>detect_language_with_confidence</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hello world</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_lang'>lang</span>  <span class='comment'># =&gt; &quot;en&quot;
+</span><span class='id identifier rubyid_conf'>conf</span>  <span class='comment'># =&gt; 0.85</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>text</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Text to analyze</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;String, Float&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Language code and confidence</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+477
+478
+479
+480</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 477</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_detect_language_with_confidence'>detect_language_with_confidence</span><span class='lparen'>(</span><span class='id identifier rubyid_text'>text</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_detection'>detection</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu/Language.html" title="Kotoshu::Language (module)">Language</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Language/LidDetector.html" title="Kotoshu::Language::LidDetector (class)">LidDetector</a></span></span><span class='period'>.</span><span class='id identifier rubyid_detect'><span class='object_link'><a href="Kotoshu/Language/LidDetector.html#detect-class_method" title="Kotoshu::Language::LidDetector.detect (method)">detect</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_text'>text</span><span class='rparen'>)</span>
+  <span class='lbracket'>[</span><span class='id identifier rubyid_detection'>detection</span><span class='period'>.</span><span class='id identifier rubyid_code'>code</span><span class='comma'>,</span> <span class='id identifier rubyid_detection'>detection</span><span class='period'>.</span><span class='id identifier rubyid_score'>score</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="dictionary-class_method">
+  
+    .<strong>dictionary</strong>(source = nil)  &#x21d2; <tt><span class='object_link'><a href="Kotoshu/Core/IndexedDictionary.html" title="Kotoshu::Core::IndexedDictionary (class)">Core::IndexedDictionary</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Convenience method for creating an indexed dictionary.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>source</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>, <tt>Hash</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Words or file path</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/Core/IndexedDictionary.html" title="Kotoshu::Core::IndexedDictionary (class)">Core::IndexedDictionary</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>New dictionary</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 367</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_dictionary'>dictionary</span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_source'>source</span>
+  <span class='kw'>when</span> <span class='const'>Array</span>
+    <span class='const'><span class='object_link'><a href="Kotoshu/Core.html" title="Kotoshu::Core (module)">Core</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Core/IndexedDictionary.html" title="Kotoshu::Core::IndexedDictionary (class)">IndexedDictionary</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/Core/IndexedDictionary.html#initialize-instance_method" title="Kotoshu::Core::IndexedDictionary#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='const'>String</span>
+    <span class='const'><span class='object_link'><a href="Kotoshu/Core.html" title="Kotoshu::Core (module)">Core</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Core/IndexedDictionary.html" title="Kotoshu::Core::IndexedDictionary (class)">IndexedDictionary</a></span></span><span class='period'>.</span><span class='id identifier rubyid_from_file'><span class='object_link'><a href="Kotoshu/Core/IndexedDictionary.html#from_file-class_method" title="Kotoshu::Core::IndexedDictionary.from_file (method)">from_file</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='const'>Hash</span>
+    <span class='const'><span class='object_link'><a href="Kotoshu/Core.html" title="Kotoshu::Core (module)">Core</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Core/IndexedDictionary.html" title="Kotoshu::Core::IndexedDictionary (class)">IndexedDictionary</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/Core/IndexedDictionary.html#initialize-instance_method" title="Kotoshu::Core::IndexedDictionary#initialize (method)">new</a></span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid dictionary source: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_source'>source</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_language-class_method">
+  
+    .<strong>get_language</strong>(code)  &#x21d2; <tt>Class</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get language class by code.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_get_language'>get_language</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>en-US</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>code</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Language code (e.g., &quot;en-US&quot;, &quot;de-DE&quot;)</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Class</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Language class or nil</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+515
+516
+517</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 515</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_get_language'>get_language</span><span class='lparen'>(</span><span class='id identifier rubyid_code'>code</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="Kotoshu/Language.html" title="Kotoshu::Language (module)">Language</a></span></span><span class='period'>.</span><span class='id identifier rubyid_get'><span class='object_link'><a href="Kotoshu/Language.html#get-class_method" title="Kotoshu::Language.get (method)">get</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_code'>code</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="language-class_method">
+  
+    .<strong>language</strong>  &#x21d2; <tt>Module</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Access the language module.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Language.html" title="Kotoshu::Language (module)">Language</a></span></span><span class='period'>.</span><span class='id identifier rubyid_detect'><span class='object_link'><a href="Kotoshu/Language.html#detect-class_method" title="Kotoshu::Language.detect (method)">detect</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hello world</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>  <span class='comment'># =&gt; &quot;en&quot;</span></code></pre>
+    
+  </div>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Module</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The Language module</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+439
+440
+441</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 439</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_language'>language</span>
+  <span class='const'><span class='object_link'><a href="Kotoshu/Language.html" title="Kotoshu::Language (module)">Language</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="language_registered?-class_method">
+  
+    .<strong>language_registered?</strong>(code)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Check if a language is registered.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_language_registered?'>language_registered?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>en-US</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>  <span class='comment'># =&gt; true or false</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>code</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Language code</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>True if registered</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+526
+527
+528</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 526</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_language_registered?'>language_registered?</span><span class='lparen'>(</span><span class='id identifier rubyid_code'>code</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="Kotoshu/Language.html" title="Kotoshu::Language (module)">Language</a></span></span><span class='period'>.</span><span class='id identifier rubyid_registered?'><span class='object_link'><a href="Kotoshu/Language.html#registered%3F-class_method" title="Kotoshu::Language.registered? (method)">registered?</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_code'>code</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="languages_setup-class_method">
+  
+    .<strong>languages_setup</strong>  &#x21d2; <tt>Array&lt;String&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>List languages that have been set up.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_languages_setup'>languages_setup</span>  <span class='comment'># =&gt; [&quot;de&quot;, &quot;en&quot;, &quot;fr&quot;]</span></code></pre>
+    
+  </div>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Sorted array of language codes with cached spelling</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+253
+254
+255</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 253</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_languages_setup'>languages_setup</span>
+  <span class='const'><span class='object_link'><a href="Kotoshu/ResourceManager.html" title="Kotoshu::ResourceManager (class)">ResourceManager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_languages_setup'><span class='object_link'><a href="Kotoshu/ResourceManager.html#languages_setup-class_method" title="Kotoshu::ResourceManager.languages_setup (method)">languages_setup</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="misspelled?-class_method">
+  
+    .<strong>misspelled?</strong>(word, language: nil)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Check if a word is misspelled. Hot path.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The word to check</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>language</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Symbol</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Language code</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>True if the word is misspelled</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/ResourceNotSetupError.html" title="Kotoshu::ResourceNotSetupError (class)">ResourceNotSetupError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>if the language hasn't been set up</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+293
+294
+295</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 293</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_misspelled?'>misspelled?</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='label'>language:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='op'>!</span><span class='id identifier rubyid_correct?'>correct?</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='label'>language:</span> <span class='id identifier rubyid_language'>language</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="register_dictionary_type-class_method">
+  
+    .<strong>register_dictionary_type</strong>(type, klass)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Register a custom dictionary type.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_register_dictionary_type'>register_dictionary_type</span><span class='lparen'>(</span><span class='symbol'>:my_custom</span><span class='comma'>,</span> <span class='const'>MyDictionary</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>type</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The type key</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>klass</span>
+      
+      
+        <span class='type'>(<tt>Class</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The dictionary class</p></div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+418
+419
+420</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 418</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_register_dictionary_type'>register_dictionary_type</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_klass'>klass</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="Kotoshu/Dictionary.html" title="Kotoshu::Dictionary (module)">Dictionary</a></span></span><span class='period'>.</span><span class='id identifier rubyid_register_type'><span class='object_link'><a href="Kotoshu/Dictionary.html#register_type-class_method" title="Kotoshu::Dictionary.register_type (method)">register_type</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_klass'>klass</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="register_suggestion_algorithm-class_method">
+  
+    .<strong>register_suggestion_algorithm</strong>(name, klass)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Register a custom suggestion algorithm.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_register_suggestion_algorithm'>register_suggestion_algorithm</span><span class='lparen'>(</span><span class='symbol'>:my_custom</span><span class='comma'>,</span> <span class='const'>MyStrategy</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>name</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The algorithm name</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>klass</span>
+      
+      
+        <span class='type'>(<tt>Class</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The algorithm class</p></div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+429
+430
+431</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 429</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_register_suggestion_algorithm'>register_suggestion_algorithm</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_klass'>klass</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="Kotoshu/Suggestions.html" title="Kotoshu::Suggestions (module)">Suggestions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Suggestions/Strategies.html" title="Kotoshu::Suggestions::Strategies (module)">Strategies</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Suggestions/Strategies/BaseStrategy.html" title="Kotoshu::Suggestions::Strategies::BaseStrategy (class)">BaseStrategy</a></span></span><span class='period'>.</span><span class='id identifier rubyid_register_type'>register_type</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_klass'>klass</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="reset_spellchecker-class_method">
+  
+    .<strong>reset_spellchecker</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Reset the spellchecker cache. The next call to <code>spellchecker</code> or
+<code>spellchecker_for</code> re-resolves from the current configuration.</p>
+<p>Does NOT eagerly reload — clearing the cache is enough. This makes
+the method safe to call between tests even when no language is set
+up yet (the next call will raise ResourceNotSetupError per the
+strict two-stage contract).</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+264
+265
+266
+267
+268</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 264</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_reset_spellchecker'>reset_spellchecker</span>
+  <span class='ivar'>@spellchecker</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@spellcheckers</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="resolve-class_method">
+  
+    .<strong>resolve</strong>(language: nil, want: nil, tier: nil)  &#x21d2; <tt><span class='object_link'><a href="Kotoshu/ResourceBundle.html" title="Kotoshu::ResourceBundle (class)">ResourceBundle</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Resolve language resources from the cache (no download).</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'><span class='object_link'><a href="#setup-class_method" title="Kotoshu.setup (method)">setup</a></span></span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_bundle'>bundle</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_resolve'>resolve</span><span class='lparen'>(</span><span class='label'>language:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>en</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_bundle'>bundle</span><span class='period'>.</span><span class='id identifier rubyid_dictionary'>dictionary</span>  <span class='comment'># =&gt; #&lt;Dictionary::Hunspell ...&gt;</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>language</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Symbol</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Language code; if nil, uses default</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>want</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;Symbol&gt;</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Resource types (default: [:spelling])</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>tier</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Model tier to resolve (:full default,
+:fluency, :mini, or :any for &quot;the single cached tier&quot;)</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/ResourceBundle.html" title="Kotoshu::ResourceBundle (class)">ResourceBundle</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Resolved bundle</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/ResourceNotSetupError.html" title="Kotoshu::ResourceNotSetupError (class)">ResourceNotSetupError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>if the language hasn't been set up</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+175
+176
+177
+178
+179
+180
+181</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 175</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_resolve'>resolve</span><span class='lparen'>(</span><span class='label'>language:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>want:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>tier:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lang'>lang</span> <span class='op'>=</span> <span class='id identifier rubyid_language'>language</span> <span class='op'>||</span> <span class='id identifier rubyid_configuration'>configuration</span><span class='period'>.</span><span class='id identifier rubyid_default_language'>default_language</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="Kotoshu/ResourceNotSetupError.html" title="Kotoshu::ResourceNotSetupError (class)">ResourceNotSetupError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/ResourceNotSetupError.html#initialize-instance_method" title="Kotoshu::ResourceNotSetupError#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_lang'>lang</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>default</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>spelling</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_lang'>lang</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='id identifier rubyid_want_param'>want_param</span> <span class='op'>=</span> <span class='id identifier rubyid_want'>want</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="Kotoshu/ResourceManager.html" title="Kotoshu::ResourceManager (class)">ResourceManager</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/ResourceManager.html#DEFAULT_WANT-constant" title="Kotoshu::ResourceManager::DEFAULT_WANT (constant)">DEFAULT_WANT</a></span></span>
+  <span class='const'><span class='object_link'><a href="Kotoshu/ResourceManager.html" title="Kotoshu::ResourceManager (class)">ResourceManager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_resolve'><span class='object_link'><a href="Kotoshu/ResourceManager.html#resolve-class_method" title="Kotoshu::ResourceManager.resolve (method)">resolve</a></span></span><span class='lparen'>(</span><span class='label'>language:</span> <span class='id identifier rubyid_lang'>lang</span><span class='comma'>,</span> <span class='label'>want:</span> <span class='id identifier rubyid_want_param'>want_param</span><span class='comma'>,</span> <span class='label'>tier:</span> <span class='id identifier rubyid_tier'>tier</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="setup-class_method">
+  
+    .<strong>setup</strong>(*languages, want: nil, **opts)  &#x21d2; <tt>SetupResult</tt><sup>+</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Set up resources for one or more languages (download or register local files).
+Idempotent: re-running with the same args is a no-op unless <code>force: true</code>.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+        <h5 class="example_title"><div class='inline'><p>Download from kotoshu/dictionaries</p></div></h5>
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'>setup</span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='rparen'>)</span>                                 <span class='comment'># spelling only
+</span><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'>setup</span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='comma'>,</span> <span class='label'>want:</span> <span class='qsymbols_beg'>%i[</span><span class='tstring_content'>spelling</span><span class='words_sep'> </span><span class='tstring_content'>frequency</span><span class='tstring_end'>]</span></span><span class='rparen'>)</span>   <span class='comment'># spelling + frequency
+</span><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'>setup</span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='comma'>,</span> <span class='label'>want:</span> <span class='qsymbols_beg'>%i[</span><span class='tstring_content'>model</span><span class='tstring_end'>]</span></span><span class='comma'>,</span> <span class='label'>tier:</span> <span class='symbol'>:mini</span><span class='rparen'>)</span>   <span class='comment'># mini-tier model
+</span><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'>setup</span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='comma'>,</span> <span class='symbol'>:de</span><span class='comma'>,</span> <span class='symbol'>:fr</span><span class='rparen'>)</span>                       <span class='comment'># multiple languages</span></code></pre>
+    
+      
+        <h5 class="example_title"><div class='inline'><p>Register local files (user already has hunspell dicts)</p></div></h5>
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'>setup</span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='comma'>,</span> <span class='label'>aff:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/usr/share/hunspell/en_US.aff</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+                    <span class='label'>dic:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/usr/share/hunspell/en_US.dic</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span></code></pre>
+    
+      
+        <h5 class="example_title"><div class='inline'><p>Register local files from a directory</p></div></h5>
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'>setup</span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='comma'>,</span> <span class='label'>from:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/usr/share/hunspell/</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>  <span class='comment'># looks for en.aff, en.dic</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>languages</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Symbol</tt>, <tt>Array&lt;String, Symbol&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>One or more language codes</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>want</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;Symbol&gt;</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Resource types to fetch (default: [:spelling])</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Additional keyword options, all forwarded to
+ResourceManager.setup</p></div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    
+    
+    
+    
+    <p class="tag_title">Options Hash (<tt>**opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:force</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'><p>Re-fetch even if already cached</p></div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:strict</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'><p>Re-raise on optional-resource failure</p></div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:tier</span>
+          <span class="type">(<tt>Symbol</tt>, <tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'><p>Model tier when want includes :model
+(:full default, :fluency, :mini)</p></div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:aff</span>
+          <span class="type">(<tt>String</tt>, <tt>nil</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'><p>Path to local .aff file (single-language only)</p></div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:dic</span>
+          <span class="type">(<tt>String</tt>, <tt>nil</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'><p>Path to local .dic file (single-language only)</p></div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:from</span>
+          <span class="type">(<tt>String</tt>, <tt>nil</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'><p>Directory containing local .aff/.dic
+(single-language only)</p></div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:frequency</span>
+          <span class="type">(<tt>String</tt>, <tt>nil</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'><p>Path to local frequency.json
+(single-language only)</p></div>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>SetupResult</tt>, <tt>Array&lt;SetupResult&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Result or results (array if multiple languages)</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 216</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_setup'>setup</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_languages'>languages</span><span class='comma'>,</span> <span class='label'>want:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Kotoshu.setup requires at least one language</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_languages'>languages</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='id identifier rubyid_want_param'>want_param</span> <span class='op'>=</span> <span class='id identifier rubyid_want'>want</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="Kotoshu/ResourceManager.html" title="Kotoshu::ResourceManager (class)">ResourceManager</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/ResourceManager.html#DEFAULT_WANT-constant" title="Kotoshu::ResourceManager::DEFAULT_WANT (constant)">DEFAULT_WANT</a></span></span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_languages'>languages</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>==</span> <span class='int'>1</span>
+    <span class='const'><span class='object_link'><a href="Kotoshu/ResourceManager.html" title="Kotoshu::ResourceManager (class)">ResourceManager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'><span class='object_link'><a href="Kotoshu/ResourceManager.html#setup-class_method" title="Kotoshu::ResourceManager.setup (method)">setup</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_languages'>languages</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span><span class='comma'>,</span> <span class='label'>want:</span> <span class='id identifier rubyid_want_param'>want_param</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_languages'>languages</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_lang'>lang</span><span class='op'>|</span> <span class='const'><span class='object_link'><a href="Kotoshu/ResourceManager.html" title="Kotoshu::ResourceManager (class)">ResourceManager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'><span class='object_link'><a href="Kotoshu/ResourceManager.html#setup-class_method" title="Kotoshu::ResourceManager.setup (method)">setup</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_lang'>lang</span><span class='comma'>,</span> <span class='label'>want:</span> <span class='id identifier rubyid_want_param'>want_param</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="setup?-class_method">
+  
+    .<strong>setup?</strong>(language, resource = nil, tier: nil, **options)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Check if a language (or a specific resource for that language) is set up.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'><span class='object_link'><a href="#setup-class_method" title="Kotoshu.setup (method)">setup</a></span></span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='rparen'>)</span>
+<span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup?'>setup?</span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='rparen'>)</span>              <span class='comment'># =&gt; true
+</span><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup?'>setup?</span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='comma'>,</span> <span class='symbol'>:spelling</span><span class='rparen'>)</span>   <span class='comment'># =&gt; true
+</span><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup?'>setup?</span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='comma'>,</span> <span class='symbol'>:frequency</span><span class='rparen'>)</span>  <span class='comment'># =&gt; false (not set up)
+</span><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup?'>setup?</span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='comma'>,</span> <span class='label'>resource:</span> <span class='symbol'>:model</span><span class='comma'>,</span> <span class='label'>tier:</span> <span class='symbol'>:mini</span><span class='rparen'>)</span>  <span class='comment'># =&gt; false</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>language</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Language code</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>resource</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>:spelling, :frequency, :model, or nil for any</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>tier</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Model tier to check (:full, :fluency, :mini,
+or :any for &quot;any tier cached&quot;); only meaningful with resource: :model</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>True if the resource is cached and available</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+241
+242
+243
+244
+245</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 241</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_setup?'>setup?</span><span class='lparen'>(</span><span class='id identifier rubyid_language'>language</span><span class='comma'>,</span> <span class='id identifier rubyid_resource'>resource</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>tier:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+  <span class='comment'># The resource may be given positionally (legacy) or as a keyword.
+</span>  <span class='id identifier rubyid_resource'>resource</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:resource</span><span class='comma'>,</span> <span class='id identifier rubyid_resource'>resource</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="Kotoshu/ResourceManager.html" title="Kotoshu::ResourceManager (class)">ResourceManager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup?'><span class='object_link'><a href="Kotoshu/ResourceManager.html#setup%3F-class_method" title="Kotoshu::ResourceManager.setup? (method)">setup?</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_language'>language</span><span class='comma'>,</span> <span class='label'>resource:</span> <span class='id identifier rubyid_resource'>resource</span><span class='comma'>,</span> <span class='label'>tier:</span> <span class='id identifier rubyid_tier'>tier</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="setup_lid-class_method">
+  
+    .<strong>setup_lid</strong>(force: false)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Set up the language-identification model: downloads the
+lid.176.onnx + vocab.json pair from the models registry into the
+model cache (stage one of the two-stage model — <span class='object_link'><a href="#detect_language-class_method" title="Kotoshu.detect_language (method)">detect_language</a></span>
+never downloads implicitly). Idempotent; <code>force</code> re-downloads.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup_lid'>setup_lid</span>
+<span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup_lid?'><span class='object_link'><a href="#setup_lid%3F-class_method" title="Kotoshu.setup_lid? (method)">setup_lid?</a></span></span>  <span class='comment'># =&gt; true</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>force</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Re-fetch even if already cached</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>{ onnx_path:, vocab_path:, metadata }</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/Error.html" title="Kotoshu::Error (class)">Kotoshu::Error</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>registry unreachable while offline with no
+cached registry (KOTOSHU_OFFLINE=1), or no registry entry</p></div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/IntegrityError.html" title="Kotoshu::IntegrityError (class)">Kotoshu::IntegrityError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>downloaded bytes fail the
+registry checksum</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+497
+498
+499</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 497</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_setup_lid'>setup_lid</span><span class='lparen'>(</span><span class='label'>force:</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="Kotoshu/Language.html" title="Kotoshu::Language (module)">Language</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Language/LidDetector.html" title="Kotoshu::Language::LidDetector (class)">LidDetector</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'><span class='object_link'><a href="Kotoshu/Language/LidDetector.html#setup-class_method" title="Kotoshu::Language::LidDetector.setup (method)">setup</a></span></span><span class='lparen'>(</span><span class='label'>config:</span> <span class='id identifier rubyid_configuration'>configuration</span><span class='comma'>,</span> <span class='label'>force:</span> <span class='id identifier rubyid_force'>force</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="setup_lid?-class_method">
+  
+    .<strong>setup_lid?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Whether the language-identification model is cached (cache-only).</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+504
+505
+506</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 504</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_setup_lid?'>setup_lid?</span>
+  <span class='const'><span class='object_link'><a href="Kotoshu/Language.html" title="Kotoshu::Language (module)">Language</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Language/LidDetector.html" title="Kotoshu::Language::LidDetector (class)">LidDetector</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup?'><span class='object_link'><a href="Kotoshu/Language/LidDetector.html#setup%3F-class_method" title="Kotoshu::Language::LidDetector.setup? (method)">setup?</a></span></span><span class='lparen'>(</span><span class='label'>config:</span> <span class='id identifier rubyid_configuration'>configuration</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="spellchecker-class_method">
+  
+    .<strong>spellchecker</strong>  &#x21d2; <tt><span class='object_link'><a href="Kotoshu/Spellchecker.html" title="Kotoshu::Spellchecker (class)">Spellchecker</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Default spellchecker (singleton). Uses the configured default language.
+Cache-only — raises ResourceNotSetupError if the default language hasn't
+been set up via Kotoshu.setup.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/Spellchecker.html" title="Kotoshu::Spellchecker (class)">Spellchecker</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The default spellchecker</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/ResourceNotSetupError.html" title="Kotoshu::ResourceNotSetupError (class)">ResourceNotSetupError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>if no language is set up</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+135
+136
+137
+138
+139
+140
+141
+142</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 135</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_spellchecker'>spellchecker</span>
+  <span class='kw'>return</span> <span class='ivar'>@spellchecker</span> <span class='kw'>if</span> <span class='ivar'>@spellchecker</span>
+
+  <span class='id identifier rubyid_lang'>lang</span> <span class='op'>=</span> <span class='id identifier rubyid_configuration'>configuration</span><span class='period'>.</span><span class='id identifier rubyid_default_language'>default_language</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="Kotoshu/ResourceNotSetupError.html" title="Kotoshu::ResourceNotSetupError (class)">ResourceNotSetupError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/ResourceNotSetupError.html#initialize-instance_method" title="Kotoshu::ResourceNotSetupError#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_lang'>lang</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>default</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>spelling</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_lang'>lang</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_lang'>lang</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='ivar'>@spellchecker</span> <span class='op'>=</span> <span class='id identifier rubyid_spellchecker_for'>spellchecker_for</span><span class='lparen'>(</span><span class='id identifier rubyid_lang'>lang</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="spellchecker_for-class_method">
+  
+    .<strong>spellchecker_for</strong>(language)  &#x21d2; <tt><span class='object_link'><a href="Kotoshu/Spellchecker.html" title="Kotoshu::Spellchecker (class)">Spellchecker</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get a spellchecker for a specific language (cache-only, raises on miss).</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'><span class='object_link'><a href="#setup-class_method" title="Kotoshu.setup (method)">setup</a></span></span><span class='lparen'>(</span><span class='symbol'>:de</span><span class='rparen'>)</span>
+<span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_spellchecker_for'>spellchecker_for</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>de</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_correct?'><span class='object_link'><a href="Kotoshu/Spellchecker.html#correct%3F-instance_method" title="Kotoshu::Spellchecker#correct? (method)">correct?</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hallo</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>  <span class='comment'># =&gt; true</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>language</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Language code (e.g., &quot;en&quot;, &quot;de&quot;, &quot;fr&quot;)</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/Spellchecker.html" title="Kotoshu::Spellchecker (class)">Spellchecker</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Spellchecker using a ResourceManager-resolved bundle</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/ResourceNotSetupError.html" title="Kotoshu::ResourceNotSetupError (class)">ResourceNotSetupError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>if the language hasn't been set up</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+153
+154
+155
+156
+157
+158
+159
+160</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 153</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_spellchecker_for'>spellchecker_for</span><span class='lparen'>(</span><span class='id identifier rubyid_language'>language</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_language'>language</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='ivar'>@spellcheckers</span> <span class='op'>||=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='ivar'>@spellcheckers</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='kw'>begin</span>
+    <span class='id identifier rubyid_bundle'>bundle</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu/ResourceManager.html" title="Kotoshu::ResourceManager (class)">ResourceManager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_resolve'><span class='object_link'><a href="Kotoshu/ResourceManager.html#resolve-class_method" title="Kotoshu::ResourceManager.resolve (method)">resolve</a></span></span><span class='lparen'>(</span><span class='label'>language:</span> <span class='id identifier rubyid_language'>language</span><span class='rparen'>)</span>
+    <span class='const'><span class='object_link'><a href="Kotoshu/Spellchecker.html" title="Kotoshu::Spellchecker (class)">Spellchecker</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/Spellchecker.html#initialize-instance_method" title="Kotoshu::Spellchecker#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='label'>resource_bundle:</span> <span class='id identifier rubyid_bundle'>bundle</span><span class='comma'>,</span> <span class='label'>config:</span> <span class='id identifier rubyid_configuration'>configuration</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="suggest-class_method">
+  
+    .<strong>suggest</strong>(word, language: nil, **options)  &#x21d2; <tt><span class='object_link'><a href="Kotoshu/Suggestions/SuggestionSet.html" title="Kotoshu::Suggestions::SuggestionSet (class)">Suggestions::SuggestionSet</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get spelling suggestions for a word. Hot path.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_setup'><span class='object_link'><a href="#setup-class_method" title="Kotoshu.setup (method)">setup</a></span></span><span class='lparen'>(</span><span class='symbol'>:en</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_suggestions'>suggestions</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_suggest'>suggest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>helo</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_suggestions'>suggestions</span><span class='period'>.</span><span class='id identifier rubyid_to_words'>to_words</span>  <span class='comment'># =&gt; [&quot;hello&quot;, &quot;help&quot;, &quot;held&quot;, ...]</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The misspelled word</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>language</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Symbol</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Language code</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>options</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Options (max_suggestions, etc.)</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/Suggestions/SuggestionSet.html" title="Kotoshu::Suggestions::SuggestionSet (class)">Suggestions::SuggestionSet</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Generated suggestions</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/ResourceNotSetupError.html" title="Kotoshu::ResourceNotSetupError (class)">ResourceNotSetupError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>if the language hasn't been set up</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+309
+310
+311
+312</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 309</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_suggest'>suggest</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='label'>language:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_checker'>checker</span> <span class='op'>=</span> <span class='id identifier rubyid_language'>language</span> <span class='op'>?</span> <span class='id identifier rubyid_spellchecker_for'>spellchecker_for</span><span class='lparen'>(</span><span class='id identifier rubyid_language'>language</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='id identifier rubyid_spellchecker'>spellchecker</span>
+  <span class='id identifier rubyid_checker'>checker</span><span class='period'>.</span><span class='id identifier rubyid_suggest'>suggest</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="suggestion_pipeline-class_method">
+  
+    .<strong>suggestion_pipeline</strong>(*strategies)  &#x21d2; <tt><span class='object_link'><a href="Kotoshu/Suggestions/Strategies/CompositeStrategy.html" title="Kotoshu::Suggestions::Strategies::CompositeStrategy (class)">Suggestions::Strategies::CompositeStrategy</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Convenience method for creating a suggestion pipeline.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>strategies</span>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Optional strategies to add</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/Suggestions/Strategies/CompositeStrategy.html" title="Kotoshu::Suggestions::Strategies::CompositeStrategy (class)">Suggestions::Strategies::CompositeStrategy</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>New pipeline</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+405
+406
+407
+408
+409</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 405</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_suggestion_pipeline'>suggestion_pipeline</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_strategies'>strategies</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_pipeline'>pipeline</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Kotoshu/Suggestions.html" title="Kotoshu::Suggestions (module)">Suggestions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Suggestions/Strategies.html" title="Kotoshu::Suggestions::Strategies (module)">Strategies</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Suggestions/Strategies/CompositeStrategy.html" title="Kotoshu::Suggestions::Strategies::CompositeStrategy (class)">CompositeStrategy</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/Suggestions/Strategies/CompositeStrategy.html#initialize-instance_method" title="Kotoshu::Suggestions::Strategies::CompositeStrategy#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='label'>name:</span> <span class='symbol'>:default</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_strategies'>strategies</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_s'>s</span><span class='op'>|</span> <span class='id identifier rubyid_pipeline'>pipeline</span><span class='period'>.</span><span class='id identifier rubyid_add'>add</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_pipeline'>pipeline</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="supported_languages-class_method">
+  
+    .<strong>supported_languages</strong>  &#x21d2; <tt>Array&lt;String&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get all supported language codes.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="Kotoshu (module)">Kotoshu</a></span></span><span class='period'>.</span><span class='id identifier rubyid_supported_languages'>supported_languages</span>  <span class='comment'># =&gt; [&quot;de-DE&quot;, &quot;en-US&quot;, &quot;fr-FR&quot;, ...]</span></code></pre>
+    
+  </div>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>List of language codes</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+536
+537
+538</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 536</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_supported_languages'>supported_languages</span>
+  <span class='const'><span class='object_link'><a href="Kotoshu/Language.html" title="Kotoshu::Language (module)">Language</a></span></span><span class='period'>.</span><span class='id identifier rubyid_supported_codes'><span class='object_link'><a href="Kotoshu/Language.html#supported_codes-class_method" title="Kotoshu::Language.supported_codes (method)">supported_codes</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="trie-class_method">
+  
+    .<strong>trie</strong>(source = nil)  &#x21d2; <tt><span class='object_link'><a href="Kotoshu/Core/Trie/Trie.html" title="Kotoshu::Core::Trie::Trie (class)">Core::Trie::Trie</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Convenience method for creating a trie.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>source</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>, <tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Words or file path</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Kotoshu/Core/Trie/Trie.html" title="Kotoshu::Core::Trie::Trie (class)">Core::Trie::Trie</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>New trie</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu.rb', line 384</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_trie'>trie</span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_source'>source</span>
+  <span class='kw'>when</span> <span class='const'>Array</span>
+    <span class='const'><span class='object_link'><a href="Kotoshu/Core.html" title="Kotoshu::Core (module)">Core</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Core/Trie.html" title="Kotoshu::Core::Trie (module)">Trie</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Core/Trie/Builder.html" title="Kotoshu::Core::Trie::Builder (class)">Builder</a></span></span><span class='period'>.</span><span class='id identifier rubyid_from_array'><span class='object_link'><a href="Kotoshu/Core/Trie/Builder.html#from_array-class_method" title="Kotoshu::Core::Trie::Builder.from_array (method)">from_array</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='const'>String</span>
+    <span class='kw'>if</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='rparen'>)</span>
+      <span class='const'><span class='object_link'><a href="Kotoshu/Core.html" title="Kotoshu::Core (module)">Core</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Core/Trie.html" title="Kotoshu::Core::Trie (module)">Trie</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Core/Trie/Builder.html" title="Kotoshu::Core::Trie::Builder (class)">Builder</a></span></span><span class='period'>.</span><span class='id identifier rubyid_from_file'><span class='object_link'><a href="Kotoshu/Core/Trie/Builder.html#from_file-class_method" title="Kotoshu::Core::Trie::Builder.from_file (method)">from_file</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='const'><span class='object_link'><a href="Kotoshu/Core.html" title="Kotoshu::Core (module)">Core</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Core/Trie.html" title="Kotoshu::Core::Trie (module)">Trie</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Core/Trie/Builder.html" title="Kotoshu::Core::Trie::Builder (class)">Builder</a></span></span><span class='period'>.</span><span class='id identifier rubyid_from_string'><span class='object_link'><a href="Kotoshu/Core/Trie/Builder.html#from_string-class_method" title="Kotoshu::Core::Trie::Builder.from_string (method)">from_string</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>when</span> <span class='kw'>nil</span>
+    <span class='const'><span class='object_link'><a href="Kotoshu/Core.html" title="Kotoshu::Core (module)">Core</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Core/Trie.html" title="Kotoshu::Core::Trie (module)">Trie</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kotoshu/Core/Trie/Trie.html" title="Kotoshu::Core::Trie::Trie (class)">Trie</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Kotoshu/Core/Trie/Trie.html#initialize-instance_method" title="Kotoshu::Core::Trie::Trie#initialize (method)">new</a></span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid trie source: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_source'>source</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:35 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

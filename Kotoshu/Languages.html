@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Kotoshu::Languages
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Languages";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (L)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span>
+     &raquo; 
+    <span class="title">Languages</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Kotoshu::Languages
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/languages.rb<span class="defines">,<br>
+  lib/kotoshu/languages/latin_base.rb,<br> lib/kotoshu/languages/ar/language.rb,<br> lib/kotoshu/languages/bg/language.rb,<br> lib/kotoshu/languages/ca/language.rb,<br> lib/kotoshu/languages/cs/language.rb,<br> lib/kotoshu/languages/da/language.rb,<br> lib/kotoshu/languages/de/language.rb,<br> lib/kotoshu/languages/el/language.rb,<br> lib/kotoshu/languages/en/language.rb,<br> lib/kotoshu/languages/es/language.rb,<br> lib/kotoshu/languages/et/language.rb,<br> lib/kotoshu/languages/fa/language.rb,<br> lib/kotoshu/languages/fr/language.rb,<br> lib/kotoshu/languages/he/language.rb,<br> lib/kotoshu/languages/hr/language.rb,<br> lib/kotoshu/languages/hu/language.rb,<br> lib/kotoshu/languages/id/language.rb,<br> lib/kotoshu/languages/it/language.rb,<br> lib/kotoshu/languages/ja/language.rb,<br> lib/kotoshu/languages/ko/language.rb,<br> lib/kotoshu/languages/lt/language.rb,<br> lib/kotoshu/languages/lv/language.rb,<br> lib/kotoshu/languages/nb/language.rb,<br> lib/kotoshu/languages/ne/language.rb,<br> lib/kotoshu/languages/nl/language.rb,<br> lib/kotoshu/languages/nn/language.rb,<br> lib/kotoshu/languages/pl/language.rb,<br> lib/kotoshu/languages/pt/language.rb,<br> lib/kotoshu/languages/ro/language.rb,<br> lib/kotoshu/languages/ru/language.rb,<br> lib/kotoshu/languages/sk/language.rb,<br> lib/kotoshu/languages/sl/language.rb,<br> lib/kotoshu/languages/sr/language.rb,<br> lib/kotoshu/languages/sv/language.rb,<br> lib/kotoshu/languages/tr/language.rb,<br> lib/kotoshu/languages/uk/language.rb,<br> lib/kotoshu/languages/vi/language.rb,<br> lib/kotoshu/languages/sr-Latn/language.rb,<br> sig/kotoshu.rbs</span>
+
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>Per-language implementations (English, German, French, etc.).</p>
+<p>Sibling module to <span class='object_link'><a href="Language.html" title="Kotoshu::Language (module)">Language</a></span> (the framework). Each per-language file
+calls Language::Registry.register at load time; <span class='object_link'><a href="Language/Registry.html#ensure_languages_loaded-class_method" title="Kotoshu::Language::Registry.ensure_languages_loaded (method)">Kotoshu::Language::Registry.ensure_languages_loaded</a></span>
+triggers these autoloads on first registry access.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Languages/Arabic.html" title="Kotoshu::Languages::Arabic (class)">Arabic</a></span>, <span class='object_link'><a href="Languages/Bulgarian.html" title="Kotoshu::Languages::Bulgarian (class)">Bulgarian</a></span>, <span class='object_link'><a href="Languages/Catalan.html" title="Kotoshu::Languages::Catalan (class)">Catalan</a></span>, <span class='object_link'><a href="Languages/Croatian.html" title="Kotoshu::Languages::Croatian (class)">Croatian</a></span>, <span class='object_link'><a href="Languages/Czech.html" title="Kotoshu::Languages::Czech (class)">Czech</a></span>, <span class='object_link'><a href="Languages/Danish.html" title="Kotoshu::Languages::Danish (class)">Danish</a></span>, <span class='object_link'><a href="Languages/Dutch.html" title="Kotoshu::Languages::Dutch (class)">Dutch</a></span>, <span class='object_link'><a href="Languages/English.html" title="Kotoshu::Languages::English (class)">English</a></span>, <span class='object_link'><a href="Languages/Estonian.html" title="Kotoshu::Languages::Estonian (class)">Estonian</a></span>, <span class='object_link'><a href="Languages/French.html" title="Kotoshu::Languages::French (class)">French</a></span>, <span class='object_link'><a href="Languages/German.html" title="Kotoshu::Languages::German (class)">German</a></span>, <span class='object_link'><a href="Languages/Greek.html" title="Kotoshu::Languages::Greek (class)">Greek</a></span>, <span class='object_link'><a href="Languages/Hebrew.html" title="Kotoshu::Languages::Hebrew (class)">Hebrew</a></span>, <span class='object_link'><a href="Languages/Hungarian.html" title="Kotoshu::Languages::Hungarian (class)">Hungarian</a></span>, <span class='object_link'><a href="Languages/Indonesian.html" title="Kotoshu::Languages::Indonesian (class)">Indonesian</a></span>, <span class='object_link'><a href="Languages/Italian.html" title="Kotoshu::Languages::Italian (class)">Italian</a></span>, <span class='object_link'><a href="Languages/Japanese.html" title="Kotoshu::Languages::Japanese (class)">Japanese</a></span>, <span class='object_link'><a href="Languages/Korean.html" title="Kotoshu::Languages::Korean (class)">Korean</a></span>, <span class='object_link'><a href="Languages/LatinBase.html" title="Kotoshu::Languages::LatinBase (class)">LatinBase</a></span>, <span class='object_link'><a href="Languages/Latvian.html" title="Kotoshu::Languages::Latvian (class)">Latvian</a></span>, <span class='object_link'><a href="Languages/Lithuanian.html" title="Kotoshu::Languages::Lithuanian (class)">Lithuanian</a></span>, <span class='object_link'><a href="Languages/Nepali.html" title="Kotoshu::Languages::Nepali (class)">Nepali</a></span>, <span class='object_link'><a href="Languages/NorwegianBokmal.html" title="Kotoshu::Languages::NorwegianBokmal (class)">NorwegianBokmal</a></span>, <span class='object_link'><a href="Languages/NorwegianNynorsk.html" title="Kotoshu::Languages::NorwegianNynorsk (class)">NorwegianNynorsk</a></span>, <span class='object_link'><a href="Languages/Persian.html" title="Kotoshu::Languages::Persian (class)">Persian</a></span>, <span class='object_link'><a href="Languages/Polish.html" title="Kotoshu::Languages::Polish (class)">Polish</a></span>, <span class='object_link'><a href="Languages/Portuguese.html" title="Kotoshu::Languages::Portuguese (class)">Portuguese</a></span>, <span class='object_link'><a href="Languages/Romanian.html" title="Kotoshu::Languages::Romanian (class)">Romanian</a></span>, <span class='object_link'><a href="Languages/Russian.html" title="Kotoshu::Languages::Russian (class)">Russian</a></span>, <span class='object_link'><a href="Languages/Serbian.html" title="Kotoshu::Languages::Serbian (class)">Serbian</a></span>, <span class='object_link'><a href="Languages/SerbianLatin.html" title="Kotoshu::Languages::SerbianLatin (class)">SerbianLatin</a></span>, <span class='object_link'><a href="Languages/Slovak.html" title="Kotoshu::Languages::Slovak (class)">Slovak</a></span>, <span class='object_link'><a href="Languages/Slovenian.html" title="Kotoshu::Languages::Slovenian (class)">Slovenian</a></span>, <span class='object_link'><a href="Languages/Spanish.html" title="Kotoshu::Languages::Spanish (class)">Spanish</a></span>, <span class='object_link'><a href="Languages/Swedish.html" title="Kotoshu::Languages::Swedish (class)">Swedish</a></span>, <span class='object_link'><a href="Languages/Turkish.html" title="Kotoshu::Languages::Turkish (class)">Turkish</a></span>, <span class='object_link'><a href="Languages/Ukrainian.html" title="Kotoshu::Languages::Ukrainian (class)">Ukrainian</a></span>, <span class='object_link'><a href="Languages/Vietnamese.html" title="Kotoshu::Languages::Vietnamese (class)">Vietnamese</a></span>
+    
+  
+</p>
+
+
+
+
+
+
+
+
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:36 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

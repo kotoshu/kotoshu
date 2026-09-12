@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Kotoshu::Suggestions::Strategies::NgramStrategy
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Suggestions::Strategies::NgramStrategy";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (N)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Suggestions.html" title="Kotoshu::Suggestions (module)">Suggestions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Strategies.html" title="Kotoshu::Suggestions::Strategies (module)">Strategies</a></span></span>
+     &raquo; 
+    <span class="title">NgramStrategy</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Kotoshu::Suggestions::Strategies::NgramStrategy
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="BaseStrategy.html" title="Kotoshu::Suggestions::Strategies::BaseStrategy (class)">BaseStrategy</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="BaseStrategy.html" title="Kotoshu::Suggestions::Strategies::BaseStrategy (class)">BaseStrategy</a></span></li>
+          
+            <li class="next">Kotoshu::Suggestions::Strategies::NgramStrategy</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/suggestions/strategies/ngram_strategy.rb
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>N-gram suggestion strategy.</p>
+<p>Generates suggestions by finding words with high n-gram similarity.
+N-grams are contiguous sequences of n characters.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+        <h5 class="example_title"><div class='inline'><p>Creating an n-gram strategy</p></div></h5>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_strategy'>strategy</span> <span class='op'>=</span> <span class='const'>NgramStrategy</span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="Kotoshu::Suggestions::Strategies::NgramStrategy#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='label'>n:</span> <span class='int'>3</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_strategy'>strategy</span><span class='period'>.</span><span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+
+
+</div>
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="BaseStrategy.html" title="Kotoshu::Suggestions::Strategies::BaseStrategy (class)">BaseStrategy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="BaseStrategy.html#config-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#config (method)">#config</a></span>, <span class='object_link'><a href="BaseStrategy.html#name-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#name (method)">#name</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate-instance_method" title="#generate (instance method)">#<strong>generate</strong>(context)  &#x21d2; SuggestionSet </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Generate suggestions based on n-gram similarity.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handles%3F-instance_method" title="#handles? (instance method)">#<strong>handles?</strong>(context)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Check if this strategy should handle the context.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(name: :ngram, **config)  &#x21d2; NgramStrategy </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Create a new n-gram strategy.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="BaseStrategy.html" title="Kotoshu::Suggestions::Strategies::BaseStrategy (class)">BaseStrategy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="BaseStrategy.html#calculate_ngram_similarity-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#calculate_ngram_similarity (method)">#calculate_ngram_similarity</a></span>, <span class='object_link'><a href="BaseStrategy.html#create_suggestion-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#create_suggestion (method)">#create_suggestion</a></span>, <span class='object_link'><a href="BaseStrategy.html#create_suggestion_set-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#create_suggestion_set (method)">#create_suggestion_set</a></span>, <span class='object_link'><a href="BaseStrategy.html#enabled%3F-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#enabled? (method)">#enabled?</a></span>, <span class='object_link'><a href="BaseStrategy.html#generate_ngrams-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#generate_ngrams (method)">#generate_ngrams</a></span>, <span class='object_link'><a href="BaseStrategy.html#get_config-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#get_config (method)">#get_config</a></span>, <span class='object_link'><a href="BaseStrategy.html#has_config%3F-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#has_config? (method)">#has_config?</a></span>, <span class='object_link'><a href="BaseStrategy.html#max_results-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#max_results (method)">#max_results</a></span>, <span class='object_link'><a href="BaseStrategy.html#priority-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#priority (method)">#priority</a></span>, <span class='object_link'><a href="BaseStrategy.html#skip_when_confident%3F-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#skip_when_confident? (method)">#skip_when_confident?</a></span>, <span class='object_link'><a href="BaseStrategy.html#to_s-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#to_s (method)">#to_s</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(name: :ngram, **config)  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::Suggestions::Strategies::NgramStrategy (class)">NgramStrategy</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Create a new n-gram strategy.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Symbol</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>:ngram</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Name of the strategy</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>config</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Configuration options</p></div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    
+    
+    <p class="tag_title">Options Hash (<tt>**config</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">n</span>
+          <span class="type">(<tt>Integer</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'><p>N-gram size (default: 3)</p></div>
+          
+        </li>
+      
+        <li>
+          <span class="name">min_similarity</span>
+          <span class="type">(<tt>Float</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'><p>Minimum similarity threshold (0-1)</p></div>
+          
+        </li>
+      
+        <li>
+          <span class="name">max_results</span>
+          <span class="type">(<tt>Integer</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'><p>Maximum results to return</p></div>
+          
+        </li>
+      
+    </ul>
+  
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+22
+23
+24</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/ngram_strategy.rb', line 22</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>name:</span> <span class='symbol'>:ngram</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_config'>config</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="generate-instance_method">
+  
+    #<strong>generate</strong>(context)  &#x21d2; <tt><span class='object_link'><a href="../SuggestionSet.html" title="Kotoshu::Suggestions::SuggestionSet (class)">SuggestionSet</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Generate suggestions based on n-gram similarity.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>context</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Context.html" title="Kotoshu::Suggestions::Context (class)">Context</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The suggestion context</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../SuggestionSet.html" title="Kotoshu::Suggestions::SuggestionSet (class)">SuggestionSet</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Suggestions with high n-gram similarity</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/ngram_strategy.rb', line 30</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_word'>word</span> <span class='op'>=</span> <span class='id identifier rubyid_context'>context</span><span class='period'>.</span><span class='id identifier rubyid_word'>word</span>
+  <span class='id identifier rubyid_n'>n</span> <span class='op'>=</span> <span class='id identifier rubyid_get_config'>get_config</span><span class='lparen'>(</span><span class='symbol'>:n</span><span class='comma'>,</span> <span class='int'>3</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_min_sim'>min_sim</span> <span class='op'>=</span> <span class='id identifier rubyid_get_config'>get_config</span><span class='lparen'>(</span><span class='symbol'>:min_similarity</span><span class='comma'>,</span> <span class='float'>0.3</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_min_typo_similarity'>min_typo_similarity</span> <span class='op'>=</span> <span class='id identifier rubyid_get_config'>get_config</span><span class='lparen'>(</span><span class='symbol'>:min_typo_similarity</span><span class='comma'>,</span> <span class='float'>0.70</span><span class='rparen'>)</span> <span class='comment'># Filter by typo correction similarity
+</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_create_suggestion_set'>create_suggestion_set</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_word'>word</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_n'>n</span>
+
+  <span class='comment'># Get n-grams for input word
+</span>  <span class='id identifier rubyid_word_ngrams'>word_ngrams</span> <span class='op'>=</span> <span class='id identifier rubyid_extract_ngrams'>extract_ngrams</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='id identifier rubyid_n'>n</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_word_length'>word_length</span> <span class='op'>=</span> <span class='id identifier rubyid_word'>word</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+  <span class='comment'># Calculate n-gram similarity for each dictionary word
+</span>  <span class='id identifier rubyid_results'>results</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_each_word_with_length'>each_word_with_length</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_dict_word'>dict_word</span><span class='comma'>,</span> <span class='id identifier rubyid_dict_length'>dict_length</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_dict_word'>dict_word</span> <span class='op'>==</span> <span class='id identifier rubyid_word'>word</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_dict_length'>dict_length</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_n'>n</span>
+
+    <span class='comment'># Length pre-gate: similarity is a Jaccard coefficient
+</span>    <span class='comment'># over n-gram multisets, so it is at most
+</span>    <span class='comment'># min-gram-count / max-gram-count — each word of length L
+</span>    <span class='comment'># contributes L - n + 1 grams. A word whose length bound
+</span>    <span class='comment'># already sits under min_similarity can never pass the
+</span>    <span class='comment'># real test, so skip it before extracting a single
+</span>    <span class='comment'># n-gram. Mathematically the same set of words passes
+</span>    <span class='comment'># (same gate as ngram.rs in kotoshu-rs). The length is
+</span>    <span class='comment'># read from the dictionary&#39;s memoized sweep index before
+</span>    <span class='comment'># any per-word work when the backend maintains one.
+</span>    <span class='id identifier rubyid_min_grams'>min_grams</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_dict_length'>dict_length</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_word_length'>word_length</span> <span class='op'>?</span> <span class='id identifier rubyid_dict_length'>dict_length</span> <span class='op'>:</span> <span class='id identifier rubyid_word_length'>word_length</span><span class='rparen'>)</span> <span class='op'>-</span> <span class='lparen'>(</span><span class='id identifier rubyid_n'>n</span> <span class='op'>-</span> <span class='int'>1</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_max_grams'>max_grams</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_dict_length'>dict_length</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_word_length'>word_length</span> <span class='op'>?</span> <span class='id identifier rubyid_dict_length'>dict_length</span> <span class='op'>:</span> <span class='id identifier rubyid_word_length'>word_length</span><span class='rparen'>)</span> <span class='op'>-</span> <span class='lparen'>(</span><span class='id identifier rubyid_n'>n</span> <span class='op'>-</span> <span class='int'>1</span><span class='rparen'>)</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_min_grams'>min_grams</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>/</span> <span class='id identifier rubyid_max_grams'>max_grams</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_min_sim'>min_sim</span>
+
+    <span class='id identifier rubyid_similarity'>similarity</span> <span class='op'>=</span> <span class='id identifier rubyid_ngram_similarity'>ngram_similarity</span><span class='lparen'>(</span><span class='id identifier rubyid_word_ngrams'>word_ngrams</span><span class='comma'>,</span> <span class='id identifier rubyid_dict_word'>dict_word</span><span class='comma'>,</span> <span class='id identifier rubyid_n'>n</span><span class='rparen'>)</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_similarity'>similarity</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_min_sim'>min_sim</span>
+
+    <span class='comment'># Also check typo correction similarity for filtering
+</span>    <span class='id identifier rubyid_typo_sim'>typo_sim</span> <span class='op'>=</span> <span class='id identifier rubyid_calculate_ngram_similarity'>calculate_ngram_similarity</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='id identifier rubyid_dict_word'>dict_word</span><span class='rparen'>)</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_typo_sim'>typo_sim</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_min_typo_similarity'>min_typo_similarity</span>
+
+    <span class='comment'># Convert similarity to distance (higher similarity = lower distance)
+</span>    <span class='id identifier rubyid_dist'>dist</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>-</span> <span class='id identifier rubyid_similarity'>similarity</span><span class='rparen'>)</span> <span class='op'>*</span> <span class='int'>10</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_dist'>dist</span><span class='period'>.</span><span class='id identifier rubyid_zero?'>zero?</span>
+
+    <span class='id identifier rubyid_results'>results</span><span class='lbracket'>[</span><span class='id identifier rubyid_dict_word'>dict_word</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='id identifier rubyid_dist'>dist</span>
+    <span class='id identifier rubyid_results'>results</span><span class='lbracket'>[</span><span class='id identifier rubyid_dict_word'>dict_word</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_dist'>dist</span> <span class='kw'>if</span> <span class='id identifier rubyid_dist'>dist</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_results'>results</span><span class='lbracket'>[</span><span class='id identifier rubyid_dict_word'>dict_word</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Convert to suggestions sorted by similarity
+</span>  <span class='id identifier rubyid_sorted_words'>sorted_words</span> <span class='op'>=</span> <span class='id identifier rubyid_results'>results</span><span class='period'>.</span><span class='id identifier rubyid_sort_by'>sort_by</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid__'>_</span><span class='comma'>,</span> <span class='id identifier rubyid_dist'>dist</span><span class='op'>|</span> <span class='id identifier rubyid_dist'>dist</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:first</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_create_suggestion_set'>create_suggestion_set</span><span class='lparen'>(</span><span class='id identifier rubyid_sorted_words'>sorted_words</span><span class='comma'>,</span> <span class='label'>distances:</span> <span class='id identifier rubyid_results'>results</span><span class='comma'>,</span> <span class='label'>original_word:</span> <span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handles?-instance_method">
+  
+    #<strong>handles?</strong>(context)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Check if this strategy should handle the context.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>context</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Context.html" title="Kotoshu::Suggestions::Context (class)">Context</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The suggestion context</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>True if the word needs correction</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+86
+87
+88
+89
+90</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/ngram_strategy.rb', line 86</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handles?'>handles?</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_enabled?'>enabled?</span>
+
+  <span class='op'>!</span><span class='id identifier rubyid_dictionary_lookup'>dictionary_lookup</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='comma'>,</span> <span class='id identifier rubyid_context'>context</span><span class='period'>.</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:48 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

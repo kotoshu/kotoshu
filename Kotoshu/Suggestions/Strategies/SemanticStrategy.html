@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Kotoshu::Suggestions::Strategies::SemanticStrategy
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Suggestions::Strategies::SemanticStrategy";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Suggestions.html" title="Kotoshu::Suggestions (module)">Suggestions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Strategies.html" title="Kotoshu::Suggestions::Strategies (module)">Strategies</a></span></span>
+     &raquo; 
+    <span class="title">SemanticStrategy</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Kotoshu::Suggestions::Strategies::SemanticStrategy
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="BaseStrategy.html" title="Kotoshu::Suggestions::Strategies::BaseStrategy (class)">BaseStrategy</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="BaseStrategy.html" title="Kotoshu::Suggestions::Strategies::BaseStrategy (class)">BaseStrategy</a></span></li>
+          
+            <li class="next">Kotoshu::Suggestions::Strategies::SemanticStrategy</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/suggestions/strategies/semantic_strategy.rb
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>Semantic strategy using FastText ONNX embeddings.</p>
+<p>Provides embedding-based spell correction for:</p>
+<ul>
+<li>Typos: Re-ranks edit-distance candidates by semantic similarity</li>
+<li>Real-word errors: Detects when valid words are used incorrectly in context</li>
+</ul>
+<p>This strategy works alongside other strategies (EditDistance, Phonetic, etc.)
+to provide comprehensive spell checking with semantic awareness.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+        <h5 class="example_title"><div class='inline'><p>Basic usage</p></div></h5>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_strategy'>strategy</span> <span class='op'>=</span> <span class='const'>SemanticStrategy</span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="Kotoshu::Suggestions::Strategies::SemanticStrategy#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='label'>language_code:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_suggestions'>suggestions</span> <span class='op'>=</span> <span class='id identifier rubyid_strategy'>strategy</span><span class='period'>.</span><span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='rparen'>)</span></code></pre>
+    
+      
+        <h5 class="example_title"><div class='inline'><p>With preloaded embeddings (faster)</p></div></h5>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_strategy'>strategy</span> <span class='op'>=</span> <span class='const'>SemanticStrategy</span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="Kotoshu::Suggestions::Strategies::SemanticStrategy#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='label'>language_code:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='label'>preload_embeddings:</span> <span class='kw'>true</span>
+<span class='rparen'>)</span>
+<span class='id identifier rubyid_suggestions'>suggestions</span> <span class='op'>=</span> <span class='id identifier rubyid_strategy'>strategy</span><span class='period'>.</span><span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#language_code-instance_method" title="#language_code (instance method)">#<strong>language_code</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Language code (ISO 639-1).</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#model-instance_method" title="#model (instance method)">#<strong>model</strong>  &#x21d2; Embeddings::OnnxRuntimeModel </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The ONNX model.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#search-instance_method" title="#search (instance method)">#<strong>search</strong>  &#x21d2; Embeddings::SimilaritySearch </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The similarity search.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vocabulary-instance_method" title="#vocabulary (instance method)">#<strong>vocabulary</strong>  &#x21d2; Embeddings::Vocabulary </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The vocabulary.</p></div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="BaseStrategy.html" title="Kotoshu::Suggestions::Strategies::BaseStrategy (class)">BaseStrategy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="BaseStrategy.html#config-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#config (method)">#config</a></span>, <span class='object_link'><a href="BaseStrategy.html#name-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#name (method)">#name</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_similar_words-instance_method" title="#find_similar_words (instance method)">#<strong>find_similar_words</strong>(word, k: 10)  &#x21d2; Array&lt;Hash&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Find semantically similar words.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate-instance_method" title="#generate (instance method)">#<strong>generate</strong>(context)  &#x21d2; SuggestionSet </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Generate suggestions using semantic similarity.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handles%3F-instance_method" title="#handles? (instance method)">#<strong>handles?</strong>(_context)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Check if this strategy should handle the context.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(language_code:, cache: nil, preload_embeddings: false, max_context_window: 5, min_semantic_similarity: 0.5, semantic_boost_weight: 0.3, **config)  &#x21d2; SemanticStrategy </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Create a new semantic strategy.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#semantic_similarity-instance_method" title="#semantic_similarity (instance method)">#<strong>semantic_similarity</strong>(word1, word2)  &#x21d2; Float<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Compute semantic similarity between two words.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#skip_when_confident%3F-instance_method" title="#skip_when_confident? (instance method)">#<strong>skip_when_confident?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The confidence cascade may skip this strategy: the ONNX rerank runs only when the traditional strategies are not already confident (see <span class='object_link'><a href="../SemanticCascade.html" title="Kotoshu::Suggestions::SemanticCascade (class)">Kotoshu::Suggestions::SemanticCascade</a></span>).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_s-instance_method" title="#to_s (instance method)">#<strong>to_s</strong>  &#x21d2; String </a>
+    
+
+    
+      (also: #inspect)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>String representation.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="BaseStrategy.html" title="Kotoshu::Suggestions::Strategies::BaseStrategy (class)">BaseStrategy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="BaseStrategy.html#calculate_ngram_similarity-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#calculate_ngram_similarity (method)">#calculate_ngram_similarity</a></span>, <span class='object_link'><a href="BaseStrategy.html#create_suggestion-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#create_suggestion (method)">#create_suggestion</a></span>, <span class='object_link'><a href="BaseStrategy.html#create_suggestion_set-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#create_suggestion_set (method)">#create_suggestion_set</a></span>, <span class='object_link'><a href="BaseStrategy.html#enabled%3F-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#enabled? (method)">#enabled?</a></span>, <span class='object_link'><a href="BaseStrategy.html#generate_ngrams-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#generate_ngrams (method)">#generate_ngrams</a></span>, <span class='object_link'><a href="BaseStrategy.html#get_config-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#get_config (method)">#get_config</a></span>, <span class='object_link'><a href="BaseStrategy.html#has_config%3F-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#has_config? (method)">#has_config?</a></span>, <span class='object_link'><a href="BaseStrategy.html#max_results-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#max_results (method)">#max_results</a></span>, <span class='object_link'><a href="BaseStrategy.html#priority-instance_method" title="Kotoshu::Suggestions::Strategies::BaseStrategy#priority (method)">#priority</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(language_code:, cache: nil, preload_embeddings: false, max_context_window: 5, min_semantic_similarity: 0.5, semantic_boost_weight: 0.3, **config)  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::Suggestions::Strategies::SemanticStrategy (class)">SemanticStrategy</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Create a new semantic strategy.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>language_code</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>ISO 639-1 language code</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>cache</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../Cache/ModelCache.html" title="Kotoshu::Cache::ModelCache (class)">Cache::ModelCache</a></span></tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Optional cache instance</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>preload_embeddings</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Whether to preload embeddings</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>max_context_window</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>5</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Words to consider for context</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>min_semantic_similarity</span>
+      
+      
+        <span class='type'>(<tt>Float</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>0.5</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Minimum similarity for semantic suggestions</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>semantic_boost_weight</span>
+      
+      
+        <span class='type'>(<tt>Float</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>0.3</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Weight for semantic similarity in re-ranking</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>config</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Additional configuration</p></div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/semantic_strategy.rb', line 47</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>language_code:</span><span class='comma'>,</span> <span class='label'>cache:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>preload_embeddings:</span> <span class='kw'>false</span><span class='comma'>,</span>
+               <span class='label'>max_context_window:</span> <span class='int'>5</span><span class='comma'>,</span> <span class='label'>min_semantic_similarity:</span> <span class='float'>0.5</span><span class='comma'>,</span>
+               <span class='label'>semantic_boost_weight:</span> <span class='float'>0.3</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_config'>config</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span>
+    <span class='label'>name:</span> <span class='symbol'>:semantic</span><span class='comma'>,</span>
+    <span class='label'>min_semantic_similarity:</span> <span class='id identifier rubyid_min_semantic_similarity'>min_semantic_similarity</span><span class='comma'>,</span>
+    <span class='label'>semantic_boost_weight:</span> <span class='id identifier rubyid_semantic_boost_weight'>semantic_boost_weight</span><span class='comma'>,</span>
+    <span class='label'>max_context_window:</span> <span class='id identifier rubyid_max_context_window'>max_context_window</span><span class='comma'>,</span>
+    <span class='op'>**</span><span class='id identifier rubyid_config'>config</span>
+  <span class='rparen'>)</span>
+  <span class='ivar'>@language_code</span> <span class='op'>=</span> <span class='id identifier rubyid_language_code'>language_code</span>
+  <span class='ivar'>@max_context_window</span> <span class='op'>=</span> <span class='id identifier rubyid_max_context_window'>max_context_window</span>
+  <span class='ivar'>@min_semantic_similarity</span> <span class='op'>=</span> <span class='id identifier rubyid_min_semantic_similarity'>min_semantic_similarity</span>
+  <span class='ivar'>@semantic_boost_weight</span> <span class='op'>=</span> <span class='id identifier rubyid_semantic_boost_weight'>semantic_boost_weight</span>
+
+  <span class='comment'># Initialize embedding components
+</span>  <span class='id identifier rubyid_initialize_embeddings'>initialize_embeddings</span><span class='lparen'>(</span><span class='id identifier rubyid_cache'>cache</span><span class='comma'>,</span> <span class='id identifier rubyid_preload_embeddings'>preload_embeddings</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="language_code-instance_method">
+  
+    #<strong>language_code</strong>  &#x21d2; <tt>String</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns Language code (ISO 639-1).</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Language code (ISO 639-1)</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+27
+28
+29</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/semantic_strategy.rb', line 27</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_language_code'>language_code</span>
+  <span class='ivar'>@language_code</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="model-instance_method">
+  
+    #<strong>model</strong>  &#x21d2; <tt><span class='object_link'><a href="../../Embeddings/OnnxRuntimeModel.html" title="Kotoshu::Embeddings::OnnxRuntimeModel (class)">Embeddings::OnnxRuntimeModel</a></span></tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns The ONNX model.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../Embeddings/OnnxRuntimeModel.html" title="Kotoshu::Embeddings::OnnxRuntimeModel (class)">Embeddings::OnnxRuntimeModel</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The ONNX model</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+33
+34
+35</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/semantic_strategy.rb', line 33</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_model'>model</span>
+  <span class='ivar'>@model</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="search-instance_method">
+  
+    #<strong>search</strong>  &#x21d2; <tt><span class='object_link'><a href="../../Embeddings/SimilaritySearch.html" title="Kotoshu::Embeddings::SimilaritySearch (class)">Embeddings::SimilaritySearch</a></span></tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns The similarity search.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../Embeddings/SimilaritySearch.html" title="Kotoshu::Embeddings::SimilaritySearch (class)">Embeddings::SimilaritySearch</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The similarity search</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+36
+37
+38</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/semantic_strategy.rb', line 36</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_search'>search</span>
+  <span class='ivar'>@search</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="vocabulary-instance_method">
+  
+    #<strong>vocabulary</strong>  &#x21d2; <tt><span class='object_link'><a href="../../Embeddings/Vocabulary.html" title="Kotoshu::Embeddings::Vocabulary (class)">Embeddings::Vocabulary</a></span></tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns The vocabulary.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../Embeddings/Vocabulary.html" title="Kotoshu::Embeddings::Vocabulary (class)">Embeddings::Vocabulary</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The vocabulary</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+30
+31
+32</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/semantic_strategy.rb', line 30</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_vocabulary'>vocabulary</span>
+  <span class='ivar'>@vocabulary</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="find_similar_words-instance_method">
+  
+    #<strong>find_similar_words</strong>(word, k: 10)  &#x21d2; <tt>Array&lt;Hash&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Find semantically similar words.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The query word</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>k</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>10</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Number of neighbors</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;Hash&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Array of similarity hashes</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+131
+132
+133
+134
+135</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/semantic_strategy.rb', line 131</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_similar_words'>find_similar_words</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='label'>k:</span> <span class='int'>10</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='kw'>unless</span> <span class='ivar'>@search</span>
+
+  <span class='ivar'>@search</span><span class='period'>.</span><span class='id identifier rubyid_find_nearest'>find_nearest</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='label'>k:</span> <span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='label'>exclude_self:</span> <span class='kw'>false</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate-instance_method">
+  
+    #<strong>generate</strong>(context)  &#x21d2; <tt><span class='object_link'><a href="../SuggestionSet.html" title="Kotoshu::Suggestions::SuggestionSet (class)">SuggestionSet</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Generate suggestions using semantic similarity.</p>
+<p>Handles two cases:</p>
+<ol>
+<li>Word not in vocabulary (typo): Re-ranks edit-distance candidates</li>
+<li>Word in vocabulary (real-word error): Finds semantically similar alternatives</li>
+</ol>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>context</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Context.html" title="Kotoshu::Suggestions::Context (class)">Context</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The suggestion context</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../SuggestionSet.html" title="Kotoshu::Suggestions::SuggestionSet (class)">SuggestionSet</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Generated suggestions</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/semantic_strategy.rb', line 74</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_word'>word</span> <span class='op'>=</span> <span class='id identifier rubyid_context'>context</span><span class='period'>.</span><span class='id identifier rubyid_word'>word</span>
+
+  <span class='comment'># Ensure embeddings are loaded
+</span>  <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="../SuggestionSet.html" title="Kotoshu::Suggestions::SuggestionSet (class)">SuggestionSet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_empty'><span class='object_link'><a href="../SuggestionSet.html#empty-class_method" title="Kotoshu::Suggestions::SuggestionSet.empty (method)">empty</a></span></span> <span class='kw'>unless</span> <span class='ivar'>@search</span>
+
+  <span class='comment'># Case 1: Word not in vocabulary (typo)
+</span>  <span class='kw'>unless</span> <span class='ivar'>@vocabulary</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_generate_for_typo'>generate_for_typo</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Case 2: Real-word error detection
+</span>  <span class='comment'># Find semantically similar words that might be correct in context
+</span>  <span class='id identifier rubyid_generate_for_real_word_error'>generate_for_real_word_error</span><span class='lparen'>(</span><span class='id identifier rubyid_context'>context</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handles?-instance_method">
+  
+    #<strong>handles?</strong>(_context)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Check if this strategy should handle the context.</p>
+<p>Semantic strategy handles:</p>
+<ul>
+<li>Words not in vocabulary (for typo re-ranking)</li>
+<li>Words in vocabulary (for real-word error detection)</li>
+</ul>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>_context</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Context.html" title="Kotoshu::Suggestions::Context (class)">Context</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The suggestion context</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>True if the strategy should handle this context</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+98
+99
+100
+101
+102
+103
+104</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/semantic_strategy.rb', line 98</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handles?'>handles?</span><span class='lparen'>(</span><span class='id identifier rubyid__context'>_context</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_enabled?'>enabled?</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='ivar'>@search</span> <span class='op'>&amp;&amp;</span> <span class='ivar'>@vocabulary</span>
+
+  <span class='comment'># Handle all words - we filter in generate()
+</span>  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="semantic_similarity-instance_method">
+  
+    #<strong>semantic_similarity</strong>(word1, word2)  &#x21d2; <tt>Float</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Compute semantic similarity between two words.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>word1</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>First word</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>word2</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Second word</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Float</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Cosine similarity or nil if either word not found</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+120
+121
+122
+123
+124</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/semantic_strategy.rb', line 120</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_semantic_similarity'>semantic_similarity</span><span class='lparen'>(</span><span class='id identifier rubyid_word1'>word1</span><span class='comma'>,</span> <span class='id identifier rubyid_word2'>word2</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='ivar'>@search</span>
+
+  <span class='ivar'>@search</span><span class='period'>.</span><span class='id identifier rubyid_similarity'>similarity</span><span class='lparen'>(</span><span class='id identifier rubyid_word1'>word1</span><span class='comma'>,</span> <span class='id identifier rubyid_word2'>word2</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="skip_when_confident?-instance_method">
+  
+    #<strong>skip_when_confident?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>The confidence cascade may skip this strategy: the ONNX
+rerank runs only when the traditional strategies are not
+already confident (see <span class='object_link'><a href="../SemanticCascade.html" title="Kotoshu::Suggestions::SemanticCascade (class)">Kotoshu::Suggestions::SemanticCascade</a></span>).</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+111
+112
+113</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/semantic_strategy.rb', line 111</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_skip_when_confident?'>skip_when_confident?</span>
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_s-instance_method">
+  
+    #<strong>to_s</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='inspect-instance_method'>inspect</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>String representation.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>String representation</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+140
+141
+142</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/suggestions/strategies/semantic_strategy.rb', line 140</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SemanticStrategy(language: </span><span class='embexpr_beg'>#{</span><span class='ivar'>@language_code</span><span class='embexpr_end'>}</span><span class='tstring_content'>, vocab_size: </span><span class='embexpr_beg'>#{</span><span class='ivar'>@vocabulary</span><span class='op'>&amp;.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>||</span> <span class='int'>0</span><span class='embexpr_end'>}</span><span class='tstring_content'>, loaded: </span><span class='embexpr_beg'>#{</span><span class='ivar'>@search</span> <span class='op'>&amp;&amp;</span> <span class='kw'>true</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:49 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

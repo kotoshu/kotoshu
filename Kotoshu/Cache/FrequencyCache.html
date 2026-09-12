@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Kotoshu::Cache::FrequencyCache
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Cache::FrequencyCache";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (F)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Cache.html" title="Kotoshu::Cache (module)">Cache</a></span></span>
+     &raquo; 
+    <span class="title">FrequencyCache</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Kotoshu::Cache::FrequencyCache
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="BaseCache.html" title="Kotoshu::Cache::BaseCache (class)">BaseCache</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="BaseCache.html" title="Kotoshu::Cache::BaseCache (class)">BaseCache</a></span></li>
+          
+            <li class="next">Kotoshu::Cache::FrequencyCache</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/cache/frequency_cache.rb
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>Frequency cache for Kelly Project frequency lists.</p>
+<p>Manages Kelly frequency list downloads from the kotoshu/frequency-list-kelly
+repository. Resources are cached locally in <code>$XDG_CACHE_HOME/kotoshu/frequency-lists/{code}/</code>
+with metadata for versioning and expiration.</p>
+<p>Extends BaseCache for common download, metadata, and validation logic.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+        <h5 class="example_title"><div class='inline'><p>Getting cached frequency data</p></div></h5>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_cache'>cache</span> <span class='op'>=</span> <span class='const'>FrequencyCache</span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="Kotoshu::Cache::FrequencyCache#initialize (method)">new</a></span></span>
+<span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='comment'># =&gt; { frequency_path: &quot;~/.cache/kotoshu/frequency-lists/en/frequency.json&quot;,
+</span><span class='comment'>#      tiers: { top_50: Set&lt;...&gt;, top_200: Set&lt;...&gt;, top_1000: Set&lt;...&gt; },
+</span><span class='comment'>#      metadata: { ... } }</span></code></pre>
+    
+      
+        <h5 class="example_title"><div class='inline'><p>Checking if frequency data is available</p></div></h5>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_cache'>cache</span> <span class='op'>=</span> <span class='const'>FrequencyCache</span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="Kotoshu::Cache::FrequencyCache#initialize (method)">new</a></span></span>
+<span class='id identifier rubyid_available'>available</span> <span class='op'>=</span> <span class='id identifier rubyid_cache'>cache</span><span class='period'>.</span><span class='id identifier rubyid_available?'>available?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>en</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='comment'># =&gt; true</span></code></pre>
+    
+  </div>
+
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="KELLY_LANGUAGES-constant" class="">KELLY_LANGUAGES =
+          <div class="docstring">
+  <div class="discussion">
+    <p>Kelly Project languages available</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='qwords_beg'>%w[</span><span class='tstring_content'>ar</span><span class='words_sep'> </span><span class='tstring_content'>zh</span><span class='words_sep'> </span><span class='tstring_content'>en</span><span class='words_sep'> </span><span class='tstring_content'>el</span><span class='words_sep'> </span><span class='tstring_content'>it</span><span class='words_sep'> </span><span class='tstring_content'>no</span><span class='words_sep'> </span><span class='tstring_content'>ru</span><span class='words_sep'> </span><span class='tstring_content'>sv</span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+        <dt id="GITHUB_REPO-constant" class="">GITHUB_REPO =
+          <div class="docstring">
+  <div class="discussion">
+    <p>GitHub repository for Kelly frequency lists</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>kotoshu/frequency-list-kelly</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="GITHUB_BRANCH-constant" class="">GITHUB_BRANCH =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>main</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="BaseCache.html" title="Kotoshu::Cache::BaseCache (class)">BaseCache</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="BaseCache.html#cache_path-instance_method" title="Kotoshu::Cache::BaseCache#cache_path (method)">#cache_path</a></span>, <span class='object_link'><a href="BaseCache.html#cache_ttl-instance_method" title="Kotoshu::Cache::BaseCache#cache_ttl (method)">#cache_ttl</a></span>, <span class='object_link'><a href="BaseCache.html#github_url-instance_method" title="Kotoshu::Cache::BaseCache#github_url (method)">#github_url</a></span>, <span class='object_link'><a href="BaseCache.html#max_cache_size-instance_method" title="Kotoshu::Cache::BaseCache#max_cache_size (method)">#max_cache_size</a></span>, <span class='object_link'><a href="BaseCache.html#source_registry-instance_method" title="Kotoshu::Cache::BaseCache#source_registry (method)">#source_registry</a></span>, <span class='object_link'><a href="BaseCache.html#url_base-instance_method" title="Kotoshu::Cache::BaseCache#url_base (method)">#url_base</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#available_languages-instance_method" title="#available_languages (instance method)">#<strong>available_languages</strong>  &#x21d2; Array&lt;String&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get list of available languages.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cached_resources-instance_method" title="#cached_resources (instance method)">#<strong>cached_resources</strong>  &#x21d2; Array&lt;String&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>List all cached resources.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_frequency-instance_method" title="#get_frequency (instance method)">#<strong>get_frequency</strong>(language_code, force_download: false)  &#x21d2; Hash<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Get frequency data for a language (alias for get).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(cache_path: nil, **kwargs)  &#x21d2; FrequencyCache </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The frequency cache always roots under .../frequency-lists, including when a base cache path is injected (ResourceManager passes the shared cfg.cache_path, the CLI passes its root): without the suffix, writers and readers split across two layouts and the metadata goes permanently stale (plan 117).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#install_local-instance_method" title="#install_local (instance method)">#<strong>install_local</strong>(language_code, path:, force: false)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Install a local frequency file into the cache without going through the network.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#load_cached-instance_method" title="#load_cached (instance method)">#<strong>load_cached</strong>(language_code)  &#x21d2; Hash<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Load cached resource data (implements abstract method).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#supports_resource%3F-instance_method" title="#supports_resource? (instance method)">#<strong>supports_resource?</strong>(resource_id)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Check if a resource type is supported.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="BaseCache.html" title="Kotoshu::Cache::BaseCache (class)">BaseCache</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="BaseCache.html#available%3F-instance_method" title="Kotoshu::Cache::BaseCache#available? (method)">#available?</a></span>, <span class='object_link'><a href="BaseCache.html#cache_kind-instance_method" title="Kotoshu::Cache::BaseCache#cache_kind (method)">#cache_kind</a></span>, <span class='object_link'><a href="BaseCache.html#cached_data%3F-instance_method" title="Kotoshu::Cache::BaseCache#cached_data? (method)">#cached_data?</a></span>, <span class='object_link'><a href="BaseCache.html#clean-instance_method" title="Kotoshu::Cache::BaseCache#clean (method)">#clean</a></span>, <span class='object_link'><a href="BaseCache.html#clear-instance_method" title="Kotoshu::Cache::BaseCache#clear (method)">#clear</a></span>, <span class='object_link'><a href="BaseCache.html#clear_all-instance_method" title="Kotoshu::Cache::BaseCache#clear_all (method)">#clear_all</a></span>, <span class='object_link'><a href="BaseCache.html#download-instance_method" title="Kotoshu::Cache::BaseCache#download (method)">#download</a></span>, <span class='object_link'><a href="BaseCache.html#evict-instance_method" title="Kotoshu::Cache::BaseCache#evict (method)">#evict</a></span>, <span class='object_link'><a href="BaseCache.html#get-instance_method" title="Kotoshu::Cache::BaseCache#get (method)">#get</a></span>, <span class='object_link'><a href="BaseCache.html#offline%3F-instance_method" title="Kotoshu::Cache::BaseCache#offline? (method)">#offline?</a></span>, <span class='object_link'><a href="BaseCache.html#read_metadata-instance_method" title="Kotoshu::Cache::BaseCache#read_metadata (method)">#read_metadata</a></span>, <span class='object_link'><a href="BaseCache.html#reset_stats-instance_method" title="Kotoshu::Cache::BaseCache#reset_stats (method)">#reset_stats</a></span>, <span class='object_link'><a href="BaseCache.html#stats-instance_method" title="Kotoshu::Cache::BaseCache#stats (method)">#stats</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(cache_path: nil, **kwargs)  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::Cache::FrequencyCache (class)">FrequencyCache</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>The frequency cache always roots under .../frequency-lists,
+including when a base cache path is injected (ResourceManager
+passes the shared cfg.cache_path, the CLI passes its root):
+without the suffix, writers and readers split across two
+layouts and the metadata goes permanently stale (plan 117).</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>cache_path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>base cache directory</p></div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+65
+66
+67
+68
+69
+70
+71</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/frequency_cache.rb', line 65</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>cache_path:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_kwargs'>kwargs</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_base'>base</span> <span class='op'>=</span> <span class='id identifier rubyid_cache_path'>cache_path</span> <span class='op'>||</span> <span class='id identifier rubyid_default_cache_path'>default_cache_path</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_base'>base</span><span class='period'>.</span><span class='id identifier rubyid_end_with?'>end_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>frequency-lists</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_base'>base</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='id identifier rubyid_base'>base</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>frequency-lists</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='label'>cache_path:</span> <span class='id identifier rubyid_base'>base</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_kwargs'>kwargs</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="available_languages-instance_method">
+  
+    #<strong>available_languages</strong>  &#x21d2; <tt>Array&lt;String&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get list of available languages.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>List of available language codes</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+37
+38
+39</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/frequency_cache.rb', line 37</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_available_languages'>available_languages</span>
+  <span class='const'><span class='object_link'><a href="#KELLY_LANGUAGES-constant" title="Kotoshu::Cache::FrequencyCache::KELLY_LANGUAGES (constant)">KELLY_LANGUAGES</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cached_resources-instance_method">
+  
+    #<strong>cached_resources</strong>  &#x21d2; <tt>Array&lt;String&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>List all cached resources.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>List of cached language codes</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+113
+114
+115
+116
+117
+118
+119
+120
+121</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/frequency_cache.rb', line 113</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cached_resources'>cached_resources</span>
+  <span class='id identifier rubyid_directories'>directories</span> <span class='op'>=</span> <span class='const'>Dir</span><span class='period'>.</span><span class='id identifier rubyid_glob'>glob</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='ivar'>@cache_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_path'>path</span><span class='op'>|</span>
+    <span class='id identifier rubyid_basename'>basename</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_basename'>basename</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+    <span class='comment'># Skip dotfiles AND the working-directory scratch slot that
+</span>    <span class='comment'># BaseCache#initialize creates at &lt;cache_path&gt;/tmp/.
+</span>    <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_directory?'>directory?</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_basename'>basename</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_basename'>basename</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>tmp</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_path'>path</span><span class='op'>|</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_basename'>basename</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_frequency-instance_method">
+  
+    #<strong>get_frequency</strong>(language_code, force_download: false)  &#x21d2; <tt>Hash</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Get frequency data for a language (alias for get).</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>language_code</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>ISO 639-1 language code</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>force_download</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Force re-download even if cached</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Frequency data with :frequency_path, :tiers, :metadata keys</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+46
+47
+48</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/frequency_cache.rb', line 46</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_frequency'>get_frequency</span><span class='lparen'>(</span><span class='id identifier rubyid_language_code'>language_code</span><span class='comma'>,</span> <span class='label'>force_download:</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_language_code'>language_code</span><span class='comma'>,</span> <span class='label'>force_download:</span> <span class='id identifier rubyid_force_download'>force_download</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="install_local-instance_method">
+  
+    #<strong>install_local</strong>(language_code, path:, force: false)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Install a local frequency file into the cache without going
+through the network. Mirrors <span class='object_link'><a href="LanguageCache.html#install_local-instance_method" title="Kotoshu::Cache::LanguageCache#install_local (method)">LanguageCache#install_local</a></span> for
+the frequency resource type — symlinks the user's file into the
+cache layout and writes a <code>local-source</code> metadata record so
+subsequent <span class='object_link'><a href="BaseCache.html#available%3F-instance_method" title="Kotoshu::Cache::BaseCache#available? (method)">BaseCache#available?</a></span> / <span class='object_link'><a href="BaseCache.html#get-instance_method" title="Kotoshu::Cache::BaseCache#get (method)">BaseCache#get</a></span> calls find it.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>language_code</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>ISO 639-1 language code</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Path to the local frequency.json file</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>force</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Overwrite an existing install</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>{ frequency_path:, metadata_path:, source: :local }</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/frequency_cache.rb', line 83</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_install_local'>install_local</span><span class='lparen'>(</span><span class='id identifier rubyid_language_code'>language_code</span><span class='comma'>,</span> <span class='label'>path:</span><span class='comma'>,</span> <span class='label'>force:</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lang_path'>lang_path</span> <span class='op'>=</span> <span class='id identifier rubyid_language_dir'>language_dir</span><span class='lparen'>(</span><span class='id identifier rubyid_language_code'>language_code</span><span class='rparen'>)</span>
+  <span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_mkdir_p'>mkdir_p</span><span class='lparen'>(</span><span class='id identifier rubyid_lang_path'>lang_path</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_target_frequency'>target_frequency</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='id identifier rubyid_lang_path'>lang_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>frequency.json</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_target_metadata'>target_metadata</span> <span class='op'>=</span> <span class='id identifier rubyid_metadata_path_for'>metadata_path_for</span><span class='lparen'>(</span><span class='id identifier rubyid_language_code'>language_code</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_target_frequency'>target_frequency</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_symlink?'>symlink?</span><span class='lparen'>(</span><span class='id identifier rubyid_target_frequency'>target_frequency</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_target_frequency'>target_frequency</span><span class='embexpr_end'>}</span><span class='tstring_content'> already exists (use force: true to overwrite)</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_force'>force</span>
+
+    <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_unlink'>unlink</span><span class='lparen'>(</span><span class='id identifier rubyid_target_frequency'>target_frequency</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_symlink'>symlink</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_expand_path'>expand_path</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_target_frequency'>target_frequency</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_write_metadata'>write_metadata</span><span class='lparen'>(</span><span class='id identifier rubyid_target_metadata'>target_metadata</span><span class='comma'>,</span>
+                 <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>version</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_utc'>utc</span><span class='period'>.</span><span class='id identifier rubyid_iso8601'>iso8601</span><span class='comma'>,</span>
+                 <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>url</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>local:</span><span class='embexpr_beg'>#{</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_expand_path'>expand_path</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+                 <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>language</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_language_code'>language_code</span><span class='comma'>,</span>
+                 <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>type</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>kelly_frequency</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+                 <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>source</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>local</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+                 <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>checksum</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_checksum'>checksum</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_binread'>binread</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='comma'>,</span>
+                 <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cached_at</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_utc'>utc</span><span class='period'>.</span><span class='id identifier rubyid_iso8601'>iso8601</span><span class='rparen'>)</span>
+
+  <span class='lbrace'>{</span> <span class='label'>frequency_path:</span> <span class='id identifier rubyid_target_frequency'>target_frequency</span><span class='comma'>,</span> <span class='label'>metadata_path:</span> <span class='id identifier rubyid_target_metadata'>target_metadata</span><span class='comma'>,</span> <span class='label'>source:</span> <span class='symbol'>:local</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load_cached-instance_method">
+  
+    #<strong>load_cached</strong>(language_code)  &#x21d2; <tt>Hash</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Load cached resource data (implements abstract method).</p>
+<p>Public — this is the cache-only reader BaseCache declares
+publicly; resolve paths and FrequencyProvider use it to read
+without any download.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>language_code</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The language code</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Loaded frequency data</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/frequency_cache.rb', line 131</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load_cached'>load_cached</span><span class='lparen'>(</span><span class='id identifier rubyid_language_code'>language_code</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_frequency_file'>frequency_file</span> <span class='op'>=</span> <span class='id identifier rubyid_frequency_file_path'>frequency_file_path</span><span class='lparen'>(</span><span class='id identifier rubyid_language_code'>language_code</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_metadata_path'>metadata_path</span> <span class='op'>=</span> <span class='id identifier rubyid_metadata_path'>metadata_path</span><span class='lparen'>(</span><span class='id identifier rubyid_language_code'>language_code</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_frequency_file'>frequency_file</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_metadata_path'>metadata_path</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_metadata'>metadata</span> <span class='op'>=</span> <span class='id identifier rubyid_read_metadata'>read_metadata</span><span class='lparen'>(</span><span class='id identifier rubyid_metadata_path'>metadata_path</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_metadata'>metadata</span>
+
+  <span class='comment'># Load frequency file
+</span>  <span class='comment'># CommonWordsLoader autoloaded via Kotoshu::Data
+</span>  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Data.html" title="Kotoshu::Data (module)">Data</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Data/CommonWordsLoader.html" title="Kotoshu::Data::CommonWordsLoader (class)">CommonWordsLoader</a></span></span><span class='period'>.</span><span class='id identifier rubyid_load_from_frequency_file'><span class='object_link'><a href="../Data/CommonWordsLoader.html#load_from_frequency_file-class_method" title="Kotoshu::Data::CommonWordsLoader.load_from_frequency_file (method)">load_from_frequency_file</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_frequency_file'>frequency_file</span><span class='rparen'>)</span>
+
+  <span class='lbrace'>{</span>
+    <span class='label'>frequency_path:</span> <span class='id identifier rubyid_frequency_file'>frequency_file</span><span class='comma'>,</span>
+    <span class='label'>tiers:</span> <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='symbol'>:tiers</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>metadata:</span> <span class='id identifier rubyid_metadata'>metadata</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="supports_resource?-instance_method">
+  
+    #<strong>supports_resource?</strong>(resource_id)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Check if a resource type is supported.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>resource_id</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The resource identifier (language code)</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>True if supported</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+54
+55
+56</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/cache/frequency_cache.rb', line 54</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_supports_resource?'>supports_resource?</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="#KELLY_LANGUAGES-constant" title="Kotoshu::Cache::FrequencyCache::KELLY_LANGUAGES (constant)">KELLY_LANGUAGES</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_resource_id'>resource_id</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:42 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

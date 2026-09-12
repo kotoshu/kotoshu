@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Kotoshu::NativeBackend
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::NativeBackend";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (N)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span>
+     &raquo; 
+    <span class="title">NativeBackend</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Kotoshu::NativeBackend
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Kotoshu::NativeBackend</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/native_backend.rb
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>Native engine adapter (plan 66, P4b): <code>correct?</code> and <code>suggest</code> for one
+loaded Hunspell dictionary, computed by the kotoshu-rs core through
+<span class='object_link'><a href="Native.html" title="Kotoshu::Native (module)">Native</a></span>.</p>
+<h2 id="Boundary__deliberate__documented_">Boundary (deliberate, documented)</h2>
+<p>The native engine accelerates exactly the two hot-path calls of the
+traditional checking path — correct?(word) and suggest(word) — over a
+file-backed Hunspell dictionary, where kotoshu-rs implements the full
+dictionary + affix + suggest composite and is held to byte-identical
+results by the conformance vectors (rake kotoshu:conformance:compare).
+Everything else stays Ruby: non-Hunspell dictionary backends, the
+suggestion strategy pipeline beyond the conformance surface, the
+semantic path (<span class='object_link'><a href="Analyzers/SemanticAnalyzer.html" title="Kotoshu::Analyzers::SemanticAnalyzer (class)">Analyzers::SemanticAnalyzer</a></span>, ONNX models), grammar
+rules, caches, and document tokenizing. The extension is a pure
+accelerator, never a dependency.</p>
+<h2 id="Selection">Selection</h2>
+<p>See <span class='object_link'><a href="Configuration.html#backend-instance_method" title="Kotoshu::Configuration#backend (method)">Configuration#backend</a></span> / <code>KOTOSHU_BACKEND</code>:</p>
+<dl>
+<dt>ruby   </dt>
+<dd><p>never uses the native engine (default).</p></dd>
+<dt>auto   </dt>
+<dd><p>uses it when the extension is loaded AND the dictionary is a
+file-backed Hunspell; silently pure-Ruby otherwise.</p></dd>
+<dt>native </dt>
+<dd><p>uses it or raises <span class='object_link'><a href="Native/Unavailable.html" title="Kotoshu::Native::Unavailable (class)">Kotoshu::Native::Unavailable</a></span> — loud failure for
+debugging and benchmarking.</p></dd>
+</dl>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#native_dictionary-instance_method" title="#native_dictionary (instance method)">#<strong>native_dictionary</strong>  &#x21d2; Kotoshu::Native::Dictionary </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The loaded native dictionary.</p></div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#hunspell_paths-class_method" title="hunspell_paths (class method)">.<strong>hunspell_paths</strong>(dictionary)  &#x21d2; Array&lt;String&gt;<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The (aff, dic) paths of a file-backed Hunspell dictionary — the only dictionary form the native engine loads.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#resolve-class_method" title="resolve (class method)">.<strong>resolve</strong>(dictionary:, backend:, max_suggestions: 10)  &#x21d2; NativeBackend<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Resolve which backend serves a Spellchecker built over <code>dictionary</code>.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#correct%3F-instance_method" title="#correct? (instance method)">#<strong>correct?</strong>(word)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Check a word against the native dictionary.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(aff_path:, dic_path:, max_suggestions: 10)  &#x21d2; NativeBackend </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>A new instance of NativeBackend.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#suggest-instance_method" title="#suggest (instance method)">#<strong>suggest</strong>(word, max_suggestions: nil)  &#x21d2; Suggestions::SuggestionSet </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Suggest corrections for a word through the native engine, returning the same <span class='object_link'><a href="Suggestions/SuggestionSet.html" title="Kotoshu::Suggestions::SuggestionSet (class)">Suggestions::SuggestionSet</a></span> the Ruby path returns.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(aff_path:, dic_path:, max_suggestions: 10)  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::NativeBackend (class)">NativeBackend</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns a new instance of NativeBackend.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>aff_path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>path to the .aff file</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>dic_path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>path to the .dic file</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>max_suggestions</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>10</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>default suggestion limit</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Native::Error</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>the dictionary failed to load (message from
+the Rust engine)</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+95
+96
+97
+98</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/native_backend.rb', line 95</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>aff_path:</span><span class='comma'>,</span> <span class='label'>dic_path:</span><span class='comma'>,</span> <span class='label'>max_suggestions:</span> <span class='int'>10</span><span class='rparen'>)</span>
+  <span class='ivar'>@max_suggestions</span> <span class='op'>=</span> <span class='id identifier rubyid_max_suggestions'>max_suggestions</span>
+  <span class='ivar'>@native_dictionary</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Native.html" title="Kotoshu::Native (module)">Native</a></span></span><span class='op'>::</span><span class='const'>Dictionary</span><span class='period'>.</span><span class='id identifier rubyid_load'>load</span><span class='lparen'>(</span><span class='id identifier rubyid_aff_path'>aff_path</span><span class='comma'>,</span> <span class='id identifier rubyid_dic_path'>dic_path</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="native_dictionary-instance_method">
+  
+    #<strong>native_dictionary</strong>  &#x21d2; <tt>Kotoshu::Native::Dictionary</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the loaded native dictionary.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Kotoshu::Native::Dictionary</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>the loaded native dictionary</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+32
+33
+34</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/native_backend.rb', line 32</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_native_dictionary'>native_dictionary</span>
+  <span class='ivar'>@native_dictionary</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="hunspell_paths-class_method">
+  
+    .<strong>hunspell_paths</strong>(dictionary)  &#x21d2; <tt>Array&lt;String&gt;</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>The (aff, dic) paths of a file-backed Hunspell dictionary — the only
+dictionary form the native engine loads. Everything else answers nil.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>dictionary</span>
+      
+      
+        <span class='type'>(<tt>Object</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+80
+81
+82
+83
+84
+85
+86
+87
+88</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/native_backend.rb', line 80</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_hunspell_paths'>hunspell_paths</span><span class='lparen'>(</span><span class='id identifier rubyid_dictionary'>dictionary</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_dictionary'>dictionary</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Dictionary.html" title="Kotoshu::Dictionary (module)">Dictionary</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Dictionary/Hunspell.html" title="Kotoshu::Dictionary::Hunspell (class)">Hunspell</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_aff'>aff</span> <span class='op'>=</span> <span class='id identifier rubyid_dictionary'>dictionary</span><span class='period'>.</span><span class='id identifier rubyid_aff_path'>aff_path</span>
+  <span class='id identifier rubyid_dic'>dic</span> <span class='op'>=</span> <span class='id identifier rubyid_dictionary'>dictionary</span><span class='period'>.</span><span class='id identifier rubyid_dic_path'>dic_path</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_aff'>aff</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_dic'>dic</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='lbracket'>[</span><span class='id identifier rubyid_aff'>aff</span><span class='comma'>,</span> <span class='id identifier rubyid_dic'>dic</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="resolve-class_method">
+  
+    .<strong>resolve</strong>(dictionary:, backend:, max_suggestions: 10)  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::NativeBackend (class)">NativeBackend</a></span></tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Resolve which backend serves a Spellchecker built over <code>dictionary</code>.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>dictionary</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Dictionary/Base.html" title="Kotoshu::Dictionary::Base (class)">Dictionary::Base</a></span></tt>, <tt>Object</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>the dictionary the
+Spellchecker was built with</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>backend</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>&quot;ruby&quot;, &quot;auto&quot;, or &quot;native&quot;</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>max_suggestions</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>10</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>default suggestion limit</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Kotoshu::NativeBackend (class)">NativeBackend</a></span></tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>nil when the pure-Ruby engine serves the
+request</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Native/Unavailable.html" title="Kotoshu::Native::Unavailable (class)">Native::Unavailable</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>backend &quot;native&quot; and the engine cannot
+serve the request</p></div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="ConfigurationError.html" title="Kotoshu::ConfigurationError (class)">ConfigurationError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>unknown backend value</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/native_backend.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_resolve'>resolve</span><span class='lparen'>(</span><span class='label'>dictionary:</span><span class='comma'>,</span> <span class='label'>backend:</span><span class='comma'>,</span> <span class='label'>max_suggestions:</span> <span class='int'>10</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_backend'>backend</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ruby</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>nil</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>auto</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_paths'>paths</span> <span class='op'>=</span> <span class='id identifier rubyid_hunspell_paths'>hunspell_paths</span><span class='lparen'>(</span><span class='id identifier rubyid_dictionary'>dictionary</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_paths'>paths</span> <span class='op'>&amp;&amp;</span> <span class='const'><span class='object_link'><a href="../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Native.html" title="Kotoshu::Native (module)">Native</a></span></span><span class='period'>.</span><span class='id identifier rubyid_available?'><span class='object_link'><a href="Native.html#available%3F-class_method" title="Kotoshu::Native.available? (method)">available?</a></span></span>
+
+    <span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>aff_path:</span> <span class='id identifier rubyid_paths'>paths</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='label'>dic_path:</span> <span class='id identifier rubyid_paths'>paths</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='int'>1</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='label'>max_suggestions:</span> <span class='id identifier rubyid_max_suggestions'>max_suggestions</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>native</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>unless</span> <span class='const'><span class='object_link'><a href="../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Native.html" title="Kotoshu::Native (module)">Native</a></span></span><span class='period'>.</span><span class='id identifier rubyid_available?'><span class='object_link'><a href="Native.html#available%3F-class_method" title="Kotoshu::Native.available? (method)">available?</a></span></span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="Native.html" title="Kotoshu::Native (module)">Native</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Native/Unavailable.html" title="Kotoshu::Native::Unavailable (class)">Unavailable</a></span></span><span class='comma'>,</span>
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>native backend requested (KOTOSHU_BACKEND=native) but the extension is not </span><span class='tstring_end'>&quot;</span></span> \
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>available — build it with `rake compile` or install the gem where it compiled</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_paths'>paths</span> <span class='op'>=</span> <span class='id identifier rubyid_hunspell_paths'>hunspell_paths</span><span class='lparen'>(</span><span class='id identifier rubyid_dictionary'>dictionary</span><span class='rparen'>)</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_paths'>paths</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="Native.html" title="Kotoshu::Native (module)">Native</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Native/Unavailable.html" title="Kotoshu::Native::Unavailable (class)">Unavailable</a></span></span><span class='comma'>,</span>
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>native backend requested (KOTOSHU_BACKEND=native) but it only loads </span><span class='tstring_end'>&quot;</span></span> \
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hunspell dictionaries — got </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dictionary'>dictionary</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>aff_path:</span> <span class='id identifier rubyid_paths'>paths</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='label'>dic_path:</span> <span class='id identifier rubyid_paths'>paths</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='int'>1</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='label'>max_suggestions:</span> <span class='id identifier rubyid_max_suggestions'>max_suggestions</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="ConfigurationError.html" title="Kotoshu::ConfigurationError (class)">ConfigurationError</a></span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown backend </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_backend'>backend</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'> (expected \&quot;ruby\&quot;, \&quot;auto\&quot;, or \&quot;native\&quot;)</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="correct?-instance_method">
+  
+    #<strong>correct?</strong>(word)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Check a word against the native dictionary.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+104
+105
+106</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/native_backend.rb', line 104</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_correct?'>correct?</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span>
+  <span class='ivar'>@native_dictionary</span><span class='period'>.</span><span class='id identifier rubyid_correct?'>correct?</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="suggest-instance_method">
+  
+    #<strong>suggest</strong>(word, max_suggestions: nil)  &#x21d2; <tt><span class='object_link'><a href="Suggestions/SuggestionSet.html" title="Kotoshu::Suggestions::SuggestionSet (class)">Suggestions::SuggestionSet</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Suggest corrections for a word through the native engine, returning
+the same <span class='object_link'><a href="Suggestions/SuggestionSet.html" title="Kotoshu::Suggestions::SuggestionSet (class)">Suggestions::SuggestionSet</a></span> the Ruby path returns.</p>
+<p>The Rust engine returns rows already ranked, deduplicated, and
+limited — its ranking is conformance-frozen to the Ruby engine's
+behavior (rake kotoshu:conformance:compare), and its tie order can
+depend on ranking signals that do not live on the Suggestion objects.
+The set therefore adopts the native order verbatim (ranked: true)
+instead of re-sorting.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>word</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>max_suggestions</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>limit override</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Suggestions/SuggestionSet.html" title="Kotoshu::Suggestions::SuggestionSet (class)">Suggestions::SuggestionSet</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+121
+122
+123
+124
+125
+126
+127
+128
+129</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/native_backend.rb', line 121</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_suggest'>suggest</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='label'>max_suggestions:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_limit'>limit</span> <span class='op'>=</span> <span class='id identifier rubyid_max_suggestions'>max_suggestions</span> <span class='op'>||</span> <span class='ivar'>@max_suggestions</span>
+  <span class='id identifier rubyid_rows'>rows</span> <span class='op'>=</span> <span class='ivar'>@native_dictionary</span><span class='period'>.</span><span class='id identifier rubyid_suggest'>suggest</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='id identifier rubyid_limit'>limit</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="Suggestions.html" title="Kotoshu::Suggestions (module)">Suggestions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Suggestions/SuggestionSet.html" title="Kotoshu::Suggestions::SuggestionSet (class)">SuggestionSet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Suggestions/SuggestionSet.html#initialize-instance_method" title="Kotoshu::Suggestions::SuggestionSet#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+    <span class='id identifier rubyid_rows'>rows</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_row'>row</span><span class='op'>|</span> <span class='const'><span class='object_link'><a href="../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Native.html" title="Kotoshu::Native (module)">Native</a></span></span><span class='period'>.</span><span class='id identifier rubyid_suggestion'><span class='object_link'><a href="Native.html#suggestion-class_method" title="Kotoshu::Native.suggestion (method)">suggestion</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_row'>row</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='label'>max_size:</span> <span class='id identifier rubyid_limit'>limit</span><span class='comma'>,</span>
+    <span class='label'>ranked:</span> <span class='kw'>true</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:38 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

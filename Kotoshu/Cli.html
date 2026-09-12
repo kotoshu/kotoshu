@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Kotoshu::Cli
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Cli";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span>
+     &raquo; 
+    <span class="title">Cli</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Kotoshu::Cli
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/cli.rb<span class="defines">,<br>
+  lib/kotoshu/cli/errors.rb,<br> lib/kotoshu/cli/auto_setup.rb,<br> lib/kotoshu/cli/dict_command.rb,<br> lib/kotoshu/cli/cache_command.rb,<br> lib/kotoshu/cli/status_report.rb,<br> lib/kotoshu/cli/batch_reporter.rb,<br> lib/kotoshu/cli/ignore_matcher.rb,<br> lib/kotoshu/cli/directory_check.rb,<br> lib/kotoshu/cli/baseline_command.rb,<br> lib/kotoshu/cli/directory_walker.rb,<br> lib/kotoshu/cli/personal_command.rb,<br> lib/kotoshu/cli/display_formatter.rb,<br> lib/kotoshu/cli/language_resolver.rb,<br> lib/kotoshu/cli/progress_reporter.rb,<br> lib/kotoshu/cli/navigation_manager.rb,<br> lib/kotoshu/cli/completions_command.rb,<br> lib/kotoshu/cli/interactive_reviewer.rb,<br> sig/kotoshu.rbs</span>
+
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>Command-line interface namespace.</p>
+<p>The entry class is <span class='object_link'><a href="Cli/Cli.html" title="Kotoshu::Cli::Cli (class)">Cli</a></span> (driven by exe/kotoshu); helper
+components — subcommands, the interactive reviewer, reporting and
+directory walking — are autoloaded from cli/.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Cli/Completions.html" title="Kotoshu::Cli::Completions (module)">Completions</a></span>, <span class='object_link'><a href="Cli/Errors.html" title="Kotoshu::Cli::Errors (module)">Errors</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Cli/AutoSetup.html" title="Kotoshu::Cli::AutoSetup (class)">AutoSetup</a></span>, <span class='object_link'><a href="Cli/BaselineCommand.html" title="Kotoshu::Cli::BaselineCommand (class)">BaselineCommand</a></span>, <span class='object_link'><a href="Cli/BatchReporter.html" title="Kotoshu::Cli::BatchReporter (class)">BatchReporter</a></span>, <span class='object_link'><a href="Cli/CacheCommand.html" title="Kotoshu::Cli::CacheCommand (class)">CacheCommand</a></span>, <span class='object_link'><a href="Cli/Cli.html" title="Kotoshu::Cli::Cli (class)">Cli</a></span>, <span class='object_link'><a href="Cli/CompletionsCommand.html" title="Kotoshu::Cli::CompletionsCommand (class)">CompletionsCommand</a></span>, <span class='object_link'><a href="Cli/DictCommand.html" title="Kotoshu::Cli::DictCommand (class)">DictCommand</a></span>, <span class='object_link'><a href="Cli/DirectoryCheck.html" title="Kotoshu::Cli::DirectoryCheck (class)">DirectoryCheck</a></span>, <span class='object_link'><a href="Cli/DirectoryWalker.html" title="Kotoshu::Cli::DirectoryWalker (class)">DirectoryWalker</a></span>, <span class='object_link'><a href="Cli/DisplayFormatter.html" title="Kotoshu::Cli::DisplayFormatter (class)">DisplayFormatter</a></span>, <span class='object_link'><a href="Cli/IgnoreMatcher.html" title="Kotoshu::Cli::IgnoreMatcher (class)">IgnoreMatcher</a></span>, <span class='object_link'><a href="Cli/InteractiveReviewer.html" title="Kotoshu::Cli::InteractiveReviewer (class)">InteractiveReviewer</a></span>, <span class='object_link'><a href="Cli/LanguageResolver.html" title="Kotoshu::Cli::LanguageResolver (class)">LanguageResolver</a></span>, <span class='object_link'><a href="Cli/NavigationManager.html" title="Kotoshu::Cli::NavigationManager (class)">NavigationManager</a></span>, <span class='object_link'><a href="Cli/PersonalCommand.html" title="Kotoshu::Cli::PersonalCommand (class)">PersonalCommand</a></span>, <span class='object_link'><a href="Cli/ProgressReporter.html" title="Kotoshu::Cli::ProgressReporter (class)">ProgressReporter</a></span>, <span class='object_link'><a href="Cli/StatusReport.html" title="Kotoshu::Cli::StatusReport (class)">StatusReport</a></span>
+    
+  
+</p>
+
+
+
+
+
+
+
+
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Sep 12 14:12:35 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>
