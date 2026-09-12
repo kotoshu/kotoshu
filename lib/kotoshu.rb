@@ -44,6 +44,7 @@ module Kotoshu
   # autoload so a missing extension can never break `require "kotoshu"`.
   autoload :Native, "kotoshu/native"
   autoload :NativeBackend, "kotoshu/native_backend"
+  autoload :Typo, "kotoshu/typo"
   autoload :Readers, "kotoshu/readers"
   autoload :ResourceBundle, "kotoshu/resource_bundle"
   autoload :ResourceManager, "kotoshu/resource_manager"

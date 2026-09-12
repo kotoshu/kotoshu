@@ -140,9 +140,39 @@ module Kotoshu
     def suggest(word, max_suggestions: nil)
       return Suggestions::SuggestionSet.empty if word.nil? || word.empty?
 
-      return @native_backend.suggest(word, max_suggestions: max_suggestions) if @native_backend
+      base = if @native_backend
+               @native_backend.suggest(word, max_suggestions: max_suggestions)
+             else
+               @generator.generate(word, max_suggestions: max_suggestions)
+             end
+      merge_typo_retrieval(base, word, max_suggestions: max_suggestions)
+    end
 
-      @generator.generate(word, max_suggestions: max_suggestions)
+    # Merge the opt-in typo-retrieval slate (plan 131) AHEAD of the
+    # base suggestions: the bi-encoder surfaces corrections a
+    # frequency-ranked sweep misses, so its rows lead. Inert unless
+    # typo_retrieval is configured AND the native engine loaded for
+    # this language — a disabled layer is a passthrough, never an
+    # error, never a different order.
+    def merge_typo_retrieval(base, word, max_suggestions: nil)
+      return base unless @config.typo_retrieval
+
+      engine = typo_retrieval_engine
+      return base unless engine
+
+      typo = engine.suggest(word, max_suggestions: max_suggestions)
+      limit = max_suggestions || @config.max_suggestions
+      Suggestions::TypoMerge.call(base: base, typo: typo, limit: limit)
+    end
+
+    # The typo engine for this language, resolved once. A nil result
+    # is memoized too — an unavailable layer must not retry its
+    # artifact resolution on every suggestion.
+    def typo_retrieval_engine
+      return @typo_retrieval_engine if defined?(@typo_retrieval_engine)
+
+      code = (@resource_bundle&.language || @config.language).to_s.split("-").first
+      @typo_retrieval_engine = Kotoshu::Typo::Engine.for(code, configuration: @config)
     end
 
     # Check a word and return a result object.
