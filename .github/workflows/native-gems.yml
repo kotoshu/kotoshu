@@ -59,6 +59,17 @@ jobs:
           ruby-version: "3.4"
           bundler-cache: true
 
+      - name: Point bindgen at the MinGW headers (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          /c/msys64/usr/bin/pacman.exe -Sy --needed --noconfirm mingw-w64-ucrt-x86_64-crt
+          # RubyInstaller Ruby was built against MSYS2's ucrt64 MinGW
+          # headers; bindgen's clang must parse them in GNU mode or the
+          # struct layouts come out wrong (long is 32-bit under MSVC).
+          # Mirrors oxidize-rb's own CI (setup-ruby-and-rust, msys2 path).
+          echo 'BINDGEN_EXTRA_CLANG_ARGS=--target=x86_64-pc-windows-gnu --sysroot=C:/msys64/ucrt64 -D__AVX512VLFP16INTRIN_H -D__AVX512FP16INTRIN_H' >> "$GITHUB_ENV"
+
       - name: Compile the extension (release)
         run: bundle exec rake compile:release
 
