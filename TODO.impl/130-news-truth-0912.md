@@ -1,6 +1,7 @@
 # Plan 130 — News truth: the 1.0.1 patch and the 09-12 wave
 
-Status: pending
+Status: executed (site 6daa72d, 2026-09-12) — gem-1-0-1 and
+evidence-2026-09 entries live; NewsKind widened with 'docs'.
 Depends on: plans 119/121 (1.0.1 content), 123/125/126/127
 
 ## Problem
