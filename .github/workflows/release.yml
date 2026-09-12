@@ -94,3 +94,65 @@ jobs:
 
       - name: Push gem (trusted publishing)
         run: gem push kotoshu-*.gem
+
+  # Precompiled native platform gems (plan 133): the same trusted
+  # publishing registration covers this job (same workflow file), and
+  # each matrix leg pushes its own platform gem, so a failed leg can be
+  # re-run individually. `gem install kotoshu` then resolves the Rust
+  # engine on platforms that have a gem, and the pure-Ruby gem
+  # everywhere else.
+  native:
+    runs-on: ${{ matrix.runs-on }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: x86_64-linux
+            runs-on: ubuntu-latest
+            docker: true
+          - platform: aarch64-linux
+            runs-on: ubuntu-latest
+            docker: true
+          - platform: arm64-darwin
+            runs-on: macos-14
+          - platform: x86_64-darwin
+            runs-on: macos-14
+          - platform: x64-mingw-ucrt
+            runs-on: windows-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+
+      - name: Configure RubyGems credentials (trusted publishing via OIDC)
+        uses: rubygems/configure-rubygems-credentials@v1.0.0
+
+      - name: Read the released version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(grep -oE '[0-9]+\.[0-9]+\.[0-9]+' lib/kotoshu/version.rb | head -1)
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Build the platform gem (Linux cross via rb-sys docker)
+        if: matrix.docker
+        run: |
+          docker run --rm -v "$PWD":/src -w /src             -e RUBY_TARGET=${{ matrix.platform }}             -e BUILD_NATIVE_GEM=1             ghcr.io/rbsys/${{ matrix.platform }}:latest             bash -c "gem install rb_sys rake-compiler && bundle install --without development && rake nativegem"
+
+      - name: Build the platform gem (native runners)
+        if: ${{ !matrix.docker }}
+        shell: bash
+        run: |
+          if [ "${{ matrix.platform }}" = "x86_64-darwin" ]; then
+            rustup target add x86_64-apple-darwin
+          fi
+          RUBY_TARGET=${{ matrix.platform }} BUILD_NATIVE_GEM=1 bundle exec rake nativegem
+
+      - name: Push the platform gem (trusted publishing)
+        shell: bash
+        run: gem push kotoshu-*-${{ matrix.platform }}.gem

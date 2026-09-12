@@ -23,6 +23,10 @@ RSpec.describe Kotoshu::NativeBackend do
   end
 
   describe ".resolve" do
+    it "auto is the default backend setting" do
+      expect(Kotoshu::Configuration::DEFAULTS[:backend]).to eq("auto")
+    end
+
     it "never selects the native engine for backend ruby" do
       expect(described_class.resolve(dictionary: hunspell_dictionary, backend: "ruby")).to be_nil
     end
