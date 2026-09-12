@@ -30,6 +30,13 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      # The native legs must build the POST-bump version: the tag this
+      # job pushes is the ref they check out. Without the dependency
+      # they race the bump and ship platform gems one version behind,
+      # which never resolve for `gem install kotoshu`.
+      version: ${{ steps.version.outputs.next }}
+      skip_bump: ${{ steps.version.outputs.skip_bump }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -103,6 +110,7 @@ jobs:
   # on platforms that have a gem; the pure-Ruby gem serves everywhere
   # else and is always published alongside.
   native:
+    needs: release
     runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
@@ -133,6 +141,10 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The tag the release job pushed carries the bumped version;
+          # skip-mode (no bump) falls back to the dispatched ref.
+          ref: ${{ needs.release.outputs.skip_bump == 'true' && github.ref_name || format('v{0}', needs.release.outputs.version) }}
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: ${{ matrix.toolchain }}
