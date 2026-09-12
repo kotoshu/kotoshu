@@ -12,6 +12,7 @@ module Kotoshu
     autoload :Suggestion, "kotoshu/suggestions/suggestion"
     autoload :SuggestionSet, "kotoshu/suggestions/suggestion_set"
     autoload :SweepIndex, "kotoshu/suggestions/sweep_index"
+    autoload :TypoMerge, "kotoshu/suggestions/typo_merge"
 
     # Strategies sub-namespace.
     module Strategies
@@ -23,6 +24,7 @@ module Kotoshu
       autoload :PhoneticStrategy, "kotoshu/suggestions/strategies/phonetic_strategy"
       autoload :SemanticStrategy, "kotoshu/suggestions/strategies/semantic_strategy"
       autoload :SymspellStrategy, "kotoshu/suggestions/strategies/symspell_strategy"
+      autoload :TypoRetrievalStrategy, "kotoshu/suggestions/strategies/typo_retrieval_strategy"
       autoload :WordIndex, "kotoshu/suggestions/strategies/word_index"
     end
   end

@@ -206,9 +206,15 @@ module Kotoshu
       },
       backend: {
         env: "KOTOSHU_BACKEND",
-        default: "ruby",
-        description: "Engine backend for correct?/suggest (auto by default: native when the extension is available, ruby otherwise; or force either)",
+        default: "auto",
+        description: "Engine backend for correct?/suggest (auto: native when the extension is available, ruby otherwise; or force either)",
         type: String
+      },
+      typo_retrieval: {
+        env: "KOTOSHU_TYPO_RETRIEVAL",
+        default: false,
+        description: "Opt-in hybrid typo retrieval (plan 131): the native bi-encoder slate merges ahead of frequency ranking; needs the native backend",
+        type: :boolean
       },
       personal_dictionary: {
         env: "KOTOSHU_PERSONAL_DICTIONARY",
@@ -241,6 +247,7 @@ module Kotoshu
       # conformance contract), so the default is the faster engine
       # with the pure fallback, never a failure.
       backend: "auto",
+      typo_retrieval: false,
       personal_dictionary: true
     }.freeze
 
@@ -300,6 +307,12 @@ module Kotoshu
     #   Hunspell, else pure Ruby). Env: KOTOSHU_BACKEND. See
     #   NativeBackend for the boundary — the semantic path stays Ruby.
     attr_accessor :backend
+
+    # @return [Boolean] Opt-in hybrid typo retrieval (plan 131): the
+    #   native bi-encoder's rescored slate merges ahead of frequency
+    #   ranking when the native backend serves the language. Env:
+    #   KOTOSHU_TYPO_RETRIEVAL.
+    attr_accessor :typo_retrieval
 
     # @return [Boolean] Whether Spellchecker#check accepts words from
     #   the user personal dictionary (~/.config/kotoshu/personal.dic,
@@ -511,6 +524,7 @@ module Kotoshu
         max_cache_size: @max_cache_size,
         semantic_cascade_threshold: @semantic_cascade_threshold,
         backend: @backend,
+        typo_retrieval: @typo_retrieval,
         personal_dictionary: @personal_dictionary
       }
     end
@@ -629,6 +643,7 @@ module Kotoshu
       @resource_pin = DEFAULTS[:resource_pin]
       @semantic_cascade_threshold = DEFAULTS[:semantic_cascade_threshold]
       @backend = DEFAULTS[:backend]
+      @typo_retrieval = DEFAULTS[:typo_retrieval]
       @personal_dictionary = DEFAULTS[:personal_dictionary]
     end
 

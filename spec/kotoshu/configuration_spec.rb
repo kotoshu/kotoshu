@@ -73,3 +73,28 @@ RSpec.describe "Configuration as data" do
     end
   end
 end
+
+RSpec.describe "typo_retrieval" do
+  it "defaults to false" do
+    expect(Kotoshu::Configuration::DEFAULTS[:typo_retrieval]).to be(false)
+    expect(Kotoshu::Configuration.new.typo_retrieval).to be(false)
+  end
+
+  it "reads KOTOSHU_TYPO_RETRIEVAL" do
+    prior = ENV.to_h
+    begin
+      ENV["KOTOSHU_TYPO_RETRIEVAL"] = "true"
+      expect(Kotoshu::Configuration.new.typo_retrieval).to be(true)
+      ENV["KOTOSHU_TYPO_RETRIEVAL"] = "false"
+      expect(Kotoshu::Configuration.new.typo_retrieval).to be(false)
+    ensure
+      ENV.replace(prior)
+    end
+  end
+
+  it "round-trips through to_h" do
+    config = Kotoshu::Configuration.new
+    config.typo_retrieval = true
+    expect(config.to_h[:typo_retrieval]).to be(true)
+  end
+end
