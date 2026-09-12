@@ -1,6 +1,21 @@
 # Plan 131 — Productize the hybrid: C-retrieve + fastText-rescore in the engines
 
-Status: proposed (the decision evidence is complete; plan 128 verdict SHIP)
+Status: executed on the engine and gem sides (2026-09-12; kotoshu-rs
+PR #38 merged — the pure-Rust bi-encoder at parity cosine 1.00000 vs
+onnxruntime, the int8 retrieval scan at 1.81 ms per suggest, the
+frozen C-benchmark numbers reproduced EXACTLY through the shipped
+engine path: top1 0.118772, top5 0.269829 on en real n=2509; wasm
+loadTypo/typoSuggest + KPK1 typo sections + fp32 full-tier RowStore +
+ruby bindings with a 28-assertion smoke; gem PR #191 — Typo::Engine
+loader, TypoRetrievalStrategy, TypoMerge, KOTOSHU_TYPO_RETRIEVAL
+opt-in with a byte-identical disabled passthrough, 27 specs, full
+suite 4030/0). Gates: all three pre-declared clauses pass (numbers
+within noise = exact on the decision metric; latency 1.8 ms against
+the 10 ms budget; zero default change by construction and by spec).
+REMAINING (owner-coupled): the registry promotion — the typo entry's
+primary URL and vocab_url stay null until the owner cuts a registry
+release carrying them; the server/playground/worker flips follow that
+cut on the semantic-tier pattern
 Depends on: plan 128 (verdict + artifacts), plan 113 (packs — the
 delivery vehicle), registry v1.6.0 (typo-biencoder assets already opt-in)
 
