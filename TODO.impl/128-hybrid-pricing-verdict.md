@@ -1,6 +1,16 @@
 # Plan 128 — The hybrid ship decision: price C-retrieve + fastText-rescore on the closed data blocker
 
-Status: pending (P0 of this wave — the last open technical thread)
+Status: executed — VERDICT SHIP=True (models PR #34, 2026-09-12)
+
+The full arc: frozen cbench rebuilt byte-faithfully (every sha256
+reproduced; only the receipt wall-clock differed, reverted), c_typo_v2
+retrained (0.481 MB, probe_hit5 0.410), pricing verdict per the
+pre-declared rule: hybrid beats full on top-1 AND top-5 in all four
+REAL components (en +6.3pp top5 CI [+4.9,+7.7] decisive; de +28.6,
+ru +11.1, es +10.0), degrades nowhere, 25.8 MB int8 at ~3-4 ms.
+Densified: on ~4,700 synth pairs/lang the hybrid evaluates essentially
+all (top5 0.467-0.478) where full embeds only 69-85 pairs. Engine
+productization = the follow-on plan (131).
 Depends on: plan 123 (corpora shipped; the data blocker that parked
 plan 115), plan 114 (the frozen C-benchmark + pre-declared verdict rule)
 

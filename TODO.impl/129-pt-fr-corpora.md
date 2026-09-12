@@ -1,6 +1,8 @@
 # Plan 129 — pt/fr synthetic corpora (plan 123 stretch targets)
 
-Status: pending
+Status: executed (models PR #34, 2026-09-12) — 5,000 pairs each,
+same rule, tests at four languages; tier numbers in the refreshed
+synth-corpus summary.
 Depends on: plan 123 (the generator)
 
 ## Problem
