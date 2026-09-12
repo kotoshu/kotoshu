@@ -1,6 +1,28 @@
 # Plan 133 — Rust-first distribution: precompiled native gems and complete wheels
 
-Status: proposed (execution-ready)
+Status: executed (2026-09-12) — PR #189 (7-iteration CI chain: the
+MinGW Rust toolchain for the ABI match, bindgen pointed at the
+RubyInstaller devkit's ucrt64 headers through BINDGEN_EXTRA_CLANG_ARGS
+with the windows-gnu target, macos-13 -> macos-15-intel for the retired
+x86_64 macOS runner, and the release race fix so the native legs build
+from the v<version> tag). Released as kotoshu 1.0.2: six artifacts on
+RubyGems (ruby + x86_64-linux, aarch64-linux, arm64-darwin, x86_64-darwin,
+x64-mingw-ucrt), verified by a toolchain-free scratch-GEM_HOME install
+that resolved kotoshu-1.0.2-arm64-darwin, engaged the native engine
+under the auto default, and passed the frozen vectors. Docker: both
+images (docker-kotoshu-ci PR #2, kotoshu-server PR #9) dropped their
+build-tool layers / gained the native-backend build assertion, with the
+guard proving the platform gem resolves inside the slim builder. Site:
+engines section resolution paragraph + the 1.0.2 news entry (092fc03).
+Design deviation: no x86_64-linux-musl platform gem — there is no
+hosted musl Ruby runner and cross needs a musl Ruby; Alpine resolves
+the pure-Ruby gem (source-build of the extension remains possible
+there). Python: the 16-wheel + sdist kotoshu-native 0.1.1 matrix is
+built and smoke-green (run 34681280341) but the PyPI publish is gated
+on the owner registering the trusted publisher (pypi.org, project
+kotoshu-native, repo kotoshu-rs, workflow release-pypi.yml, env blank);
+rerun `gh run rerun 34681280341 --repo kotoshu/kotoshu-rs --failed`
+afterward — the wheel artifacts persist, no rebuild needed.
 Depends on: the 1.0 conformance contract (identical outputs make the
 backend default flip correctness-free); plan 93 (the python wheel matrix)
 
