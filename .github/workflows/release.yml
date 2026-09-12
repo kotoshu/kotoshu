@@ -110,20 +110,30 @@ jobs:
         include:
           - platform: x86_64-linux
             runs-on: ubuntu-latest
+            toolchain: stable
           - platform: aarch64-linux
             runs-on: ubuntu-24.04-arm
+            toolchain: stable
           - platform: arm64-darwin
             runs-on: macos-14
+            toolchain: stable
           - platform: x86_64-darwin
             runs-on: macos-13
+            toolchain: stable
+          # RubyInstaller Ruby is MinGW-ABI; the rustup Windows default
+          # (msvc) cannot bind to its headers. Use the GNU-host toolchain
+          # so cargo compiles for the ABI the local Ruby was built with.
           - platform: x64-mingw-ucrt
             runs-on: windows-latest
+            toolchain: stable-x86_64-pc-windows-gnu
     permissions:
       contents: read
       id-token: write
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.toolchain }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.4'
