@@ -207,7 +207,7 @@ module Kotoshu
       backend: {
         env: "KOTOSHU_BACKEND",
         default: "ruby",
-        description: "Engine backend for correct?/suggest (ruby, native, or auto)",
+        description: "Engine backend for correct?/suggest (auto by default: native when the extension is available, ruby otherwise; or force either)",
         type: String
       },
       personal_dictionary: {
@@ -235,7 +235,12 @@ module Kotoshu
       default_language: "en",
       resource_pin: "main",
       semantic_cascade_threshold: 1.0,
-      backend: "ruby",
+      # "auto" (plan 133): the Rust engine whenever the native
+      # extension loaded and the dictionary is a file-backed Hunspell,
+      # pure Ruby otherwise — identical outputs either way (the
+      # conformance contract), so the default is the faster engine
+      # with the pure fallback, never a failure.
+      backend: "auto",
       personal_dictionary: true
     }.freeze
 

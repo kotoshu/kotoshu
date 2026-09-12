@@ -43,3 +43,7 @@ group :development, :test do
   gem "simplecov", "~> 0.22"
   gem "yard", "~> 0.9"
 end
+
+group :development do
+  gem "rb_sys", "~> 0.9"
+end
