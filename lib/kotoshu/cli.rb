@@ -146,6 +146,7 @@ module Kotoshu
           kotoshu setup en de fr                       # download from GitHub
           kotoshu setup en --want spelling,frequency   # also fetch Kelly list
           kotoshu setup en --model --tier mini         # model at the mini tier
+          kotoshu setup en --typo                      # typo bi-encoder + full tier
           kotoshu setup en --aff /p/en.aff --dic /p/en.dic
           kotoshu setup en --from /usr/share/hunspell/
           kotoshu setup --force en                     # re-download
@@ -167,6 +168,10 @@ module Kotoshu
                     type: :boolean,
                     default: false,
                     desc: "Fetch the ONNX model (shorthand for adding model to --want)"
+      method_option :typo,
+                    type: :boolean,
+                    default: false,
+                    desc: "Fetch the typo-retrieval pair (bi-encoder + full tier; needs a registry release carrying it)"
       method_option :tier,
                     type: :string,
                     desc: "Model tier: full, fluency, or mini (default: full)"
@@ -192,6 +197,7 @@ module Kotoshu
 
         want = (options[:want] || "spelling").split(",").map(&:strip).map(&:to_sym)
         want << :model if options[:model] && !want.include?(:model)
+        want << :typo if options[:typo] && !want.include?(:typo)
         opts = setup_source_options(languages)
         opts[:want] = want
         opts[:tier] = options[:tier].to_sym if options[:tier]
@@ -234,6 +240,10 @@ module Kotoshu
                     type: :boolean,
                     default: false,
                     desc: "Fetch the ONNX model (shorthand for adding model to --want)"
+      method_option :typo,
+                    type: :boolean,
+                    default: false,
+                    desc: "Fetch the typo-retrieval pair (bi-encoder + full tier; needs a registry release carrying it)"
       method_option :tier,
                     type: :string,
                     desc: "Model tier: full, fluency, or mini (default: full)"
@@ -525,8 +535,10 @@ module Kotoshu
         frequency = result.frequency || "skipped"
         model = result.model || "skipped"
         model += " (#{result.model_tier} tier)" if result.model && result.model_tier
+        typo = result.typo || "skipped"
         source = result.source
-        puts "OK (spelling: #{spelling}, frequency: #{frequency}, model: #{model}, source: #{source})"
+        puts "OK (spelling: #{spelling}, frequency: #{frequency}, model: #{model}, " \
+             "typo: #{typo}, source: #{source})"
       end
 
       def list_setup

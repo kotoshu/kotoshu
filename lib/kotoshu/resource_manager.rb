@@ -41,6 +41,7 @@ module Kotoshu
       :frequency,   # :downloaded | :local | :cached | :unavailable | nil
       :model,       # :downloaded | :cached | :unavailable | nil
       :model_tier,  # :full | :fluency | :mini | nil (tier actually set up)
+      :typo,        # :downloaded | :cached | :unavailable | nil (plan 131 pair)
       :source,      # :kotoshu | :local
       keyword_init: true
     ) do
@@ -280,6 +281,11 @@ module Kotoshu
       when :frequency
         fc = frequency_cache_for
         fc.supports_resource?(lang) && fc.available?(lang)
+      when :typo
+        # Both halves: the language-less pair and the language's full
+        # tier (the rescore's exactness contract).
+        cache = model_cache_for
+        cache.typo_biencoder_cached? && cache.available?(cache.tier_resource_id(lang, :full))
       when :model
         cache = model_cache_for
         if tier.nil?
@@ -343,14 +349,47 @@ module Kotoshu
         end
       end
 
+      typo_status = if want.include?(:typo)
+                      setup_typo_remote(lang, force: force, strict: strict, config: config,
+                                              tier: model_tier)
+                    end
+
       SetupResult.new(
         language: lang,
         spelling: spelling_status,
         frequency: frequency_status,
         model: model_status,
         model_tier: model_tier,
+        typo: typo_status,
         source: :kotoshu
       )
+    end
+
+    # The typo layer's setup half (plan 131): the language-less
+    # bi-encoder pair, plus the language's FULL tier when this run did
+    # not already fetch it (the hybrid's rescore is full-tier-exact by
+    # contract — a mini tier would rank wrong, so full is fetched
+    # explicitly, not defaulted).
+    #
+    # Returns :cached when both halves were already present,
+    # :downloaded when anything was fetched, :unavailable when the
+    # registry cannot serve the pair yet (strict: raises instead —
+    # the pre-cut state).
+    def setup_typo_remote(lang, force:, strict:, config:, tier: nil)
+      cache = model_cache_for(config: config)
+      unless force
+        full_id = cache.tier_resource_id(lang, :full)
+        return :cached if cache.typo_biencoder_cached? && cache.available?(full_id)
+      end
+      begin
+        cache.download_typo_biencoder(force: force)
+        cache.download_tiered_model(lang, tier: :full, force_download: force) unless tier == :full
+      rescue Kotoshu::Error
+        raise if strict
+
+        return :unavailable
+      end
+      :downloaded
     end
 
     def setup_frequency_remote(lang, force:, strict:, config:)
