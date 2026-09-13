@@ -1,5 +1,23 @@
 # 56 — T4+ Quality, Architecture, and Ecosystem backlog
 
+Status: largely superseded — most items below were promoted and
+executed by the numbered plans; the remaining open ones are marked.
+Snapshot annotations (2026-09-13): T4.1 shipped as the plan-147/148
+perf waves (WordIndex + SweepIndex: suggest 20-140 s -> sub-second,
+sweep 1472 -> 661 ms en; the Rust engine then took the sweep 10-15x
+further, and plan 131's hybrid retrieval added 1.8 ms retrieval) with
+published error budgets on /performance. T4.4 shipped as plan 97 (YARD
+100% public surface, docs CI, hosted reference) plus the repeated
+README truth passes. T5.2 and T5.3 shipped (Configuration as data
+with the Resolver; WordResult/DocumentResult/SuggestionSet/Suggestion
+on lutaml-model, hand-rolled to_h banned by the global rule). T6.1
+shipped (kotoshu-lsp, live on RubyGems) and T6.2 shipped (the wasm
+playground, @kotoshu/wasm, language packs). Still open: T4.2's weekly
+SLOW_TESTS dashboard, T4.3's property expansion (spec/properties/
+remains a skeleton), T5.1's full strategy-MECE pass (the perf waves
+reworked the generators but the dedupe-by-side-effect audit never
+ran), T5.4 (= plan 53), and T6.3 (desktop dictionary editor — future).
+
 This file rolls up the T4 (Quality), T5 (Architecture), and T6
 (Ecosystem) items from TODO.impl/39-tier3-and-beyond.md into
 promotable units with concrete acceptance criteria.

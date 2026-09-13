@@ -7,8 +7,11 @@ This is the largest tier 3 item: CJK languages need word-segmentation
 (no spaces in zh/ja), different dictionary formats, and
 romanization-aware suggestion strategies.
 
-Status: outline only. This TODO documents the design space; real work
-needs upstream library choices and per-language fixture data.
+Status: outline only, partially superseded. Japanese tokenization
+shipped (the ja module with the suika tokenizer, live since the
+language-modules wave); real zh/ko spell checking remains design
+space — this TODO documents it, and real work still needs upstream
+segmentation library choices and per-language fixture data.
 
 ## Per-language needs
 
