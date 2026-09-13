@@ -1,0 +1,46 @@
+name: perf-weekly
+
+# Plan 134 / backlog T4.2's owner-free form: the slow perf suites run
+# weekly on main, the deltas land on the run page as a job summary
+# and artifact - no external dashboard to own. Regression signal, not
+# a gate (the plan-112 latency gates live where they belong, in the
+# repos' own CI).
+on:
+  schedule:
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  slow-suites:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+      - name: Run the slow performance and benchmark suites
+        run: |
+          mkdir -p perf-out
+          SLOW_TESTS=1 bundle exec rspec spec/performance spec/benchmark \
+            --format progress 2>&1 | tee perf-out/weekly-console.txt
+      - name: Summarize
+        if: always()
+        run: |
+          {
+            echo "# Weekly slow-suite run"
+            echo
+            echo "SLOW_TESTS=1 over spec/performance + spec/benchmark. Compare against the previous run's summary for deltas (the run history is the dashboard)."
+            echo
+            echo '```'
+            tail -n 40 perf-out/weekly-console.txt || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: weekly-slow-suites
+          path: perf-out/

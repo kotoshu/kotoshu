@@ -46,17 +46,36 @@ module Kotoshu
 
         native = Kotoshu::Native::TypoModel.load(typo[:onnx_path], typo[:vocab_path])
         native_tier = Kotoshu::Native::TypoTier.load(tier[:model_path], tier[:vocab_path])
-        new(Kotoshu::Native::TypoEngine.new(native, native_tier), language: language)
+        engine = new(Kotoshu::Native::TypoEngine.new(native, native_tier),
+                     native_tier: native_tier, language: language)
+        # EAGER index build (plan 134): the multi-second derivation
+        # runs HERE - with the GVL released by the binding - instead
+        # of stalling the first suggest (and every Ruby thread under a
+        # held GVL). The cost lands at opt-in setup where it belongs.
+        engine.build_index
+        engine
       rescue StandardError
         # The opt-in layer never breaks a check: any load failure
         # (corrupt artifact, engine error) degrades to "absent".
         nil
       end
 
+      # Derive the per-language index now (the eager half; the
+      # binding releases the GVL and memoizes - building again is a
+      # no-op). Returns the indexed vocabulary size.
+      #
+      # @return [Integer]
+      def build_index
+        @native_engine.build_index(@native_tier)
+      end
+
       # @param native_engine [Kotoshu::Native::TypoEngine]
+      # @param native_tier [Kotoshu::Native::TypoTier] the rescore
+      #   tier (kept for the eager index build)
       # @param language [String]
-      def initialize(native_engine, language:)
+      def initialize(native_engine, language:, native_tier: nil)
         @native_engine = native_engine
+        @native_tier = native_tier
         @language = language
       end
 
