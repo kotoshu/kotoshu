@@ -13,10 +13,21 @@ with the Resolver; WordResult/DocumentResult/SuggestionSet/Suggestion
 on lutaml-model, hand-rolled to_h banned by the global rule). T6.1
 shipped (kotoshu-lsp, live on RubyGems) and T6.2 shipped (the wasm
 playground, @kotoshu/wasm, language packs). Still open: T4.2's weekly
-SLOW_TESTS dashboard, T4.3's property expansion (spec/properties/
-remains a skeleton), T5.1's full strategy-MECE pass (the perf waves
-reworked the generators but the dedupe-by-side-effect audit never
-ran), T5.4 (= plan 53), and T6.3 (desktop dictionary editor — future).
+SLOW_TESTS dashboard, T5.4 (= plan 53), and T6.3 (desktop dictionary
+editor — future). CLOSED SINCE: T4.3's named properties shipped
+(spec/properties/data_structure_properties_spec.rb — Trie
+order-independence and totality, prefix agreement, set recovery, and
+the every-suggestion-is-a-dictionary-word invariant; the affix
+round-trip property remains the one open sub-item, gated on a
+morphological API surface). T5.1 audited clean (2026-09-13): the
+dedupe-once merge CompositeStrategy already performs is exactly the
+fix T5.1 proposed (the code cites it); strategy purity holds with one
+documented exception — the semantic-cascade threshold falls back to
+the process Configuration when the composite was not given an
+explicit one, by design and overridable; and the symspell/edit-1
+overlap is moot — neither is wired into any default flow (the frozen
+Generator owns the real path; the strategy classes are the composable
+API, and the single-set merge makes overlapping compositions safe).
 
 This file rolls up the T4 (Quality), T5 (Architecture), and T6
 (Ecosystem) items from TODO.impl/39-tier3-and-beyond.md into
