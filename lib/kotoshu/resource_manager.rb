@@ -384,11 +384,16 @@ module Kotoshu
       begin
         cache.download_typo_biencoder(force: force)
         cache.download_tiered_model(lang, tier: :full, force_download: force) unless tier == :full
-      rescue StandardError
+      rescue Kotoshu::Error
+        raise if strict
+
+        return :unavailable
+      rescue StandardError => e
         # Windows surfaces closed-port fetches as raw Errno classes the
         # cache does not always wrap; the two-stage contract is
-        # setup-degrades unless strict, whatever the transport error.
-        raise if strict
+        # setup-degrades unless strict, and strict reports through the
+        # typed error like every setup path.
+        raise Kotoshu::Error, "typo setup failed: #{e.class}: #{e.message}" if strict
 
         return :unavailable
       end
