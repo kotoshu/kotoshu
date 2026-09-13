@@ -1,7 +1,21 @@
 # Plan 134 — Post-131 improvements: the audit's honest gaps
 
-Status: executing (written from the 2026-09-13 deep audit of everything
-the campaigns shipped, not from the backlog)
+Status: executed (2026-09-13). (1) GVL release rs PR #39 — the
+without_gvl helper runs the typo compute through
+rb_thread_call_without_gvl, PROVEN LIVE: a 5 ms ticker thread logged
+4,118 ticks during the 24.8 s / 100k-word index build (a held GVL
+starves it to ~0), suggest answers 2.2 ms after the eager build; gem
+PR #195 makes Engine.for build eagerly. (2) native-suite CI leg (gem
+PR #195): the conformance workflow compiles the extension and runs
+the full suite — NativeBackend can no longer regress matrix-green.
+(3) release verify (gem PR #195): the release asserts all six
+RubyGems artifacts before reporting success. (4) runbook models PR
+#37: docs/RELEASING.md carries the standard cut and the typo
+promotion steps. (5) perf-weekly (gem PR #195): the weekly slow-suite
+run whose first execution caught the suites rotted — repaired with
+dated 2x-headroom bounds. Found and fixed en route (gem PR #196,
+merged): setup_typo_remote rescued only Kotoshu::Error, leaking raw
+Errno::ECONNREFUSED on Windows (caught by merge-preview CI on main).
 
 Depends on: plan 131 (the typo layer), plan 133 (the platform gems)
 
