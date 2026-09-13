@@ -384,7 +384,10 @@ module Kotoshu
       begin
         cache.download_typo_biencoder(force: force)
         cache.download_tiered_model(lang, tier: :full, force_download: force) unless tier == :full
-      rescue Kotoshu::Error
+      rescue StandardError
+        # Windows surfaces closed-port fetches as raw Errno classes the
+        # cache does not always wrap; the two-stage contract is
+        # setup-degrades unless strict, whatever the transport error.
         raise if strict
 
         return :unavailable
