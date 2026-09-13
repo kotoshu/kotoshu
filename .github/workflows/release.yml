@@ -178,3 +178,28 @@ jobs:
         run: |
           ruby scripts/build_native_gem.rb
           gem push kotoshu-*-${{ matrix.platform }}.gem
+
+  # Plan 134: the release asserts its own completeness. A silently
+  # failed platform-gem push would otherwise ship a partial release
+  # green. This job queries the RubyGems API for the exact version x
+  # platform coverage and fails on anything missing.
+  verify:
+    needs: [release, native]
+    runs-on: ubuntu-latest
+    steps:
+      - name: The release is complete on RubyGems
+        run: |
+          VERSION="${{ needs.release.outputs.version }}"
+          EXPECTED="ruby x86_64-linux aarch64-linux arm64-darwin x86_64-darwin x64-mingw-ucrt"
+          echo "verifying kotoshu ${VERSION} carries: ${EXPECTED}"
+          for attempt in $(seq 1 10); do
+            PLATFORMS="$(curl -sf "https://rubygems.org/api/v1/versions/kotoshu.json"               | python3 -c "import json,sys; vs=[v for v in json.load(sys.stdin) if v['number']=='${VERSION}']; print(' '.join(sorted(v['platform'] for v in vs)))")"               && break || sleep 15
+          done
+          echo "found: ${PLATFORMS}"
+          for want in ${EXPECTED}; do
+            case " ${PLATFORMS} " in
+              *" ${want} "*) ;;
+              *) echo "MISSING platform ${want} for ${VERSION}" >&2; exit 1 ;;
+            esac
+          done
+          echo "guard: all six artifacts live for ${VERSION}"

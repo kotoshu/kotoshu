@@ -25,3 +25,20 @@ jobs:
           bundle exec ruby -e 'require "kotoshu"; Kotoshu.setup("en", want: [:spelling, :frequency])'
       - name: Compare both backends against the frozen vectors
         run: bundle exec rake kotoshu:conformance:compare
+
+  # Plan 134: the native path in the MAIN suite. The rake matrix runs
+  # without the extension (28 native specs pend); only this workflow
+  # compiles it. One leg runs the full suite with the extension built,
+  # so a NativeBackend regression cannot land matrix-green.
+  native-suite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+      - name: Compile the native extension
+        run: bundle exec rake compile
+      - name: Full suite with the native surface un-pended
+        run: bundle exec rspec --format progress
