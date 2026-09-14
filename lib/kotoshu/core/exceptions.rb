@@ -7,6 +7,25 @@ module Kotoshu
   #   raise Kotoshu::Error, "Something went wrong"
   class Error < StandardError; end
 
+  # Error raised when the FILE BEING CHECKED does not exist. Distinct
+  # from {DictionaryNotFoundError} (a missing dictionary resource) —
+  # plan 141: check_file used to raise the dictionary class for a
+  # missing input, sending users to diagnose dictionary setup for a
+  # typo'd path. The CLI guards this earlier (exit 2, usage error);
+  # this class is the library-level truth.
+  #
+  # @example Missing input file
+  #   raise InputFileNotFoundError, "no/such/file.txt"
+  class InputFileNotFoundError < Error
+    def initialize(path, message = nil)
+      @path = path
+      super(message || "Input file not found: #{path}")
+    end
+
+    # @return [String] The path that was not found
+    attr_reader :path
+  end
+
   # Error raised when a dictionary file cannot be found.
   #
   # @example Dictionary not found

@@ -277,7 +277,7 @@ module Kotoshu
     #   result = spellchecker.check_file("README.md")
     #   result.to_s  # => "File 'README.md': 3 spelling error(s) found"
     def check_file(path)
-      raise DictionaryNotFoundError, path unless File.exist?(path)
+      raise InputFileNotFoundError, path unless File.exist?(path)
 
       text = File.read(path, encoding: @config.encoding)
       result = check(text)
@@ -300,7 +300,7 @@ module Kotoshu
     #   results = spellchecker.check_directory("docs/")
     #   results.select(&:failed?).map(&:file)
     def check_directory(path, pattern: "*.txt")
-      raise DictionaryNotFoundError, path unless File.exist?(path) && File.directory?(path)
+      raise InputFileNotFoundError, path unless File.exist?(path) && File.directory?(path)
 
       files = Dir.glob(File.join(path, pattern))
       files.map { |file| check_file(file) }

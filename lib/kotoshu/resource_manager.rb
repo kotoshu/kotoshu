@@ -312,14 +312,26 @@ module Kotoshu
       end
     end
 
-    # Languages with a cached spelling dictionary, sorted.
+    # Languages with anything set up — spelling, frequency, or model
+    # resources — sorted. Plan 141: the union, not just spelling; a
+    # model/typo-only setup (want: %i[model]) was invisible to
+    # `kotoshu setup --list` and the cache status report. The LID and
+    # typo-pair artifacts are language-less and never listed.
     #
     # @return [Array<String>] e.g. ["de", "en", "fr"]
     def languages_setup
-      spelling_cache_for(nil).cached_resources
+      spelling = spelling_cache_for(nil).cached_resources
         .map { |r| r.to_s.split(":").first }
-        .uniq
-        .sort
+      fc = frequency_cache_for
+      frequency = fc.cached_resources.select { |lang| fc.supports_resource?(lang) }
+      # The model cache shares the cache root with the spelling store,
+      # so its metadata walk also yields foreign entries (a spelling
+      # dir becomes "languages:en"); keep only models-layout types.
+      models = model_cache_for.cached_resources.filter_map do |resource|
+        lang, type, = resource.to_s.split(":")
+        lang if %w[onnx typo-matrix].include?(type) && lang != Cache::ModelCache::LID_LANGUAGE
+      end
+      (spelling + frequency + models).uniq.sort
     end
 
     private

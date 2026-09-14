@@ -7,6 +7,124 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Readers are TTL-free (plan 140): `resolve` and `setup?` treat
+  present, checksummed bytes as set up - a cache whose metadata
+  predates `cached_at` bookkeeping resolves instead of raising
+  `ResourceNotSetupError`, and expiry only drives the setup refresh.
+- `check_file`/`check_directory` raise `InputFileNotFoundError` for a
+  missing input path instead of the misleading
+  `DictionaryNotFoundError` (plan 141).
+- The parallel-checker property spec no longer flakes: its `Tempfile`
+  objects outlive the example, so GC finalization cannot unlink the
+  input files mid-run.
+
+### Changed
+- `kotoshu setup --list` and `Kotoshu.languages_setup` union every
+  cache - a model/typo-only setup is no longer invisible (plan 141).
+- The release verify job retries on an EMPTY RubyGems API payload
+  (the API lags brand-new versions; curl exits 0 on the degraded
+  list).
+- The native-suite CI leg arms the typo engine both ways and asserts
+  the path (`:derived`, `:matrix`) on every PR.
+
+
+## [1.0.5] — 2026-09-14
+
+
+### Fixed
+- The 1.0.4 platform gems compiled an 18-revisions-stale kotoshu-rs
+  pin and shipped without the typo native surface
+  (`Kotoshu::Native::TypoModel` undefined, `Typo::Engine.for` always
+  nil). The ext now pins current kotoshu-rs, and the release verify
+  job installs the shipped gem and asserts the native surface
+  (`TypoModel`/`TypoTier`/`TypoEngine` + the `TypoEngine.matrix`
+  binding) before a cut is called complete.
+
+## [1.0.4] — 2026-09-14
+
+
+### Added
+- Prebuilt typo matrices (plans 135-139): `setup LANG --typo`
+  downloads the registry-served KTM1 artifact and arming is a load
+  (~0.5 s) instead of a 25-45 s derivation; already-satisfied setups
+  backfill the matrix; `Typo::Engine#armed_via` records the path;
+  `setup?` accepts `:typo_matrix`; `setup --list` prints per-resource
+  detail; a weekly workflow fails loudly when the ext's kotoshu-rs pin
+  drifts behind main; the README documents the layer.
+
+
+## [1.0.3] — 2026-09-14
+
+
+### Added
+- `kotoshu setup LANG --typo` fetches the typo-retrieval layer
+  (plan 131): the 0.481 MB character bi-encoder retrieves a top-20
+  vocabulary slate that the full tier rescores exactly, opt-in via
+  `KOTOSHU_TYPO_RETRIEVAL`.
+- Plan 134: the typo index builds eagerly with the Ruby GVL released;
+  CI gains a native-suite leg (compiles the ext, full suite) and a
+  release verify job; a weekly SLOW_TESTS perf job.
+
+### Fixed
+- Strict typo setup reports through the typed error, and typo setup
+  degrades on any transport error (Windows surfaces closed ports as
+  raw `Errno` classes).
+
+
+## [1.0.2] — 2026-09-12
+
+
+### Added
+- Native platform gems (plan 133): per-runner builds for
+  x86_64/aarch64 Linux, arm64/x86_64 macOS, and Windows MinGW; the
+  backend default moves ruby -> auto (native engages when the
+  extension loads); toolchain-free installs verified end to end.
+
+### Fixed
+- Release builds the platform gems from the release TAG (a race
+  shipped them one version behind); Windows bindgen sources MinGW
+  headers from the RubyInstaller devkit; the retired macos-13 runner
+  is replaced by macos-15-intel.
+
+
+## [1.0.1] — 2026-09-11
+
+
+### Added
+- The frozen Kelly English tiers ship inside the gem: suggestions are
+  deterministic without a frequency cache (empty-cache conformance
+  2630/0/0). The Jekyll generator skips the suggestion sweep for
+  baseline-covered occurrences.
+
+
+## [1.0.0] — 2026-09-10
+
+
+### Fixed
+- Suggestion ranking no longer depends on frequency-cache age
+  (plan 117): present-but-expired cache bytes stay usable - TTL is a
+  refresh signal for setup, never a dataset switch.
+
+
+## [0.11.1] — 2026-09-10
+
+
+### Fixed
+- CLI `baseline init` works on real repositories: directory/glob
+  targets expand, no-match targets refuse with an exit code instead of
+  silently skipping, the personal dictionary is never consulted
+  (machine-independent baselines), and `.scrub` invalid bytes do not
+  crash the tokenizer.
+
+### Performance
+- Baseline-covered occurrences skip the suggestion sweep - the
+  reference repository's gate drops from 13m+ to 13.7 s.
+
+
+## [0.11.0] — 2026-09-07
+
+
 ### Added
 - **Korean and Nepali full-feature modules** (plan 108) - the last
   big-population languages without modules move from the plan 107
@@ -44,6 +162,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   here - dictionary and model are both staged. Modules keep winning
   over the fallbacks; the 32 existing modules behave identically
   (conformance vectors untouched).
+### Changed
+- Accidental public surface privatized ahead of 1.0 (plan 109).
+
+
+## [0.10.0] — 2026-09-07
+
+
+### Added
 - **Personal dictionary in the check path** (plan 105) -
   `Spellchecker#check` (and therefore `Kotoshu.check`,
   `Kotoshu.check_file`, and `kotoshu check`) no longer flags words
@@ -73,6 +199,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Cargo.lock moves to the kotoshu-rs revision carrying the reader.
   `Kotoshu.detect_language_with_confidence` keeps its `[code, score]`
   shape and now routes through the same engine.
+
+## [0.9.3] — 2026-09-07
+
+
+### Added
 - **Full-feature language batch 3** (plan 100) - twelve languages gain the
   downloadable spelling dictionary, a keyboard layout, and a gem module:
   `ar` `id` `fa` `he` `bg` `sr` `hr` `sk` `sl` `lt` `lv` `et` (the RTL
@@ -89,14 +220,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   misspelling -> correction pairs for every language are engine-verified
   against the staged dictionaries in a `:network` spec.
 
+## [0.9.2] — 2026-09-07
+
+
+### Performance
+- The dictionary is indexed once and suggestion sweeps touch only the
+  relevant slices (en average 1472 -> 661 ms; short words 6.2x).
+
+
+## [0.9.1] — 2026-09-07
+
+
 ### Fixed
-- **RTL word extraction on the check path** - the plan-91 script-aware
-  word regex never reached the Arabic, Persian and Hebrew tokenizers, so
-  `Kotoshu.check` / `kotoshu check -l ar|fa|he` extracted zero words and
-  silently passed every RTL document. The three tokenizers now declare
-  their script sets (`\p{Arabic}`, `\p{Arabic}` + ZWNJ for Persian
-  compounds like می‌روم, `\p{Hebrew}` + geresh/gershayim), and RTL
-  misspellings surface with ranked suggestions.
 - **Suggestion candidate sweep missed transpositions, substitutions, and
   dictionary forms** - `EditDistanceStrategy` only scored raw dictionary
   stems, so valid dictionary forms could never be suggested no matter how
@@ -117,6 +252,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   expose the Hunspell TRY directive for the sweep alphabet. Conformance
   suggest vectors regenerated (84 of 1315 rows improved - affixed, compound,
   and correctly-cased forms now appear; all 1315 correct vectors unchanged).
+### Performance
+- Indexed suggestion sweep with an n-gram pre-gate: pure-Ruby
+  full-en_US suggests drop from 20.6-140.2 s to 0.59-0.87 s.
+
+
+## [0.9.0] — 2026-09-06
+
+
+### Fixed
 - **Dictionary mutation correctness** (from suleman-uzair, PR rescue of #93) -
   `remove_word` deleted the wrong word after any prior removal because the
   word set stored array indices that went stale; `Custom`, `PlainText`, and
@@ -150,6 +294,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   array-format branch that crashed on its own probe and had no producer;
   it now parses the Kelly shape only and degrades unknown shapes to empty
   tiers.
+### Added
+- **Norwegian Bokmal module with no alias** - `nb` from cc.no with
+  Bokmal provenance; `no` resolves to it; models registry v1.3.0.
+
+
+## [0.8.0] — 2026-09-06
+
+
+### Fixed
+- **RTL word extraction on the check path** - the plan-91 script-aware
+  word regex never reached the Arabic, Persian and Hebrew tokenizers, so
+  `Kotoshu.check` / `kotoshu check -l ar|fa|he` extracted zero words and
+  silently passed every RTL document. The three tokenizers now declare
+  their script sets (`\p{Arabic}`, `\p{Arabic}` + ZWNJ for Persian
+  compounds like می‌روم, `\p{Hebrew}` + geresh/gershayim), and RTL
+  misspellings surface with ranked suggestions.
 - Remote `kotoshu setup` for staged languages: the dictionaries repo ships only
   `en` under the `{lang}/spelling/` layout while staged languages sit flat at
   `{lang}/index.*`; downloads now try the sublayout first and fall back to the
@@ -159,7 +319,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Baseline paths compare canonically: entries recorded as `docs/a.md` match a
   directory-walk check over `./docs/a.md`, and recorded entries are stored
   canonical.
-### Fixed
 - **Unicode word detection** (plan 91 Track A) - `Spellchecker` word
   extraction accepted only ASCII letters, so Greek and Ukrainian users
   could not check any text through the CLI. Extraction now follows the
@@ -255,6 +414,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   id `kotoshu` (`language: system`, entry `kotoshu check`, text-format
   file pattern); requires Ruby plus the gem, documented honestly in the
   README.
+### Fixed
+- `NearestNeighbor` accepts the full cosine range and clamps to [0, 1]
+  - in-vocab words crashed with `ArgumentError: Similarity must be
+  0-1`.
+
 
 ## [0.7.0] — 2026-09-05
 
