@@ -207,8 +207,9 @@ RSpec.describe "kotoshu CLI end-to-end", :slow do
         populate_en_cache(kotoshu_home)
         stdout, _stderr, code = run_cli("setup", "--list")
         expect(code).to eq(0)
-        expect(stdout).to include('Set up languages:')
-        expect(stdout).to include("en")
+        expect(stdout).to include("Set up languages:")
+        # Plan 139: per-resource detail so a silent derive path is visible.
+        expect(stdout).to match(/en:.*spelling/)
       end
     end
 

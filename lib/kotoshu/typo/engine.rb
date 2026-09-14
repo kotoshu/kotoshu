@@ -27,6 +27,10 @@ module Kotoshu
       # @return [String] the language the tier was loaded for
       attr_reader :language
 
+      # @return [Symbol] :matrix when a prebuilt KTM1 armed the engine,
+      #   :derived when the index was built at load (plan 139)
+      attr_reader :armed_via
+
       # Load the engine for a language. Yielded block receives the
       # cache to use (defaults to the configured model cache) — specs
       # inject a stub cache with local artifact paths.
@@ -51,20 +55,22 @@ module Kotoshu
         # (TypoEngine.matrix); without one, derive eagerly with the
         # GVL released (plan 134). Both paths produce identical
         # slates - the artifact round-trip is frozen by the engine's
-        # own tests.
+        # own tests. armed_via records which path won so a silent
+        # degrade (stale ext missing .matrix, corrupt artifact) is
+        # observable instead of looking like success (plan 139).
         engine =
           if (matrix_path = cache.load_cached_typo_matrix(language)) &&
-              defined?(Kotoshu::Native::TypoEngine.matrix)
+              Kotoshu::Native::TypoEngine.respond_to?(:matrix)
             begin
               new(Kotoshu::Native::TypoEngine.matrix(native, native_tier, matrix_path),
-                  native_tier: native_tier, language: language)
+                  native_tier: native_tier, language: language, armed_via: :matrix)
             rescue StandardError
               nil
             end
           end
         unless engine
           engine = new(Kotoshu::Native::TypoEngine.new(native, native_tier),
-                       native_tier: native_tier, language: language)
+                       native_tier: native_tier, language: language, armed_via: :derived)
           engine.build_index
         end
         engine
@@ -87,10 +93,12 @@ module Kotoshu
       # @param native_tier [Kotoshu::Native::TypoTier] the rescore
       #   tier (kept for the eager index build)
       # @param language [String]
-      def initialize(native_engine, language:, native_tier: nil)
+      # @param armed_via [Symbol] :matrix or :derived (plan 139)
+      def initialize(native_engine, language:, native_tier: nil, armed_via: :derived)
         @native_engine = native_engine
         @native_tier = native_tier
         @language = language
+        @armed_via = armed_via
       end
 
       # The rescored slate for a word as a SuggestionSet, source
