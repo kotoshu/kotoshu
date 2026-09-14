@@ -46,13 +46,27 @@ module Kotoshu
 
         native = Kotoshu::Native::TypoModel.load(typo[:onnx_path], typo[:vocab_path])
         native_tier = Kotoshu::Native::TypoTier.load(tier[:model_path], tier[:vocab_path])
-        engine = new(Kotoshu::Native::TypoEngine.new(native, native_tier),
-                     native_tier: native_tier, language: language)
-        # EAGER index build (plan 134): the multi-second derivation
-        # runs HERE - with the GVL released by the binding - instead
-        # of stalling the first suggest (and every Ruby thread under a
-        # held GVL). The cost lands at opt-in setup where it belongs.
-        engine.build_index
+
+        # Plan 136: a cached prebuilt matrix arms in milliseconds
+        # (TypoEngine.matrix); without one, derive eagerly with the
+        # GVL released (plan 134). Both paths produce identical
+        # slates - the artifact round-trip is frozen by the engine's
+        # own tests.
+        engine =
+          if (matrix_path = cache.load_cached_typo_matrix(language)) &&
+              defined?(Kotoshu::Native::TypoEngine.matrix)
+            begin
+              new(Kotoshu::Native::TypoEngine.matrix(native, native_tier, matrix_path),
+                  native_tier: native_tier, language: language)
+            rescue StandardError
+              nil
+            end
+          end
+        unless engine
+          engine = new(Kotoshu::Native::TypoEngine.new(native, native_tier),
+                       native_tier: native_tier, language: language)
+          engine.build_index
+        end
         engine
       rescue StandardError
         # The opt-in layer never breaks a check: any load failure
@@ -120,6 +134,14 @@ module Kotoshu
     cache = Cache::ModelCache.new(cache_path: configuration.cache_path)
     typo = cache.download_typo_biencoder(force: force)
     tier = cache.download_tiered_model(language, tier: :full, force_download: force)
-    { typo: typo, tier: tier }
+    # Plan 136: the prebuilt matrix makes arming instant. Best-effort
+    # only - a language without one arms by deriving (the fallback),
+    # and the fetch must never fail the setup that already succeeded.
+    matrix = begin
+      cache.download_typo_matrix(language, force: force)
+    rescue Kotoshu::Error, StandardError
+      nil
+    end
+    { typo: typo, tier: tier, matrix: matrix }
   end
 end

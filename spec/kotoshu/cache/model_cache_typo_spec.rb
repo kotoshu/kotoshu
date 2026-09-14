@@ -167,6 +167,7 @@ RSpec.describe Kotoshu::Cache::ModelCache do
   end
 end
 
+<<<<<<< Updated upstream
 # Plan 135: miss-driven registry refresh. A stale cached registry
 # (one that predates the typo pair) must not shadow the live one: a
 # wanted-but-absent entry triggers a single registry refresh before
@@ -174,6 +175,11 @@ end
 # fresh registry and the artifacts; no network.
 RSpec.describe "#download_typo_biencoder miss-driven refresh" do
   let(:temp_dir) { Dir.mktmpdir("kotoshu-model-typo-refresh") }
+=======
+# Plan 136: the prebuilt matrix resolves cache-only.
+RSpec.describe "#load_cached_typo_matrix" do
+  let(:temp_dir) { Dir.mktmpdir("kotoshu-matrix-resolve") }
+>>>>>>> Stashed changes
   let(:audit_log) { Kotoshu::Integrity::AuditLog.new(path: File.join(temp_dir, "audit.log")) }
   let(:cache) do
     Kotoshu::Cache::ModelCache.new(cache_path: temp_dir, cache_ttl: 3600,
@@ -183,6 +189,7 @@ RSpec.describe "#download_typo_biencoder miss-driven refresh" do
 
   after { FileUtils.rm_rf(temp_dir) if File.exist?(temp_dir) }
 
+<<<<<<< Updated upstream
   def seed_stale_registry
     payload = JSON.pretty_generate(
       "spec" => "kotoshu.resources/v1", "registry_version" => 1,
@@ -260,5 +267,55 @@ RSpec.describe "#download_typo_biencoder miss-driven refresh" do
     seed_stale_registry
     expect { cache.download_typo_biencoder }
       .to raise_error(Kotoshu::Error, /no registry entry for kotoshu:\/\/models\/typo\/typo-biencoder/)
+=======
+  def seed_matrix_cache(bytes: "KT" + "M1fake")
+    dir = File.join(temp_dir, "en", "models", "typo-matrix")
+    FileUtils.mkdir_p(dir)
+    File.binwrite(File.join(dir, "typo.matrix.en.ktm1"), bytes)
+    sha = Digest::SHA256.hexdigest(bytes)
+    payload = JSON.pretty_generate(
+      "spec" => "kotoshu.resources/v1", "registry_version" => 2,
+      "release_tag" => "v1.7.0",
+      "resources" => {
+        "kotoshu://models/en/typo-matrix" => {
+          "type" => "model", "language" => "en",
+          "tier" => { "name" => "typo-matrix", "dims" => 256,
+                      "vocab_size" => 10, "quantization" => "int8-per-row" },
+          "version" => "1.7.0",
+          "urls" => { "primary" => nil,
+                      "mirror" => "https://media.example/main/models/en/typo.matrix.en.ktm1" },
+          "vocab_url" => nil, "sha256" => sha, "size_bytes" => bytes.bytesize,
+          "license" => "CC-BY-SA-3.0", "min_engine_version" => "1.1",
+          "eval_ref" => nil
+        }
+      }
+    )
+    rdir = File.join(temp_dir, "registry")
+    FileUtils.mkdir_p(rdir)
+    File.binwrite(File.join(rdir, "registry.json"), payload)
+    File.write(File.join(rdir, "metadata.json"), JSON.pretty_generate(
+                                                   "url" => "fixture", "sha256" => Digest::SHA256.hexdigest(payload),
+                                                   "cached_at" => Time.now.utc.iso8601
+                                                 ))
+    sha
+  end
+
+  it "answers nil with nothing cached" do
+    expect(cache.load_cached_typo_matrix("en")).to be_nil
+  end
+
+  it "resolves the cached artifact when the registry sha matches" do
+    seed_matrix_cache
+    path = cache.load_cached_typo_matrix("en")
+    expect(path).to end_with("typo.matrix.en.ktm1")
+    expect(File.binread(path)).to start_with("KTM1")
+  end
+
+  it "answers nil when the cached bytes fail the sha" do
+    seed_matrix_cache
+    File.binwrite(File.join(temp_dir, "en", "models", "typo-matrix", "typo.matrix.en.ktm1"),
+                  "tampered-bytes")
+    expect(cache.load_cached_typo_matrix("en")).to be_nil
+>>>>>>> Stashed changes
   end
 end
