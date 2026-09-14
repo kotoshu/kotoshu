@@ -63,6 +63,7 @@ module Kotoshu
 
   # ---- Top-level error classes (all defined in core/exceptions.rb) ----
   autoload :Error, "kotoshu/core/exceptions"
+  autoload :InputFileNotFoundError, "kotoshu/core/exceptions"
   autoload :DictionaryNotFoundError, "kotoshu/core/exceptions"
   autoload :InvalidDictionaryFormatError, "kotoshu/core/exceptions"
   autoload :ConfigurationError, "kotoshu/core/exceptions"

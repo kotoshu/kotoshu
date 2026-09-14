@@ -312,10 +312,10 @@ RSpec.describe Kotoshu::Spellchecker, "# Walking Skeleton - Spellchecker Service
       expect(result.file).to eq("spec/fixtures/words.txt")
     end
 
-    it "raises error for non-existent file" do
+    it "raises InputFileNotFoundError for a non-existent file (plan 141)" do
       expect do
         spellchecker.check_file("non-existent.txt")
-      end.to raise_error(Kotoshu::DictionaryNotFoundError, /non-existent\.txt/)
+      end.to raise_error(Kotoshu::InputFileNotFoundError, /Input file not found: non-existent\.txt/)
     end
   end
 
@@ -336,16 +336,16 @@ RSpec.describe Kotoshu::Spellchecker, "# Walking Skeleton - Spellchecker Service
       expect(results.first).to be_a(Kotoshu::Models::Result::DocumentResult)
     end
 
-    it "raises error for non-existent directory" do
+    it "raises InputFileNotFoundError for a non-existent directory (plan 141)" do
       expect do
         spellchecker.check_directory("non-existent-dir")
-      end.to raise_error(Kotoshu::DictionaryNotFoundError, /non-existent-dir/)
+      end.to raise_error(Kotoshu::InputFileNotFoundError, /non-existent-dir/)
     end
 
-    it "raises error for non-directory path" do
+    it "raises InputFileNotFoundError for a non-directory path (plan 141)" do
       expect do
         spellchecker.check_directory("spec/fixtures/words.txt")
-      end.to raise_error(Kotoshu::DictionaryNotFoundError)
+      end.to raise_error(Kotoshu::InputFileNotFoundError)
     end
 
     it "respects file pattern" do

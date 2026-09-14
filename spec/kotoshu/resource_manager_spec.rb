@@ -190,6 +190,28 @@ RSpec.describe Kotoshu::ResourceManager do
       )
       expect(described_class.languages_setup).to eq(["en"])
     end
+
+    it "lists a model-only setup (plan 141: the union, not just spelling)" do
+      dir = File.join(temp_cache_dir, "fr", "models", "onnx", "fluency")
+      FileUtils.mkdir_p(dir)
+      File.write(File.join(dir, "metadata.json"), JSON.pretty_generate(
+                                                    "language" => "fr", "type" => "onnx",
+                                                    "tier" => "fluency", "file" => "fasttext.fr.fluency.onnx",
+                                                    "checksum" => "fixture", "url" => "fixture",
+                                                    "cached_at" => Time.now.utc.iso8601
+                                                  ))
+      expect(described_class.languages_setup).to include("fr")
+    end
+
+    it "never lists the language-less artifacts (lid, typo pair)" do
+      lid = File.join(temp_cache_dir, "lid", "models", "lid-176")
+      FileUtils.mkdir_p(lid)
+      File.write(File.join(lid, "metadata.json"), "{}")
+      typo = File.join(temp_cache_dir, "models", "typo")
+      FileUtils.mkdir_p(typo)
+      File.write(File.join(typo, "metadata.json"), "{}")
+      expect(described_class.languages_setup).to eq([])
+    end
   end
 
   describe ".setup_from_local" do
