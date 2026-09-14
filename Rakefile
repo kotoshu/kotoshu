@@ -31,6 +31,27 @@ report_divergences = lambda do |divergences|
   puts "... and #{divergences.size - 10} more" if divergences.size > 10
 end
 
+# Plan 135: the ext tracks kotoshu-rs main via a git dependency pinned
+# in ext/kotoshu_native/Cargo.lock; after every rs merge that pin
+# goes stale and `rake compile` silently loads an old extension whose
+# missing methods the typo layer's degrade rescue swallows. One task
+# does the dance: update the pin (with the CLI git fetch the sandbox
+# flake needs), print the resolved revision, recompile.
+desc "Update the ext's kotoshu-rs pin to latest main and recompile"
+task "ext:update" do
+  ext_dir = File.expand_path("ext/kotoshu_native", __dir__)
+  lock_path = File.expand_path("Cargo.lock", __dir__)
+  Dir.chdir(ext_dir) do
+    env = { "CARGO_NET_GIT_FETCH_WITH_CLI" => "true" }
+    ok = system(env, "cargo", "update", "-p", "kotoshu")
+    abort "ext:update: cargo update failed" unless ok
+  end
+  match = File.read(lock_path)
+    .match(/^name = "kotoshu"$.*?^source = "git\+[^"]*#([0-9a-f]+)"/m)
+  puts "ext:update: kotoshu-rs pinned at #{match ? match[1][0, 10] : 'main (unpinned rev)'}"
+  Rake::Task["compile"].invoke
+end
+
 namespace :kotoshu do
   namespace :staged_languages do
     desc <<~DESC
