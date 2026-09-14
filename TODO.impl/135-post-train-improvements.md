@@ -1,7 +1,14 @@
 # Plan 135 — Post-train improvements: the two gotchas the release train exposed
 
-Status: executing (written 2026-09-14 from the v1.7.0/1.0.3 train's
-own evidence)
+Status: executed (2026-09-14). (1) `rake ext:update` — cargo update
+with the CLI git fetch, prints the resolved rs revision (verified
+live: c810ced3b4), recompiles; spec freezes the wiring. (2)
+miss-driven registry refresh — `registry_entry_for` retries once with
+a forced registry fetch when the wanted entry is absent from the
+cached copy; offline refresh failure keeps the original miss
+(broadened rescue after the Windows Errno lesson). Proven with a real
+local HTTP server: stale v1.4.0 cache + served v1.7.0 registry
+downloads the fresh pair end to end. Suite 4064/0, rubocop clean.
 
 ## 1. `rake ext:update` — the rs-main pin's manual dance
 

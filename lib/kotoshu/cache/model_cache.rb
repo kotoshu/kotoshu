@@ -212,7 +212,30 @@ module Kotoshu
       #   no entry for the pair
       # @raise [Kotoshu::Error] when offline with no cached registry
       def registry_entry_for(language_code, tier, force: false)
-        registry(force: force)&.find(language_code.to_s, tier.to_s)
+        return registry(force: true)&.find(language_code.to_s, tier.to_s) if force
+
+        registry&.find(language_code.to_s, tier.to_s) ||
+          find_after_registry_refresh(language_code, tier)
+      end
+
+      # Plan 135: a cached registry within its TTL shadows the live
+      # one - during the v1.7.0 train, a v1.4.0 cache made a newly
+      # published resource invisible until manual deletion. When the
+      # wanted entry is absent from the cached copy, refresh the
+      # registry ONCE and look again. An offline refresh failure keeps
+      # the original miss: the legacy fallbacks (CDN for tiers, the
+      # honest no-entry error for the typo pair) apply exactly as
+      # before.
+      def find_after_registry_refresh(language_code, tier)
+        refreshed = begin
+          registry(force: true)
+        rescue StandardError
+          # Offline or transport failure: keep the original miss, the
+          # existing fallbacks apply (Windows surfaces raw Errno
+          # classes the wrapper does not always raise as Kotoshu::Error).
+          nil
+        end
+        refreshed&.find(language_code.to_s, tier.to_s)
       end
 
       # Download and verify a tiered model from the registry.

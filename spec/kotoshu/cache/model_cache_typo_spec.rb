@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require_relative "../../support/local_http_server"
 require "fileutils"
 require "tmpdir"
 require "digest"
@@ -163,5 +164,101 @@ RSpec.describe Kotoshu::Cache::ModelCache do
     it "answers nil when nothing is cached" do
       expect(cache.load_cached_tier("en", :full)).to be_nil
     end
+  end
+end
+
+# Plan 135: miss-driven registry refresh. A stale cached registry
+# (one that predates the typo pair) must not shadow the live one: a
+# wanted-but-absent entry triggers a single registry refresh before
+# the honest no-entry error. A real local HTTP server serves both the
+# fresh registry and the artifacts; no network.
+RSpec.describe "#download_typo_biencoder miss-driven refresh" do
+  let(:temp_dir) { Dir.mktmpdir("kotoshu-model-typo-refresh") }
+  let(:audit_log) { Kotoshu::Integrity::AuditLog.new(path: File.join(temp_dir, "audit.log")) }
+  let(:cache) do
+    Kotoshu::Cache::ModelCache.new(cache_path: temp_dir, cache_ttl: 3600,
+                                   source_registry: Kotoshu::SourceRegistry.new(base_url: "http://127.0.0.1:9"),
+                                   audit_log: audit_log)
+  end
+
+  after { FileUtils.rm_rf(temp_dir) if File.exist?(temp_dir) }
+
+  def seed_stale_registry
+    payload = JSON.pretty_generate(
+      "spec" => "kotoshu.resources/v1", "registry_version" => 1,
+      "release_tag" => "v1.4.0", "resources" => {}
+    )
+    dir = File.join(temp_dir, "registry")
+    FileUtils.mkdir_p(dir)
+    File.binwrite(File.join(dir, "registry.json"), payload)
+    File.write(File.join(dir, "metadata.json"), JSON.pretty_generate(
+                                                  "url" => "fixture", "sha256" => Digest::SHA256.hexdigest(payload),
+                                                  "cached_at" => Time.now.utc.iso8601
+                                                ))
+  end
+
+  def serve_fresh_registry_and_pair
+    root = File.join(temp_dir, "server")
+    registry_dir = File.join(root, "models-fasttext-onnx", "main")
+    FileUtils.mkdir_p(registry_dir)
+    onnx = "fresh-typo-biencoder-bytes"
+    onnx_path = File.join(registry_dir, "typo.biencoder.onnx")
+    vocab_path = File.join(registry_dir, "typo.biencoder.vocab.json")
+    File.binwrite(onnx_path, onnx)
+    File.binwrite(vocab_path, '{"a": 1}')
+    sha = Digest::SHA256.hexdigest(onnx)
+    base = nil # filled by the server once started
+    File.binwrite(File.join(registry_dir, "registry.json"), JSON.pretty_generate(
+                                                              "spec" => "kotoshu.resources/v1", "registry_version" => 2,
+                                                              "release_tag" => "v1.7.0",
+                                                              "resources" => {
+                                                                "kotoshu://models/typo/typo-biencoder" => {
+                                                                  "type" => "model", "language" => "typo",
+                                                                  "tier" => { "name" => "typo-biencoder", "dims" => 256,
+                                                                              "vocab_size" => 1821, "quantization" => "int8-dynamic" },
+                                                                  "version" => "1.7.0",
+                                                                  "urls" => { "primary" => "@BASE@/models-fasttext-onnx/main/typo.biencoder.onnx",
+                                                                              "mirror" => nil },
+                                                                  "vocab_url" => "@BASE@/models-fasttext-onnx/main/typo.biencoder.vocab.json",
+                                                                  "sha256" => sha, "size_bytes" => onnx.bytesize,
+                                                                  "license" => "CC-BY-SA-3.0", "min_engine_version" => "0.7",
+                                                                  "eval_ref" => nil
+                                                                }
+                                                              }
+                                                            ))
+    root
+  end
+
+  it "refreshes once when the wanted entry is absent from the stale cache" do
+    skip "LocalHttpServer unavailable" unless defined?(LocalHttpServer)
+
+    seed_stale_registry
+    root = serve_fresh_registry_and_pair
+    registry_file = File.join(root, "models-fasttext-onnx", "main", "registry.json")
+    server = LocalHttpServer.new(root: root)
+    begin
+      payload = File.read(registry_file).gsub("@BASE@", server.base_url)
+      File.binwrite(registry_file, payload)
+      meta = File.join(temp_dir, "registry", "metadata.json")
+      m = JSON.parse(File.read(meta))
+      File.write(meta, JSON.pretty_generate(m.merge("sha256" => Digest::SHA256.hexdigest(payload))))
+      fresh = Kotoshu::Cache::ModelCache.new(
+        cache_path: temp_dir, cache_ttl: 3600,
+        source_registry: Kotoshu::SourceRegistry.new(base_url: server.base_url),
+        audit_log: audit_log
+      )
+      pair = fresh.download_typo_biencoder
+      expect(pair).not_to be_nil
+      expect(File.binread(pair[:onnx_path])).to eq("fresh-typo-biencoder-bytes")
+      expect(pair[:metadata][:registry_id]).to eq("kotoshu://models/typo/typo-biencoder")
+    ensure
+      server.stop
+    end
+  end
+
+  it "keeps the honest miss when the refresh cannot run (offline)" do
+    seed_stale_registry
+    expect { cache.download_typo_biencoder }
+      .to raise_error(Kotoshu::Error, /no registry entry for kotoshu:\/\/models\/typo\/typo-biencoder/)
   end
 end
