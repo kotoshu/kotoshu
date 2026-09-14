@@ -37,19 +37,44 @@ end
 # missing methods the typo layer's degrade rescue swallows. One task
 # does the dance: update the pin (with the CLI git fetch the sandbox
 # flake needs), print the resolved revision, recompile.
+# The kotoshu-rs rev the ext's Cargo.lock pins (nil when unlocked).
+# Shared by ext:update (prints it) and ext:pin_check (compares it to
+# main) so the extraction can never diverge between the two.
+def pinned_rs_rev
+  File.expand_path("Cargo.lock", __dir__).then { File.read(_1) }
+    .match(/^name = "kotoshu"$.*?^source = "git\+[^"]*#([0-9a-f]+)"/m)&.captures&.first
+end
+
 desc "Update the ext's kotoshu-rs pin to latest main and recompile"
 task "ext:update" do
   ext_dir = File.expand_path("ext/kotoshu_native", __dir__)
-  lock_path = File.expand_path("Cargo.lock", __dir__)
   Dir.chdir(ext_dir) do
     env = { "CARGO_NET_GIT_FETCH_WITH_CLI" => "true" }
     ok = system(env, "cargo", "update", "-p", "kotoshu")
     abort "ext:update: cargo update failed" unless ok
   end
-  match = File.read(lock_path)
-    .match(/^name = "kotoshu"$.*?^source = "git\+[^"]*#([0-9a-f]+)"/m)
-  puts "ext:update: kotoshu-rs pinned at #{match ? match[1][0, 10] : 'main (unpinned rev)'}"
+  rev = pinned_rs_rev
+  puts "ext:update: kotoshu-rs pinned at #{rev ? rev[0, 10] : 'main (unpinned rev)'}"
   Rake::Task["compile"].invoke
+end
+
+desc "Fail when the ext pins a kotoshu-rs rev behind main (KOTOSHU_RS_HEAD = main's sha)"
+task "ext:pin_check" do
+  pinned = pinned_rs_rev
+  abort "ext:pin_check: Cargo.lock carries no kotoshu git pin" if pinned.nil?
+  head = ENV.fetch("KOTOSHU_RS_HEAD", "").strip
+  abort "ext:pin_check: pass kotoshu-rs main's sha via KOTOSHU_RS_HEAD" if head.empty?
+  if pinned == head
+    puts "ext:pin_check: kotoshu-rs pinned at main (#{pinned[0, 10]})"
+  else
+    abort <<~MESSAGE
+      ext:pin_check: ext pins #{pinned[0, 10]} but kotoshu-rs main is #{head[0, 10]}.
+      A stale pin builds without the newest rs bindings - features degrade
+      silently (e.g. a missing TypoEngine.matrix falls back to deriving).
+      Run `bundle exec rake ext:update`, then send the refreshed Cargo.lock
+      through a PR.
+    MESSAGE
+  end
 end
 
 namespace :kotoshu do

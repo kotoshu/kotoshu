@@ -1,0 +1,32 @@
+name: ext-pin-drift
+
+# Plan 138: the ext pins kotoshu-rs main by rev in Cargo.lock. Every rs
+# merge moves main ahead and the pin silently stays - local and CI
+# builds then lack the newest bindings and features degrade quietly
+# (a missing TypoEngine.matrix means 25 s deriving instead of a 588 ms
+# arming). This weekly guard makes the drift loud.
+on:
+  schedule:
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - name: kotoshu-rs main HEAD
+        id: rs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: echo "head=$(gh api repos/kotoshu/kotoshu-rs/commits/main --jq .sha)" >> "$GITHUB_OUTPUT"
+      - name: Compare ext pin
+        env:
+          KOTOSHU_RS_HEAD: ${{ steps.rs.outputs.head }}
+        run: bundle exec rake ext:pin_check

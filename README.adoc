@@ -398,6 +398,29 @@ variable `KOTOSHU_MODEL_TIER`; one of `full`, `fluency`, `mini`):
 KOTOSHU_MODEL_TIER=mini kotoshu setup en --model
 ----
 
+[[typo-retrieval]]
+=== Typo Retrieval (opt-in)
+
+The typo-retrieval layer adds a 0.5 MB character bi-encoder to the
+suggestion pipeline: it retrieves the twenty vocabulary entries nearest
+a misspelling's character shape, and the language's FULL tier rescores
+them exactly. On the frozen real-pair benchmarks it lifts top-5 recall
+over the full tier alone (+6.3 points on English, +10 to +29 on de/es/ru).
+
+Setup fetches everything with one flag:
+
+[source,bash]
+----
+kotoshu setup en --typo
+----
+
+The layer arms only when you opt in with `KOTOSHU_TYPO_RETRIEVAL=1`;
+without it, suggestions are byte-identical to the base pipeline. A
+prebuilt 26 MB retrieval matrix is served by the model registry, so
+arming is a download (about half a second) instead of a 25-second
+derivation. The matrix rows pair with the language's full-tier
+vocabulary, so keep the full tier cached (setup fetches it).
+
 [[interactive-mode]]
 [[interactive-mode]]
 == Interactive Mode
