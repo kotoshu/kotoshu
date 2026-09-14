@@ -264,7 +264,7 @@ module Kotoshu
     #
     # @param language [String, Symbol] Language code
     # @param resource [Symbol, nil] :spelling (default), :frequency,
-    #   :model, or nil for "spelling"
+    #   :model, :typo, :typo_matrix, or nil for "spelling"
     # @param tier [Symbol, nil] Model tier to check (:full, :fluency,
     #   :mini, or :any); only meaningful with resource: :model
     # @return [Boolean]
@@ -273,6 +273,7 @@ module Kotoshu
     #   ResourceManager.setup?(:en)                       # spelling
     #   ResourceManager.setup?(:en, resource: :frequency) # Kelly list
     #   ResourceManager.setup?(:en, resource: :model, tier: :mini)
+    #   ResourceManager.setup?(:en, resource: :typo_matrix)
     def setup?(language, resource: nil, tier: nil)
       lang = normalize_language(language)
       case resource&.to_sym
@@ -286,6 +287,11 @@ module Kotoshu
         # tier (the rescore's exactness contract).
         cache = model_cache_for
         cache.typo_biencoder_cached? && cache.available?(cache.tier_resource_id(lang, :full))
+      when :typo_matrix
+        # Plan 139: the prebuilt KTM1 is a separate, optional half of
+        # the typo setup. Absent means arming derives (~25 s); present
+        # means arming is a download (ms).
+        !model_cache_for.load_cached_typo_matrix(lang).nil?
       when :model
         cache = model_cache_for
         if tier.nil?

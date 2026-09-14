@@ -196,4 +196,47 @@ RSpec.describe Kotoshu::ResourceManager do
       expect(described_class.setup?("en", resource: :typo)).to be(true)
     end
   end
+
+  describe ".setup? with resource: :typo_matrix (plan 139)" do
+    def seed_matrix
+      bytes = "KTM1" + ("\0" * 12)
+      dir = File.join(temp_cache_dir, "en", "models", "typo-matrix")
+      FileUtils.mkdir_p(dir)
+      File.binwrite(File.join(dir, "typo.matrix.en.ktm1"), bytes)
+      sha = Digest::SHA256.hexdigest(bytes)
+      payload = JSON.pretty_generate(
+        "spec" => "kotoshu.resources/v1", "registry_version" => 2,
+        "release_tag" => "v1.7.0",
+        "resources" => {
+          "kotoshu://models/en/typo-matrix" => {
+            "type" => "model", "language" => "en",
+            "tier" => { "name" => "typo-matrix", "dims" => 256,
+                        "vocab_size" => 10, "quantization" => "int8-per-row" },
+            "version" => "1.7.0",
+            "urls" => { "primary" => nil,
+                        "mirror" => "https://media.example/main/models/en/typo.matrix.en.ktm1" },
+            "vocab_url" => nil, "sha256" => sha, "size_bytes" => bytes.bytesize,
+            "license" => "CC-BY-SA-3.0", "min_engine_version" => "1.1",
+            "eval_ref" => nil
+          }
+        }
+      )
+      rdir = File.join(temp_cache_dir, "registry")
+      FileUtils.mkdir_p(rdir)
+      File.binwrite(File.join(rdir, "registry.json"), payload)
+      File.write(File.join(rdir, "metadata.json"), JSON.pretty_generate(
+                                                     "url" => "fixture", "sha256" => Digest::SHA256.hexdigest(payload),
+                                                     "cached_at" => Time.now.utc.iso8601
+                                                   ))
+    end
+
+    it "is false with nothing cached" do
+      expect(described_class.setup?("en", resource: :typo_matrix)).to be(false)
+    end
+
+    it "is true when the sha-verified matrix is present" do
+      seed_matrix
+      expect(described_class.setup?("en", resource: :typo_matrix)).to be(true)
+    end
+  end
 end

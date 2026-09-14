@@ -103,9 +103,76 @@ RSpec.describe Kotoshu::Typo::Engine do
 
       engine = described_class.for("en", configuration: configuration)
       expect(engine).not_to be_nil
+      expect(engine.armed_via).to eq(:derived) # no matrix seeded → derive
       rows = engine.suggest("definately", max_suggestions: 5)
       expect(rows).not_to be_empty
       expect(rows.map(&:source).uniq).to eq(%w[typo_retrieval])
+    end
+
+    it "arms via the matrix when a KTM1 artifact is cached" do
+      skip "needs the native typo surface + KOTOSHU_TYPO_E2E paths" unless
+        defined?(Kotoshu::Native::TypoModel) &&
+          Kotoshu::Native::TypoEngine.respond_to?(:matrix) &&
+          paths.size == 4
+
+      matrix = ENV["KOTOSHU_TYPO_MATRIX"].to_s
+      skip "needs KOTOSHU_TYPO_MATRIX pointing at a .ktm1" unless File.file?(matrix)
+
+      onnx, vocab, tier_onnx, tier_vocab = paths
+      dir = File.join(temp_dir, "models", "typo")
+      FileUtils.mkdir_p(dir)
+      FileUtils.cp(onnx, File.join(dir, "typo.biencoder.onnx"))
+      FileUtils.cp(vocab, File.join(dir, "typo.biencoder.vocab.json"))
+      File.write(File.join(dir, "metadata.json"), JSON.pretty_generate(
+                                                    "file" => "typo.biencoder.onnx", "vocab_file" => "typo.biencoder.vocab.json",
+                                                    "checksum" => Digest::SHA256.file(onnx).hexdigest,
+                                                    "registry_id" => "kotoshu://models/typo/typo-biencoder",
+                                                    "url" => "fixture", "cached_at" => Time.now.utc.iso8601
+                                                  ))
+      tdir = File.join(temp_dir, "en", "models", "onnx")
+      FileUtils.mkdir_p(tdir)
+      FileUtils.cp(tier_onnx, File.join(tdir, "fasttext.en.onnx"))
+      FileUtils.cp(tier_vocab, File.join(tdir, "fasttext.en.vocab.json"))
+      File.write(File.join(tdir, "metadata.json"), JSON.pretty_generate(
+                                                     "file" => "fasttext.en.onnx", "vocab_file" => "fasttext.en.vocab.json",
+                                                     "checksum" => Digest::SHA256.file(tier_onnx).hexdigest,
+                                                     "url" => "fixture", "cached_at" => Time.now.utc.iso8601
+                                                   ))
+      # Seed the matrix + a matching registry entry so load_cached_typo_matrix resolves.
+      mdir = File.join(temp_dir, "en", "models", "typo-matrix")
+      FileUtils.mkdir_p(mdir)
+      FileUtils.cp(matrix, File.join(mdir, "typo.matrix.en.ktm1"))
+      sha = Digest::SHA256.file(matrix).hexdigest
+      payload = JSON.pretty_generate(
+        "spec" => "kotoshu.resources/v1", "registry_version" => 2,
+        "release_tag" => "v1.7.0",
+        "resources" => {
+          "kotoshu://models/en/typo-matrix" => {
+            "type" => "model", "language" => "en",
+            "tier" => { "name" => "typo-matrix", "dims" => 256,
+                        "vocab_size" => 100_000, "quantization" => "int8-per-row" },
+            "version" => "1.7.0",
+            "urls" => { "primary" => nil,
+                        "mirror" => "https://media.example/main/models/en/typo.matrix.en.ktm1" },
+            "vocab_url" => nil, "sha256" => sha, "size_bytes" => File.size(matrix),
+            "license" => "CC-BY-SA-3.0", "min_engine_version" => "1.1",
+            "eval_ref" => nil
+          }
+        }
+      )
+      rdir = File.join(temp_dir, "registry")
+      FileUtils.mkdir_p(rdir)
+      File.binwrite(File.join(rdir, "registry.json"), payload)
+      File.write(File.join(rdir, "metadata.json"), JSON.pretty_generate(
+                                                     "url" => "fixture", "sha256" => Digest::SHA256.hexdigest(payload),
+                                                     "cached_at" => Time.now.utc.iso8601
+                                                   ))
+
+      engine = described_class.for("en", configuration: configuration)
+      expect(engine).not_to be_nil
+      expect(engine.armed_via).to eq(:matrix)
+      rows = engine.suggest("recieve", max_suggestions: 3)
+      expect(rows).not_to be_empty
     end
   end
 end

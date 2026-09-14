@@ -549,7 +549,20 @@ module Kotoshu
         end
 
         puts "Set up languages:"
-        langs.each { |lang| puts "  #{lang}" }
+        langs.each do |lang|
+          parts = []
+          parts << "spelling" if Kotoshu::ResourceManager.setup?(lang)
+          parts << "frequency" if Kotoshu::ResourceManager.setup?(lang, resource: :frequency)
+          parts << "model" if Kotoshu::ResourceManager.setup?(lang, resource: :model, tier: :any)
+          parts << "typo" if Kotoshu::ResourceManager.setup?(lang, resource: :typo)
+          # Plan 139: surface the prebuilt matrix so a silent derive
+          # path is visible from `kotoshu setup --list`.
+          parts << "typo-matrix" if Kotoshu::ResourceManager.setup?(lang, resource: :typo_matrix)
+          # languages_setup is looser than setup? (TTL/metadata edge
+          # cases); fall back to the bare code when nothing verifies so
+          # we never print an empty "lang: " line.
+          puts(parts.empty? ? "  #{lang}" : "  #{lang}: #{parts.join(', ')}")
+        end
       end
 
       def display_result(result, source, application: nil)
