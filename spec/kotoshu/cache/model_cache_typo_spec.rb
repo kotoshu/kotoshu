@@ -167,7 +167,6 @@ RSpec.describe Kotoshu::Cache::ModelCache do
   end
 end
 
-<<<<<<< Updated upstream
 # Plan 135: miss-driven registry refresh. A stale cached registry
 # (one that predates the typo pair) must not shadow the live one: a
 # wanted-but-absent entry triggers a single registry refresh before
@@ -175,11 +174,6 @@ end
 # fresh registry and the artifacts; no network.
 RSpec.describe "#download_typo_biencoder miss-driven refresh" do
   let(:temp_dir) { Dir.mktmpdir("kotoshu-model-typo-refresh") }
-=======
-# Plan 136: the prebuilt matrix resolves cache-only.
-RSpec.describe "#load_cached_typo_matrix" do
-  let(:temp_dir) { Dir.mktmpdir("kotoshu-matrix-resolve") }
->>>>>>> Stashed changes
   let(:audit_log) { Kotoshu::Integrity::AuditLog.new(path: File.join(temp_dir, "audit.log")) }
   let(:cache) do
     Kotoshu::Cache::ModelCache.new(cache_path: temp_dir, cache_ttl: 3600,
@@ -189,7 +183,6 @@ RSpec.describe "#load_cached_typo_matrix" do
 
   after { FileUtils.rm_rf(temp_dir) if File.exist?(temp_dir) }
 
-<<<<<<< Updated upstream
   def seed_stale_registry
     payload = JSON.pretty_generate(
       "spec" => "kotoshu.resources/v1", "registry_version" => 1,
@@ -267,7 +260,21 @@ RSpec.describe "#load_cached_typo_matrix" do
     seed_stale_registry
     expect { cache.download_typo_biencoder }
       .to raise_error(Kotoshu::Error, /no registry entry for kotoshu:\/\/models\/typo\/typo-biencoder/)
-=======
+  end
+end
+
+# Plan 136: the prebuilt matrix resolves cache-only.
+RSpec.describe "#load_cached_typo_matrix" do
+  let(:temp_dir) { Dir.mktmpdir("kotoshu-matrix-resolve") }
+  let(:audit_log) { Kotoshu::Integrity::AuditLog.new(path: File.join(temp_dir, "audit.log")) }
+  let(:cache) do
+    Kotoshu::Cache::ModelCache.new(cache_path: temp_dir, cache_ttl: 3600,
+                                   source_registry: Kotoshu::SourceRegistry.new(base_url: "http://127.0.0.1:9"),
+                                   audit_log: audit_log)
+  end
+
+  after { FileUtils.rm_rf(temp_dir) if File.exist?(temp_dir) }
+
   def seed_matrix_cache(bytes: "KT" + "M1fake")
     dir = File.join(temp_dir, "en", "models", "typo-matrix")
     FileUtils.mkdir_p(dir)
@@ -316,6 +323,5 @@ RSpec.describe "#load_cached_typo_matrix" do
     File.binwrite(File.join(temp_dir, "en", "models", "typo-matrix", "typo.matrix.en.ktm1"),
                   "tampered-bytes")
     expect(cache.load_cached_typo_matrix("en")).to be_nil
->>>>>>> Stashed changes
   end
 end
