@@ -40,5 +40,18 @@ jobs:
           bundler-cache: true
       - name: Compile the native extension
         run: bundle exec rake compile
+      - name: Set up the real typo artifacts (matrix-arm E2E, plan 140)
+        # The 1.0.4 class of bug - a shipped ext lacking the typo
+        # surface - passed every count-based check. This seeds the real
+        # artifacts so the armed specs run (not skip) on every PR: the
+        # derived arm asserts armed_via=:derived, the matrix arm
+        # asserts armed_via=:matrix through TypoEngine.matrix.
+        run: |
+          bundle exec ruby exe/kotoshu setup en --typo
+          CACHE="${HOME}/.cache/kotoshu"
+          {
+            echo "KOTOSHU_TYPO_E2E=${CACHE}/models/typo/typo.biencoder.onnx,${CACHE}/models/typo/typo.biencoder.vocab.json,${CACHE}/en/models/onnx/fasttext.en.onnx,${CACHE}/en/models/onnx/fasttext.en.vocab.json"
+            echo "KOTOSHU_TYPO_MATRIX=${CACHE}/en/models/typo-matrix/typo.matrix.en.ktm1"
+          } >> "$GITHUB_ENV"
       - name: Full suite with the native surface un-pended
         run: bundle exec rspec --format progress

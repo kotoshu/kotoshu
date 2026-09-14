@@ -387,20 +387,22 @@ RSpec.describe "Property-Based Tests", :property do
   # ============================================================================
 
   describe "Parallel checker properties" do
-    let(:files) do
-      # Create temporary test files
-      files = []
-      3.times do |i|
-        file = Tempfile.new(["kotoshu_test_#{i}", ".txt"])
-        file.write("hello world test #{i}")
-        file.close
-        files << file.path
+    # Keep the Tempfile OBJECTS alive for the example's duration: the
+    # finalizer unlinks on GC, and a path-only list let it race the
+    # sequential phase (CI flake: DictionaryNotFoundError on the input
+    # file itself — check_file raises that class for any missing path).
+    let(:tempfiles) do
+      3.times.map do |i|
+        Tempfile.new(["kotoshu_test_#{i}", ".txt"]).tap do |file|
+          file.write("hello world test #{i}")
+          file.close
+        end
       end
-      files
     end
+    let(:files) { tempfiles.map(&:path) }
 
     after do
-      files.each { |f| File.delete(f) if File.exist?(f) }
+      tempfiles.each(&:unlink)
     end
 
     it "produces same results as sequential checking" do
