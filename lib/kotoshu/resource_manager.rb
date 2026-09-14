@@ -379,7 +379,9 @@ module Kotoshu
       cache = model_cache_for(config: config)
       unless force
         full_id = cache.tier_resource_id(lang, :full)
-        return :cached if cache.typo_biencoder_cached? && cache.available?(full_id)
+        if cache.typo_biencoder_cached? && cache.available?(full_id)
+          return ensure_typo_matrix(cache, lang) || :cached
+        end
       end
       begin
         cache.download_typo_biencoder(force: force)
@@ -397,7 +399,23 @@ module Kotoshu
 
         return :unavailable
       end
+      ensure_typo_matrix(cache, lang)
       :downloaded
+    end
+
+    # Plan 136: an already-satisfied (or just-satisfied) typo setup
+    # still owes the user the instant-arming matrix — without this an
+    # install set up before the matrix existed derives at arming time
+    # (~25s) forever. Cache-only when present; best-effort fetch
+    # otherwise. Returns :downloaded when fetched, nil when present or
+    # unservable — callers degrade, never fail, on nil.
+    def ensure_typo_matrix(cache, lang)
+      return nil if cache.load_cached_typo_matrix(lang)
+
+      cache.download_typo_matrix(lang)
+      :downloaded
+    rescue Kotoshu::Error, StandardError
+      nil
     end
 
     def setup_frequency_remote(lang, force:, strict:, config:)

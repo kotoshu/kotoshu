@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require_relative "../support/local_http_server"
 require "fileutils"
 require "tmpdir"
 require "digest"
@@ -95,6 +96,87 @@ RSpec.describe Kotoshu::ResourceManager do
       # the model+typo combination instead
       result = described_class.setup("en", want: %i[model typo], tier: :full)
       expect(result.typo).to eq(:cached)
+    end
+  end
+
+  describe "#setup with want: [:typo] matrix backfill (plan 136)" do
+    # An install set up before the prebuilt matrix existed (or a fresh
+    # one, for a language that gained one) must pick the matrix up on
+    # the next setup run — otherwise arming derives (~25s) forever.
+    def seed_registry_with_matrix_entry(matrix_bytes:, mirror_url:)
+      payload = JSON.pretty_generate(
+        "spec" => "kotoshu.resources/v1", "registry_version" => 2,
+        "release_tag" => "v1.7.0",
+        "resources" => {
+          "kotoshu://models/en/typo-matrix" => {
+            "type" => "model", "language" => "en",
+            "tier" => { "name" => "typo-matrix", "dims" => 256,
+                        "vocab_size" => 10, "quantization" => "int8-per-row" },
+            "version" => "1.7.0",
+            "urls" => { "primary" => nil, "mirror" => mirror_url },
+            "vocab_url" => nil,
+            "sha256" => Digest::SHA256.hexdigest(matrix_bytes),
+            "size_bytes" => matrix_bytes.bytesize,
+            "license" => "CC-BY-SA-3.0", "min_engine_version" => "1.1",
+            "eval_ref" => nil
+          }
+        }
+      )
+      dir = File.join(temp_cache_dir, "registry")
+      FileUtils.mkdir_p(dir)
+      File.binwrite(File.join(dir, "registry.json"), payload)
+      File.write(File.join(dir, "metadata.json"), JSON.pretty_generate(
+                                                    "url" => "fixture", "sha256" => Digest::SHA256.hexdigest(payload),
+                                                    "cached_at" => Time.now.utc.iso8601
+                                                  ))
+    end
+
+    def matrix_cache_path
+      File.join(temp_cache_dir, "en", "models", "typo-matrix", "typo.matrix.en.ktm1")
+    end
+
+    it "backfills a missing matrix on an already-satisfied setup" do
+      server_root = File.join(temp_cache_dir, "server")
+      FileUtils.mkdir_p(server_root)
+      bytes = "KTM1" + ("\0" * 12)
+      File.binwrite(File.join(server_root, "typo.matrix.en.ktm1"), bytes)
+      server = LocalHttpServer.new(root: server_root)
+      begin
+        seed_typo_pair
+        seed_full_tier
+        seed_registry_with_matrix_entry(matrix_bytes: bytes, mirror_url: "#{server.base_url}/typo.matrix.en.ktm1")
+
+        result = described_class.setup("en", want: %i[typo])
+
+        expect(result.typo).to eq(:downloaded)
+        expect(File.binread(matrix_cache_path)).to eq(bytes)
+      ensure
+        server.stop
+      end
+    end
+
+    it "stays :cached when the matrix is already present" do
+      seed_typo_pair
+      seed_full_tier
+      bytes = "KTM1" + ("\0" * 12)
+      FileUtils.mkdir_p(File.dirname(matrix_cache_path))
+      File.binwrite(matrix_cache_path, bytes)
+      seed_registry_with_matrix_entry(matrix_bytes: bytes, mirror_url: "http://127.0.0.1:9/typo.matrix.en.ktm1")
+
+      result = described_class.setup("en", want: %i[typo])
+
+      expect(result.typo).to eq(:cached)
+    end
+
+    it "degrades to :cached when the registry has no matrix entry" do
+      seed_typo_pair
+      seed_full_tier
+      seed_registry_fixture
+
+      result = described_class.setup("en", want: %i[typo])
+
+      expect(result.typo).to eq(:cached)
+      expect(File.exist?(matrix_cache_path)).to be(false)
     end
   end
 
