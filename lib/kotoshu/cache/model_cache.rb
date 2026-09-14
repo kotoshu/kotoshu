@@ -523,6 +523,64 @@ module Kotoshu
         result
       end
 
+      # ---- prebuilt typo matrix (plan 136) ----
+
+      # Resolve the language's prebuilt KTM1 matrix from the cache
+      # only (the resolve half; setup downloads).
+      #
+      # @param language_code [String]
+      # @return [String, nil] path to the cached .ktm1, nil when absent
+      def load_cached_typo_matrix(language_code)
+        entry = begin
+          registry&.find(language_code.to_s, "typo-matrix")
+        rescue StandardError
+          nil
+        end
+        return nil unless entry
+
+        dir = File.join(@cache_path, language_code.to_s, "models", "typo-matrix")
+        file = File.join(dir, filename_from_url(entry.urls.mirror))
+        return nil unless File.exist?(file) && File.size(file).positive?
+        return nil unless Digest::SHA256.file(file).hexdigest == entry.sha256
+
+        file
+      end
+
+      # Download the matrix (the setup half). Raises like the other
+      # registry downloads when the registry cannot serve it yet.
+      #
+      # @param language_code [String]
+      # @param force [Boolean]
+      # @return [String] path to the cached .ktm1
+      def download_typo_matrix(language_code, force: false)
+        lang = language_code.to_s
+        entry = registry(force: force)&.find(lang, "typo-matrix")
+        unless entry
+          raise Kotoshu::Error,
+                "no registry entry for kotoshu://models/#{lang}/typo-matrix (the matrix ships per language; derive-at-load remains the fallback)"
+        end
+
+        dir = File.join(@cache_path, lang, "models", "typo-matrix")
+        FileUtils.mkdir_p(dir)
+        file = File.join(dir, filename_from_url(entry.urls.mirror))
+        used_url = download_primary_or_mirror!(entry, file)
+        verify_registry_sha256!(entry, file, "kotoshu://models/#{lang}/typo-matrix", used_url,
+                                remediation: "Run kotoshu setup #{lang} --typo --force to re-download.")
+
+        write_metadata(File.join(dir, "metadata.json"),
+                       "version" => entry.version,
+                       "url" => used_url,
+                       "language" => lang,
+                       "type" => "typo-matrix",
+                       "file" => File.basename(file),
+                       "checksum" => entry.sha256,
+                       "registry_id" => "kotoshu://models/#{lang}/typo-matrix",
+                       "size_bytes" => entry.size_bytes,
+                       "cached_at" => Time.now.utc.iso8601,
+                       "source" => "registry")
+        file
+      end
+
       # Get available model types for a language.
       #
       # @param language_code [String] ISO 639-1 language code
