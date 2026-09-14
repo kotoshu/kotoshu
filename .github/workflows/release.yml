@@ -192,9 +192,20 @@ jobs:
           VERSION="${{ needs.release.outputs.version }}"
           EXPECTED="ruby x86_64-linux aarch64-linux arm64-darwin x86_64-darwin x64-mingw-ucrt"
           echo "verifying kotoshu ${VERSION} carries: ${EXPECTED}"
+          # The RubyGems API lags brand-new versions (1.0.5's verify saw
+          # an empty list seconds after publish): curl exits 0 on the
+          # degraded payload, so retry on EMPTY, not on curl failure.
           for attempt in $(seq 1 10); do
-            PLATFORMS="$(curl -sf "https://rubygems.org/api/v1/versions/kotoshu.json"               | python3 -c "import json,sys; vs=[v for v in json.load(sys.stdin) if v['number']=='${VERSION}']; print(' '.join(sorted(v['platform'] for v in vs)))")"               && break || sleep 15
+            PLATFORMS="$(curl -sf "https://rubygems.org/api/v1/versions/kotoshu.json" \
+              | python3 -c "import json,sys; vs=[v for v in json.load(sys.stdin) if v['number']=='${VERSION}']; print(' '.join(sorted(v['platform'] for v in vs)))") \
+              || true"
+            [ -n "${PLATFORMS}" ] && break
+            sleep 15
           done
+          if [ -z "${PLATFORMS}" ]; then
+            echo "rubygems API never listed ${VERSION} after 10 attempts" >&2
+            exit 1
+          fi
           echo "found: ${PLATFORMS}"
           for want in ${EXPECTED}; do
             case " ${PLATFORMS} " in
