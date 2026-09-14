@@ -48,6 +48,52 @@ RSpec.describe Kotoshu::ResourceManager do
     end
   end
 
+  describe "expired-but-present caches (plan 140)" do
+    # The live-machine reproducer: an ar spelling cache whose metadata
+    # predates cached_at bookkeeping listed in `setup --list`, passed
+    # cached_data?/load_cached, yet resolve raised ResourceNotSetupError
+    # because its guards used the TTL-enforced available?. Readers are
+    # TTL-free by plan 117's contract; only the setup refresh obeys TTL.
+    def seed_spelling_without_cached_at(lang = "en")
+      dir = File.join(temp_cache_dir, "languages", lang, "spelling")
+      FileUtils.mkdir_p(dir)
+      FileUtils.cp(en_aff_fixture, File.join(dir, "index.aff"))
+      FileUtils.cp(en_dic_fixture, File.join(dir, "index.dic"))
+      File.write(File.join(dir, "metadata.json"), JSON.pretty_generate(
+                                                    "language" => lang, "type" => "spelling",
+                                                    "version" => "2026-01-01T00:00:00Z",
+                                                    "source" => "fixture"
+                                                  ))
+    end
+
+    it "resolves spelling whose metadata has no cached_at" do
+      seed_spelling_without_cached_at
+      bundle = described_class.resolve(language: "en", want: %i[spelling])
+      expect(bundle.dictionary).to be_a(Kotoshu::Dictionary::Hunspell)
+    end
+
+    it "keeps setup? and the listing in agreement with resolve" do
+      seed_spelling_without_cached_at
+      expect(described_class.setup?("en")).to be(true)
+      expect(described_class.languages_setup).to include("en")
+    end
+
+    it "resolves spelling whose cached_at is past the TTL" do
+      dir = File.join(temp_cache_dir, "languages", "en", "spelling")
+      FileUtils.mkdir_p(dir)
+      FileUtils.cp(en_aff_fixture, File.join(dir, "index.aff"))
+      FileUtils.cp(en_dic_fixture, File.join(dir, "index.dic"))
+      File.write(File.join(dir, "metadata.json"), JSON.pretty_generate(
+                                                    "language" => "en", "type" => "spelling",
+                                                    "version" => "2026-01-01T00:00:00Z",
+                                                    "cached_at" => "2026-01-01T00:00:00Z",
+                                                    "source" => "fixture"
+                                                  ))
+      bundle = described_class.resolve(language: "en", want: %i[spelling])
+      expect(bundle.dictionary).to be_a(Kotoshu::Dictionary::Hunspell)
+    end
+  end
+
   describe "language normalization" do
     it "strips region suffixes" do
       error = nil

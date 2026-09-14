@@ -260,7 +260,9 @@ module Kotoshu
     # Whether a language (or a specific resource for it) is already
     # cached and resolvable. Mirrors the tier-less resolve contract
     # for models: with no `tier:`, the configured tier counts plus a
-    # single cached tier of any kind.
+    # single cached tier of any kind. TTL-free (plan 140): present
+    # checksummed bytes are set up — expiry belongs to the setup
+    # refresh, not to this predicate.
     #
     # @param language [String, Symbol] Language code
     # @param resource [Symbol, nil] :spelling (default), :frequency,
@@ -278,15 +280,15 @@ module Kotoshu
       lang = normalize_language(language)
       case resource&.to_sym
       when nil, :spelling
-        spelling_cache_for(lang).available?("#{lang}:spelling")
+        spelling_cache_for(lang).cached_data?("#{lang}:spelling")
       when :frequency
         fc = frequency_cache_for
-        fc.supports_resource?(lang) && fc.available?(lang)
+        fc.supports_resource?(lang) && fc.cached_data?(lang)
       when :typo
         # Both halves: the language-less pair and the language's full
         # tier (the rescore's exactness contract).
         cache = model_cache_for
-        cache.typo_biencoder_cached? && cache.available?(cache.tier_resource_id(lang, :full))
+        cache.typo_biencoder_cached? && cache.cached_data?(cache.tier_resource_id(lang, :full))
       when :typo_matrix
         # Plan 139: the prebuilt KTM1 is a separate, optional half of
         # the typo setup. Absent means arming derives (~25 s); present
@@ -298,12 +300,12 @@ module Kotoshu
           # Mirrors the tier-less resolve contract: the configured
           # tier counts, and so does exactly one cached tier of any
           # kind (legacy single-tier caches).
-          cache.available?(cache.tier_resource_id(lang, effective_tier(nil))) ||
+          cache.cached_data?(cache.tier_resource_id(lang, effective_tier(nil))) ||
             cache.cached_tiers(lang).size == 1
         elsif tier.to_sym == :any
           cache.cached_tiers(lang).any?
         else
-          cache.available?(cache.tier_resource_id(lang, tier))
+          cache.cached_data?(cache.tier_resource_id(lang, tier))
         end
       else
         false
@@ -507,7 +509,11 @@ module Kotoshu
     def resolve_spelling_cached(lang)
       cache = spelling_cache_for(lang)
       resource_id = "#{lang}:spelling"
-      raise ResourceNotSetupError.new(lang, "spelling") unless cache.available?(resource_id)
+      # Plan 140: readers use TTL-free presence (plan 117's contract —
+      # present checksummed bytes are the dataset; expiry only drives
+      # the setup refresh). TTL-guarded available? made an expired
+      # entry raise ResourceNotSetupError while load_cached worked.
+      raise ResourceNotSetupError.new(lang, "spelling") unless cache.cached_data?(resource_id)
 
       # Cache-only by construction: resolve must never download, so read
       # via load_cached instead of the download-on-miss get.
@@ -524,7 +530,8 @@ module Kotoshu
     def resolve_frequency_cached(lang)
       cache = frequency_cache_for
       return nil unless cache.supports_resource?(lang)
-      raise ResourceNotSetupError.new(lang, "frequency") unless cache.available?(lang)
+      # Plan 140: TTL-free presence for the same reason as spelling.
+      raise ResourceNotSetupError.new(lang, "frequency") unless cache.cached_data?(lang)
 
       begin
         cache.load_cached(lang)
@@ -569,7 +576,7 @@ module Kotoshu
       end
 
       requested = Cache::ModelCache.normalize_tier(tier)
-      return resolve_tier_cached(lang, requested, cache) if cache.available?(cache.tier_resource_id(lang, requested))
+      return resolve_tier_cached(lang, requested, cache) if cache.cached_data?(cache.tier_resource_id(lang, requested))
 
       if from_default
         cached = cache.cached_tiers(lang)
@@ -582,7 +589,8 @@ module Kotoshu
     def resolve_tier_cached(lang, tier, cache)
       resource_id = cache.tier_resource_id(lang, tier)
       missing = tier == :full ? "model" : "model tier '#{tier}'"
-      raise ResourceNotSetupError.new(lang, missing) unless cache.available?(resource_id)
+      # Plan 140: TTL-free presence — an expired tier still resolves.
+      raise ResourceNotSetupError.new(lang, missing) unless cache.cached_data?(resource_id)
 
       begin
         cache.load_cached(resource_id)
