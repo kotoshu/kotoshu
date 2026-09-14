@@ -203,3 +203,22 @@ jobs:
             esac
           done
           echo "guard: all six artifacts live for ${VERSION}"
+
+          # Surface guard (plan 138's lesson, learned the hard way on
+          # 1.0.4): the platform gems compile the ext from the COMMITTED
+          # Cargo.lock pin, and a pin lagging kotoshu-rs main ships
+          # artifacts that lack whole features while the count check
+          # above stays green. Assert the installed native surface.
+          export GEM_HOME="$(mktemp -d)"
+          gem install kotoshu --version "${VERSION}" --no-document >/dev/null
+          ruby -e '
+            require "kotoshu"
+            abort "native ext missing" unless Kotoshu::Native.available?
+            %w[TypoModel TypoTier TypoEngine].each do |const|
+              abort "native surface missing Kotoshu::Native::#{const}" unless
+                Kotoshu::Native.const_defined?(const)
+            end
+            abort "TypoEngine.matrix binding missing" unless
+              Kotoshu::Native::TypoEngine.respond_to?(:matrix)
+            puts "guard: installed kotoshu native surface complete"
+          '
