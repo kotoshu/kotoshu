@@ -226,13 +226,13 @@ RSpec.describe "Walking Skeleton Integration", "# Walking Skeleton - End-to-End 
     it "raises error for non-existent file" do
       expect do
         spellchecker.check_file("non-existent.txt")
-      end.to raise_error(Kotoshu::DictionaryNotFoundError)
+      end.to raise_error(Kotoshu::InputFileNotFoundError)
     end
 
     it "raises error for non-existent directory" do
       expect do
         spellchecker.check_directory("non-existent-dir")
-      end.to raise_error(Kotoshu::DictionaryNotFoundError)
+      end.to raise_error(Kotoshu::InputFileNotFoundError)
     end
   end
 
