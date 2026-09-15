@@ -112,6 +112,7 @@ jobs:
   native:
     needs: release
     runs-on: ${{ matrix.runs-on }}
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
@@ -186,6 +187,7 @@ jobs:
   verify:
     needs: [release, native]
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: The release is complete on RubyGems
         run: |
