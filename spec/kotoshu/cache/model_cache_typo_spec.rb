@@ -275,7 +275,7 @@ RSpec.describe "#load_cached_typo_matrix" do
 
   after { FileUtils.rm_rf(temp_dir) if File.exist?(temp_dir) }
 
-  def seed_matrix_cache(bytes: "KT" + "M1fake")
+  def seed_matrix_cache(bytes: "KT" + "M1fake", paired_tier_sha: ("c" * 64))
     dir = File.join(temp_dir, "en", "models", "typo-matrix")
     FileUtils.mkdir_p(dir)
     File.binwrite(File.join(dir, "typo.matrix.en.ktm1"), bytes)
@@ -293,7 +293,8 @@ RSpec.describe "#load_cached_typo_matrix" do
                       "mirror" => "https://media.example/main/models/en/typo.matrix.en.ktm1" },
           "vocab_url" => nil, "sha256" => sha, "size_bytes" => bytes.bytesize,
           "license" => "CC-BY-SA-3.0", "min_engine_version" => "1.1",
-          "eval_ref" => nil
+          "eval_ref" => nil,
+          "paired_vocab_sha256" => paired_tier_sha
         }
       }
     )
@@ -304,6 +305,14 @@ RSpec.describe "#load_cached_typo_matrix" do
                                                    "url" => "fixture", "sha256" => Digest::SHA256.hexdigest(payload),
                                                    "cached_at" => Time.now.utc.iso8601
                                                  ))
+    unless paired_tier_sha.nil?
+      File.write(File.join(dir, "metadata.json"), JSON.pretty_generate(
+                                                    "file" => "typo.matrix.en.ktm1", "checksum" => sha,
+                                                    "registry_id" => "kotoshu://models/en/typo-matrix",
+                                                    "paired_tier_sha256" => paired_tier_sha,
+                                                    "cached_at" => Time.now.utc.iso8601
+                                                  ))
+    end
     sha
   end
 
@@ -323,5 +332,22 @@ RSpec.describe "#load_cached_typo_matrix" do
     File.binwrite(File.join(temp_dir, "en", "models", "typo-matrix", "typo.matrix.en.ktm1"),
                   "tampered-bytes")
     expect(cache.load_cached_typo_matrix("en")).to be_nil
+  end
+
+  it "loads when the stated tier matches the recorded pairing (plan 142)" do
+    seed_matrix_cache(paired_tier_sha: "d" * 64)
+    expect(cache.load_cached_typo_matrix("en", paired_tier_sha256: "d" * 64))
+      .to end_with("typo.matrix.en.ktm1")
+  end
+
+  it "answers nil when the matrix pairs with a different tier (plan 142)" do
+    seed_matrix_cache(paired_tier_sha: "d" * 64)
+    expect(cache.load_cached_typo_matrix("en", paired_tier_sha256: "e" * 64)).to be_nil
+  end
+
+  it "stays loadable when no pairing was recorded (pre-plan-14 cache)" do
+    seed_matrix_cache(paired_tier_sha: nil)
+    expect(cache.load_cached_typo_matrix("en", paired_tier_sha256: "e" * 64))
+      .to end_with("typo.matrix.en.ktm1")
   end
 end

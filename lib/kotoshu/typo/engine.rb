@@ -58,8 +58,11 @@ module Kotoshu
         # own tests. armed_via records which path won so a silent
         # degrade (stale ext missing .matrix, corrupt artifact) is
         # observable instead of looking like success (plan 139).
+        # Plan 142: state the tier this arm pairs with - a matrix cached
+        # against a different tier (a rebuilt full tier) must not load.
+        tier_sha = tier[:metadata] && tier[:metadata]["checksum"]
         engine =
-          if (matrix_path = cache.load_cached_typo_matrix(language)) &&
+          if (matrix_path = cache.load_cached_typo_matrix(language, paired_tier_sha256: tier_sha)) &&
               Kotoshu::Native::TypoEngine.respond_to?(:matrix)
             begin
               new(Kotoshu::Native::TypoEngine.matrix(native, native_tier, matrix_path),
