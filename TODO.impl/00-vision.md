@@ -279,3 +279,49 @@ stability commitment adopters can build on.
 
 Sequencing: 108 after 107 (same area); 109 is analysis-only and runs in
 parallel. The 1.0 cut itself remains the owner's version call.
+
+## Plan index 110 onward (truthed 2026-09-16 — the map had stopped at 109)
+
+| Repo | # | Plan |
+|---|---|---|
+| gem | 110 | Plan 110 — sr-Latn wiring and the long-tail polish list |
+| gem | 111 | Plan 111 — The embedding bake-off: is fastText still the right model? |
+| gem | 112 | Plan 112 — Deployability and CI gating |
+| gem | 113 | Plan 113 — Language packs: one fetch for a whole language |
+| gem | 114 | Plan 114 — The typo bi-encoder thread (bake-off follow-up) |
+| gem | 115 | Plan 115 — The hybrid retrieval thread: price it before believing it |
+| gem | 116 | Plan 116 — Baseline-aware suggestion skip in `kotoshu check` |
+| gem | 117 | Plan 117 — Deterministic frequency tiers: stop the silent YAML fallback |
+| gem | 118 | Plan 118 — kotoshu-server 1.0 must ride kotoshu 1.0 |
+| gem | 119 | Plan 119 — Embed the frozen Kelly tiers in the gem |
+| gem | 120 | Plan 120 — setup refreshes cached_at when a download is skipped |
+| gem | 121 | Plan 121 — Jekyll generator skips the sweep for baseline-covered words |
+| gem | 122 | Plan 122 — KPK2: compressed pack sections |
+| gem | 123 | Plan 123 — Verifiable typo corpora, synthesized at scale |
+| gem | 124 | Plan 124 — Owner-gated residue (inventory, not executable by agents) |
+| gem | 125 | Plan 125 — Dependency-floor guards in every consumer repo |
+| gem | 126 | Plan 126 — Publish the measured error budget per tier |
+| gem | 127 | Plan 127 — Report-a-wrong-suggestion: backendless feedback loop |
+| gem | 128 | Plan 128 — The hybrid ship decision: price C-retrieve + fastText-rescore on the closed data blocker |
+| gem | 129 | Plan 129 — pt/fr synthetic corpora (plan 123 stretch targets) |
+| gem | 130 | Plan 130 — News truth: the 1.0.1 patch and the 09-12 wave |
+| gem | 131 | Plan 131 — Productize the hybrid: C-retrieve + fastText-rescore in the engines |
+| gem | 132 | Plan 132 — The techniques page; professional prose across the site |
+| gem | 133 | Plan 133 — Rust-first distribution: precompiled native gems and complete wheels |
+| gem | 134 | Plan 134 — Post-131 improvements: the audit's honest gaps |
+| gem | 135 | Plan 135 — Post-train improvements: the two gotchas the release train exposed |
+| gem | 136 | Plan 136 — Prebuilt typo matrices: arming as a download |
+| gem | 137 | typo-matrix backfill on satisfied setups |
+| gem | 138 | ext pin drift guard + typo-retrieval docs |
+| gem | 139 | typo observability — armed_via + setup --list detail |
+| gem | 140 | reader-side TTL freedom, flake fix, matrix-arm CI |
+| gem | 141 | changelog truth, listing union, input-file error |
+| gem | 142 | arm-time matrix↔tier pairing verification |
+| gem | 143 | bounded CI jobs, complete HTTP timeouts |
+| gem | 144 | RBS truth, examples sweep, catalog branch fix |
+| gem | 145 | no dead URLs leave the library |
+| models | 10 | Mirror-URL fetchability validation |
+| models | 11 | Ref-aware mirror probing (--urls-ref) |
+| models | 12 | prebuilt KTM1 matrices for de, es, fr, pt, ru |
+| models | 13 | bulk KTM1 matrix builder |
+| models | 14 | matrix↔tier pairing travels the registry and is enforced |
