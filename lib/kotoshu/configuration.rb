@@ -62,7 +62,7 @@ module Kotoshu
       },
       dictionaries_url: {
         env: "KOTOSHU_DICTIONARIES_URL",
-        default: "https://raw.githubusercontent.com/kotoshu/dictionaries/main",
+        default: "https://raw.githubusercontent.com/kotoshu/dictionaries/v1",
         description: "Deprecated: use repos_base_url + dictionaries_pin via SourceRegistry",
         type: String
       },

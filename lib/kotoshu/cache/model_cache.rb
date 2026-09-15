@@ -1149,7 +1149,10 @@ module Kotoshu
           # fall back to the dictionaries pin.
           @source_registry.url_for(:model, lang: language)
         else
-          "#{@url_base}/dictionaries/main/#{language}/models/#{type}/#{filename}"
+          # Plan 145: the old else built a dictionaries/main URL that
+          # 404s (that repo lives on v1 and never hosted models) -
+          # fail honestly instead of handing back a dead URL.
+          raise Kotoshu::Error, "unknown model type #{type.inspect} for #{language}"
         end
       end
 
