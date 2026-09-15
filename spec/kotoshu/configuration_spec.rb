@@ -14,6 +14,11 @@ require "kotoshu"
 RSpec.describe "Configuration as data" do
   after { Kotoshu::Configuration.reset }
 
+  it "defaults the deprecated dictionaries_url to the live v1 branch (plan 145)" do
+    expect(Kotoshu::Configuration.new.dictionaries_url)
+      .to end_with("kotoshu/dictionaries/v1")
+  end
+
   describe "Kotoshu.configuration / Kotoshu.configuration=" do
     it "exposes the process-default Configuration" do
       expect(Kotoshu.configuration).to be_a(Kotoshu::Configuration)

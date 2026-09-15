@@ -20,7 +20,7 @@ module Kotoshu
     #   dict.lookup?("hello")  # => true
     #
     # @example Creating from a URL
-    #   dict = PlainText.new("https://raw.githubusercontent.com/kotoshu/dictionaries/main/en_US/words.txt",
+    #   dict = PlainText.new("https://raw.githubusercontent.com/kotoshu/dictionaries/v1/en_US/words.txt",
     #                        language_code: "en-US")
     #
     # @example Creating from an array
