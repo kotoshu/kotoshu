@@ -88,9 +88,8 @@ puts "-" * 40
 # Russian has 6 cases with different endings
 case_examples = {
   "кот" => "nominative (subject)",
-  "кота" => "accusative (direct object)",
+  "кота" => "accusative AND genitive (animate masculine)",
   "коту" => "dative (indirect object)",
-  "кота" => "genitive (possession)",
   "котом" => "instrumental (with/by)",
   "о коте" => "prepositional (about)",
 }
