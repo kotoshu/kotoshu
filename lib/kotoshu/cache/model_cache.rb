@@ -530,7 +530,7 @@ module Kotoshu
       #
       # @param language_code [String]
       # @return [String, nil] path to the cached .ktm1, nil when absent
-      def load_cached_typo_matrix(language_code)
+      def load_cached_typo_matrix(language_code, paired_tier_sha256: nil)
         entry = begin
           registry&.find(language_code.to_s, "typo-matrix")
         rescue StandardError
@@ -542,6 +542,18 @@ module Kotoshu
         file = File.join(dir, filename_from_url(entry.urls.mirror))
         return nil unless File.exist?(file) && File.size(file).positive?
         return nil unless Digest::SHA256.file(file).hexdigest == entry.sha256
+
+        # Plan 142: the rows are index-parallel to exactly the tier
+        # vocab they were derived over. When the caller states the tier
+        # it will pair with, a cached matrix recorded against a
+        # different tier is stale - answer nil so the caller derives
+        # instead of arming wrong slates. Matrices cached before the
+        # pairing was recorded carry no field and stay usable.
+        if paired_tier_sha256
+          metadata = read_metadata(File.join(dir, "metadata.json"))
+          recorded = metadata && metadata["paired_tier_sha256"]
+          return nil if recorded && recorded != paired_tier_sha256
+        end
 
         file
       end
@@ -576,6 +588,9 @@ module Kotoshu
                        "checksum" => entry.sha256,
                        "registry_id" => "kotoshu://models/#{lang}/typo-matrix",
                        "size_bytes" => entry.size_bytes,
+                       # Plan 14/142: the pairing rides the cache so a
+                       # later tier rebuild cannot arm a stale matrix.
+                       "paired_tier_sha256" => entry.paired_vocab_sha256,
                        "cached_at" => Time.now.utc.iso8601,
                        "source" => "registry")
         file

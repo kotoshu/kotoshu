@@ -66,6 +66,10 @@ module Kotoshu
         attribute :license, :string
         attribute :min_engine_version, :string
         attribute :eval_ref, :string
+        # Plan 14: typo-matrix only - sha of the full-tier onnx whose
+        # vocab the matrix rows are index-parallel to. Nil on older
+        # registries and every non-matrix resource.
+        attribute :paired_vocab_sha256, :string
 
         # Stable registry id for a (language, tier) pair. This is the key
         # under which the resource appears in {ModelRegistry#resources}.
