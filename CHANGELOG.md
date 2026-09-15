@@ -33,6 +33,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   engine derives instead of answering wrong slates (plan 142).
 - `Dictionaries::Catalog` fetches from the `v1` branch - every catalog
   download URL 404'd against `main` (plan 144).
+- `NgramSuggest` no longer crashes when root scores tie across mixed
+  dictionary entry shapes (`comparison of Array with Array` on the
+  spylls fixtures); the top-roots trim sorts by score only.
 - Bounded `timeout-minutes` on the hang-prone CI jobs and
   `write_timeout` on both Net::HTTP sites (plan 143).
 - `sig/kotoshu.rbs` parses (it never did) and declares the typo layer,
