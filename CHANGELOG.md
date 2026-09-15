@@ -27,6 +27,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   list).
 - The native-suite CI leg arms the typo engine both ways and asserts
   the path (`:derived`, `:matrix`) on every PR.
+- A prebuilt matrix now states its tier pairing: the registry entry
+  carries `paired_vocab_sha256`, the cache records it, and a matrix
+  that does not pair with the tier being armed is rejected so the
+  engine derives instead of answering wrong slates (plan 142).
+- `Dictionaries::Catalog` fetches from the `v1` branch - every catalog
+  download URL 404'd against `main` (plan 144).
+- Bounded `timeout-minutes` on the hang-prone CI jobs and
+  `write_timeout` on both Net::HTTP sites (plan 143).
+- `sig/kotoshu.rbs` parses (it never did) and declares the typo layer,
+  the resource predicates, and the input-file error (plan 144).
 
 
 ## [1.0.5] — 2026-09-14

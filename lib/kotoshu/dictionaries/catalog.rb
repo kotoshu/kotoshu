@@ -87,7 +87,7 @@ module Kotoshu
       end
 
       # Base URL for kotoshu/dictionaries repository
-      BASE_URL = "https://raw.githubusercontent.com/kotoshu/dictionaries/main"
+      BASE_URL = "https://raw.githubusercontent.com/kotoshu/dictionaries/v1"
 
       # All available dictionaries
       ALL_DICTIONARIES = [
