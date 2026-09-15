@@ -137,14 +137,14 @@ def spellcheck_word_regex: () -> Regexp
         COMBINING_MARKS: Regexp
 
         def initialize: () -> void
-        def normalize: (String? text, ?options ::Hash[Symbol, untyped]) -> String
+        def normalize: (String? text, ?options: Hash[Symbol, untyped]) -> String
         def normalize_word: (String word) -> String
       end
 
       # Turkish case folding (plan 84): I -> ı, İ -> i.
       class Turkish < Base
         def initialize: () -> void
-        def normalize: (String? text, ?options ::Hash[Symbol, untyped]) -> String
+        def normalize: (String? text, ?options: Hash[Symbol, untyped]) -> String
       end
     end
 
@@ -288,7 +288,13 @@ def spellcheck_word_regex: () -> Regexp
 
     # Multi-target check runner (plan 88).
     class DirectoryCheck
-      class FileOutcome < Struct[String path, Models::Result::DocumentResult result, Baseline::Store::Application? application]
+      class FileOutcome
+        # keyword_init Struct (lib/kotoshu/cli/directory_check.rb).
+        def initialize: (path: String path, result: Models::Result::DocumentResult result, application: Baseline::Store::Application? application) -> void
+        def path: () -> String
+        def result: () -> Models::Result::DocumentResult
+        def application: () -> Baseline::Store::Application?
+        def members: () -> Array[Symbol]
       end
 
       attr_reader outcomes (): Array[FileOutcome]
@@ -432,4 +438,66 @@ def spellcheck_word_regex: () -> Regexp
       end
     end
   end
+
+  # ---- Plans 131-143: the typo-retrieval layer, resource predicates,
+  # input-file errors, and matrix pairing (truthed 2026-09-15) ----
+
+  # Raised when the FILE BEING CHECKED does not exist (plan 141) -
+  # distinct from dictionary-resource errors.
+  class InputFileNotFoundError < Kotoshu::Error
+    def initialize: (String path, ?String? message) -> void
+    attr_reader path (): String
+  end
+
+  class Spellchecker
+    def check_file: (String path) -> Models::Result::DocumentResult
+    def check_directory: (String path, ?pattern: String pattern) -> Array[Models::Result::DocumentResult]
+  end
+
+  module Typo
+    # The hybrid typo-retrieval engine loader (plan 131). `.for` is
+    # cache-only and nil-degrading; armed_via records :matrix vs
+    # :derived (plan 139).
+    class Engine
+      DEFAULT_SLATE: Integer
+
+      def self.for: (String language, ?configuration: Configuration configuration, ?cache: Cache::ModelCache? cache) -> Typo::Engine?
+      def self.setup_typo: (String language, ?configuration: Configuration configuration, ?force: bool force) -> Hash[Symbol, untyped]
+
+      def initialize: (untyped native_engine, language: String language, ?native_tier: untyped? native_tier, ?armed_via: Symbol armed_via) -> void
+      attr_reader native_engine (): untyped
+      attr_reader language (): String
+      attr_reader armed_via (): Symbol
+
+      def build_index: () -> Integer
+      def suggest: (String word, ?max_suggestions: Integer? max_suggestions) -> Suggestions::SuggestionSet
+    end
+  end
+
+  class ResourceManager
+    # resource: :spelling (default), :frequency, :model, :typo, or
+    # :typo_matrix (plan 139). TTL-free by plan 140: present
+    # checksummed bytes count as set up.
+    def self.setup?: (String | Symbol language, ?resource: Symbol? resource, ?tier: Symbol? tier) -> bool
+
+    # Union of every cache (plan 141): a model/typo-only setup lists
+    # its language; language-less artifacts (lid, the typo pair) never.
+    def self.languages_setup: () -> Array[String]
+
+    def self.setup: (String | Symbol language, ?want: Array[Symbol] want, ?force: bool force, ?strict: bool strict, ?tier: Symbol? tier, **untyped kwargs) -> SetupResult
+    def self.resolve: (language: String | Symbol language, ?want: Array[Symbol] want, ?tier: Symbol? tier) -> ResourceBundle
+  end
+
+  module Cache
+    class ModelCache
+      # The prebuilt KTM1 matrix (plans 136/142): cache-only and
+      # sha-verified; paired_tier_sha256 rejects a matrix cached
+      # against a different full tier (nil = no record, pre-plan-14).
+      def load_cached_typo_matrix: (String language_code, ?paired_tier_sha256: String? paired_tier_sha256) -> String?
+      def download_typo_matrix: (String language_code, ?force: bool force) -> String
+      def load_cached_typo_biencoder: () -> (Hash[Symbol, untyped] | nil)
+      def download_typo_biencoder: (?bool force) -> Hash[Symbol, untyped]
+    end
+  end
+
 end
