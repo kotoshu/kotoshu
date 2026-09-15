@@ -25,6 +25,7 @@ module Kotoshu
           http.use_ssl = (uri.scheme == "https")
           http.open_timeout = 10
           http.read_timeout = 30
+          http.write_timeout = 30
 
           request = Net::HTTP::Get.new(uri.request_uri)
           response = http.request(request)
