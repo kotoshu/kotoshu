@@ -138,8 +138,8 @@ checksum = "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
 
 [[package]]
 name = "kotoshu"
-version = "0.2.0"
-source = "git+https://github.com/kotoshu/kotoshu-rs?branch=main#0001b50056319204c3ea4eeb0ff5886a6effde64"
+version = "0.2.1"
+source = "git+https://github.com/kotoshu/kotoshu-rs?branch=main#911f7f39611349c054f3641032864b2359e8d709"
 dependencies = [
  "magnus",
  "rb-sys",
