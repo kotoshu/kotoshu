@@ -42,6 +42,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the resource predicates, and the input-file error (plan 144).
 
 
+
+### Engine notes (real-word detection arc — documentation only)
+
+The gem's detection surface is still vocabulary membership everywhere
+(`SemanticAnalyzer#analyze` keeps `next if valid_word?`); an in-vocab
+word is never questioned. Real-word errors (en "I want to each rice",
+zh homophone selections) are invisible, and every model we ship only
+ranks corrections for words already flagged as non-words. That is
+the open product gap the arc addresses; the work lives in the
+sibling models repo:
+
+- Plan 15: Phase-0 evidence (`models-fasttext-onnx/docs/
+  realword-detection-design.md`) — extraction + confusion-table v1
+  with the Damerau-Levenshtein identity-variant fix; frozen probes
+  (`eval/realword/en.probe.{cosine,freq,skipgram}.json`); the
+  `cc.*.300` output matrices are zero so the fastText conditional
+  scorer must be TRAINED.
+- Plan 16: Phase-1 bigram rung — confusion table v2 (coverage
+  15.6% → 62.2%) PASSED, the en ctx-LM over one Wikipedia shard
+  (94.3M tokens) FAILED the gate (argmax capability 65.5% but
+  clean / error margin distributions overlap; four aggregation
+  variants tested, none separates). The gate stands unweakened.
+- Plan 146 (this repo): analyzer detection branch + opt-in API —
+  PROPOSED, blocked on plan 17 (neural context scorer, owner-gated).
+- Plan 17: the neural rung — small LM per language (or one
+  multilingual model, first owner fork), same Wikipedia shards,
+  same frozen harness, same unweakened gate.
+
+Documentation only; no code change here until the gate passes
+upstream.
+
+
 ## [1.0.5] — 2026-09-14
 
 
