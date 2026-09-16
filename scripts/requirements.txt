@@ -1,0 +1,12 @@
+# Python dependencies for Kotoshu ONNX model conversion
+#
+# Install with: pip install -r requirements.txt
+
+# ONNX for model creation and serialization
+onnx>=1.20.0
+
+# ONNX Runtime for model inference and validation
+onnxruntime>=1.14.0
+
+# NumPy for vector operations
+numpy>=1.24.0
