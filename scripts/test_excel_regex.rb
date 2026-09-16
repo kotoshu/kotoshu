@@ -18,7 +18,7 @@ puts "Raw CEFR: #{cefr_raw.inspect}"
 puts "Codepoints: #{cefr_raw.codepoints.map { |c| c.to_s(16) }.join(' ')}"
 
 # Test new regex
-cefr_clean = cefr_raw.gsub(/[""']/, '').strip.upcase
+cefr_clean = cefr_raw.gsub(/["']/, '').strip.upcase
 puts "Cleaned: #{cefr_clean.inspect}"
 puts "Valid CEFR: #{CEFR_LEVELS.include?(cefr_clean)}"
 
@@ -28,7 +28,7 @@ puts "\nTesting rows 2-10:"
   row = sheet.row(i)
   word = row[1]
   cefr_raw = row[3].to_s.strip
-  cefr_clean = cefr_raw.gsub(/[""']/, '').strip.upcase
+  cefr_clean = cefr_raw.gsub(/["']/, '').strip.upcase
   is_valid = CEFR_LEVELS.include?(cefr_clean)
   puts "  #{word.ljust(15)} CEFR: #{cefr_raw.ljust(10)} -> #{cefr_clean.ljust(3)} valid: #{is_valid}"
 end

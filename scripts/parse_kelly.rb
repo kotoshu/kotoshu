@@ -79,6 +79,7 @@ module KellyParser
 
       while (row = sheet.row(current_row))
         break if row.all?(&:nil?) # Stop at empty row
+
         # Don't stop if ID is nil but word exists (some rows have missing IDs)
         word_col = @format[:word]
         next if row[word_col].nil? || row[word_col].to_s.strip.empty? # Skip if word column is empty

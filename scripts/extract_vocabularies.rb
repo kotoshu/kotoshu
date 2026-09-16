@@ -276,7 +276,7 @@ module VocabularyExtractor
     return false if vocabulary.nil?
 
     # Save vocabulary
-    output_path = File.join(options[:output_dir], "#{lang}", "fasttext.#{lang}.vocab.json")
+    output_path = File.join(options[:output_dir], lang.to_s, "fasttext.#{lang}.vocab.json")
     save_vocabulary(vocabulary, output_path)
   end
 
@@ -310,7 +310,7 @@ module VocabularyExtractor
       end
     end
 
-    puts "\n" + '=' * 60
+    puts "\n" + ('=' * 60)
     puts "Extraction complete!"
     puts "=" * 60
     puts "Total languages: #{stats[:total]}"

@@ -39,7 +39,7 @@ puts "-" * 70
   row = sheet.row(row_num)
   word = row[0]
   rest = row[1..-1] || []
-  puts "  #{word.to_s.ljust(30)} | #{rest.map { |c| c.to_s }.join(' | ')}"
+  puts "  #{word.to_s.ljust(30)} | #{rest.map(&:to_s).join(' | ')}"
 end
 
 workbook.close
