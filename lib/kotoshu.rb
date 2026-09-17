@@ -15,6 +15,7 @@ module Kotoshu
   autoload :Analyzers, "kotoshu/analyzers"
   autoload :Baseline, "kotoshu/baseline"
   autoload :Cache, "kotoshu/cache"
+  autoload :Checks, "kotoshu/checks"
   autoload :Cli, "kotoshu/cli"
   autoload :Components, "kotoshu/components"
   autoload :Configuration, "kotoshu/configuration"
