@@ -72,7 +72,22 @@ module Kotoshu
         @data_by_language[language_code] ||= load(language_code)
       end
 
+      # Lookup cascade: exact code first ("zh-Hant-TW" has its own
+      # variant-pure list), then the BCP-47 base ("en-US" → "en" —
+      # the default Configuration language must find the base list).
+      # Memoized under the ORIGINAL key so repeated calls stay free.
       def load(language_code)
+        code = language_code.to_s
+        base = code.split("-").first
+        ([code, base].uniq - [nil, ""]).each do |candidate|
+          data = load_exact(candidate)
+          return data if data
+        end
+
+        EMPTY_DATA
+      end
+
+      def load_exact(language_code)
         cache_result = try_load_from_frequency_cache(language_code)
         if cache_result && cache_result[:tiers] && cache_result[:tiers][:top_1000].any?
           return {
@@ -94,7 +109,10 @@ module Kotoshu
           }
         end
 
-        EMPTY_DATA
+        # nil — NOT EMPTY_DATA: a per-code miss must let the cascade
+        # try the base language. (EMPTY_DATA is truthy and would
+        # short-circuit it.)
+        nil
       end
 
       def try_load_from_frequency_cache(language_code)

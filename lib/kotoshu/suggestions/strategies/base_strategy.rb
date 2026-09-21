@@ -302,6 +302,16 @@ module Kotoshu
         #
         # @param distance [Integer] Edit distance
         # @return [Float] Confidence score (0.0 to 1.0)
+        # Whether this strategy's slate ordering carries real ranking
+        # signal (frequency). Base default: no. SymSpellStrategy
+        # overrides when the language has a frequency full_list. The
+        # composite uses this to decide whether the strategy may lead
+        # the merge (plan C6) — a contract method, not a duck-type
+        # probe.
+        def frequency_ranked?
+          false
+        end
+
         def calculate_confidence(distance)
           return 1.0 if distance.zero?
 

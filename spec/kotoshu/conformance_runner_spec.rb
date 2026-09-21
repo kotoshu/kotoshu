@@ -28,10 +28,10 @@ RSpec.describe Kotoshu::ConformanceRunner do
           input: "hlelo", limit: 5,
           expected: [
             { "word" => "hello", "distance" => 1, "confidence" => 0.5, "source" => "symspell" },
-            { "word" => "hello", "distance" => 1, "confidence" => 1.0,
-              "source" => "edit_distance" },
-            { "word" => "hello", "distance" => 1, "confidence" => 0.5, "source" => "phonetic" },
-            { "word" => "hello", "distance" => 1, "confidence" => 0.5, "source" => "keyboard_proximity" }
+            { "word" => "help", "distance" => 2, "confidence" => 0.3333333333333333, "source" => "symspell" },
+            { "word" => "hero", "distance" => 2, "confidence" => 0.3333333333333333, "source" => "symspell" },
+            { "word" => "hell", "distance" => 2, "confidence" => 0.3333333333333333, "source" => "symspell" },
+            { "word" => "heel", "distance" => 2, "confidence" => 0.3333333333333333, "source" => "symspell" }
           ] }
       ]
       File.write(path, rows.map { |row| JSON.generate(row) }.join("\n") << "\n")
