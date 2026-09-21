@@ -13,6 +13,17 @@ RSpec.describe Kotoshu::ConformanceRunner do
   # A small real vectors file: the canonical base-dictionary rows plus one
   # correct row, in the committed vector shape. Takes a block (the file
   # lives only inside it, under a tmpdir).
+  def suggest_engine
+    Kotoshu::Spellchecker.new(
+      dictionary: Kotoshu::Dictionary::Hunspell.new(
+        dic_path: "spec/integrational/fixtures/base.dic",
+        aff_path: "spec/integrational/fixtures/base.aff",
+        language_code: "en"
+      ),
+      config: Kotoshu::Configuration.new(backend: "ruby")
+    )
+  end
+
   def with_vectors_file
     Dir.mktmpdir("kotoshu-conformance-runner") do |dir|
       path = File.join(dir, "vectors.jsonl")
@@ -29,15 +40,7 @@ RSpec.describe Kotoshu::ConformanceRunner do
         # present (published cache vs embedded frozen tiers).
         { kind: "suggest", language: "en", dictionary: "spec/integrational/fixtures/base",
           input: "hlelo", limit: 5,
-          expected: Kotoshu::Spellchecker.new(
-            dictionary: Kotoshu::Dictionary::Hunspell.new(
-              dic_path: "spec/integrational/fixtures/base.dic",
-              aff_path: "spec/integrational/fixtures/base.aff",
-              language_code: "en"
-            ),
-            config: Kotoshu::Configuration.new(backend: "ruby")
-          ).suggest("hlelo", max_suggestions: 5)
-            .map do |s|
+          expected: suggest_engine.suggest("hlelo", max_suggestions: 5).map do |s|
             { "word" => s.word, "distance" => s.distance,
               "confidence" => s.confidence, "source" => s.source }
           end }
