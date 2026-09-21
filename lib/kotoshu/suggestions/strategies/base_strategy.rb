@@ -296,12 +296,6 @@ module Kotoshu
           end
         end
 
-        # Calculate confidence from distance.
-        #
-        # Higher distance = lower confidence.
-        #
-        # @param distance [Integer] Edit distance
-        # @return [Float] Confidence score (0.0 to 1.0)
         # Whether this strategy's slate ordering carries real ranking
         # signal (frequency). Base default: no. SymSpellStrategy
         # overrides when the language has a frequency full_list. The
@@ -312,6 +306,12 @@ module Kotoshu
           false
         end
 
+        # Calculate confidence from distance.
+        #
+        # Higher distance = lower confidence.
+        #
+        # @param distance [Integer] Edit distance
+        # @return [Float] Confidence score (0.0 to 1.0)
         def calculate_confidence(distance)
           return 1.0 if distance.zero?
 
