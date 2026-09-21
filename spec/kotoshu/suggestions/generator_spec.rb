@@ -29,11 +29,11 @@ RSpec.describe Kotoshu::Suggestions::Generator do
       expect(generator.strategy).to be_a(Kotoshu::Suggestions::Strategies::CompositeStrategy)
     end
 
-    it "composes the four default algorithm classes by default" do
+    it "composes the five default algorithm classes by default" do
       generator = described_class.new(dictionary)
       # The composite holds strategy instances; pin the algorithm count
       # so a default change is a conscious decision.
-      expect(generator.strategy.strategies.size).to eq(4)
+      expect(generator.strategy.strategies.size).to eq(5)
     end
 
     it "raises ArgumentError when an algorithm is neither a Class nor a BaseStrategy" do

@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe Kotoshu::Suggestions::FrequencyProvider, "full_list + ranks (plan C6)" do
+RSpec.describe Kotoshu::Suggestions::FrequencyProvider, :full_list_ranks do
   FullListFakeCache = Struct.new(:payload, keyword_init: true) do
     def cached_data?(_code) = true
     def load_cached(_code) = payload

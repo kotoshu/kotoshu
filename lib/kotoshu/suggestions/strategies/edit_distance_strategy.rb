@@ -201,6 +201,16 @@ module Kotoshu
           # free of case duplicates and the score range used for
           # confidence normalization honest.
           seen_words = Set.new
+          # Drop dictionary artifacts that insert punctuation the input
+          # never had (Hunspell compound-split forms like "ihr-t",
+          # "hoffentlich.e"). They share distance-1 with the real
+          # correction and steal top-1 from SymSpell (plan C6).
+          if word.match?(/\A[[:alpha:]]+\z/)
+            sorted_candidates = sorted_candidates.reject do |dict_word, _, _|
+              dict_word.match?(/[^[:alpha:]]/)
+            end
+          end
+
           sorted_candidates = sorted_candidates.select { |dict_word, _, _| seen_words.add?(dict_word.downcase) }
 
           # Calculate confidence scores with threshold filtering

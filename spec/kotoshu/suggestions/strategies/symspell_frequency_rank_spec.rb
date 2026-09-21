@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe Kotoshu::Suggestions::Strategies::SymSpellStrategy, "frequency ranking (plan C6)" do
+RSpec.describe Kotoshu::Suggestions::Strategies::SymSpellStrategy, :frequency_ranking do
   # Real frequency provider backed by an in-memory cache — no doubles.
   FreqRankFakeCache = Struct.new(:payload, keyword_init: true) do
     def cached_data?(_code) = true

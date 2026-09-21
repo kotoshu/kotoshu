@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe Kotoshu::Keyboard::Registry, "layouts_for (plan C7 dual-layout)" do
+RSpec.describe Kotoshu::Keyboard::Registry, :layouts_for do
   it "returns native + QWERTY for German (QWERTZ users may also type on QWERTY)" do
     names = described_class.layouts_for("de").map(&:name)
     expect(names).to eq(%w[QWERTZ QWERTY])

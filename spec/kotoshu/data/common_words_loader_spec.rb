@@ -28,14 +28,16 @@ RSpec.describe Kotoshu::Data::CommonWordsLoader do
       end
     end
 
-    it "returns empty tiers for the retired array format instead of raising" do
+    it "accepts wiki-unigram-shape tiers (plain word lists) (plan C6)" do
       Dir.mktmpdir do |dir|
         path = write_frequency(dir, tiers: { top_50: %w[the], top_200: [], top_1000: %w[the] })
 
         result = described_class.load_from_frequency_file(path)
 
-        expect(result[:tiers][:top_50]).to be_empty
-        expect(result[:tiers][:top_1000]).to be_empty
+        # Kelly format (hash with 'words') AND plain word lists both
+        # accepted; wiki-unigram producers emit the latter.
+        expect(result[:tiers][:top_50]).to contain_exactly("the")
+        expect(result[:tiers][:top_1000]).to contain_exactly("the")
       end
     end
 
@@ -43,13 +45,14 @@ RSpec.describe Kotoshu::Data::CommonWordsLoader do
       Dir.mktmpdir do |dir|
         path = write_frequency(dir, tiers: {
                                  top_50: { words: %w[the] },
-                                 top_200: %w[not-kelly-shaped]
+                                 top_200: %w[also-a-plain-list]
                                })
 
         result = described_class.load_from_frequency_file(path)
 
         expect(result[:tiers][:top_50]).to contain_exactly("the")
-        expect(result[:tiers][:top_200]).to contain_exactly("the")
+        # top_200 is cumulative: top_50 + top_200
+        expect(result[:tiers][:top_200]).to contain_exactly("the", "also-a-plain-list")
       end
     end
 

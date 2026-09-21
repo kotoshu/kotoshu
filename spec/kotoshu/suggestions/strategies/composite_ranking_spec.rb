@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe Kotoshu::Suggestions::Strategies::CompositeStrategy, "SymSpell-first ranking (plan C6)" do
+RSpec.describe Kotoshu::Suggestions::Strategies::CompositeStrategy, :symspell_ranking do
   # Real SymSpellStrategy over a tiny frequency-style list so the
   # composite behavior is observable without any doubles.
   let(:sym_strategy) do

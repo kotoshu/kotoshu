@@ -44,8 +44,9 @@ RSpec.describe "Semantic path runtime gating" do
         .not_to include(Kotoshu::Suggestions::Strategies::SemanticStrategy)
     end
 
-    it "includes the four traditional algorithms" do
+    it "includes the five traditional algorithms" do
       expect(Kotoshu::Suggestions::Generator::DEFAULT_ALGORITHMS).to contain_exactly(
+        Kotoshu::Suggestions::Strategies::SymSpellStrategy,
         Kotoshu::Suggestions::Strategies::EditDistanceStrategy,
         Kotoshu::Suggestions::Strategies::PhoneticStrategy,
         Kotoshu::Suggestions::Strategies::KeyboardProximityStrategy,
