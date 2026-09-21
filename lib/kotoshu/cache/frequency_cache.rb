@@ -28,7 +28,7 @@ module Kotoshu
       # Exact codes: the CJK entries are variant-specific lists (the zh
       # separation rule - never script-mixed), so supports_resource? matches
       # them exactly, not by base language.
-      KELLY_LANGUAGES = %w[ar zh en de el it no ru sv
+      KELLY_LANGUAGES = %w[ar zh en de el es fr it no pt ru sv
                            zh-Hans-CN zh-Hant zh-Hant-TW ja].freeze
 
       # GitHub repository for Kelly frequency lists
