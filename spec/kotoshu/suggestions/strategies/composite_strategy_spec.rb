@@ -250,13 +250,18 @@ RSpec.describe Kotoshu::Suggestions::Strategies::CompositeStrategy do
       composite = described_class.new(
         name: :pipeline, strategies: [edit_distance, symspell]
       )
-      context = Kotoshu::Suggestions::Context.new(
+      ctx = Kotoshu::Suggestions::Context.new(
         word: "ihrt", dictionary: %w[ihr ihre irrt], max_results: 5
       )
 
-      result = composite.generate(context)
+      result = composite.generate(ctx)
 
-      expect(result.to_words.first).to eq("ihr")
+      # The composite prefix equals the SymSpell strategy's own output;
+      # tie order inside the slate is the strategy's own (no ranks on
+      # this tiny list), so assert the prefix property, not a literal.
+      sym_own = symspell.generate(ctx).to_words
+      expect(sym_own).not_to be_empty
+      expect(result.to_words.first(sym_own.size)).to eq(sym_own)
     end
 
     it "deduplicates across strategies when no SymSpellStrategy is present" do
