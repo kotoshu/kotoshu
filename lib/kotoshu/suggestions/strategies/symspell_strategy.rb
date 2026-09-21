@@ -109,9 +109,14 @@ module Kotoshu
           # Sort by (distance, frequency rank). Rank 1 = most frequent;
           # unknown words sort after every ranked word (plan C6).
           sorted_words = candidates.sort_by do |word, dist|
-            rank = @ranks[word.downcase] || (1_000_000_000)
+            rank = @ranks[word.downcase] || 1_000_000_000
             [dist, rank]
           end.map(&:first)
+          # ranked: true — the composite adopts this order verbatim
+          # instead of re-sorting by combined_score (which would let
+          # EditDistance's pool-normalized confidence outrank us).
+          # create_suggestion_set returns a SuggestionSet; we want the
+          # underlying ranked Array.
           create_suggestion_set(sorted_words, distances: candidates, original_word: context.word)
         end
 

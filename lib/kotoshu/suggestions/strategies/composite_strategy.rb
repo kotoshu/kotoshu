@@ -161,11 +161,24 @@ module Kotoshu
 
         # Run every strategy and merge into a single set — the
         # pre-cascade shape, byte-identical to the original pipeline.
+        #
+        # SymSpellStrategy is the ranking authority (frequency full_list
+        # + distance, plan C6). Its slate leads; EditDistance fills the
+        # rest. Hunspell junk (compound-split artifacts) never appears
+        # in SymSpell's pool so the order is junk-free by construction.
         def generate_all(strategies, context)
-          candidates = strategies.flat_map do |strategy|
-            strategy.generate(context).suggestions
-          end
-          SuggestionSet.new(candidates, max_size: context.max_results)
+          order = strategies.index { |s| s.class.name.end_with?("SymSpellStrategy") } || strategies.size
+          primary = strategies[order]
+          tail = strategies[0...order] + strategies[(order + 1)..-1]
+
+          primary_slate = primary ? primary.generate(context).suggestions : []
+          tail_slate = tail.flat_map { |s| s.generate(context).suggestions }
+
+          # Adopt SymSpell's order verbatim (ranked: true preserves
+          # frequency ranking); tail fills remainder without re-sorting
+          # the prefix.
+          merged = primary_slate + tail_slate
+          SuggestionSet.new(merged, max_size: context.max_results, ranked: true)
         end
 
         # The cascade decision object. An explicit
