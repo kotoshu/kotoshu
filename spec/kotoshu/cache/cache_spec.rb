@@ -271,9 +271,9 @@ RSpec.describe Kotoshu::Cache do
     end
 
     describe "constants" do
-      it "KELLY_LANGUAGES lists the 8 supported languages" do
+      it "KELLY_LANGUAGES lists the 9 supported languages" do
         expect(described_class.const_get(:KELLY_LANGUAGES))
-          .to contain_exactly("ar", "zh", "en", "el", "it", "no", "ru", "sv")
+          .to contain_exactly("ar", "zh", "en", "de", "el", "it", "no", "ru", "sv")
       end
 
       it "GITHUB_REPO points at the kotoshu/frequency-list-kelly repo" do
@@ -295,14 +295,14 @@ RSpec.describe Kotoshu::Cache do
 
     describe "#supports_resource?" do
       it "is true for every Kelly language" do
-        %w[ar zh en el it no ru sv].each do |code|
+        %w[ar zh en de el it no ru sv].each do |code|
           expect(cache.supports_resource?(code)).to be(true), "expected #{code} supported"
         end
       end
 
       it "is false for unsupported codes" do
-        expect(cache.supports_resource?("de")).to be false
         expect(cache.supports_resource?("fr")).to be false
+        expect(cache.supports_resource?("xx")).to be false
       end
     end
 
@@ -325,11 +325,11 @@ RSpec.describe Kotoshu::Cache do
 
     describe "#get_frequency" do
       it "returns nil for unsupported languages without making a network call" do
-        # 'de' is not in KELLY_LANGUAGES, so supports_resource? returns
+        # 'fr' is not in KELLY_LANGUAGES, so supports_resource? returns
         # false and get short-circuits before download. Supported
         # languages require a real download (see :network integration
         # specs).
-        expect(cache.get_frequency("de")).to be_nil
+        expect(cache.get_frequency("fr")).to be_nil
       end
     end
   end
