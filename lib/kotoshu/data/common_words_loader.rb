@@ -135,6 +135,7 @@ module Kotoshu
           entry = data['tiers'].is_a?(Hash) ? data['tiers'][tier] : nil
           return entry['words'] if entry.is_a?(Hash) && entry['words'].is_a?(Array)
           return entry if entry.is_a?(Array)
+
           []
         end
 
@@ -150,12 +151,14 @@ module Kotoshu
             if entry.is_a?(Hash)
               w = entry['word'] || entry[:word]
               next if w.nil? || w.empty?
+
               words << w
               r = entry['rank'] || entry[:rank] || (i + 1)
               ranks[w.downcase] = r.to_i
             else
               w = entry.to_s
               next if w.empty?
+
               words << w
               ranks[w.downcase] ||= i + 1
             end

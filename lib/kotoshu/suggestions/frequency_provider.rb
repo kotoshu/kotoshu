@@ -106,6 +106,7 @@ module Kotoshu
         begin
           data = cache.load_cached(language_code)
           return data if data && data[:tiers] && data[:tiers][:top_1000]&.any?
+
           nil
         rescue StandardError => e
           warn "Warning: Failed to load frequency cache for #{language_code}: #{e.message}" if $VERBOSE

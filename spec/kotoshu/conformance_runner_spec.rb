@@ -21,10 +21,18 @@ RSpec.describe Kotoshu::ConformanceRunner do
           input: "hello", expected: true },
         { kind: "correct", language: "en", dictionary: "spec/integrational/fixtures/base",
           input: "hlelo", expected: false },
+        # Expected frozen from the current engine (SymSpell leads the
+        # composite — plan C6; regenerate with
+        # `rake kotoshu:conformance:export` when ranking changes).
         { kind: "suggest", language: "en", dictionary: "spec/integrational/fixtures/base",
           input: "hlelo", limit: 5,
-          expected: [{ "word" => "hello", "distance" => 1, "confidence" => 1.0,
-                       "source" => "edit_distance" }] }
+          expected: [
+            { "word" => "hello", "distance" => 1, "confidence" => 0.5, "source" => "symspell" },
+            { "word" => "hello", "distance" => 1, "confidence" => 1.0,
+              "source" => "edit_distance" },
+            { "word" => "hello", "distance" => 1, "confidence" => 0.5, "source" => "phonetic" },
+            { "word" => "hello", "distance" => 1, "confidence" => 0.5, "source" => "keyboard_proximity" }
+          ] }
       ]
       File.write(path, rows.map { |row| JSON.generate(row) }.join("\n") << "\n")
       yield path

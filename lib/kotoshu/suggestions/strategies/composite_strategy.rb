@@ -167,16 +167,20 @@ module Kotoshu
         # rest. Hunspell junk (compound-split artifacts) never appears
         # in SymSpell's pool so the order is junk-free by construction.
         def generate_all(strategies, context)
-          order = strategies.index { |s| s.class.name.end_with?("SymSpellStrategy") } || strategies.size
+          # SymSpell leads when configured (frequency full_list + distance
+          # ranking, plan C6). When absent, fall back to the legacy
+          # merged-and-ranked behavior.
+          order = strategies.index { |s| s.class.name.end_with?("SymSpellStrategy") }
+
+          if order.nil?
+            candidates = strategies.flat_map { |s| s.generate(context).suggestions }
+            return SuggestionSet.new(candidates, max_size: context.max_results)
+          end
+
           primary = strategies[order]
           tail = strategies[0...order] + strategies[(order + 1)..-1]
-
           primary_slate = primary ? primary.generate(context).suggestions : []
           tail_slate = tail.flat_map { |s| s.generate(context).suggestions }
-
-          # Adopt SymSpell's order verbatim (ranked: true preserves
-          # frequency ranking); tail fills remainder without re-sorting
-          # the prefix.
           merged = primary_slate + tail_slate
           SuggestionSet.new(merged, max_size: context.max_results, ranked: true)
         end
