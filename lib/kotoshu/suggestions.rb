@@ -23,7 +23,7 @@ module Kotoshu
       autoload :NgramStrategy, "kotoshu/suggestions/strategies/ngram_strategy"
       autoload :PhoneticStrategy, "kotoshu/suggestions/strategies/phonetic_strategy"
       autoload :SemanticStrategy, "kotoshu/suggestions/strategies/semantic_strategy"
-      autoload :SymspellStrategy, "kotoshu/suggestions/strategies/symspell_strategy"
+      autoload :SymSpellStrategy, "kotoshu/suggestions/strategies/symspell_strategy"
       autoload :TypoRetrievalStrategy, "kotoshu/suggestions/strategies/typo_retrieval_strategy"
       autoload :WordIndex, "kotoshu/suggestions/strategies/word_index"
     end

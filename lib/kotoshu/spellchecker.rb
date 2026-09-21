@@ -80,6 +80,7 @@ module Kotoshu
 
       @generator = Suggestions::Generator.new(
         dict,
+        language_code: @resource_bundle&.language || @config.language,
         max_suggestions: max_suggestions,
         algorithms: @config.suggestion_algorithms
       )
@@ -140,11 +141,13 @@ module Kotoshu
     def suggest(word, max_suggestions: nil)
       return Suggestions::SuggestionSet.empty if word.nil? || word.empty?
 
-      base = if @native_backend
-               @native_backend.suggest(word, max_suggestions: max_suggestions)
-             else
-               @generator.generate(word, max_suggestions: max_suggestions)
-             end
+      # Ranking quality is the Ruby pipeline's job (frequency full_list
+      # SymSpell + keyboard + language_code tiers — plan C6). The native
+      # backend still accelerates correct?; suggest always runs the
+      # generator so non-English order is governed by the same scorer
+      # the C1 harness measures. Native suggest order is ungoverned for
+      # every language outside the en-only conformance vectors.
+      base = @generator.generate(word, max_suggestions: max_suggestions)
       merge_typo_retrieval(base, word, max_suggestions: max_suggestions)
     end
 
@@ -355,6 +358,7 @@ module Kotoshu
       dict = @config.dictionary
       @generator = Suggestions::Generator.new(
         dict,
+        language_code: @resource_bundle&.language || @config.language,
         max_suggestions: @config.max_suggestions,
         algorithms: @config.suggestion_algorithms
       )

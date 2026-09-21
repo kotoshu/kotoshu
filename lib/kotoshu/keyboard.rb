@@ -51,6 +51,12 @@ module Kotoshu
       # mirrored from the eval harness grid.
       autoload :Dubeolsik, "kotoshu/keyboard/layouts/dubeolsik"
       autoload :DevanagariInScript, "kotoshu/keyboard/layouts/devanagari_inscript"
+      # Chinese IME layouts (plan C7): physical grid is QWERTY; class
+      # identity names the IME method for language defaults + config.
+      autoload :Pinyin, "kotoshu/keyboard/layouts/chinese_ime"
+      autoload :Jyutping, "kotoshu/keyboard/layouts/chinese_ime"
+      autoload :Cangjie, "kotoshu/keyboard/layouts/chinese_ime"
+      autoload :Sucheng, "kotoshu/keyboard/layouts/chinese_ime"
     end
 
     class << self

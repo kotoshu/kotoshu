@@ -55,15 +55,13 @@ module Kotoshu
         # @param frequency_path [String] Path to frequency.json file
         # @return [Hash{Symbol => Set}] Hash with :tiers and :metadata
         def load_from_frequency_file(frequency_path)
-          return { tiers: empty_tiers, metadata: {} } unless File.exist?(frequency_path)
+          return { tiers: empty_tiers, metadata: {}, full_list: [], ranks: {} } unless File.exist?(frequency_path)
 
           data = JSON.parse(File.read(frequency_path, encoding: 'UTF-8'))
           metadata = data['metadata'] || {}
 
-          # Kelly format only: tiers[tier]['words']. The former "legacy
-          # array format" branch was dead on arrival — its own format
-          # probe raised TypeError on array input, and no producer of
-          # that format ever existed in the repo's history. Unknown
+          # Kelly format: tiers[tier]['words']. Also accept plain word
+          # lists under tiers[tier] (wiki-unigram producers). Unknown
           # shapes degrade to empty tiers instead of crashing.
           top_50 = tier_words(data, 'top_50')
           top_200 = tier_words(data, 'top_200')
@@ -75,7 +73,9 @@ module Kotoshu
             top_1000: Set.new(top_50 + top_200 + top_1000)
           }
 
-          { tiers: tiers, metadata: metadata }
+          full_list, ranks = parse_full_list(data)
+
+          { tiers: tiers, metadata: metadata, full_list: full_list, ranks: ranks }
         end
 
         # Get list of languages with local YAML files.
@@ -133,7 +133,34 @@ module Kotoshu
         # when the tier is missing or not Kelly-shaped.
         def tier_words(data, tier)
           entry = data['tiers'].is_a?(Hash) ? data['tiers'][tier] : nil
-          entry.is_a?(Hash) && entry['words'].is_a?(Array) ? entry['words'] : []
+          return entry['words'] if entry.is_a?(Hash) && entry['words'].is_a?(Array)
+          return entry if entry.is_a?(Array)
+          []
+        end
+
+        # full_list entries are either strings or {word, ipm, rank} hashes.
+        # ranks maps downcased word -> rank (1 = most frequent).
+        def parse_full_list(data)
+          raw = data['full_list']
+          return [[], {}] unless raw.is_a?(Array)
+
+          words = []
+          ranks = {}
+          raw.each_with_index do |entry, i|
+            if entry.is_a?(Hash)
+              w = entry['word'] || entry[:word]
+              next if w.nil? || w.empty?
+              words << w
+              r = entry['rank'] || entry[:rank] || (i + 1)
+              ranks[w.downcase] = r.to_i
+            else
+              w = entry.to_s
+              next if w.empty?
+              words << w
+              ranks[w.downcase] ||= i + 1
+            end
+          end
+          [words, ranks]
         end
       end
     end

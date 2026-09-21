@@ -72,12 +72,12 @@ module Kotoshu
       # @param language_code [String] the language code to check (e.g., 'en', 'en-US', 'de')
       # @return [Boolean] true if this layout supports the language
       def supports_language?(language_code)
-        # Try exact match first
-        return true if @language_codes.include?(language_code)
-
-        # Try base language match (e.g., 'en' for 'en-US')
-        base_lang = language_code.to_s.split('-').first
-        @language_codes.include?(base_lang)
+        # Exact match only. Base-language folding (en-US → en, zh-Hant-TW
+        # → zh) lives in Registry.layout_for so a regional code claimed
+        # by a dedicated layout (Cangjie for zh-Hant-TW) is not stolen
+        # by a layout that only lists the bare primary (Pinyin for zh)
+        # — plan C7.
+        @language_codes.include?(language_code.to_s)
       end
 
       # Get adjacent keys for a given key (within 1 unit distance)

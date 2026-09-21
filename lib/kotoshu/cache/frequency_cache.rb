@@ -144,7 +144,9 @@ module Kotoshu
         {
           frequency_path: frequency_file,
           tiers: data[:tiers],
-          metadata: metadata
+          metadata: metadata,
+          full_list: data[:full_list] || [],
+          ranks: data[:ranks] || {}
         }
       end
 
