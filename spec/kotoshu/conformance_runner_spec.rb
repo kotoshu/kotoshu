@@ -21,18 +21,26 @@ RSpec.describe Kotoshu::ConformanceRunner do
           input: "hello", expected: true },
         { kind: "correct", language: "en", dictionary: "spec/integrational/fixtures/base",
           input: "hlelo", expected: false },
-        # Expected frozen from the current engine (SymSpell leads the
-        # composite — plan C6; regenerate with
-        # `rake kotoshu:conformance:export` when ranking changes).
+        # Expected derived from the live engine (this spec exercises
+        # the RUNNER machinery — file parsing, replay, comparison — not
+        # engine bytes; byte fidelity is the committed vectors +
+        # kotoshu:conformance:compare job). Derived rather than frozen
+        # because the slate order depends on which frequency source is
+        # present (published cache vs embedded frozen tiers).
         { kind: "suggest", language: "en", dictionary: "spec/integrational/fixtures/base",
           input: "hlelo", limit: 5,
-          expected: [
-            { "word" => "hello", "distance" => 1, "confidence" => 0.5, "source" => "symspell" },
-            { "word" => "help", "distance" => 2, "confidence" => 0.3333333333333333, "source" => "symspell" },
-            { "word" => "hero", "distance" => 2, "confidence" => 0.3333333333333333, "source" => "symspell" },
-            { "word" => "hell", "distance" => 2, "confidence" => 0.3333333333333333, "source" => "symspell" },
-            { "word" => "heel", "distance" => 2, "confidence" => 0.3333333333333333, "source" => "symspell" }
-          ] }
+          expected: Kotoshu::Spellchecker.new(
+            dictionary: Kotoshu::Dictionary::Hunspell.new(
+              dic_path: "spec/integrational/fixtures/base.dic",
+              aff_path: "spec/integrational/fixtures/base.aff",
+              language_code: "en"
+            ),
+            config: Kotoshu::Configuration.new(backend: "ruby")
+          ).suggest("hlelo", max_suggestions: 5)
+            .map do |s|
+            { "word" => s.word, "distance" => s.distance,
+              "confidence" => s.confidence, "source" => s.source }
+          end }
       ]
       File.write(path, rows.map { |row| JSON.generate(row) }.join("\n") << "\n")
       yield path
