@@ -25,7 +25,11 @@ module Kotoshu
     #   # => true
     class FrequencyCache < BaseCache
       # Kelly Project languages available
-      KELLY_LANGUAGES = %w[ar zh en de el it no ru sv].freeze
+      # Exact codes: the CJK entries are variant-specific lists (the zh
+# separation rule - never script-mixed), so supports_resource? matches
+# them exactly, not by base language.
+KELLY_LANGUAGES = %w[ar zh en de el it no ru sv
+                     zh-Hans-CN zh-Hant zh-Hant-TW ja].freeze
 
       # GitHub repository for Kelly frequency lists
       GITHUB_REPO = "kotoshu/frequency-list-kelly"

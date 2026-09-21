@@ -271,9 +271,10 @@ RSpec.describe Kotoshu::Cache do
     end
 
     describe "constants" do
-      it "KELLY_LANGUAGES lists the 9 supported languages" do
+      it "KELLY_LANGUAGES lists the supported languages (Latin + variant-pure CJK)" do
         expect(described_class.const_get(:KELLY_LANGUAGES))
-          .to contain_exactly("ar", "zh", "en", "de", "el", "it", "no", "ru", "sv")
+          .to contain_exactly("ar", "zh", "en", "de", "el", "it", "no", "ru", "sv",
+                              "zh-Hans-CN", "zh-Hant", "zh-Hant-TW", "ja")
       end
 
       it "GITHUB_REPO points at the kotoshu/frequency-list-kelly repo" do
