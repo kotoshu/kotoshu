@@ -25,7 +25,7 @@ module Kotoshu
     #   # => true
     class FrequencyCache < BaseCache
       # Kelly Project languages available
-      KELLY_LANGUAGES = %w[ar zh en el it no ru sv].freeze
+      KELLY_LANGUAGES = %w[ar zh en de el it no ru sv].freeze
 
       # GitHub repository for Kelly frequency lists
       GITHUB_REPO = "kotoshu/frequency-list-kelly"

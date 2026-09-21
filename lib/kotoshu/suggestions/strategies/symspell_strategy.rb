@@ -69,55 +69,60 @@ module Kotoshu
           # Check if word is in dictionary
           return SuggestionSet.empty if @words.include?(word_lower)
 
-          # Collect candidates with their distances
-          candidates = {}
+          # Union the delete-index buckets for the input and its
+          # deletion neighborhood — the SymSpell candidate sweep.
+          candidates = Set.new
+          candidates.merge(@deletes[word_lower])
+
+          # Generate deletion variants and union their buckets
           checked = Set.new([word_lower])
-
-          # First, check if the input word is a deletion variant of any dictionary word
-          @deletes[word_lower].each do |dict_word|
-            candidates[dict_word] ||= 1
-          end
-
-          # If transpositions are enabled, check them too
-          if @handle_transpositions
-            generate_transpositions(word_lower).each do |transposed|
-              @deletes[transposed].each do |dict_word|
-                candidates[dict_word] ||= 1
-              end
-            end
-          end
-
-          # Generate deletion variants and check for matches
-          max_dist.times do |dist|
+          max_dist.times do
             generate_deletions_from_set(checked).each do |variant|
               next if checked.include?(variant)
 
               checked.add(variant)
-
-              # Check if variant is directly in dictionary
-              candidates[variant] = dist + 1 if @words.include?(variant)
-
-              # Check if variant maps to dictionary words
-              @deletes[variant].each do |dict_word|
-                # Distance = deletions from input + deletions from dict_word
-                # Both reach the same variant
-                candidates[dict_word] ||= dist + 2
-              end
+              candidates.add(variant) if @words.include?(variant)
+              candidates.merge(@deletes[variant])
             end
           end
 
-          # Sort by (distance, frequency rank). Rank 1 = most frequent;
-          # unknown words sort after every ranked word (plan C6).
-          sorted_words = candidates.sort_by do |word, dist|
-            rank = @ranks[word.downcase] || 1_000_000_000
-            [dist, rank]
-          end.map(&:first)
-          # ranked: true — the composite adopts this order verbatim
-          # instead of re-sorting by combined_score (which would let
-          # EditDistance's pool-normalized confidence outrank us).
-          # create_suggestion_set returns a SuggestionSet; we want the
-          # underlying ranked Array.
-          create_suggestion_set(sorted_words, distances: candidates, original_word: context.word)
+          candidates.delete(word_lower)
+
+          # TRUE edit distance per candidate (with early exit) — the
+          # deletion-level approximation misranked same-distance words
+          # and cost 18pp of English top-1 (plan C6/C9). Sort by
+          # (distance, frequency rank); rank 1 = most frequent.
+          scored = candidates.filter_map do |cand|
+            dist = bounded_edit_distance(word_lower, cand, max_dist + 1)
+            next if dist.nil? || dist > max_dist + 1
+
+            [cand, dist]
+          end
+          distances = scored.to_h
+          sorted = scored.sort_by do |cand, dist|
+            rank = @ranks[cand] || 1_000_000_000
+            # Missing/extra double-letter is the corpus's dominant
+            # single-edit class ("helo"→"hello", "commiting"→
+            # "committing"); order it ahead of same-distance edits
+            # regardless of frequency (plan C6; mirrors
+            # EditDistanceStrategy#typo_pattern_bonus).
+            [dist, double_letter_pattern?(context.word, cand) ? 0 : 1, rank]
+          end
+          # ranked: true — the (distance, frequency-rank) order IS the
+          # product decision; base create_suggestion_set would re-sort
+          # by combined_score and let its alphabetical tiebreak permute
+          # distance-1 ties ("verizon" beat "version" — plan C6).
+          limit = [context.max_results, max_results].min
+          suggestions = sorted.first(limit).map do |cand, dist|
+            ngram = calculate_ngram_similarity(context.word, cand)
+            create_suggestion(
+              cand, distance: dist,
+                    confidence: calculate_confidence(dist),
+                    original_length: context.word.length,
+                    ngram_score: ngram
+            )
+          end
+          SuggestionSet.new(suggestions, max_size: limit, ranked: true)
         end
 
         # Lazily build the deletion index from the best available word
@@ -235,6 +240,69 @@ module Kotoshu
             end
           end
           result
+        end
+
+        # True when +candidate+ differs from +word+ by exactly one
+        # doubled letter: either the candidate inserts a letter that
+        # doubles its neighbour ("helo"→"hello") or the word carries a
+        # doubled pair the candidate lacks ("preceeding"→"preceding").
+        def double_letter_pattern?(word, candidate)
+          if candidate.length == word.length + 1
+            word.chars.each_cons(2).any? { |a, b| a == b } ||
+              doubled_removal?(candidate, word)
+          elsif word.length == candidate.length + 1
+            doubled_removal?(word, candidate)
+          else
+            false
+          end
+        end
+
+        # True when removing one letter of a doubled pair in +long+
+        # yields +short+.
+        def doubled_removal?(long, short)
+          long.chars.each_cons(2).with_index.any? do |(a, b), i|
+            next false unless a == b
+
+            long[0...i] + long[(i + 1)..] == short
+          end
+        end
+
+        # True Damerau-Levenshtein (restricted / optimal string
+        # alignment) with an early-exit bound. Transpositions count as
+        # one edit — the corpus's dominant error class ("teh"→"the");
+        # plain Levenshtein buried them at distance 2 behind junk
+        # (plan C6/C9). Returns nil once the distance provably exceeds
+        # +max+ (the caller passes one past its cutoff so boundary
+        # candidates survive).
+        def bounded_edit_distance(a, b, max)
+          return 0 if a == b
+
+          la = a.length
+          lb = b.length
+          return nil if (la - lb).abs > max
+
+          prev2 = nil
+          prev = (0..lb).to_a
+          (1..la).each do |i|
+            cur = [i]
+            row_min = i
+            (1..lb).each do |j|
+              sub = prev[j - 1] + (a[i - 1] == b[j - 1] ? 0 : 1)
+              v = [prev[j] + 1, cur[j - 1] + 1, sub].min
+              if prev2 && i > 1 && j > 1 &&
+                  a[i - 1] == b[j - 2] && a[i - 2] == b[j - 1]
+                v = [v, prev2[j - 2] + 1].min
+              end
+              cur[j] = v
+              row_min = v if v < row_min
+            end
+            return nil if row_min > max
+
+            prev2 = prev
+            prev = cur
+          end
+          d = prev[lb]
+          d <= max ? d : nil
         end
 
         # Check if str1 is a subsequence of str2.
