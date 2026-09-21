@@ -47,6 +47,10 @@ module Kotoshu
           @words = Set.new
           @ranks = {}
           @precomputed = false
+          # An explicitly passed dictionary is a contract: the lazy
+          # frequency-list override must not replace it (plan C6 — the
+          # de list publishing flipped exactly this in tests).
+          @explicit_dictionary = !dictionary.nil?
           # Eager precompute only when a concrete dictionary was passed
           # (tests / one-off scripts). Production path is lazy: first
           # generate call indexes the frequency full_list for the
@@ -131,8 +135,9 @@ module Kotoshu
         # dictionary. Called once per strategy lifetime.
         def ensure_precomputed!(context)
           return if @precomputed
+          return if @explicit_dictionary && @words.any?
 
-          freq_words = @frequency_provider.full_list_for(@language_code)
+          freq_words = @explicit_dictionary ? [] : @frequency_provider.full_list_for(@language_code)
           if freq_words && !freq_words.empty?
             @dictionary = freq_words
             @ranks = @frequency_provider.ranks_for(@language_code)
