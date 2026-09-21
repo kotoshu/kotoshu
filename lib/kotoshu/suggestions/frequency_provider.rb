@@ -14,7 +14,12 @@ module Kotoshu
     # the frozen conformance vectors instead of the differently
     # curated YAML.
     #
-    # The provider memoizes per-language tiers, so repeated lookups
+    # Also exposes the frequency full_list + rank map when the cached
+    # Kelly/wiki-unigram file carries one (plan C6). SymSpellStrategy
+    # indexes that compact list instead of the Hunspell lexicon so
+    # compound-split junk never enters the candidate pool.
+    #
+    # The provider memoizes per-language data, so repeated lookups
     # for the same language are free after the first call.
     class FrequencyProvider
       EMPTY_TIERS = {
@@ -23,12 +28,18 @@ module Kotoshu
         top_1000: Set.new
       }.freeze
 
+      EMPTY_DATA = {
+        tiers: EMPTY_TIERS,
+        full_list: [],
+        ranks: {}
+      }.freeze
+
       # @param frequency_cache [Cache::FrequencyCache, nil] Injectable
       #   cache instance (used by tests); defaults to a fresh
       #   FrequencyCache per load.
       def initialize(frequency_cache: nil)
         @frequency_cache = frequency_cache
-        @tiers_by_language = {}
+        @data_by_language = {}
       end
 
       # Return the frequency tiers for +language_code+.
@@ -36,40 +47,66 @@ module Kotoshu
       # @param language_code [String] ISO 639-1 language code
       # @return [Hash{Symbol => Set}] Hash with :top_50, :top_200, :top_1000
       def tiers_for(language_code)
-        @tiers_by_language[language_code] ||= load(language_code)
+        data_for(language_code)[:tiers]
+      end
+
+      # Compact frequency word list for SymSpell indexing (may be empty).
+      #
+      # @param language_code [String]
+      # @return [Array<String>]
+      def full_list_for(language_code)
+        data_for(language_code)[:full_list]
+      end
+
+      # word.downcase => rank (1 = most frequent). Empty when unknown.
+      #
+      # @param language_code [String]
+      # @return [Hash{String => Integer}]
+      def ranks_for(language_code)
+        data_for(language_code)[:ranks]
       end
 
       private
 
+      def data_for(language_code)
+        @data_by_language[language_code] ||= load(language_code)
+      end
+
       def load(language_code)
         cache_result = try_load_from_frequency_cache(language_code)
-        return cache_result[:tiers] if cache_result && cache_result[:tiers] && cache_result[:tiers][:top_1000].any?
+        if cache_result && cache_result[:tiers] && cache_result[:tiers][:top_1000].any?
+          return {
+            tiers: cache_result[:tiers],
+            full_list: cache_result[:full_list] || [],
+            ranks: cache_result[:ranks] || {}
+          }
+        end
 
         frozen = FrozenTiers.tiers_for(language_code)
-        return frozen if frozen
+        return { tiers: frozen, full_list: [], ranks: {} } if frozen
 
         yaml_data = Data::CommonWordsLoader.load(language_code)
-        return yaml_data[:tiers] if yaml_data[:tiers][:top_1000].any?
+        if yaml_data[:tiers][:top_1000].any?
+          return {
+            tiers: yaml_data[:tiers],
+            full_list: yaml_data[:full_list] || [],
+            ranks: yaml_data[:ranks] || {}
+          }
+        end
 
-        EMPTY_TIERS
+        EMPTY_DATA
       end
 
       def try_load_from_frequency_cache(language_code)
         cache = @frequency_cache || Cache::FrequencyCache.new
         # Read cache-only: the suggestion hot path must never trigger a
-        # download (downloads happen only through explicit setup /
-        # `kotoshu cache download`). TTL expiry is a refresh signal,
-        # NOT a reason to switch datasets: expired-but-present bytes
-        # are still the checksummed Kelly tiers the conformance
-        # vectors freeze, while the YAML fallback below is a different,
-        # more coarsely curated set whose bonus differences re-scale
-        # every suggestion confidence (plan 117). So: any readable
-        # cached data wins; the YAML only serves machines with no
-        # frequency data at all.
-        return nil unless cache.cached_data?(language_code)
-
+        # download. Any readable cached bytes win over the YAML fallback
+        # (plan 117) — including install_local writes whose TTL marker
+        # may not flip cached_data? in the same process.
         begin
-          cache.load_cached(language_code)
+          data = cache.load_cached(language_code)
+          return data if data && data[:tiers] && data[:tiers][:top_1000]&.any?
+          nil
         rescue StandardError => e
           warn "Warning: Failed to load frequency cache for #{language_code}: #{e.message}" if $VERBOSE
           nil

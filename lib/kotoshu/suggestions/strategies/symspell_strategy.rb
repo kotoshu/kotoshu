@@ -34,15 +34,24 @@ module Kotoshu
         # @option config [Integer] max_results Maximum results to return (default: 10)
         # @option config [Integer] max_dictionary_size Maximum words to process (default: 500_000)
         # @option config [Boolean] handle_transpositions Generate transposition variants (default: true)
-        def initialize(dictionary:, name: :symspell, **config)
+        def initialize(dictionary: nil, name: :symspell, language_code: "en",
+                       frequency_provider: nil, **config)
           super(name: name, **config)
           @dictionary = dictionary
+          @language_code = language_code
+          @frequency_provider = frequency_provider || FrequencyProvider.new
           @max_deletion_distance = config.fetch(:max_deletion_distance, DEFAULT_MAX_DELETION_DISTANCE)
           @max_dictionary_size = config.fetch(:max_dictionary_size, DEFAULT_MAX_DICTIONARY_SIZE)
           @handle_transpositions = config.fetch(:handle_transpositions, DEFAULT_HANDLE_TRANSPOSITIONS)
           @deletes = Hash.new { |h, k| h[k] = [] } # deletion_variant -> [original_words]
           @words = Set.new
-          precompute!
+          @ranks = {}
+          @precomputed = false
+          # Eager precompute only when a concrete dictionary was passed
+          # (tests / one-off scripts). Production path is lazy: first
+          # generate call indexes the frequency full_list for the
+          # language, falling back to the context dictionary.
+          precompute! if dictionary
         end
 
         # Generate suggestions using deletion distance.
@@ -50,6 +59,7 @@ module Kotoshu
         # @param context [Context] The suggestion context
         # @return [SuggestionSet] Generated suggestions
         def generate(context)
+          ensure_precomputed!(context)
           word = context.word
           max_dist = get_config(:max_deletion_distance, @max_deletion_distance)
 
@@ -96,14 +106,34 @@ module Kotoshu
             end
           end
 
-          # Sort by distance and create suggestions
-          sorted_words = candidates.sort_by { |_, dist| dist }.map(&:first)
+          # Sort by (distance, frequency rank). Rank 1 = most frequent;
+          # unknown words sort after every ranked word (plan C6).
+          sorted_words = candidates.sort_by do |word, dist|
+            rank = @ranks[word.downcase] || (1_000_000_000)
+            [dist, rank]
+          end.map(&:first)
           create_suggestion_set(sorted_words, distances: candidates, original_word: context.word)
         end
 
+        # Lazily build the deletion index from the best available word
+        # source: frequency full_list (compact, no Hunspell junk) when
+        # present for the language; otherwise the context/Hunspell
+        # dictionary. Called once per strategy lifetime.
+        def ensure_precomputed!(context)
+          return if @precomputed
+
+          freq_words = @frequency_provider.full_list_for(@language_code)
+          if freq_words && !freq_words.empty?
+            @dictionary = freq_words
+            @ranks = @frequency_provider.ranks_for(@language_code)
+          elsif @dictionary.nil?
+            @dictionary = context.dictionary
+          end
+          precompute!
+          @precomputed = true
+        end
+
         # Pre-compute deletion variants for all dictionary words.
-        #
-        # This is called during initialization and builds the index.
         def precompute!
           words = dictionary_words(@dictionary)
 

@@ -17,6 +17,7 @@ module Kotoshu
     class Generator
       # Default suggestion algorithms.
       DEFAULT_ALGORITHMS = [
+        Strategies::SymSpellStrategy,
         Strategies::EditDistanceStrategy,
         Strategies::PhoneticStrategy,
         Strategies::KeyboardProximityStrategy,

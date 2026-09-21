@@ -53,6 +53,26 @@ module Kotoshu
           layout || script_default_layout(language_code) || default_layout
         end
 
+        # Layouts to score a language against (plan C7).
+        #
+        # A user may type on the language's native layout OR on plain
+        # QWERTY (or any Latin layout we cannot observe). We never know
+        # for certain, so the scorer takes the minimum penalty across
+        # this set. Explicit +keyboard_layouts+ / single +keyboard_layout+
+        # config overrides the guess.
+        #
+        # @param language_code [String]
+        # @return [Array<Layout>] unique layouts, primary first
+        def layouts_for(language_code)
+          primary = layout_for(language_code)
+          qwerty = layouts["Kotoshu::Keyboard::Layouts::QWERTY"] || layout_by_name("QWERTY")
+          if qwerty && qwerty.name != primary.name
+            [primary, qwerty]
+          else
+            [primary]
+          end
+        end
+
         # Get layout by name
         #
         # @param name [String, Symbol] the layout name (e.g., 'QWERTY', 'Dvorak')
@@ -196,6 +216,12 @@ module Kotoshu
       # and Devanagari InScript.
       register(Layouts::Dubeolsik)
       register(Layouts::DevanagariInScript)
+      # Chinese IME layouts (plan C7). Order: Pinyin before Cangjie so
+      # bare "zh" resolves to Pinyin; regional codes are exact matches.
+      register(Layouts::Pinyin)
+      register(Layouts::Jyutping)
+      register(Layouts::Cangjie)
+      register(Layouts::Sucheng)
     end
   end
 end

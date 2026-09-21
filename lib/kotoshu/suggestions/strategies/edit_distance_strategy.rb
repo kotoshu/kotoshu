@@ -34,8 +34,10 @@ module Kotoshu
           super(name: name, **config)
           @language_code = language_code
 
-          # Use OOP registry for keyboard layout lookup
-          @keyboard_layout = resolve_keyboard_layout(keyboard_layout)
+          # Dual-layout set (native + QWERTY when they differ — plan C7).
+          # keyboard_penalty takes the min across the set.
+          @keyboard_layouts = resolve_keyboard_layouts(keyboard_layout)
+          @keyboard_layout = @keyboard_layouts.first
 
           # Frequency data comes from a provider (extracted in TODO 56
           # T5.1 step 3 Phase A) so the strategy constructor no longer
@@ -529,30 +531,34 @@ module Kotoshu
         # @param suggestion [String] The suggested word
         # @return [Float] Keyboard penalty (0-200)
         def keyboard_penalty(original, suggestion)
-          penalty = 0
+          # Min penalty across the layout set (native + QWERTY when they
+          # differ — plan C7). We cannot observe which physical layout
+          # the user typed on; scoring the more forgiving layout avoids
+          # punishing a correct adjacent-key typo under the wrong map.
+          layouts = @keyboard_layouts || [@keyboard_layout]
+          layouts.map { |layout| keyboard_penalty_for(original, suggestion, layout) }.min || 0
+        end
 
-          # Find the edit script to see what changed
+        def keyboard_penalty_for(original, suggestion, layout)
+          penalty = 0
           o_chars = original.chars
           s_chars = suggestion.chars
 
-          # Simple comparison for equal-length words (substitutions)
           if o_chars.length == s_chars.length
             o_chars.each_with_index do |c1, i|
               c2 = s_chars[i]
               next if c1 == c2
 
-              # Use OOP keyboard layout for distance calculation
-              key_dist = @keyboard_layout.distance(c1, c2)
+              key_dist = layout.distance(c1, c2)
 
               penalty += if key_dist == Float::INFINITY
-                           # Symbol or unknown key - medium penalty
                            50
                          elsif key_dist == 1
-                           10  # Very likely typo (adjacent keys)
+                           10
                          elsif key_dist == 2
-                           30  # Somewhat likely
+                           30
                          else
-                           100 # Unlikely to be typo (far keys)
+                           100
                          end
             end
           end
@@ -623,6 +629,24 @@ module Kotoshu
             Keyboard::Registry.layout_for(@language_code)
           else
             Keyboard::Registry.layout_by_name('QWERTY')
+          end
+        end
+
+        # Resolve the layout SET used by keyboard_penalty (plan C7).
+        def resolve_keyboard_layouts(keyboard_layout)
+          case keyboard_layout
+          when Keyboard::Layout
+            [keyboard_layout]
+          when String, Symbol
+            [Keyboard::Registry.layout_by_name(keyboard_layout)]
+          when Array
+            keyboard_layout.map { |item| resolve_keyboard_layout(item) }.uniq
+          else
+            if @language_code
+              Keyboard::Registry.layouts_for(@language_code)
+            else
+              [Keyboard::Registry.layout_by_name('QWERTY')]
+            end
           end
         end
       end
