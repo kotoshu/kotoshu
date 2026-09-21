@@ -240,9 +240,24 @@ RSpec.describe Kotoshu::Suggestions::Strategies::CompositeStrategy do
       expect(result.suggestions.first.source).to eq("edit_distance")
     end
 
-    it "lets the real SymSpell strategy lead the merge (plan C6)" do
+    it "lets the frequency-ranked SymSpell strategy lead the merge (plan C6)" do
+      ranked_cache = Struct.new(:payload, keyword_init: true) do
+        def cached_data?(_code) = true
+        def load_cached(_code) = payload
+      end
+      provider = Kotoshu::Suggestions::FrequencyProvider.new(
+        frequency_cache: ranked_cache.new(payload: {
+                                            tiers: {
+                                              top_50: Set.new(%w[ihr]),
+                                              top_200: Set.new(%w[ihr ihre irrt]),
+                                              top_1000: Set.new(%w[ihr ihre irrt])
+                                            },
+                                            full_list: %w[ihr ihre irrt],
+                                            ranks: { "ihr" => 1, "ihre" => 2, "irrt" => 3 }
+                                          })
+      )
       symspell = Kotoshu::Suggestions::Strategies::SymSpellStrategy.new(
-        dictionary: %w[ihr ihre irrt], language_code: "de"
+        language_code: "de", frequency_provider: provider
       )
       edit_distance = Kotoshu::Suggestions::Strategies::EditDistanceStrategy.new(
         language_code: "de"
@@ -256,9 +271,7 @@ RSpec.describe Kotoshu::Suggestions::Strategies::CompositeStrategy do
 
       result = composite.generate(ctx)
 
-      # The composite prefix equals the SymSpell strategy's own output;
-      # tie order inside the slate is the strategy's own (no ranks on
-      # this tiny list), so assert the prefix property, not a literal.
+      # The composite prefix equals the SymSpell strategy's own output.
       sym_own = symspell.generate(ctx).to_words
       expect(sym_own).not_to be_empty
       expect(result.to_words.first(sym_own.size)).to eq(sym_own)

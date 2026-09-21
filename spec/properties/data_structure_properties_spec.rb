@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "set"
 require "kotoshu/core/trie/trie"
 require "kotoshu/dictionary/plain_text"
 
@@ -94,7 +95,12 @@ RSpec.describe "Data-structure properties", :property do
     let(:dictionary) { Kotoshu::Dictionary::PlainText.from_words(vocab.uniq, language_code: "en") }
     let(:spellchecker) { Kotoshu::Spellchecker.new(dictionary: dictionary) }
 
-    it "every suggested word is a dictionary member" do
+    it "every suggested word is a dictionary or frequency-list member" do
+      # The SymSpell channel indexes the language's published frequency
+      # list (plan C6) — a deliberate, superset candidate source. The
+      # invariant that survives: no suggested word is invented; each is
+      # a member of the dictionary OR the published frequency list.
+      allowed = Kotoshu::Suggestions::FrequencyProvider.new.full_list_for("en").to_set
       queries = %w[
         helo hlelo definately definatly recieve beleive neccessary
         embaras occurence progam progess projct prodcue
@@ -102,8 +108,8 @@ RSpec.describe "Data-structure properties", :property do
       ]
       queries.each do |q|
         spellchecker.suggest(q, max_suggestions: 10).each do |suggestion|
-          expect(dictionary.lookup?(suggestion.word)).to be(true),
-                                                         "#{q.inspect} produced out-of-dictionary #{suggestion.word.inspect}"
+          expect(dictionary.lookup?(suggestion.word) || allowed.include?(suggestion.word.downcase)).to be(true),
+                                                                                                       "#{q.inspect} produced out-of-dictionary #{suggestion.word.inspect}"
         end
       end
     end

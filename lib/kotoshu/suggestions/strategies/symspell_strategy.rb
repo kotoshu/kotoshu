@@ -129,6 +129,17 @@ module Kotoshu
           SuggestionSet.new(suggestions, max_size: limit, ranked: true)
         end
 
+        # True when this strategy carries real frequency ranks — the
+        # precondition for leading the composite (plan C6). Without a
+        # frequency list the slate's tie order is index-iteration
+        # noise, and EditDistance's enhanced scoring must stay the
+        # ranking authority.
+        def frequency_ranked?
+          return false if @explicit_dictionary
+
+          (@frequency_provider.full_list_for(@language_code) || []).any?
+        end
+
         # Lazily build the deletion index from the best available word
         # source: frequency full_list (compact, no Hunspell junk) when
         # present for the language; otherwise the context/Hunspell

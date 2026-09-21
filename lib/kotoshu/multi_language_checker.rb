@@ -119,9 +119,18 @@ module Kotoshu
     def tokenize_with_offsets(text)
       return [] unless text
 
-      text.scan(/[a-zà-ÿ]+(?:['’-][a-zà-ÿ]+)*/i).map do |match|
-        [match.downcase, Regexp.last_match.offset(0).first]
+      # gsub-with-block (not scan+map): Regexp.last_match inside the
+      # block is per-match; after a bare scan it is only the LAST
+      # match, which mispaired every word with the final offset and
+      # surfaced as nil source ranges once non-dictionary suggestions
+      # reached the error builder (plan C6 follow-up fix).
+      pairs = []
+      text.gsub(/[a-zà-ÿ]+(?:['’-][a-zà-ÿ]+)*/i) do
+        m = Regexp.last_match
+        pairs << [m[0].downcase, m.begin(0)]
+        m[0]
       end
+      pairs
     end
   end
 end

@@ -170,7 +170,9 @@ module Kotoshu
           # SymSpell leads when configured (frequency full_list + distance
           # ranking, plan C6). When absent, fall back to the legacy
           # merged-and-ranked behavior.
-          order = strategies.index { |s| s.class.name.end_with?("SymSpellStrategy") }
+          order = strategies.index do |s|
+            s.class.name.end_with?("SymSpellStrategy") && s.frequency_ranked?
+          end
 
           if order.nil?
             candidates = strategies.flat_map { |s| s.generate(context).suggestions }

@@ -80,7 +80,7 @@ module Kotoshu
 
       @generator = Suggestions::Generator.new(
         dict,
-        language_code: @resource_bundle&.language || @config.language,
+        language_code: @resource_bundle&.language || @config.language || dict&.language_code,
         max_suggestions: max_suggestions,
         algorithms: @config.suggestion_algorithms
       )
@@ -358,7 +358,7 @@ module Kotoshu
       dict = @config.dictionary
       @generator = Suggestions::Generator.new(
         dict,
-        language_code: @resource_bundle&.language || @config.language,
+        language_code: @resource_bundle&.language || @config.language || dict&.language_code,
         max_suggestions: @config.max_suggestions,
         algorithms: @config.suggestion_algorithms
       )
