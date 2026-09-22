@@ -22,9 +22,9 @@ RSpec.describe Kotoshu::Suggestions::ConfusionSet, :cjk_confusion do
   end
 
   it "ranks the confusion-hit first despite a higher-frequency non-hit" do
-    # Self-contained: 我门 (rank 1) would win on frequency alone; the
-    # confusion feature must flip the order to 我们 (the same-pinyin
-    # original). No published-list dependence.
+    # Self-contained: 找们 (rank 1, zhǎo — NOT a homophone of 扪)
+    # would win on frequency alone; the confusion feature must flip
+    # the order to 我们 (mén — the same-pinyin original).
     ranked_cache = Struct.new(:payload, keyword_init: true) do
       def cached_data?(_code) = true
       def load_cached(_code) = payload
@@ -36,8 +36,8 @@ RSpec.describe Kotoshu::Suggestions::ConfusionSet, :cjk_confusion do
           top_200: Set.new(%w[我们 我门]),
           top_1000: Set.new(%w[我们 我门 找们])
         },
-        full_list: %w[我门 我们 找们],
-        ranks: { "我门" => 1, "我们" => 2, "找们" => 3 }
+        full_list: %w[找们 我们 我门],
+        ranks: { "找们" => 1, "我们" => 2, "我门" => 3 }
       })
     )
     sym = Kotoshu::Suggestions::Strategies::SymSpellStrategy.new(
