@@ -51,6 +51,7 @@ module Kotoshu
           # frequency-list override must not replace it (plan C6 — the
           # de list publishing flipped exactly this in tests).
           @explicit_dictionary = !dictionary.nil?
+          @confusion_set = ConfusionSet.for(language_code)
           # Eager precompute only when a concrete dictionary was passed
           # (tests / one-off scripts). Production path is lazy: first
           # generate call indexes the frequency full_list for the
@@ -122,7 +123,13 @@ module Kotoshu
             # "committing"); order it ahead of same-distance edits
             # regardless of frequency (plan C6; mirrors
             # EditDistanceStrategy#typo_pattern_bonus).
-            [dist, double_letter_pattern?(context.word, cand) ? 0 : 1, rank]
+            pattern = double_letter_pattern?(context.word, cand) ? 0 : 1
+            # CJK: a pinyin-homophone substitution (the IME error
+            # class) outranks an equal-distance non-hit — edit
+            # distance does not model IME confusions at all
+            # (TODO.sota/4).
+            conf = @confusion_set.confusion_hit?(word_lower, cand) ? 0 : 1
+            [dist, pattern, conf, rank]
           end
           # ranked: true — the (distance, frequency-rank) order IS the
           # product decision; base create_suggestion_set would re-sort
