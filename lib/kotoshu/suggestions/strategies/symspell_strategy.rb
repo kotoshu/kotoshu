@@ -78,6 +78,16 @@ module Kotoshu
           candidates = Set.new
           candidates.merge(@deletes[word_lower])
 
+          # Deletion variants of the input AND of its folded form
+          # (plan C9 — diacritic omissions must reach accented keys).
+          fold_variants = fold_word(word_lower)
+          unless fold_variants == word_lower.chars
+            fold_variants.length.times do |i|
+              fv = (fold_variants[0...i] + fold_variants[(i + 1)..]).join
+              candidates.merge(@deletes[fv]) unless fv.empty?
+            end
+          end
+
           # Generate deletion variants and union their buckets
           checked = Set.new([word_lower])
           max_dist.times do
@@ -96,8 +106,10 @@ module Kotoshu
           # deletion-level approximation misranked same-distance words
           # and cost 18pp of English top-1 (plan C6/C9). Sort by
           # (distance, frequency rank); rank 1 = most frequent.
+          typed_fold = fold_word(word_lower)
           scored = candidates.filter_map do |cand|
-            dist = bounded_edit_distance(word_lower, cand, max_dist + 1)
+            cand_fold = @folded_words&.[](cand) || fold_word(cand)
+            dist = folded_distance(typed_fold, cand_fold, max_dist + 1)
             next if dist.nil? || dist > max_dist + 1
 
             [cand, dist]
@@ -168,11 +180,22 @@ module Kotoshu
 
             word_lower = word.downcase
             @words.add(word_lower)
+            folded = fold_word(word_lower)
+            @folded_words ||= {}
+            @folded_words[word_lower] = folded
 
             # Generate only single deletion variants for efficiency
-            # Multiple deletions are handled during lookup
+            # Multiple deletions are handled during lookup — of BOTH
+            # the original and the folded form (plan C9: a folded
+            # deletion of the input reaches a folded deletion of the
+            # accented original).
             generate_single_deletions(word_lower).each do |variant|
               @deletes[variant] << word_lower
+            end
+            unless folded == word_lower.chars
+              generate_single_deletions_from_array(folded).each do |variant|
+                @deletes[variant] << word_lower
+              end
             end
 
             # Generate transposition variants if enabled
@@ -231,6 +254,16 @@ module Kotoshu
 
         private
 
+        # Single-deletion keys from a folded char array (plan C9).
+        def generate_single_deletions_from_array(chars)
+          variants = []
+          chars.length.times do |i|
+            v = (chars[0...i] + chars[(i + 1)..]).join
+            variants << v unless v.empty?
+          end
+          variants
+        end
+
         # Generate all single-deletion variants of a word.
         #
         # @param word [String] The word
@@ -281,6 +314,58 @@ module Kotoshu
 
             long[0...i] + long[(i + 1)..] == short
           end
+        end
+
+        # Diacritic fold: NFD combining-mark strip + German sharp-s.
+        # Typing "o" for "ö" (a QWERTY keyboard under a German IME-less
+        # user) is a non-error class, not an edit — fold-equal
+        # substitutions cost 0 in candidate ranking (plan C9). Swedish
+        # å/ä/ö fold too; the risk is bounded because suggestions are
+        # only computed for out-of-vocabulary inputs.
+        FOLD_EXCEPTIONS = { "ß" => "ss" }.freeze
+
+        def fold_word(word)
+          s = word.to_s.downcase
+          s = s.dup.force_encoding(Encoding::UTF_8) if s.encoding != Encoding::UTF_8
+          s = s.scrub unless s.valid_encoding?
+
+          s.chars.flat_map do |ch|
+            next FOLD_EXCEPTIONS[ch] if FOLD_EXCEPTIONS.key?(ch)
+
+            decomp = ch.unicode_normalize(:nfd)
+            stripped = decomp.gsub(/[\u0300-\u036f]/, "")
+            stripped.empty? ? [ch] : stripped.chars
+          end
+        end
+
+        # Bounded Damerau over folded char arrays.
+        def folded_distance(a, b, max)
+          return 0 if a == b
+          la, lb = a.length, b.length
+          return nil if (la - lb).abs > max
+
+          prev2 = nil
+          prev = (0..lb).to_a
+          (1..la).each do |i|
+            cur = [i]
+            row_min = i
+            (1..lb).each do |j|
+              sub = prev[j - 1] + (a[i - 1] == b[j - 1] ? 0 : 1)
+              v = [prev[j] + 1, cur[j - 1] + 1, sub].min
+              if prev2 && i > 1 && j > 1 &&
+                 a[i - 1] == b[j - 2] && a[i - 2] == b[j - 1]
+                v = [v, prev2[j - 2] + 1].min
+              end
+              cur[j] = v
+              row_min = v if v < row_min
+            end
+            return nil if row_min > max
+
+            prev2 = prev
+            prev = cur
+          end
+          d = prev[lb]
+          d <= max ? d : nil
         end
 
         # True Damerau-Levenshtein (restricted / optimal string
