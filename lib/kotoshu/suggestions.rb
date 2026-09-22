@@ -10,6 +10,7 @@ module Kotoshu
     autoload :Pipeline, "kotoshu/suggestions/pipeline"
     autoload :SemanticCascade, "kotoshu/suggestions/semantic_cascade"
     autoload :Suggestion, "kotoshu/suggestions/suggestion"
+    autoload :ConfusionSet, "kotoshu/suggestions/confusion_set"
     autoload :SuggestionSet, "kotoshu/suggestions/suggestion_set"
     autoload :SweepIndex, "kotoshu/suggestions/sweep_index"
     autoload :TypoMerge, "kotoshu/suggestions/typo_merge"
