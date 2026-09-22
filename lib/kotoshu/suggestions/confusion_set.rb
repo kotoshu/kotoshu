@@ -54,7 +54,8 @@ module Kotoshu
       # True when every differing position between typo and candidate
       # is a pinyin-homophone substitution (the IME error class).
       def confusion_hit?(typo, candidate)
-        t, c = typo.downcase.chars, candidate.downcase.chars
+        t = typo.downcase.chars
+        c = candidate.downcase.chars
         return false unless t.length == c.length
 
         diffs = t.zip(c).reject { |a, b| a == b }
