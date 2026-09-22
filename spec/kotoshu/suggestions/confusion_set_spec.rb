@@ -21,8 +21,25 @@ RSpec.describe Kotoshu::Suggestions::ConfusionSet, :cjk_confusion do
     expect(cs.confusion_hit?("我们", "你们")).to be(false)
   end
 
-  it "ranks the confusion-hit first in the SymSpell slate" do
-    provider = Kotoshu::Suggestions::FrequencyProvider.new
+  it "ranks the confusion-hit first despite a higher-frequency non-hit" do
+    # Self-contained: 我门 (rank 1) would win on frequency alone; the
+    # confusion feature must flip the order to 我们 (the same-pinyin
+    # original). No published-list dependence.
+    ranked_cache = Struct.new(:payload, keyword_init: true) do
+      def cached_data?(_code) = true
+      def load_cached(_code) = payload
+    end
+    provider = Kotoshu::Suggestions::FrequencyProvider.new(
+      frequency_cache: ranked_cache.new(payload: {
+        tiers: {
+          top_50: Set.new(%w[我们]),
+          top_200: Set.new(%w[我们 我门]),
+          top_1000: Set.new(%w[我们 我门 找们])
+        },
+        full_list: %w[我门 我们 找们],
+        ranks: { "我门" => 1, "我们" => 2, "找们" => 3 }
+      })
+    )
     sym = Kotoshu::Suggestions::Strategies::SymSpellStrategy.new(
       language_code: "zh-Hans-CN", frequency_provider: provider
     )
