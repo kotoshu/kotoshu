@@ -252,6 +252,8 @@ module Kotoshu
           end
         end
 
+        FOLD_EXCEPTIONS = { "ß" => "ss" }.freeze
+
         private
 
         # Single-deletion keys from a folded char array (plan C9).
@@ -322,8 +324,6 @@ module Kotoshu
         # substitutions cost 0 in candidate ranking (plan C9). Swedish
         # å/ä/ö fold too; the risk is bounded because suggestions are
         # only computed for out-of-vocabulary inputs.
-        FOLD_EXCEPTIONS = { "ß" => "ss" }.freeze
-
         def fold_word(word)
           s = word.to_s.downcase
           s = s.dup.force_encoding(Encoding::UTF_8) if s.encoding != Encoding::UTF_8
@@ -341,7 +341,9 @@ module Kotoshu
         # Bounded Damerau over folded char arrays.
         def folded_distance(a, b, max)
           return 0 if a == b
-          la, lb = a.length, b.length
+
+          la = a.length
+          lb = b.length
           return nil if (la - lb).abs > max
 
           prev2 = nil
@@ -353,7 +355,7 @@ module Kotoshu
               sub = prev[j - 1] + (a[i - 1] == b[j - 1] ? 0 : 1)
               v = [prev[j] + 1, cur[j - 1] + 1, sub].min
               if prev2 && i > 1 && j > 1 &&
-                 a[i - 1] == b[j - 2] && a[i - 2] == b[j - 1]
+                  a[i - 1] == b[j - 2] && a[i - 2] == b[j - 1]
                 v = [v, prev2[j - 2] + 1].min
               end
               cur[j] = v
