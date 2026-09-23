@@ -31,6 +31,9 @@ module Kotoshu
       # spelling first and falls back to this.
       spelling_flat: Source.new(repo: "dictionaries", default_pin: "v1",
                                 template: "dictionaries/%<pin>s/%<lang>s/index.%<ext>s"),
+      # Plain-text wordlist layout (CJK languages without Hunspell).
+      spelling_words: Source.new(repo: "dictionaries", default_pin: "v1",
+                                 template: "dictionaries/%<pin>s/%<lang>s/spelling/words.txt"),
       grammar: Source.new(repo: "dictionaries", default_pin: "v1",
                           template: "dictionaries/%<pin>s/%<lang>s/grammar/rules.yaml"),
       dict_manifest: Source.new(repo: "dictionaries", default_pin: "v1",

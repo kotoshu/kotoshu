@@ -139,6 +139,12 @@ module Kotoshu
           .map { |code| code.split("-").first }
           .uniq
           .select { |base| AVAILABLE_LANGUAGES.include?(base) }
+          .concat(
+            # Script-keyed staged dictionaries (zh-Hans-CN resolves to
+            # the zh-Hans wordlist) surface under their staged names.
+            AVAILABLE_LANGUAGES.select { |code| code.include?("-") }
+          )
+          .uniq
           .sort
       end
 
@@ -233,10 +239,15 @@ module Kotoshu
         lang_path = resource_dir_for("#{language}:spelling")
         resource_id = "#{language}:spelling"
 
-        # Download index.aff / index.dic. Only `en` ships under the
-        # spelling/ sublayout upstream; staged languages sit flat at
-        # {lang}/index.* — try the sublayout first, fall back to flat.
-        aff_url, aff_content = fetch_spelling_file(language, "aff")
+        # CJK wordlists (plan C3/S4 follow-up): languages with no
+        # Hunspell dictionary ship {lang}/spelling/words.txt — a
+        # plain-text wordlist. When aff 404s, try that layout before
+        # failing.
+        begin
+          aff_url, aff_content = fetch_spelling_file(language, "aff")
+        rescue Kotoshu::DictionaryNotFoundError => e
+          return download_spelling_wordlist(language, lang_path, resource_id, e)
+        end
         verify_and_audit(url: aff_url,
                          relative_path: "#{language}/spelling/index.aff",
                          content: aff_content,
@@ -260,6 +271,47 @@ module Kotoshu
           cached: false,
           metadata: metadata
         }
+      end
+
+      # Plain-text spelling wordlist download (CJK layout).
+      def download_spelling_wordlist(language, lang_path, resource_id, aff_error = nil)
+        # Repo layouts key Chinese by script (zh-Hans), the engine by
+        # region (zh-Hans-CN) — try exact, script-base, then primary.
+        candidates = [language]
+        parts = language.split("-")
+        candidates << parts[0, 2].join("-") if parts.length > 2
+        candidates << parts.first
+
+        words_url = nil
+        words_content = nil
+        candidates.uniq.each do |candidate|
+          url = @source_registry.url_for(:spelling_words, lang: candidate)
+          begin
+            words_content = download_url(url)
+            words_url = url
+            break
+          rescue Kotoshu::DictionaryNotFoundError
+            next
+          end
+        end
+        unless words_content
+          raise(aff_error || Kotoshu::DictionaryNotFoundError.new(words_url, "spelling"))
+        end
+
+        FileUtils.mkdir_p(lang_path)
+
+        verify_and_audit(url: words_url,
+                         relative_path: "#{language}/spelling/words.txt",
+                         content: words_content,
+                         resource_id: resource_id)
+        File.binwrite(File.join(lang_path, "words.txt"), words_content)
+
+        metadata = build_metadata(language, "spelling", checksum(words_content))
+        metadata["format"] = "wordlist"
+        write_metadata(metadata_path_for(resource_id), metadata)
+
+        { words_path: File.join(lang_path, "words.txt"), cached: false,
+          metadata: metadata }
       end
 
       # Download grammar rules.
@@ -389,12 +441,16 @@ module Kotoshu
       # @return [Hash] Spelling resource data
       def load_cached_spelling(resource_id, metadata)
         lang_path = resource_dir_for(resource_id)
-        {
+        base = {
           aff_path: File.join(lang_path, "index.aff"),
           dic_path: File.join(lang_path, "index.dic"),
           cached: true,
           metadata: metadata
         }
+        if metadata["format"] == "wordlist"
+          base[:words_path] = File.join(lang_path, "words.txt")
+        end
+        base
       end
 
       # Load cached grammar resource.
@@ -496,8 +552,9 @@ module Kotoshu
 
         case type
         when "spelling"
-          File.exist?(File.join(lang_path, "index.aff")) &&
-            File.exist?(File.join(lang_path, "index.dic"))
+          hunspell = File.exist?(File.join(lang_path, "index.aff")) &&
+                     File.exist?(File.join(lang_path, "index.dic"))
+          hunspell || File.exist?(File.join(lang_path, "words.txt"))
         when "grammar"
           File.exist?(File.join(lang_path, "rules.yaml"))
         when "frequency"
