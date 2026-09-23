@@ -28,7 +28,9 @@ module Kotoshu
     module StagedLanguages
       # Language codes carried by the dictionaries manifest at its
       # SourceRegistry pin; refreshed by the sync rake task above.
-      CODES = %w[ar bg br ca ca-valencia cs cy da de de-AT de-CH el el-polyton en en-AU en-CA en-GB en-ZA eo es es-AR es-BO es-CL es-CO es-CR es-CU es-DO es-EC es-GT es-HN es-MX es-NI es-PA es-PE es-PH es-PR es-PY es-SV es-US es-UY es-VE et eu fa fo fr fur fy ga gd gl he hr hu hy hyw ia id ie is it ja ka ko la lb lt ltg lv mk mn nb nds ne nl nn oc pl pt pt-BR pt-PT ro ru rw sk sl sr sr-Latn sv sv-FI tk tlh tlh-Latn tr uk vi zh-Hans zh-Hant zh-Hant-TW].freeze
+            CODES = %w[ar bg br ca ca-valencia cs cy da de de-AT de-CH el el-polyton en en-AU en-CA en-GB en-ZA eo es es-AR es-BO es-CL es-CO es-CR es-CU es-DO es-EC es-GT es-HN es-MX es-NI es-PA es-PE
+                 es-PH es-PR es-PY es-SV es-US es-UY es-VE et eu fa fo fr fur fy ga gd gl he hr hu hy hyw ia id ie is it ja ka ko la lb lt ltg lv mk mn nb nds ne nl nn oc pl pt pt-BR pt-PT ro ru rw
+                 sk sl sr sr-Latn sv sv-FI tk tlh tlh-Latn tr uk vi zh-Hans zh-Hant zh-Hant-TW].freeze.freeze
     end
   end
 end
