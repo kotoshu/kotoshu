@@ -31,14 +31,14 @@ RSpec.describe Kotoshu::Suggestions::ConfusionSet, :cjk_confusion do
     end
     provider = Kotoshu::Suggestions::FrequencyProvider.new(
       frequency_cache: ranked_cache.new(payload: {
-        tiers: {
-          top_50: Set.new(%w[我们]),
-          top_200: Set.new(%w[我们 我门]),
-          top_1000: Set.new(%w[我们 我门 找们])
-        },
-        full_list: %w[找们 我们 我门],
-        ranks: { "找们" => 1, "我们" => 2, "我门" => 3 }
-      })
+                                          tiers: {
+                                            top_50: Set.new(%w[我们]),
+                                            top_200: Set.new(%w[我们 我门]),
+                                            top_1000: Set.new(%w[我们 我门 找们])
+                                          },
+                                          full_list: %w[找们 我们 我门],
+                                          ranks: { "找们" => 1, "我们" => 2, "我门" => 3 }
+                                        })
     )
     sym = Kotoshu::Suggestions::Strategies::SymSpellStrategy.new(
       language_code: "zh-Hans-CN", frequency_provider: provider
