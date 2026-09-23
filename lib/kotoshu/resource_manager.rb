@@ -532,6 +532,13 @@ module Kotoshu
       result = cache.load_cached(resource_id)
       raise ResourceNotSetupError.new(lang, "spelling") unless result
 
+      words_path = result[:words_path] || result["words_path"]
+      if words_path
+        # Plain-text wordlist (CJK layout): one word per line.
+        words = File.readlines(words_path, chomp: true).map(&:strip).reject(&:empty?)
+        return Dictionary::PlainText.from_words(words, language_code: lang)
+      end
+
       Dictionary::Hunspell.new(
         dic_path: result[:dic_path] || result["dic_path"],
         aff_path: result[:aff_path] || result["aff_path"],
