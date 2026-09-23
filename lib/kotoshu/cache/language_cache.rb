@@ -553,7 +553,7 @@ module Kotoshu
         case type
         when "spelling"
           hunspell = File.exist?(File.join(lang_path, "index.aff")) &&
-                     File.exist?(File.join(lang_path, "index.dic"))
+            File.exist?(File.join(lang_path, "index.dic"))
           hunspell || File.exist?(File.join(lang_path, "words.txt"))
         when "grammar"
           File.exist?(File.join(lang_path, "rules.yaml"))
