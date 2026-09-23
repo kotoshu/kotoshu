@@ -27,7 +27,10 @@ permissions:
 jobs:
   network:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # 45: the CJK wordlist downloads (4 × ~1-2 MB lists through the
+    # spelling specs) pushed the suite past 30; the prior green run
+    # finished at 27m54s before they landed.
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
