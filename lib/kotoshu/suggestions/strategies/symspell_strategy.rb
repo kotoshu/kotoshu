@@ -107,10 +107,26 @@ module Kotoshu
           # deletion-level approximation misranked same-distance words
           # and cost 18pp of English top-1 (plan C6/C9). Sort by
           # (distance, frequency rank); rank 1 = most frequent.
+          #
+          # Fold-scoped scoring (wave-2 verdict, TODO.sota-impl/11):
+          # fold-equal distances are sanctioned only where the folded
+          # distinction is orthographically optional — de (ß; its
+          # wave-2 #1 was fold-driven), sv (C9's named case), vi
+          # (dấu-optional informal typing). Everywhere else the rank
+          # distance runs on the RAW downcased strings: on Polish the
+          # ogonek fold promoted a-forms over ą-forms (bliższa over
+          # bliższą) and cost 26pp top-1 against the field lane.
+          # Folded DISCOVERY keys stay for every language; only the
+          # ranking distance switches.
           typed_fold = fold_word(word_lower)
           scored = candidates.filter_map do |cand|
-            cand_fold = @folded_words&.[](cand) || fold_word(cand)
-            dist = folded_distance(typed_fold, cand_fold, max_dist + 1)
+            dist = if fold_scoring?
+                     cand_fold = @folded_words&.[](cand) || fold_word(cand)
+                     folded_distance(typed_fold, cand_fold, max_dist + 1)
+                   else
+                     bounded_edit_distance(word_lower.chars, cand.chars,
+                                           max_dist + 1)
+                   end
             next if dist.nil? || dist > max_dist + 1
 
             [cand, dist]
@@ -261,6 +277,12 @@ module Kotoshu
 
         FOLD_EXCEPTIONS = { "ß" => "ss" }.freeze
 
+        # Languages where fold-equal RANKING is sanctioned (see the
+        # scoring block in generate). Exact code match on purpose:
+        # de-CH orthography drops ß entirely, so a base-code match
+        # would mis-sanction it.
+        FOLD_SCORING_LANGUAGES = %w[de sv vi].freeze
+
         private
 
         # Single-deletion keys from a folded char array (plan C9).
@@ -343,6 +365,11 @@ module Kotoshu
             stripped = decomp.gsub(/[\u0300-\u036f]/, "")
             stripped.empty? ? [ch] : stripped.chars
           end
+        end
+
+        # Whether this language ranks on folded or raw strings.
+        def fold_scoring?
+          FOLD_SCORING_LANGUAGES.include?(@language_code)
         end
 
         # Bounded Damerau over folded char arrays.
