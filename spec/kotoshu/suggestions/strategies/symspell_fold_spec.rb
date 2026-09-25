@@ -63,11 +63,33 @@ RSpec.describe Kotoshu::Suggestions::Strategies::SymSpellStrategy, :diacritic_fo
     expect(pl.generate(ctx).to_words.first).to eq("bliższą")
   end
 
+  it "ranks Vietnamese tone-distinct targets raw, not fold-equal (the vi wave-2 verdict)" do
+    # The wave-2 vi bench: folding merged tone-distinct candidates
+    # (luống/lương both fold to "luong") into frequency-decided ties
+    # and gave toneless words false 0-distances (kwán → kwan) —
+    # 183 field-only top-1 losses. Raw scoring keeps the true form
+    # at distance 1 while the fold-equal rival falls to 3.
+    provider = Kotoshu::Suggestions::FrequencyProvider.new(
+      frequency_cache: FoldCache.new(payload: {
+                                       tiers: {
+                                         top_50: Set.new(%w[lương]),
+                                         top_200: Set.new(%w[lương luống]),
+                                         top_1000: Set.new(%w[lương luống])
+                                       },
+                                       full_list: %w[lương luống],
+                                       ranks: { "lương" => 1, "luống" => 2 }
+                                     })
+    )
+    vi = described_class.new(language_code: "vi", frequency_provider: provider)
+    ctx = Kotoshu::Suggestions::Context.new(word: "luốmg", dictionary: [], max_results: 5)
+    expect(vi.generate(ctx).to_words.first).to eq("luống")
+  end
+
   it "keeps folded ranking for the sanctioned languages' base codes only" do
     expect(described_class.new(language_code: "de").send(:fold_scoring?)).to be(true)
     expect(described_class.new(language_code: "sv").send(:fold_scoring?)).to be(true)
-    expect(described_class.new(language_code: "vi").send(:fold_scoring?)).to be(true)
     expect(described_class.new(language_code: "de-CH").send(:fold_scoring?)).to be(false)
+    expect(described_class.new(language_code: "vi").send(:fold_scoring?)).to be(false)
     expect(described_class.new(language_code: "pl").send(:fold_scoring?)).to be(false)
     expect(described_class.new(language_code: "fr").send(:fold_scoring?)).to be(false)
   end

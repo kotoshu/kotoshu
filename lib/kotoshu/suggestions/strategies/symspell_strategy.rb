@@ -111,11 +111,16 @@ module Kotoshu
           # Fold-scoped scoring (wave-2 verdict, TODO.sota-impl/11):
           # fold-equal distances are sanctioned only where the folded
           # distinction is orthographically optional — de (ß; its
-          # wave-2 #1 was fold-driven), sv (C9's named case), vi
-          # (dấu-optional informal typing). Everywhere else the rank
-          # distance runs on the RAW downcased strings: on Polish the
-          # ogonek fold promoted a-forms over ą-forms (bliższa over
-          # bliższą) and cost 26pp top-1 against the field lane.
+          # wave-2 #1 was fold-driven), sv (C9's named case). Everywhere
+          # else the rank distance runs on the RAW downcased strings:
+          # on Polish the ogonek fold promoted a-forms over ą-forms
+          # (bliższa over bliższą) and cost 26pp top-1 against the
+          # field lane, and vi — first sanctioned for dấu-optional
+          # informal typing — lost its wave-2 bench the same way: the
+          # fold merged tone-distinct candidates (lăng/làng both →
+          # lang) into frequency-decided ties and gave toneless words
+          # false 0-distances (kwán → kwan), 183 field-only top-1
+          # losses. Vietnamese dấu are discriminative in this ranking.
           # Folded DISCOVERY keys stay for every language; only the
           # ranking distance switches.
           typed_fold = fold_word(word_lower)
@@ -280,8 +285,10 @@ module Kotoshu
         # Languages where fold-equal RANKING is sanctioned (see the
         # scoring block in generate). Exact code match on purpose:
         # de-CH orthography drops ß entirely, so a base-code match
-        # would mis-sanction it.
-        FOLD_SCORING_LANGUAGES = %w[de sv vi].freeze
+        # would mis-sanction it. vi is deliberately absent: its wave-2
+        # bench showed the dấu fold inverting tone ranking the same way
+        # the ogonek fold inverted Polish.
+        FOLD_SCORING_LANGUAGES = %w[de sv].freeze
 
         private
 
