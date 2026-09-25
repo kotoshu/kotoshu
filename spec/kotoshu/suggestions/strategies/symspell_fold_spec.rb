@@ -42,6 +42,36 @@ RSpec.describe Kotoshu::Suggestions::Strategies::SymSpellStrategy, :diacritic_fo
     expect(suggestions_for("gejoscht").first).to eq("gelöscht")
   end
 
+  it "does not fold-equal ranking outside the sanctioned set (the pl ogonek verdict)" do
+    # The wave-2 pl bench: the fold promoted the a-form over the
+    # ą-form for a ą-typo (bliższa ahead of bliższą) — 26pp top-1
+    # against the field lane. Raw (downcased) scoring restores the
+    # true form to distance 1.
+    provider = Kotoshu::Suggestions::FrequencyProvider.new(
+      frequency_cache: FoldCache.new(payload: {
+                                       tiers: {
+                                         top_50: Set.new(%w[bliższą]),
+                                         top_200: Set.new(%w[bliższą bliższa]),
+                                         top_1000: Set.new(%w[bliższą bliższa])
+                                       },
+                                       full_list: %w[bliższą bliższa],
+                                       ranks: { "bliższą" => 1, "bliższa" => 2 }
+                                     })
+    )
+    pl = described_class.new(language_code: "pl", frequency_provider: provider)
+    ctx = Kotoshu::Suggestions::Context.new(word: "bliżsxą", dictionary: [], max_results: 5)
+    expect(pl.generate(ctx).to_words.first).to eq("bliższą")
+  end
+
+  it "keeps folded ranking for the sanctioned languages' base codes only" do
+    expect(described_class.new(language_code: "de").send(:fold_scoring?)).to be(true)
+    expect(described_class.new(language_code: "sv").send(:fold_scoring?)).to be(true)
+    expect(described_class.new(language_code: "vi").send(:fold_scoring?)).to be(true)
+    expect(described_class.new(language_code: "de-CH").send(:fold_scoring?)).to be(false)
+    expect(described_class.new(language_code: "pl").send(:fold_scoring?)).to be(false)
+    expect(described_class.new(language_code: "fr").send(:fold_scoring?)).to be(false)
+  end
+
   it "keeps fold-free English behavior unchanged" do
     provider = Kotoshu::Suggestions::FrequencyProvider.new(
       frequency_cache: FoldCache.new(payload: {
