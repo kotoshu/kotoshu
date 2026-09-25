@@ -29,7 +29,8 @@ module Kotoshu
       # separation rule - never script-mixed), so supports_resource? matches
       # them exactly, not by base language.
       KELLY_LANGUAGES = %w[ar zh en de el es fr it nl no pl pt ru sv
-                           zh-Hans-CN zh-Hant zh-Hant-TW ja].freeze
+                           zh-Hans-CN zh-Hant zh-Hant-TW ja
+                           vi ko zh-Hant-HK].freeze
 
       # GitHub repository for Kelly frequency lists
       GITHUB_REPO = "kotoshu/frequency-list-kelly"

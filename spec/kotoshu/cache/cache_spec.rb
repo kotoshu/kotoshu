@@ -262,6 +262,14 @@ RSpec.describe Kotoshu::Cache do
           .to eq("/tmp/shared-cache/frequency-lists/en/metadata.json")
       end
 
+      it "stages the S8-E4 frequency codes (vi, ko, zh-Hant-HK)" do
+        cache = Kotoshu::Cache::FrequencyCache.new(cache_path: "/tmp/shared-cache")
+        expect(cache.supports_resource?("vi")).to be(true)
+        expect(cache.supports_resource?("ko")).to be(true)
+        expect(cache.supports_resource?("zh-Hant-HK")).to be(true)
+        expect(cache.available_languages).to include("vi", "ko", "zh-Hant-HK")
+      end
+
       it "does not double-append when the path already ends in frequency-lists" do
         cache = described_class.new(cache_path: "/tmp/shared-cache/frequency-lists")
 
@@ -275,7 +283,7 @@ RSpec.describe Kotoshu::Cache do
         expect(described_class.const_get(:KELLY_LANGUAGES))
           .to contain_exactly("ar", "zh", "en", "de", "el", "es", "fr", "it", "nl",
                               "no", "pl", "pt", "ru", "sv", "zh-Hans-CN", "zh-Hant",
-                              "zh-Hant-TW", "ja")
+                              "zh-Hant-TW", "ja", "vi", "ko", "zh-Hant-HK")
       end
 
       it "GITHUB_REPO points at the kotoshu/frequency-list-kelly repo" do
