@@ -13,12 +13,12 @@ module Kotoshu
   #   bundle = Kotoshu::ResourceManager.resolve(language: "en")
   #   bundle.dictionary  # => #<Kotoshu::Dictionary::Hunspell ...>
   #   bundle.has_model?  # => false (model not requested)
+  # +language+ carries the REQUESTED code (region variants keep their
+  # full code: zh-Hant-HK stays zh-Hant-HK). Dictionary files resolve
+  # under the script-folded cache key; the exact code is what the
+  # suggest wiring must index the frequency list by.
   ResourceBundle = Struct.new(
-    :language,     # [String] The REQUESTED language code (region variants
-                   # keep their full code: zh-Hant-HK stays zh-Hant-HK).
-                   # Dictionary files resolve under the script-folded
-                   # cache key; the exact code is what the suggest
-                   # wiring must index the frequency list by.
+    :language,     # [String] Requested language code
     :dictionary,   # [Dictionary::Hunspell, nil] Spelling dictionary
     :frequency,    # [Object, nil] Frequency data (Kelly tiers)
     :model,        # [Object, nil] ONNX embedding model
