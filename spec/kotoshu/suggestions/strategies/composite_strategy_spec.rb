@@ -277,6 +277,45 @@ RSpec.describe Kotoshu::Suggestions::Strategies::CompositeStrategy do
       expect(result.to_words.first(sym_own.size)).to eq(sym_own)
     end
 
+    it "drops ranked-mode tail rows that echo a primary word (no duplicate slots)" do
+      # The zh-Hant-HK wave-2 probe: edit_distance/phonetic repeated
+      # primary entries and consumed half the limit
+      # (['資產','資產','資產']). The primary slate leads verbatim; the
+      # tail only fills slots with NEW words.
+      echoing = StubStrategy.new(name: :echo, words: %w[ihr ihrt]) # 'ihr' echoes the primary top-1
+      ranked_cache = Struct.new(:payload, keyword_init: true) do
+        def cached_data?(_code) = true
+        def load_cached(_code) = payload
+      end
+      provider = Kotoshu::Suggestions::FrequencyProvider.new(
+        frequency_cache: ranked_cache.new(payload: {
+                                            tiers: {
+                                              top_50: Set.new(%w[ihr]),
+                                              top_200: Set.new(%w[ihr irrt]),
+                                              top_1000: Set.new(%w[ihr irrt])
+                                            },
+                                            full_list: %w[ihr irrt],
+                                            ranks: { "ihr" => 1, "irrt" => 2 }
+                                          })
+      )
+      symspell = Kotoshu::Suggestions::Strategies::SymSpellStrategy.new(
+        language_code: "de", frequency_provider: provider
+      )
+      composite = described_class.new(
+        name: :pipeline, strategies: [echoing, symspell]
+      )
+      ctx = Kotoshu::Suggestions::Context.new(
+        word: "ihrt", dictionary: %w[ihr irrt], max_results: 5
+      )
+
+      result = composite.generate(ctx)
+
+      words = result.to_words
+      expect(words.first).to eq("ihr") # primary leads verbatim
+      expect(words.tally.fetch(words.first, 0)).to eq(1)
+      expect(words.uniq.size).to eq(words.size)
+    end
+
     it "deduplicates across strategies when no SymSpellStrategy is present" do
       a = StubStrategy.new(name: :a, words: %w[hello])
       b = StubStrategy.new(name: :b, words: %w[hello])

@@ -182,7 +182,15 @@ module Kotoshu
           primary = strategies[order]
           tail = strategies[0...order] + strategies[(order + 1)..-1]
           primary_slate = primary ? primary.generate(context).suggestions : []
+          # The primary slate leads verbatim (its order is the product
+          # decision); the tail may only FILL remaining slots, so a tail
+          # row for a word the slate already carries is dropped — the
+          # zh-Hant-HK wave-2 probe showed edit_distance/phonetic
+          # echoes of primary entries consuming half the limit
+          # (['資產','資產','資產'] under a 5-suggestion limit).
+          seen = primary_slate.map { |s| s.word.downcase }.to_set
           tail_slate = tail.flat_map { |s| s.generate(context).suggestions }
+            .select { |s| seen.add?(s.word.downcase) }
           merged = primary_slate + tail_slate
           SuggestionSet.new(merged, max_size: context.max_results, ranked: true)
         end
@@ -214,3 +222,5 @@ module Kotoshu
     end
   end
 end
+
+require "set" if RUBY_VERSION < "3.0"
