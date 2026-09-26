@@ -200,4 +200,50 @@ RSpec.describe Kotoshu::Suggestions::FrequencyProvider do
       end
     end
   end
+
+  describe 'variant-code cascade (exact → script-fold → base)' do
+    # Per-code fake: the real cache serves whole payloads keyed by the
+    # exact code; a miss returns nil (house rule — no rspec doubles).
+    CodeKeyedCache = Struct.new(:lists, keyword_init: true) do
+      def cached_data?(code) = lists.key?(code)
+      def load_cached(code)  = lists[code]
+    end
+
+    def payload(words)
+      {
+        tiers: {
+          top_50: Set.new(words.first(1)),
+          top_200: Set.new(words),
+          top_1000: Set.new(words)
+        },
+        full_list: words,
+        ranks: words.each_with_index.to_h { |w, i| [w, i + 1] }
+      }
+    end
+
+    it 'indexes the exact variant-pure list when one exists' do
+      cache = CodeKeyedCache.new(lists: {
+                                   'zh-Hant' => payload(%w[hant_word]),
+                                   'zh-Hant-HK' => payload(%w[hk_word]),
+                                   'zh' => payload(%w[mixed_word])
+                                 })
+      provider = described_class.new(frequency_cache: cache)
+      expect(provider.full_list_for('zh-Hant-HK')).to eq(%w[hk_word])
+    end
+
+    it 'falls to the script-folded list before the script-mixed base (the zh separation rule)' do
+      cache = CodeKeyedCache.new(lists: {
+                                   'zh-Hant' => payload(%w[hant_word]),
+                                   'zh' => payload(%w[mixed_word])
+                                 })
+      provider = described_class.new(frequency_cache: cache)
+      expect(provider.full_list_for('zh-Hant-HK')).to eq(%w[hant_word])
+    end
+
+    it 'keeps the plain base-code fallback for region-only codes (en-US → en)' do
+      cache = CodeKeyedCache.new(lists: { 'en' => payload(%w[base_word]) })
+      provider = described_class.new(frequency_cache: cache)
+      expect(provider.full_list_for('en-US')).to eq(%w[base_word])
+    end
+  end
 end

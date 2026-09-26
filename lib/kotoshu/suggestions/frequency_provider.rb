@@ -73,18 +73,32 @@ module Kotoshu
       end
 
       # Lookup cascade: exact code first ("zh-Hant-TW" has its own
-      # variant-pure list), then the BCP-47 base ("en-US" → "en" —
-      # the default Configuration language must find the base list).
-      # Memoized under the ORIGINAL key so repeated calls stay free.
+      # variant-pure list), then the script-folded base ("zh-Hant-HK"
+      # with no exact list falls to zh-Hant, never straight to the
+      # script-mixed zh list — the zh separation rule), then the
+      # BCP-47 base ("en-US" → "en" — the default Configuration
+      # language must find the base list). Memoized under the ORIGINAL
+      # key so repeated calls stay free.
       def load(language_code)
         code = language_code.to_s
-        base = code.split("-").first
-        ([code, base].uniq - [nil, ""]).each do |candidate|
+        ([code, script_fold(code), code.split("-").first].uniq - [nil, ""]).each do |candidate|
           data = load_exact(candidate)
           return data if data
         end
 
         EMPTY_DATA
+      end
+
+      # Base language plus the BCP-47 four-letter script subtag when
+      # one is present (the same key shape the resource caches use).
+      # Region subtags drop: zh-Hans-CN's script-fold candidate is
+      # zh-Hans.
+      def script_fold(code)
+        parts = code.split("-")
+        subtag = parts[1]
+        return parts.first unless subtag&.match?(/\A[A-Za-z]{4}\z/)
+
+        "#{parts.first.downcase}-#{subtag.downcase.capitalize}"
       end
 
       def load_exact(language_code)

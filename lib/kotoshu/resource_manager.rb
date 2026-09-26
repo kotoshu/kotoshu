@@ -234,10 +234,28 @@ module Kotoshu
     #   cached and `tier: :any` cannot disambiguate
     def resolve(language:, want: DEFAULT_WANT, tier: nil)
       lang = normalize_language(language)
+      requested = language.to_s
       effective_tier = effective_tier(tier)
 
       spelling_dict = want.include?(:spelling) ? resolve_spelling_cached(lang) : nil
-      frequency_data = want.include?(:frequency) ? resolve_frequency_cached(lang) : nil
+      frequency_data =
+        if want.include?(:frequency)
+          # The kelly repo stages variant-pure lists under exact codes
+          # (zh-Hant-HK, zh-Hant-TW, zh-Hans-CN); the script-folded key
+          # answers only when no exact list exists. The bundle carries
+          # the REQUESTED code so the suggest wiring indexes the exact
+          # list — the script-base fold stays a dictionary-cache
+          # concern (no zh-Hant-HK hunspell exists upstream, but its
+          # kelly list does).
+          probe = frequency_cache_for
+          if probe.supports_resource?(requested) && probe.cached_data?(requested)
+            resolve_frequency_cached(requested)
+          else
+            resolve_frequency_cached(lang)
+          end
+        else
+          nil
+        end
       model = if want.include?(:model)
                 resolve_model_cached(lang, tier: effective_tier, from_default: tier.nil?)
               else
@@ -245,7 +263,7 @@ module Kotoshu
               end
 
       ResourceBundle.new(
-        language: lang,
+        language: requested,
         dictionary: spelling_dict,
         frequency: frequency_data,
         model: model,
