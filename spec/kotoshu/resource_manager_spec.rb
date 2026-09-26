@@ -46,6 +46,21 @@ RSpec.describe Kotoshu::ResourceManager do
         expect(err.language).to eq("en")
       end
     end
+
+    it "carries the requested region code on the bundle and resolves the exact variant list" do
+      # The zh-Hant-HK wiring bug: the bundle used to carry the folded
+      # zh-Hant code, so the suggest strategy indexed the zh-Hant kelly
+      # list and never saw the variant-pure HK anchors.
+      freq_file = File.join(temp_cache_dir, "hk-fixture.json")
+      File.write(freq_file, JSON.dump({ "full_list" => [{ "word" => "hk_anchor", "rank" => 1 }] }))
+      Kotoshu::Cache::FrequencyCache.new(cache_path: temp_cache_dir)
+                                    .install_local("zh-Hant-HK", path: freq_file)
+
+      bundle = described_class.resolve(language: "zh-Hant-HK", want: %i[frequency])
+
+      expect(bundle.language).to eq("zh-Hant-HK")
+      expect(bundle.frequency[:full_list]).to eq(["hk_anchor"])
+    end
   end
 
   describe "expired-but-present caches (plan 140)" do
