@@ -54,7 +54,7 @@ RSpec.describe Kotoshu::ResourceManager do
       freq_file = File.join(temp_cache_dir, "hk-fixture.json")
       File.write(freq_file, JSON.dump({ "full_list" => [{ "word" => "hk_anchor", "rank" => 1 }] }))
       Kotoshu::Cache::FrequencyCache.new(cache_path: temp_cache_dir)
-                                    .install_local("zh-Hant-HK", path: freq_file)
+        .install_local("zh-Hant-HK", path: freq_file)
 
       bundle = described_class.resolve(language: "zh-Hant-HK", want: %i[frequency])
 
