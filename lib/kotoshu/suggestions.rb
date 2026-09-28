@@ -15,6 +15,22 @@ module Kotoshu
     autoload :SweepIndex, "kotoshu/suggestions/sweep_index"
     autoload :TypoMerge, "kotoshu/suggestions/typo_merge"
 
+    # Vowelless-script marks (interscript P0): Arabic haraqat and
+    # Hebrew niqqud are combining marks the unvocalized dictionaries
+    # never carry. They fold away (SymSpellStrategy#fold_word) and are
+    # stripped at the Generator ingress before any distance — like
+    # downcasing, not scoring. Inert for scripts without these marks.
+    # Escapes-only on one line with no /x flag: an extended-mode
+    # reformat once folded a literal newline+space INTO the class,
+    # which made the ingress strip spaces from every input.
+    # Presentation-form ligatures (U+FEF5-FEFB) are NOT handled:
+    # keyboards emit the decomposed pair; noted for a later pass.
+    # rubocop:disable Layout/LineLength -- a wrapped/multiline class once
+    # folded literal whitespace INTO the ranges (space got stripped
+    # from every input); this literal stays on one line.
+    VOWELLESS_MARKS = /[\u0591-\u05bd\u05bf\u05c1\u05c2\u05c4\u05c5\u05c7\u064b-\u065f\u0670]/
+    # rubocop:enable Layout/LineLength
+
     # Strategies sub-namespace.
     module Strategies
       autoload :BaseStrategy, "kotoshu/suggestions/strategies/base_strategy"

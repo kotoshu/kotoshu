@@ -360,6 +360,12 @@ module Kotoshu
         # substitutions cost 0 in candidate ranking (plan C9). Swedish
         # å/ä/ö fold too; the risk is bounded because suggestions are
         # only computed for out-of-vocabulary inputs.
+        #
+        # Vowelless-script marks fold away entirely \u2014 the shared
+        # {Suggestions::VOWELLESS_MARKS} ranges (interscript P0): a
+        # vocalized input must fold to its unvocalized twin or every
+        # discovery distance breaks.
+
         def fold_word(word)
           s = word.to_s.downcase
           s = s.dup.force_encoding(Encoding::UTF_8) if s.encoding != Encoding::UTF_8
@@ -367,6 +373,7 @@ module Kotoshu
 
           s.chars.flat_map do |ch|
             next FOLD_EXCEPTIONS[ch] if FOLD_EXCEPTIONS.key?(ch)
+            next [] if VOWELLESS_MARKS.match?(ch)
 
             decomp = ch.unicode_normalize(:nfd)
             stripped = decomp.gsub(/[\u0300-\u036f]/, "")

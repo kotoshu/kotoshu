@@ -56,6 +56,16 @@ module Kotoshu
       def generate(word, max_suggestions: nil)
         return SuggestionSet.empty if word.nil? || word.empty?
 
+        # Input normalization for vowelless scripts (interscript P0):
+        # Arabic haraqat and Hebrew niqqud are stripped at ingress —
+        # like downcasing, not scoring. The dictionaries are
+        # unvocalized, so raw distances from a vocalized input
+        # (مُحَمَّد, three haraqat) exceed the edit budget before the
+        # fold-equal twin is ever scored; suggest() returned [] for
+        # correctly-vocalized words. Inert for scripts without these
+        # marks.
+        word = word.gsub(VOWELLESS_MARKS, "")
+
         context = Context.new(
           word: word,
           dictionary: @dictionary,
