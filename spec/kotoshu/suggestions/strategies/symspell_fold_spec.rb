@@ -110,4 +110,50 @@ RSpec.describe Kotoshu::Suggestions::Strategies::SymSpellStrategy, :diacritic_fo
     ctx = Kotoshu::Suggestions::Context.new(word: "helo", dictionary: [], max_results: 5)
     expect(en.generate(ctx).to_words.first).to eq("hello")
   end
+
+  it "folds Arabic haraqat and Hebrew niqqud away (interscript P0)" do
+    strategy = described_class.new(language_code: "ar")
+    expect(strategy.send(:fold_word, "مُحَمَّد")).to eq(strategy.send(:fold_word, "محمد"))
+    expect(strategy.send(:fold_word, "סֵפֶר")).to eq(strategy.send(:fold_word, "ספר"))
+  end
+
+  it "normalizes vowelless marks at the generator ingress so vocalized typos suggest" do
+    # The live reproducer: suggest(وَااذكر) returned [] before the
+    # ingress strip — three haraqat of raw distance exhausted the edit
+    # budget before the fold-equal twin scored.
+    provider = Kotoshu::Suggestions::FrequencyProvider.new(
+      frequency_cache: FoldCache.new(payload: {
+                                       tiers: {
+                                         top_50: Set.new(%w[والذكر]),
+                                         top_200: Set.new(%w[والذكر واذكر]),
+                                         top_1000: Set.new(%w[والذكر واذكر واتذكر])
+                                       },
+                                       full_list: %w[والذكر واذكر واتذكر],
+                                       ranks: { "والذكر" => 1, "واذكر" => 2, "واتذكر" => 3 }
+                                     })
+    )
+    ar = described_class.new(language_code: "ar", frequency_provider: provider)
+    plain = Kotoshu::Suggestions::Context.new(word: "وااذكر", dictionary: [], max_results: 5)
+    vocalized = Kotoshu::Suggestions::Context.new(word: "وَااذكِر", dictionary: [], max_results: 5)
+    # Strategy-level: the raw vocalized word keeps its marks (the
+    # ingress normalization is the Generator's job, not the
+    # strategy's) — but the folded DISCOVERY keys still find the
+    # target family.
+    expect(ar.generate(vocalized).to_words).to include("والذكر")
+    # The product contract: through the generator, the vocalized typo
+    # produces the identical slate to its unvocalized twin.
+    gen = Kotoshu::Suggestions::Generator.new(
+      %w[والذكر واذكر واتذكر],
+      language_code: "ar", frequency_provider: provider
+    )
+    expect(gen.generate("وَااذكِر").to_words).to eq(gen.generate("وااذكر").to_words)
+    expect(gen.generate("وَااذكِر").to_words).to include("والذكر")
+  end
+
+  it "keeps the generator ingress inert for scripts without vowelless marks" do
+    gen = Kotoshu::Suggestions::Generator.new(%w[hello help])
+    expect { gen.generate("Gelöscht") }.not_to raise_error
+    fold_spec_words = gen.generate("helo").to_words
+    expect(fold_spec_words).to include("hello")
+  end
 end
