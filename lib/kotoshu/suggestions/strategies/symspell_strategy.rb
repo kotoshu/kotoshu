@@ -310,7 +310,7 @@ module Kotoshu
         # would mis-sanction it. vi is deliberately absent: its wave-2
         # bench showed the dấu fold inverting tone ranking the same way
         # the ogonek fold inverted Polish.
-        FOLD_SCORING_LANGUAGES = %w[de sv].freeze
+        FOLD_SCORING_LANGUAGES = %w[].freeze
 
         private
 
