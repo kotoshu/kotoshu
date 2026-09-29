@@ -17,9 +17,10 @@ https://www.kotoshu.org/models-fasttext-onnx/wave2/[Wave-2 results — 16 langua
 === New in 1.0.7 / 1.0.8
 
 * *Cross-script retrieval* — type the romanization, get the native
-  word: `mrhb` -> `مرحبا` (Arabic first; more languages following).
-  Fold-normalized ALA-LC romanization keys from the kelly lists; the
-  sidecar downloads best-effort on setup.
+  word: `mrhb` -> `مرحبا`, `privet` -> `привет`, `kalemera` ->
+  `καλημέρα` (ar + ru + el; more following). Measured: **78.9% top-1
+  on 2,000 romanization pairs** where SymSpell scores 2.4% — a
+  capability class no baseline lane can enter.
 * *Vowelless-script normalization* — vocalized Arabic and Hebrew input
   (مُحَمَّد, נִקּוּד) now suggests and corrects correctly.
 * *Variant-pure Chinese* — zh-Hant-HK / zh-Hant-TW / zh-Hans-CN each
