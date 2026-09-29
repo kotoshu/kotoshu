@@ -6,12 +6,28 @@ image:https://github.com/kotoshu/kotoshu/actions/workflows/main.yml/badge.svg["C
 
 == Status
 
-Kotoshu is **v0.3.0** — building on the 0.2 cut, this release adds a strict
-two-stage resource model (explicit `setup`, cache-only hot path), XDG base
-directory layout, SHA-256 integrity verification, SARIF output, an
-`--interactive` review loop, and ONNX model pipeline wiring.
+Kotoshu is **v1.0.8**. The wave-2 benchmark program is closed: across
+16 languages, kotoshu matches or beats the strongest open word-level
+baselines — Hunspell and SymSpell over the same published frequency
+lists — on nonword top-1, and is the only engine with realword signal
+in most of them (Arabic 26.5 vs 0.0, German 17.0 vs 0.0, Spanish 14.0
+vs 0.0). Every number is a committed frozen report; the full matrix:
+https://www.kotoshu.org/models-fasttext-onnx/wave2/[Wave-2 results — 16 languages, 16 wins]
 
-=== What works in 0.3
+=== New in 1.0.7 / 1.0.8
+
+* *Cross-script retrieval* — type the romanization, get the native
+  word: `mrhb` -> `مرحبا` (Arabic first; more languages following).
+  Fold-normalized ALA-LC romanization keys from the kelly lists; the
+  sidecar downloads best-effort on setup.
+* *Vowelless-script normalization* — vocalized Arabic and Hebrew input
+  (مُحَمَّد, נִקּוּד) now suggests and corrects correctly.
+* *Variant-pure Chinese* — zh-Hant-HK / zh-Hant-TW / zh-Hans-CN each
+  rank their own vocabulary; no script- or region-mixed lists.
+* *Cleaner slates* — suggestions no longer repeat the same word from
+  multiple strategies.
+
+=== What works (carried from 0.3)
 
 * Two-stage resource model — `Kotoshu.setup(:en)` then `Kotoshu.correct?("hello")`. The hot path is cache-only and raises `ResourceNotSetupError` on miss; downloads are never implicit.
 * `Kotoshu.check(text, language: "en")` / `Kotoshu.suggest("helo")` — full document check and suggestions
