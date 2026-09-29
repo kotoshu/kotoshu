@@ -103,6 +103,25 @@ module Kotoshu
 
           candidates.delete(word_lower)
 
+          # Cross-script retrieval (the romanization sidecar): a
+          # Latin-typed query on a non-Latin language reaches native
+          # words through fold-normalized romanization keys (mrhb ->
+          # مرحبا). Exact key ranks as a strong match (1); its
+          # single-deletion neighborhood (mrhaba -> mrhb) as 2. No
+          # frequency-list baseline can do this at all.
+          translit_hits = {}
+          if @translit && !@translit.empty? &&
+              word_lower.ascii_only? && word_lower.match?(/[a-z]/)
+            (@translit[word_lower] || []).each { |w| translit_hits[w] ||= 1 }
+            word_lower.length.times do |i|
+              v = word_lower[0...i] + word_lower[(i + 1)..]
+              next if v.empty?
+
+              (@translit[v] || []).each { |w| translit_hits[w] ||= 2 }
+            end
+            translit_hits.each_key { |w| candidates.add(w) }
+          end
+
           # TRUE edit distance per candidate (with early exit) — the
           # deletion-level approximation misranked same-distance words
           # and cost 18pp of English top-1 (plan C6/C9). Sort by
@@ -125,7 +144,9 @@ module Kotoshu
           # ranking distance switches.
           typed_fold = fold_word(word_lower)
           scored = candidates.filter_map do |cand|
-            dist = if fold_scoring?
+            dist = if (td = translit_hits[cand])
+                     td
+                   elsif fold_scoring?
                      cand_fold = @folded_words&.[](cand) || fold_word(cand)
                      folded_distance(typed_fold, cand_fold, max_dist + 1)
                    else
@@ -192,6 +213,7 @@ module Kotoshu
           if freq_words && !freq_words.empty?
             @dictionary = freq_words
             @ranks = @frequency_provider.ranks_for(@language_code)
+            @translit = @frequency_provider.translit_for(@language_code)
           elsif @dictionary.nil?
             @dictionary = context.dictionary
           end

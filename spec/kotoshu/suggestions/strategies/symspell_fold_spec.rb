@@ -156,4 +156,31 @@ RSpec.describe Kotoshu::Suggestions::Strategies::SymSpellStrategy, :diacritic_fo
     fold_spec_words = gen.generate("helo").to_words
     expect(fold_spec_words).to include("hello")
   end
+
+  it "retrieves native words for Latin input through the romanization sidecar" do
+    # The cross-script channel: type mrhb, get مرحبا. Exact key ranks
+    # first; no frequency-list baseline can do this at all.
+    translit_cache = Struct.new(:payload, keyword_init: true) do
+      def cached_data?(_code) = true
+      def load_cached(_code) = payload
+    end
+    provider = Kotoshu::Suggestions::FrequencyProvider.new(
+      frequency_cache: translit_cache.new(payload: {
+                                            tiers: { top_50: Set.new(%w[مرحبا]), top_200: Set.new(%w[مرحبا مرحب]),
+                                                     top_1000: Set.new(%w[مرحبا مرحب رهب]) },
+                                            full_list: %w[مرحبا مرحب رهب],
+                                            ranks: { "مرحبا" => 1, "مرحب" => 2, "رهب" => 3 },
+                                            translit: { "mrhb" => %w[مرحبا مرحب], "rhb" => %w[رهب] }
+                                          })
+    )
+    ar = described_class.new(language_code: "ar", frequency_provider: provider)
+    ctx = Kotoshu::Suggestions::Context.new(word: "mrhb", dictionary: [], max_results: 5)
+    slate = ar.generate(ctx).to_words
+    expect(slate.first).to eq("مرحبا")
+    expect(slate).to include("مرحب")
+
+    # Native-script input is untouched by the channel
+    native = Kotoshu::Suggestions::Context.new(word: "مرحبا", dictionary: [], max_results: 5)
+    expect { ar.generate(native) }.not_to raise_error
+  end
 end

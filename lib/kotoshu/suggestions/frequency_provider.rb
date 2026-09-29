@@ -58,6 +58,12 @@ module Kotoshu
         data_for(language_code)[:full_list]
       end
 
+      # Optional romanization sidecar (kelly {lang}.translit.json):
+      # fold-normalized Latin key -> native words. Empty when absent.
+      def translit_for(language_code)
+        data_for(language_code)[:translit] || {}
+      end
+
       # word.downcase => rank (1 = most frequent). Empty when unknown.
       #
       # @param language_code [String]
@@ -107,7 +113,8 @@ module Kotoshu
           return {
             tiers: cache_result[:tiers],
             full_list: cache_result[:full_list] || [],
-            ranks: cache_result[:ranks] || {}
+            ranks: cache_result[:ranks] || {},
+            translit: cache_result[:translit] || {}
           }
         end
 
