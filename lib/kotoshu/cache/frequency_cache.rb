@@ -146,13 +146,19 @@ module Kotoshu
         # CommonWordsLoader autoloaded via Kotoshu::Data
         data = Data::CommonWordsLoader.load_from_frequency_file(frequency_file)
 
-        {
+        payload = {
           frequency_path: frequency_file,
           tiers: data[:tiers],
           metadata: metadata,
           full_list: data[:full_list] || [],
           ranks: data[:ranks] || {}
         }
+        # Optional transliteration sidecar ({lang}/translit.json — the
+        # kelly repo's romanization retrieval keys): fold-normalized
+        # Latin key -> native words. Absent for most languages.
+        translit_file = File.join(language_dir(language_code), "translit.json")
+        payload[:translit] = JSON.parse(File.read(translit_file)) if File.exist?(translit_file)
+        payload
       end
 
       protected
@@ -195,6 +201,19 @@ module Kotoshu
           cached_at: Time.now.utc.iso8601
         }
         write_metadata(metadata_path, metadata)
+
+        # Best-effort romanization sidecar (the kelly repo's
+        # {lang}.translit.json): consumed by the cross-script
+        # suggestion channel. Absent for most languages — a 404 is
+        # not an error, the channel simply stays inert.
+        begin
+          translit_url = "https://raw.githubusercontent.com/#{GITHUB_REPO}/#{GITHUB_BRANCH}/data/#{language_code}.translit.json"
+          translit_response = download_url(translit_url)
+          JSON.parse(translit_response)
+          File.binwrite(File.join(dest_path, "translit.json"), translit_response)
+        rescue StandardError
+          nil
+        end
 
         # Load and return the data
         load_cached(language_code)
