@@ -1,66 +1,54 @@
-# 9 — Neural GEC tagger (GECToR distillation — the SOTA push)
+# 9 — Neural grammar: GECToR tagger distilled FROM a BART/T5 teacher
 
-## What GECToR does
+The neural layer is the core of context-dependent grammar correction,
+not an optional extra. Rules catch local patterns; agreement across
+intervening phrases, tense sequences, and word order need a model
+that sees the whole sentence. And detection alone is not a product —
+the checker must produce the CORRECT correction, which is generation.
 
-GECToR (Omelianchuk et al., 2020) tags each token with a correction
-label instead of generating the full corrected sentence:
+## Why the tagger, not seq2seq, is what we ship
 
-- $KEEP (no change)
-- $APPEND_word (insert after this token)
-- $DELETE (remove this token)
-- $REPLACE_word (replace with word)
-- $MERGE_WITH_NEXT (combine tokens)
+| model | P | R | F0.5 | size | latency | client-side |
+|---|---|---|---|------|---------|-------------|
+| BART-large (fine-tuned GEC) | ~75 | ~53 | ~69 | ~1.6 GB | ~500 ms | no |
+| T5-11B | ~82 | ~55 | ~74.6 | ~42 GB | seconds | no |
+| GECToR-XLNet | ~72 | ~33 | ~58 | ~350 MB | ~50 ms | borderline |
+| **GECToR distilled, int8** | ~68 | ~31 | ~53 | **~50 MB** | **~20 ms** | **yes** |
 
-Iterative refinement: apply tags, re-tag, repeat until stable
-(usually 2-3 iterations). This is faster than seq2seq and works
-client-side when quantized.
+- BART/T5 are the TEACHERS: highest accuracy, cloud-scale only.
+- The GECToR tagger IS a correction generator — per-token tags
+  ($KEEP, $REPLACE_were, $APPEND_the, $DELETE, $MERGE_A_SPACES_B) —
+  decoded iteratively (2-3 passes). It sees the full sentence through
+  the transformer encoder, so it captures context-dependent grammar,
+  and its corrections come out as concrete strings.
+- Distillation: train the small tagger on a large teacher's OUTPUT
+  (pseudo-corrections of raw text) plus the BEA-2019/W&I+LOCNESS gold
+  data. The teacher's knowledge flows in; the tagger's size stays.
 
-## Academic SOTA reference
+## Pipeline
 
-| model | test set | P | R | F0.5 | size | speed |
-|-------|----------|---|---|------|------|-------|
-| GECToR-RoBERTa | BEA-2019 | 77.9 | 40.2 | 65.3 | ~350 MB | ~50ms |
-| GECToR-XLNet | CoNLL-14 | 71.9 | 33.3 | 58.1 | ~350 MB | ~50ms |
-| T5-11B | BEA-2019 | 82.1 | 55.2 | 74.6 | ~42 GB | ~500ms |
-| GPT-4 (few-shot) | BEA-2019 | ~85 | ~60 | ~78 | cloud | seconds |
-| **GECToR int8 distilled** | BEA-2019 | ~72 | ~35 | ~56 | **~50 MB** | **~20ms** |
+1. Teacher: a fine-tuned BART-large GEC checkpoint (public HuggingFace)
+2. Training data: BEA-2019 (W&I+LOCNESS, public) + teacher
+   pseudo-labels on raw corpora
+3. Student: distilroberta-sized tagger (66-83M params)
+4. int8 quantization → ONNX (our existing converter + runtime)
+5. Serve as `models/{lang}/gec-taggers.onnx` through the existing
+   model cache; the neural layer plugs into the checker as a strategy
 
-Our target: the distilled row — client-side, fast, within 10 points
-of the best cloud model.
+## Three-API surface
 
-## Distillation pipeline
+- Ruby: onnxruntime (existing soft dependency)
+- Rust: ort/onnxruntime crate — same model file
+- TS: onnxruntime-web WASM with int8 (fits the memory ceiling)
 
-1. **Train**: fine-tune a small transformer (e.g. distilroberta-base,
-   66M params) on the BEA-2019 + W&I+LOCNESS training data
-2. **Distill**: knowledge distill from a larger teacher (roberta-large)
-3. **Quantize**: int8 dynamic quantization (our existing ONNX pipeline)
-4. **Export**: ONNX (our existing converter infrastructure)
-5. **Serve**: the existing kotoshu model cache + ONNX runtime
+## Acceptance
 
-## What we already have
+- en F0.5 ≥ 50 on BEA-2019 test (tagger-distilled, int8)
+- latency ≤ 25 ms/sentence client-side
+- every flagged error carries a concrete correction string
+- rules run first; the tagger fires on the residual (hybrid)
 
-- ONNX export infrastructure: ✅ (used for fasttext models)
-- int8 quantization: ✅ (TODO.sota/6 quantize_lane.py)
-- The model cache + registry: ✅ (serves 57 languages)
-- The suggestion pipeline: ✅ (the neural layer plugs in as a strategy)
+## Status
 
-## What we need
-
-- Training data: BEA-2019 + W&I+LOCNESS (~34k annotated sentences, public)
-- Training compute: Modal GPU (A10G, ~$0.10-0.50/run)
-- Teacher model: roberta-large fine-tuned on GEC (available on HuggingFace)
-- Student model: distilroberta-base or a custom small architecture
-
-## Implementation order
-
-1. English first (the BEA-2019 training data is public)
-2. The model ships as `models/en/fasttext.en.gector.onnx`
-3. Multi-language: either per-language models or one multilingual model
-   (mBERT/XLM-R distilled — larger but covers more languages)
-
-## The three-API path
-
-- **Ruby**: the ONNX runtime (existing infrastructure)
-- **Rust**: the tract/onnxruntime crate (same model file)
-- **TS**: WASM with onnxruntime-web (int8 quantized, under the memory
-  ceiling since GECToR models are small)
+NOT STARTED. Prerequisite: TODO.grammar/2 rule coverage for the
+residual definition, then training on Modal (A10G, existing infra).
