@@ -83,7 +83,7 @@ class ErrorInjector
     corrupted = tokens.dup
     edits = []
     tokens.each_with_index do |tok, idx|
-      CLASSES.each_value do |variants|
+      CLASSES.each do |class_name, variants|
         next unless @rng.rand < 0.55
 
         variants.each do |(pattern, replacer, probability)|
@@ -99,7 +99,7 @@ class ErrorInjector
           next if replacement.nil? || replacement.empty?
 
           corrupted[idx] = replacement
-          edits << { src_idx: idx, tgt_idx: idx, src: tok, tgt: replacement }
+          edits << { src_idx: idx, tgt_idx: idx, src: tok, tgt: replacement, class: class_name.to_s }
         end
       end
     end

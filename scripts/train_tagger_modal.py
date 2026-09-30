@@ -27,7 +27,7 @@ import modal
 
 SIZE_BUDGET_MB = 200
 BASE_MODEL = "distilroberta-base"  # 6-layer, 82M params; int8 ~ 85 MB
-EPOCHS = 6
+EPOCHS = 4
 LR = 1e-4
 BATCH = 16
 MAX_LEN = 96
@@ -48,26 +48,65 @@ image = (
 app = modal.App("kotoshu-gec-tagger")
 
 
-def build_label_vocab(rows: list[dict]) -> dict[str, int]:
-    """GECToR-style labels from the injector's edits: $KEEP, $DELETE,
-    $REPLACE_<tok>, $APPEND_<tok> (top-K replaces by frequency)."""
-    from collections import Counter
+# Closed error-class taxonomy (mirrors lib/kotoshu/grammar/rules/en):
+# the tagger DETECTS which token carries which error class; the RULES
+# generate the concrete fix. Open-vocab $REPLACE_<word> labels were
+# measured NOT to converge (0% end-to-end at 3k AND 27k pairs — the
+# replacement set is the open vocabulary of clean words).
+CLOSED_LABELS = [
+    "$AGREEMENT_3SG",      # walks -> walk (plural/1st subject)
+    "$AGREEMENT_WAS_WERE", # was <-> were
+    "$AGREEMENT_MODAL_OF", # would have -> would of
+    "$CAPITALIZATION",     # I -> i
+    "$ARTICLE",            # a <-> an
+    "$DETERMINER_NUMBER",  # this <-> these
+    "$SPELLING",           # letter doubled/dropped
+]
 
-    replaces = Counter()
-    for row in rows:
-        for edit in row["edits"]:
-            if edit["tgt"] is None:
-                replaces[f"$DELETE"] += 1
-            else:
-                replaces[f"$REPLACE_{edit['tgt']}"] += 1
+
+def build_label_vocab(rows: list[dict]) -> dict[str, int]:
+    """Closed-class labels: $KEEP plus one label per injector error
+    class (edit['class'] when present; legacy files fall back to
+    classifying by the edit's source/target pair)."""
     labels = {"$KEEP": 0}
-    for label, _ in replaces.most_common(4000):
+    for label in CLOSED_LABELS:
         labels[label] = len(labels)
     return labels
 
 
+def closed_label_for(edit: dict) -> str:
+    cls = edit.get("class")
+    mapping = {
+        "verb_3sg_to_base": "$AGREEMENT_3SG",
+        "was_were": "$AGREEMENT_WAS_WERE",
+        "modal_of": "$AGREEMENT_MODAL_OF",
+        "capitalization": "$CAPITALIZATION",
+        "article_swap": "$ARTICLE",
+        "this_these": "$DETERMINER_NUMBER",
+        "letter_tweak": "$SPELLING",
+    }
+    if cls in mapping:
+        return mapping[cls]
+    # legacy (class-less) files: infer
+    src, tgt = edit.get("src", ""), edit.get("tgt", "") or ""
+    if src.lower() == "i":
+        return "$CAPITALIZATION"
+    if {src.lower(), tgt.lower()} == {"was", "were"}:
+        return "$AGREEMENT_WAS_WERE"
+    if tgt.lower() == "of" or src.lower() == "of":
+        return "$AGREEMENT_MODAL_OF"
+    if {src.lower(), tgt.lower()} <= {"a", "an"}:
+        return "$ARTICLE"
+    if {src.lower(), tgt.lower()} <= {"this", "these"}:
+        return "$DETERMINER_NUMBER"
+    if tgt and src.lower().rstrip("s") == tgt.lower().rstrip("s") and src.lower().endswith("s"):
+        return "$AGREEMENT_3SG"
+    return "$SPELLING"
+
+
 def row_to_labels(row: dict, word_list: list[str], labels: dict[str, int]) -> list[int]:
-    """Per-word label ids: default $KEEP, edits override."""
+    """Per-word label ids: default $KEEP, edits override with their
+    CLOSED class label."""
     by_src = {edit["src_idx"]: edit for edit in row["edits"]}
     out = []
     for idx in range(len(word_list)):
@@ -75,24 +114,25 @@ def row_to_labels(row: dict, word_list: list[str], labels: dict[str, int]) -> li
         if edit is None:
             out.append(labels["$KEEP"])
         else:
-            tgt = edit.get("tgt")
-            label = "$DELETE" if tgt is None else f"$REPLACE_{tgt}"
-            out.append(labels.get(label, labels["$KEEP"]))
+            out.append(labels.get(closed_label_for(edit), labels["$KEEP"]))
     return out
 
 
 def evaluate(model, tokenizer, labels: dict, dev_path: str):
-    """Held-out accuracy on sentence-disjoint injected pairs: token
-    label exact-match, and end-to-end correction (apply predicted
-    REPLACE labels -> compare to clean)."""
+    """Held-out closed-class metrics on sentence-disjoint pairs:
+    token accuracy, error-class accuracy on corrupted tokens, and
+    sentence-level detection (any non-KEEP predicted on a corrupted
+    sentence)."""
     import torch
 
     model.eval()
     rows = [json.loads(l) for l in open(dev_path) if l.strip()]
     tok_correct = 0
     tok_total = 0
-    sent_exact = 0
-    corrected_exact = 0
+    err_correct = 0
+    err_total = 0
+    detected = 0
+    n = len(rows)
     with torch.no_grad():
         for row in rows:
             words = row["corrupted"].split()
@@ -105,35 +145,22 @@ def evaluate(model, tokenizer, labels: dict, dev_path: str):
             for pos, wid in enumerate(word_ids):
                 if wid is not None and wid not in pred_word:
                     pred_word[wid] = logits[0, pos].argmax().item()
+            any_flag = False
             for idx in range(len(words)):
-                tok_total += 1
                 pred = pred_word.get(idx, 0)
-                if pred == gold[idx]:
-                    tok_correct += 1
-            # end-to-end: apply predicted labels
-            id2label = {i: l for l, i in labels.items()}
-            out = []
-            for idx in range(len(words)):
-                lab = id2label.get(pred_word.get(idx, 0), "$KEEP")
-                if lab.startswith("$REPLACE_"):
-                    out.append(lab[len("$REPLACE_"):])
-                elif lab == "$DELETE":
-                    continue
-                else:
-                    out.append(words[idx])
-            corrected = " ".join(out)
-            if corrected == row["corrupted"].replace("$KEEP", "") and all(
-                id2label.get(pred_word.get(i, 0), "$KEEP") == "$KEEP" for i in range(len(words))
-            ):
-                sent_exact += 1
-            if corrected == " ".join(row["clean"].split()):
-                corrected_exact += 1
-    n = len(rows)
+                tok_total += 1
+                tok_correct += pred == gold[idx]
+                if gold[idx] != 0:
+                    err_total += 1
+                    err_correct += pred == gold[idx]
+                if pred != 0:
+                    any_flag = True
+            detected += any_flag
     return {
         "dev_pairs": n,
-        "token_label_accuracy": round(tok_correct / max(tok_total, 1), 4),
-        "sentences_all_keep_pred": round(sent_exact / n, 4),
-        "end_to_end_exact_correction": round(corrected_exact / n, 4),
+        "token_accuracy": round(tok_correct / max(tok_total, 1), 4),
+        "error_class_accuracy_on_corrupted": round(err_correct / max(err_total, 1), 4),
+        "sentence_detection": round(detected / n, 4),
     }
 
 
