@@ -40,6 +40,7 @@ image = (
         "datasets",
         "onnx",
         "onnxruntime",
+        "onnxscript",
         "accelerate",
     )
 )
@@ -113,7 +114,7 @@ def train(data_path: str = "/data/injected.jsonl", out_path: str = "/data/gec-ta
         words = row["corrupted"].split()
         label_ids = row_to_labels(row, words, labels)
         enc = tokenizer(
-            row["corrupted"],
+            words,
             is_split_into_words=True,
             truncation=True,
             max_length=MAX_LEN,
@@ -127,7 +128,17 @@ def train(data_path: str = "/data/injected.jsonl", out_path: str = "/data/gec-ta
         examples.append(enc)
 
     def collate(batch):
-        return tokenizer.pad(batch, padding=True, return_tensors="pt")
+        import torch
+
+        features = [{k: v for k, v in ex.items() if k != "labels"} for ex in batch]
+        out = tokenizer.pad(features, padding=True, return_tensors="pt")
+        max_len = out["input_ids"].shape[1]
+        labels = torch.full((len(batch), max_len), -100, dtype=torch.long)
+        for i, ex in enumerate(batch):
+            lab = ex["labels"]
+            labels[i, : len(lab)] = torch.tensor(lab, dtype=torch.long)
+        out["labels"] = labels
+        return out
 
     args = TrainingArguments(
         output_dir="/data/ckpt",
@@ -143,12 +154,28 @@ def train(data_path: str = "/data/injected.jsonl", out_path: str = "/data/gec-ta
 
     # Export: fp32 ONNX -> int8 dynamic quantization. Report the size
     # and hold the <200 MB gate right here.
-    import torch.onnx  # noqa: F401
-    from transformers.onnx import export as onnx_export
+    import torch
 
+    model.eval()
     os.makedirs(out_path, exist_ok=True)
     onnx_path = os.path.join(out_path, "gec-tagger.onnx")
-    onnx_export(model, tokenizer, onnx_path, opset=14)
+    torch.onnx.export(
+        model,
+        (
+            torch.ones(1, 32, dtype=torch.long, device=model.device),
+            torch.ones(1, 32, dtype=torch.long, device=model.device),
+        ),
+        onnx_path,
+        input_names=["input_ids", "attention_mask"],
+        output_names=["logits"],
+        dynamic_axes={
+            "input_ids": {0: "batch", 1: "seq"},
+            "attention_mask": {0: "batch", 1: "seq"},
+            "logits": {0: "batch", 1: "seq"},
+        },
+        opset_version=14,
+        dynamo=False,
+    )
 
     import onnxruntime as ort
     from onnxruntime.quantization import quantize_dynamic, QuantType
@@ -166,10 +193,7 @@ def train(data_path: str = "/data/injected.jsonl", out_path: str = "/data/gec-ta
 
 @app.local_entrypoint()
 def main(data: str):
-    import pathlib
-
-    volume_dir = "/data/injected.jsonl"
     with modal.Volume.from_name("kotoshu-gec-data", create_if_missing=True).batch_upload() as up:
-        up.put_directory(str(pathlib.Path(data).parent), "/data")
-    result = train.remote(volume_dir)
+        up.put_file(data, "injected.jsonl")
+    result = train.remote("/data/injected.jsonl")
     print(result)

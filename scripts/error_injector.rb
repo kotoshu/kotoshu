@@ -34,41 +34,41 @@ class ErrorInjector
     verb_3sg_to_base: [
       [%r{\A(goes|makes|takes|sees|comes|gets|gives|finds|tells|says|knows|writes|runs|puts|sets|walks|talks|
              works|plays|eats|drinks|reads|likes|needs|wants|looks|seems|helps|turns|starts|means|stays)\z}ix,
-       ->(w) { w.delete_suffix('s') }, 0.30]
+       ->(w) { w.delete_suffix('s') }, 0.50]
     ],
     # was/were confusion
     was_were: [
-      [/\Awas\z/i, ->(_) { "were" }, 0.10],
-      [/\Awere\z/i, ->(_) { "was" }, 0.10]
+      [/\Awas\z/i, ->(_) { "were" }, 0.30],
+      [/\Awere\z/i, ->(_) { "was" }, 0.30]
     ],
     # of/have after a modal
     modal_of: [
-      [/\A(have|has)\z/i, ->(_) { "of" }, 0.05]
+      [/\A(have|has)\z/i, ->(_) { "of" }, 0.20]
     ],
     # capitalization: sentence-start lowered, I lowered
     capitalization: [
-      [/\AI\z/, ->(_) { "i" }, 0.05]
+      [/\AI\z/, ->(_) { "i" }, 0.20]
     ],
     # article: a/an swap
     article_swap: [
-      [/\Aa\z/i, ->(_) { "an" }, 0.03],
-      [/\Aan\z/i, ->(_) { "a" }, 0.03]
+      [/\Aa\z/i, ->(_) { "an" }, 0.15],
+      [/\Aan\z/i, ->(_) { "a" }, 0.15]
     ],
     # determiner number
     this_these: [
-      [/\Athis\z/i, ->(_) { "these" }, 0.03],
-      [/\Athese\z/i, ->(_) { "this" }, 0.03]
+      [/\Athis\z/i, ->(_) { "these" }, 0.15],
+      [/\Athese\z/i, ->(_) { "this" }, 0.15]
     ],
     # spelling: double a consonant or drop one
     letter_tweak: [
-      [/\A[a-z]{4,}\z/i, :letter_tweak, 0.02]
+      [/\A[a-z]{4,}\z/i, :letter_tweak, 0.10]
     ]
   }.freeze
 
   def letter_tweak(word)
     mid = word.length / 2
     c = word[mid]
-    @rng.rand < 0.5 ? word.dup.insert(mid, c) : word.dup.delete_char_at(mid)
+    @rng.rand < 0.5 ? word.dup.insert(mid, c) : delete_char_at(word, mid)
   end
 
   def delete_char_at(str, idx = nil)
@@ -84,7 +84,7 @@ class ErrorInjector
     edits = []
     tokens.each_with_index do |tok, idx|
       CLASSES.each_value do |variants|
-        next unless @rng.rand < 0.35
+        next unless @rng.rand < 0.55
 
         variants.each do |(pattern, replacer, probability)|
           next unless tok.match?(pattern) && @rng.rand < probability
