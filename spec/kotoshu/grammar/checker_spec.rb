@@ -166,3 +166,31 @@ RSpec.describe "grammar rule example gates" do
     expect(ids.length).to eq(ids.uniq.length)
   end
 end
+
+RSpec.describe "multilingual starter rule sets (de/es/fr)" do
+  %w[de es fr].each do |lang|
+    describe lang do
+      let(:checker) { Kotoshu::Grammar::Checker.new(language: lang) }
+
+      it "loads at least 10 rules" do
+        expect(checker.rules.length).to be >= 10
+      end
+
+      it "every bad example fires and every good example stays quiet" do
+        missed = []
+        false_positives = []
+        checker.rules.each do |rule|
+          rule.examples.each do |example|
+            if example["bad"]
+              missed << "#{rule.id}: #{example['bad']}" unless checker.check(example["bad"]).any? { |e| e[:rule_id] == rule.id }
+            elsif example["good"]
+              false_positives << "#{rule.id}: #{example['good']}" if checker.check(example["good"]).any?
+            end
+          end
+        end
+        expect(missed).to be_empty, "missed:\n#{missed.join("\n")}"
+        expect(false_positives).to be_empty, "FP:\n#{false_positives.join("\n")}"
+      end
+    end
+  end
+end

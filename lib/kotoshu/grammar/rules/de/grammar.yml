@@ -1,0 +1,142 @@
+# German starter rules (TODO.grammar/10). Word constraints only —
+# the shared tagger is English; these rules are language-agnostic.
+
+- id: DE_SEIT_SEID_TIME
+  category: confusion
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["seid dem", "seid Jahren", "seid gestern", "seid heute", "seid Anfang"]
+  message: "Zeitliches 'seit' ohne d (seit dem, seit Jahren)"
+  suggestions:
+    - replace: { word: seid, with: seit }
+  examples:
+    - bad: "Ich warte seid dem Morgen."
+      good: "Ich warte seit dem Morgen."
+
+- id: DE_SEID_SEIT_IHR
+  category: confusion
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["seit ihr", "seit Sie"]
+  message: "Verbform 'seid' (ihr seid), nicht 'seit'"
+  suggestions:
+    - replace: { word: seit, with: seid }
+  examples:
+    - bad: "Wo seit ihr gewesen?"
+      good: "Wo seid ihr gewesen?"
+
+- id: DE_BESSER_WIE
+  category: comparison
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["besser wie", "größer wie", "kleiner wie", "mehr wie", "schlechter wie", "schneller wie", "höher wie", "tiefer wie"]
+  message: "Vergleich mit 'als', nicht 'wie'"
+  suggestions:
+    - replace: { word: wie, with: als }
+  examples:
+    - bad: "Das ist besser wie vorher."
+      good: "Das ist besser als vorher."
+
+- id: DE_STANDART
+  category: spelling
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["Standart", "standart", "Standarts", "standartmäßig"]
+  message: "Richtig: 'Standard' (mit d)"
+  suggestions:
+    - replace: { word: Standart, with: Standard }
+  examples:
+    - bad: "Das ist der Standart."
+      good: "Das ist der Standard."
+
+- id: DE_GARNICHT
+  category: spelling
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["garnicht", "garnichts"]
+  message: "Getrennt: 'gar nicht'"
+  suggestions:
+    - replace: { word: garnicht, with: "gar nicht" }
+  examples:
+    - bad: "Das gefällt mir garnicht."
+      good: "Das gefällt mir gar nicht."
+
+- id: DES_WEITEREN
+  category: capitalization
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["des weiteren", "im übrigen", "im voraus", "zumteil"]
+  message: "Feste Wendungen werden großgeschrieben"
+  suggestions:
+    - replace_span: { with: "Des Weiteren" }
+  examples:
+    - bad: "Des weiteren brauchen wir Zeit."
+      good: "Des Weiteren brauchen wir Zeit."
+
+- id: DE_ICH_IST
+  category: agreement
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["ich ist", "ich sind", "wir ist", "ihr sind"]
+  message: "Falsche Verbform: ich bin, wir sind, ihr seid"
+  suggestions:
+    - replace: { word: ist, with: bin }
+  examples:
+    - bad: "Ich ist müde."
+      good: "Ich bin müde."
+
+- id: DE_WIR_SEID
+  category: agreement
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["wir seid", "ihr sind"]
+  message: "Falsche Form von 'sein': wir sind, ihr seid"
+  suggestions:
+    - replace: { word: seid, with: sind }
+  examples:
+    - bad: "Wir seid bereit."
+      good: "Wir sind bereit."
+
+- id: DE_NICHTSDESTOTROTZ
+  category: spelling
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["nichts desto trotz"]
+  message: "Zusammengeschrieben: 'nichtsdestotrotz'"
+  suggestions:
+    - replace_span: { with: "nichtsdestotrotz" }
+  examples:
+    - bad: "Nichts desto trotz gehen wir."
+      good: "Nichtsdestotrotz gehen wir."
+
+- id: DE_SITE
+  category: confusion
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["die Site", "eine Site lesen", "auf der Site stehen"]
+  message: "Eine Webseite ist die 'Seite'"
+  suggestions:
+    - replace: { word: Site, with: Seite }
+  examples:
+    - bad: "Ich lese die Site."
+      good: "Ich lese die Seite."
