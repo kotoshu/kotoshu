@@ -1,0 +1,163 @@
+# English grammar rules: word confusion (TODO.grammar/2)
+# The most common class: homophone and confusable-word errors.
+
+- id: EN_THEIR_IS
+  category: confusion
+  severity: error
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: their }
+    - { word: [is, are, was, were] }
+  message: "Possible confusion: 'their' (possessive) vs 'there' (existence)"
+  suggestions:
+    - replace: { word: their, with: there }
+  examples:
+    - bad: "Their is a problem"
+      good: "There is a problem"
+
+- id: EN_YOUR_WELCOME
+  category: confusion
+  severity: error
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: your }
+    - { word: [welcome, right, wrong, going, coming, doing, being] }
+  message: "Possible confusion: 'your' (possessive) vs 'you're' (you are)"
+  suggestions:
+    - replace: { word: your, with: "you're" }
+  examples:
+    - bad: "Your welcome"
+      good: "You're welcome"
+    - bad: "Your going to love this"
+      good: "You're going to love this"
+
+- id: EN_ITS_RAINING
+  category: confusion
+  severity: error
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: its }
+    - { word: [raining, snowing, cold, hot, time, going, been, a, the, not] }
+  message: "Possible confusion: 'its' (possessive) vs 'it's' (it is)"
+  suggestions:
+    - replace: { word: its, with: "it's" }
+  examples:
+    - bad: "Its raining outside"
+      good: "It's raining outside"
+    - bad: "Its time to go"
+      good: "It's time to go"
+
+- id: EN_THEN_THAN
+  category: confusion
+  severity: error
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [better, worse, more, less, greater, fewer, faster, slower, higher, lower, bigger, smaller, older, younger, stronger, weaker] }
+    - { word: then }
+  message: "Use 'than' for comparisons, not 'then'"
+  suggestions:
+    - replace: { word: then, with: than }
+  examples:
+    - bad: "better then before"
+      good: "better than before"
+    - bad: "more then enough"
+      good: "more than enough"
+
+- id: EN_COULD_OF
+  category: confusion
+  severity: error
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["could of", "would of", "should of", "must of", "might of"]
+  message: "Use 'have' not 'of' after modal verbs"
+  suggestions:
+    - replace: { word: of, with: have }
+  examples:
+    - bad: "I could of gone"
+      good: "I could have gone"
+    - bad: "You should of known"
+      good: "You should have known"
+
+- id: EN_TO_EASY
+  category: confusion
+  severity: error
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: to }
+    - { pos: ADJ, exception: [be, do, go, make, see, get] }
+    - { word: [for, to] }
+  message: "Possible confusion: 'to' (preposition) vs 'too' (excessive)"
+  suggestions:
+    - replace: { word: to, with: too }
+  examples:
+    - bad: "This is to easy for me"
+      good: "This is too easy for me"
+
+- id: EN_LOSE_GAME
+  category: confusion
+  severity: error
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: loose }
+    - { word: [the, a, my, your, his, her, its, our, their, this, that] }
+    - { word: [game, match, weight, money, job, control, mind, way, touch, track] }
+  message: "Possible confusion: 'loose' (not tight) vs 'lose' (to misplace)"
+  suggestions:
+    - replace: { word: loose, with: lose }
+  examples:
+    - bad: "Don't loose the game"
+      good: "Don't lose the game"
+    - bad: "I don't want to loose weight"
+      good: "I don't want to lose weight"
+
+- id: EN_AFFECT_EFFECT
+  category: confusion
+  severity: warning
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: the }
+    - { word: affect }
+  message: "'Effect' is usually the noun (the effect); 'affect' is usually the verb"
+  suggestions:
+    - replace: { word: affect, with: effect }
+  examples:
+    - bad: "The affect was immediate"
+      good: "The effect was immediate"
+
+- id: EN_LESS_COUNT
+  category: confusion
+  severity: warning
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: less }
+    - { word: [books, people, items, things, files, words, lines, pages, students, users] }
+  message: "Use 'fewer' with countable nouns"
+  suggestions:
+    - replace: { word: less, with: fewer }
+  examples:
+    - bad: "less books on the shelf"
+      good: "fewer books on the shelf"
+
+- id: EN_WHOS_BOOK
+  category: confusion
+  severity: error
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: "who's" }
+    - { word: [book, car, house, idea, turn, fault, problem, responsibility] }
+  message: "Possible confusion: 'who's' (who is) vs 'whose' (possessive)"
+  suggestions:
+    - replace: { word: "who's", with: whose }
+  examples:
+    - bad: "Who's book is this?"
+      good: "Whose book is this?"
