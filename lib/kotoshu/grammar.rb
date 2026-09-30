@@ -13,7 +13,6 @@ module Kotoshu
     autoload :PosTagger, "kotoshu/grammar/pos_tagger"
     autoload :Checker, "kotoshu/grammar/checker"
 
-
     module PatternMatchers
       autoload :BaseMatcher, "kotoshu/grammar/pattern_matchers/base_matcher"
       autoload :VowelSoundMatcher, "kotoshu/grammar/pattern_matchers/vowel_sound_matcher"

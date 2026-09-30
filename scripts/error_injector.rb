@@ -32,8 +32,9 @@ class ErrorInjector
   CLASSES = {
     # agreement: 3sg -> base
     verb_3sg_to_base: [
-      [%r{\A(goes|makes|takes|sees|comes|gets|gives|finds|tells|says|knows|writes|runs|puts|sets|walks|talks|works|plays|eats|drinks|reads|likes|needs|wants|looks|seems|helps|turns|starts|means|stays)\z}i,
-       ->(w) { w.sub(/s\z/, "") }, 0.30]
+      [%r{\A(goes|makes|takes|sees|comes|gets|gives|finds|tells|says|knows|writes|runs|puts|sets|walks|talks|
+             works|plays|eats|drinks|reads|likes|needs|wants|looks|seems|helps|turns|starts|means|stays)\z}ix,
+       ->(w) { w.delete_suffix('s') }, 0.30]
     ],
     # was/were confusion
     was_were: [
@@ -128,10 +129,10 @@ if $PROGRAM_NAME == __FILE__
   output = ARGV[1] or abort "usage: error_injector.rb CLEAN_TXT OUT_JSONL [SEED]"
   seed = (ARGV[2] || 42).to_i
   injector = ErrorInjector.new(seed: seed)
-  if input == "-"
-    count = injector.run($stdin, File.open(output, "w"))
-  else
-    count = injector.run(File.open(input), File.open(output, "w"))
-  end
+  count = if input == "-"
+            injector.run($stdin, File.open(output, "w"))
+          else
+            injector.run(File.open(input), File.open(output, "w"))
+          end
   warn "wrote #{count} corrupted/clean pairs to #{output}"
 end
