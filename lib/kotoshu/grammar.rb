@@ -19,6 +19,11 @@ module Kotoshu
     autoload :Tagger, "kotoshu/grammar/tagger"
     autoload :GectorDecoder, "kotoshu/grammar/gector_decoder"
 
+    module Loaders
+      autoload :PosMapper, "kotoshu/grammar/loaders/pos_mapper"
+      autoload :LanguageToolXml, "kotoshu/grammar/loaders/languagetool_xml"
+    end
+
     module PatternMatchers
       autoload :BaseMatcher, "kotoshu/grammar/pattern_matchers/base_matcher"
       autoload :VowelSoundMatcher, "kotoshu/grammar/pattern_matchers/vowel_sound_matcher"
