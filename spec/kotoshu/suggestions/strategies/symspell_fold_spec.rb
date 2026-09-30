@@ -85,9 +85,9 @@ RSpec.describe Kotoshu::Suggestions::Strategies::SymSpellStrategy, :diacritic_fo
     expect(vi.generate(ctx).to_words.first).to eq("luống")
   end
 
-  it "keeps folded ranking for the sanctioned languages' base codes only" do
-    expect(described_class.new(language_code: "de").send(:fold_scoring?)).to be(true)
-    expect(described_class.new(language_code: "sv").send(:fold_scoring?)).to be(true)
+  it "uses raw scoring for every language (FOLD_SCORING_LANGUAGES emptied)" do
+    expect(described_class.new(language_code: "de").send(:fold_scoring?)).to be(false)
+    expect(described_class.new(language_code: "sv").send(:fold_scoring?)).to be(false)
     expect(described_class.new(language_code: "de-CH").send(:fold_scoring?)).to be(false)
     expect(described_class.new(language_code: "vi").send(:fold_scoring?)).to be(false)
     expect(described_class.new(language_code: "pl").send(:fold_scoring?)).to be(false)
