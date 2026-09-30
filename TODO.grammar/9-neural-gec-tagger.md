@@ -48,7 +48,41 @@ the checker must produce the CORRECT correction, which is generation.
 - every flagged error carries a concrete correction string
 - rules run first; the tagger fires on the residual (hybrid)
 
+## The local-model constraint (owner, 2026-09-30)
+
+Users require a LOCAL model under 200 MB — content never leaves the
+machine. The budget:
+
+| component | size (int8) |
+|---|---|
+| distilroberta-base encoder (6L, 82M) | ~85 MB |
+| GECToR label vocabulary (~4k edits) | ~10 MB |
+| tokenizer | ~0.7 MB |
+| **total** | **~96 MB — fits with 2x headroom** |
+| latency | ~30-90 ms/sentence CPU |
+
+## The license-pure training pipeline (nothing to attribute)
+
+No real-world GEC corpora (licensed, attribution-heavy). We generate
+our own training data:
+
+1. public-domain clean text (Gutenberg and similar PD sources)
+2. `scripts/error_injector.rb` (on the rules branch) — injects OUR
+   error taxonomy (agreement, of/have, capitalization, articles,
+   morphology, spelling tweaks) as token-aligned clean/corrupted/edit
+   triples
+3. `scripts/train_tagger_modal.py` — distilroberta tagger, GECToR
+   labels from the edits ($KEEP/$REPLACE_x/$DELETE), int8
+   dynamic-quantized ONNX export with a hard <200 MB gate
+4. runtime: onnxruntime (Ruby), ort (Rust), onnxruntime-web
+   (browser) — fully local, no cloud, ever
+
+Synthetic-errors-only training is how GECToR itself reached most of
+its accuracy; taxonomy alignment specializes the tagger in exactly
+the residual classes the rules cannot reach.
+
 ## Status
 
-NOT STARTED. Prerequisite: TODO.grammar/2 rule coverage for the
-residual definition, then training on Modal (A10G, existing infra).
+INJECTOR + TRAINING SCAFFOLD SHIPPED (rules branch, PR #247). Data
+volume, epochs, and GPU spend are owner decisions; the pipeline is
+launch-ready on Modal.
