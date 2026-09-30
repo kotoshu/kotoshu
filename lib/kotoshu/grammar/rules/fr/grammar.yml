@@ -1,0 +1,141 @@
+# French starter rules (TODO.grammar/10). Word constraints only.
+
+- id: FR_A_PREPOSITION
+  category: accents
+  language: fr
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["a partir", "a travers", "a cause", "a cote", "a propos", "a l'interieur"]
+  message: "Préposition : 'à' avec accent"
+  suggestions:
+    - replace: { word: a, with: à }
+  examples:
+    - bad: "C'est a partir de demain."
+      good: "C'est à partir de demain."
+
+- id: FR_PEUT_ETRE
+  category: accents
+  language: fr
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["peut etre", "peut-être pas oui"]
+  message: "Adverbe : 'peut-être' avec trait d'union"
+  suggestions:
+    - replace_span: { with: "peut-être" }
+  examples:
+    - bad: "Il vient peut etre."
+      good: "Il vient peut-être."
+
+- id: FR_ACCENTS_COURANTS
+  category: accents
+  language: fr
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["etre", "apres", "tres", "deja", "pres", "belge neerlandophone"]
+  message: "Accent manquant"
+  suggestions:
+    - replace: { word: etre, with: être }
+  examples:
+    - bad: "Je veux etre libre."
+      good: "Je veux être libre."
+
+- id: FR_PARCEQUE
+  category: spelling
+  language: fr
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["parceque", "par ce que je dis"]
+  message: "Deux mots : 'parce que'"
+  suggestions:
+    - replace: { word: parceque, with: "parce que" }
+  examples:
+    - bad: "Je reste parceque je suis fatigué."
+      good: "Je reste parce que je suis fatigué."
+
+- id: FR_TOUT_TOUS
+  category: agreement
+  language: fr
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["tout les", "tout ces", "tout mes", "tout nos"]
+  message: "Pluriel : 'tous les'"
+  suggestions:
+    - replace: { word: tout, with: tous }
+  examples:
+    - bad: "Tout les enfants viennent."
+      good: "Tous les enfants viennent."
+
+- id: FR_PLUTARD
+  category: spelling
+  language: fr
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["plutard", "tant tot", "beaucoups"]
+  message: "Orthographe incorrecte"
+  suggestions:
+    - replace: { word: plutard, with: "plus tard" }
+  examples:
+    - bad: "À bientôt plutard."
+      good: "À plus tard."
+
+- id: FR_SIL_VOUS_PLAIT
+  category: accents
+  language: fr
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["s'il vous plait", "sil vous plait"]
+  message: "'s'il vous plaît' avec circonflexe"
+  suggestions:
+    - replace_span: { with: "s'il vous plaît" }
+  examples:
+    - bad: "S'il vous plait, entrez."
+      good: "S'il vous plaît, entrez."
+
+- id: FR_CA_VA
+  category: accents
+  language: fr
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["sa va", "sa marche", "ca va", "ca marche"]
+  message: "Pronom démonstratif : 'ça'"
+  suggestions:
+    - replace: { word: sa, with: ça }
+  examples:
+    - bad: "Sa va bien."
+      good: "Ça va bien."
+
+- id: FR_MALGRE_QUE
+  category: style
+  language: fr
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["malgré que"]
+  message: "Registre critiqué — préférez 'bien que' + subjonctif"
+  suggestions:
+    - replace_span: { with: "bien que" }
+  examples:
+    - bad: "Il reste malgré que je sois parti."
+      good: "Il reste bien que je sois parti."
+
+- id: FR_AVANT_QUE_IL
+  category: grammar
+  language: fr
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["avant que il", "avant que elle", "pour que il"]
+  message: "Élision : 'avant qu'il'"
+  suggestions:
+    - replace: { word: que, with: "qu'" }
+  examples:
+    - bad: "Attends avant que il arrive."
+      good: "Attends avant qu'il arrive."

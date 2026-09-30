@@ -1,0 +1,142 @@
+# Spanish starter rules (TODO.grammar/10). Word constraints only.
+
+- id: ES_A_EL
+  category: contractions
+  language: es
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["a el"]
+  message: "La contracción es 'al' (a + el)"
+  suggestions:
+    - replace_span: { with: "al" }
+  examples:
+    - bad: "Voy a el mercado."
+      good: "Voy al mercado."
+
+- id: ES_DE_EL
+  category: contractions
+  language: es
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["de el"]
+  message: "La contracción es 'del' (de + el)"
+  suggestions:
+    - replace_span: { with: "del" }
+  examples:
+    - bad: "La casa de el vecino."
+      good: "La casa del vecino."
+
+- id: ES_TU_VERBO
+  category: accents
+  language: es
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["tu eres", "tu tienes", "tu puedes", "tu vives", "tu hablas", "tu quieres"]
+  message: "Pronombre sujeto lleva tilde: 'tú'"
+  suggestions:
+    - replace: { word: tu, with: tú }
+  examples:
+    - bad: "Tu eres amable."
+      good: "Tú eres amable."
+
+- id: ES_ESTA_ADJETIVO
+  category: accents
+  language: es
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["esta bien", "esta mal", "esta listo", "esta aqui", "esta feliz", "esta cansado"]
+  message: "Verbo 'está' lleva tilde"
+  suggestions:
+    - replace: { word: esta, with: está }
+  examples:
+    - bad: "Todo esta bien."
+      good: "Todo está bien."
+
+- id: ES_MAS_ADJETIVO
+  category: accents
+  language: es
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["mas grande", "mas pequeño", "mas bueno", "mas o menos", "mas importante", "mas facil"]
+  message: "Adverbio de cantidad lleva tilde: 'más'"
+  suggestions:
+    - replace: { word: mas, with: más }
+  examples:
+    - bad: "Es mas grande."
+      good: "Es más grande."
+
+- id: ES_HABIA
+  category: accents
+  language: es
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["habia", "aqui", "aun asi", "ademas", "detras", "despues"]
+  message: "Palabra con tilde"
+  suggestions:
+    - replace: { word: habia, with: había }
+  examples:
+    - bad: "Habia una vez."
+      good: "Había una vez."
+
+- id: ES_PORQUE_JUNTO
+  category: spelling
+  language: es
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["por que fuiste", "por que hiciste", "por que dijiste"]
+  message: "Causa: 'porque' (junto)"
+  suggestions:
+    - replace_span: { with: "porque" }
+  examples:
+    - bad: "No sé por que fuiste."
+      good: "No sé por qué fuiste."
+
+- id: ES_HAY_AVER
+  category: confusion
+  language: es
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["haber si", "haber lo que"]
+  message: "Comprobar: 'a ver si' (mirar) vs 'haber'"
+  suggestions:
+    - replace: { word: haber, with: "a ver" }
+  examples:
+    - bad: "Haber si viene."
+      good: "A ver si viene."
+
+
+- id: ES_HAY_HA
+  category: confusion
+  language: es
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["ha muchas", "ha muchos", "ha mucho ruido"]
+  message: "Existencia: 'hay' (de haber)"
+  suggestions:
+    - replace: { word: ha, with: hay }
+  examples:
+    - bad: "Ha muchas personas aqui."
+      good: "Hay muchas personas aqui."
+
+- id: ES_TAMBIEN
+  category: accents
+  language: es
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["tambien", "alli", "quiza"]
+  message: "Palabra con tilde"
+  suggestions:
+    - replace: { word: tambien, with: también }
+  examples:
+    - bad: "Yo tambien voy."
+      good: "Yo también voy."

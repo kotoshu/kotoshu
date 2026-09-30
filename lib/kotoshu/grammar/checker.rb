@@ -15,7 +15,7 @@ module Kotoshu
     #   # => [{ rule_id: "EN_SV_AGREEMENT_3SG", start_offset: 0, ... }, ...]
     class Checker
       SENTENCE = /[^.!?]+[.!?]*/
-      TOKEN = /[\w'-]+|[.,!?;:()"\/]/
+      TOKEN = /[[:word:]'-]+|[.,!?;:()"\/]/
       CLITIC = /\A(.*?)(n't|'s|'t|'re|'ve|'ll|'d|'m)\z/i
 
       # @param language [String] language code

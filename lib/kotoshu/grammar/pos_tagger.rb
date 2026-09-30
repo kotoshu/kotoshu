@@ -142,7 +142,8 @@ module Kotoshu
       # @param text [String]
       # @return [Array<String>]
       def tokenize(text)
-        text.scan(/[\w'-]+|[.,!?;:()"'\/]/).reject(&:empty?).flat_map { |word| split_clitic(word) }
+        # [[:word:]] is unicode-aware; \w is ASCII-only and drops accents
+        text.scan(/[[:word:]'-]+|[.,!?;:()"'\/]/).reject(&:empty?).flat_map { |word| split_clitic(word) }
       end
 
       # Detach a trailing English clitic ("Valentine's" → "Valentine" +
