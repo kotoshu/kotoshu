@@ -1,0 +1,91 @@
+# Article rules (TODO.grammar/2). Uses the dedicated vowel-sound
+# matcher for a/an; word/regex constraints elsewhere for reliability.
+
+- id: EN_A_AN_VOWEL
+  category: articles
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: a, case_sensitive: false }
+    - { regex: "[aeiouAEIOU].*", exception_regex: ["uni.*", "use.*", "user", "usual", "utensil", "Europe.*", "one", "once"] }
+  message: "Use 'an' before a vowel sound"
+  suggestions:
+    - replace: { word: a, with: an }
+  examples:
+    - bad: "He ate a apple."
+      good: "He ate an apple."
+    - bad: "She found a envelope."
+      good: "She found an envelope."
+
+- id: EN_AN_CONSONANT
+  category: articles
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: an }
+    - { regex: "[bcdfgjklmnpqrstvwxyzBCDFGJKLMNPQSTVWXYZ].*" }
+  message: "Use 'a' before a consonant sound"
+  suggestions:
+    - replace: { word: an, with: a }
+  examples:
+    - bad: "He is an good man."
+      good: "He is a good man."
+    - bad: "They waited an year."
+      good: "They waited a year."
+
+- id: EN_THE_THE
+  category: articles
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: the }
+    - { word: the }
+  message: "Duplicated article"
+  suggestions:
+    - replace_span: { with: the }
+  examples:
+    - bad: "Open the the door."
+      good: "Open the door."
+
+- id: EN_A_A
+  category: articles
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: a }
+    - { word: a }
+  message: "Duplicated article"
+  suggestions:
+    - replace_span: { with: a }
+  examples:
+    - bad: "I saw a a bird."
+      good: "I saw a bird."
+
+- id: EN_AN_AN
+  category: articles
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: an }
+    - { word: an }
+  message: "Duplicated article"
+  suggestions:
+    - replace_span: { with: an }
+  examples:
+    - bad: "It was an an hour."
+      good: "It was an hour."
+
+- id: EN_IN_AN_HOUR_LIKE
+  category: articles
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["a hour", "a honest", "a honor", "a heir"]
+  message: "Silent h — use 'an'"
+  suggestions:
+    - replace: { word: a, with: an }
+  examples:
+    - bad: "Wait a hour."
+      good: "Wait an hour."
+    - bad: "It is a honor."
+      good: "It is an honor."

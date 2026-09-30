@@ -7,9 +7,12 @@ module Kotoshu
   # where all linguistic data is stored in YAML files.
   module Grammar
     autoload :Rule, "kotoshu/grammar/rule"
+    autoload :PatternRule, "kotoshu/grammar/pattern_rule"
     autoload :RuleEngine, "kotoshu/grammar/rule_engine"
     autoload :RuleLoader, "kotoshu/grammar/rule_loader"
     autoload :PosTagger, "kotoshu/grammar/pos_tagger"
+    autoload :Checker, "kotoshu/grammar/checker"
+
 
     module PatternMatchers
       autoload :BaseMatcher, "kotoshu/grammar/pattern_matchers/base_matcher"

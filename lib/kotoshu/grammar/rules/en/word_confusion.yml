@@ -106,7 +106,7 @@
   matcher: pos_sequence
   pattern:
     - { word: loose }
-    - { word: [the, a, my, your, his, her, its, our, their, this, that] }
+    - { pos: DET, optional: true }
     - { word: [game, match, weight, money, job, control, mind, way, touch, track] }
   message: "Possible confusion: 'loose' (not tight) vs 'lose' (to misplace)"
   suggestions:
@@ -153,11 +153,12 @@
   language: en
   matcher: pos_sequence
   pattern:
-    - { word: "who's" }
+    - { word: who }
+    - { word: "'s" }
     - { word: [book, car, house, idea, turn, fault, problem, responsibility] }
   message: "Possible confusion: 'who's' (who is) vs 'whose' (possessive)"
   suggestions:
-    - replace: { word: "who's", with: whose }
+    - replace_span: { with: whose }
   examples:
     - bad: "Who's book is this?"
       good: "Whose book is this?"
