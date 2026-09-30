@@ -10,8 +10,8 @@ superseded; it stays on its branch as reference only.
 
 | solution | en rules | license | client-side | context model | measured quality |
 |---|---|---|---|---|---|
-| **kotoshu (rules)** | 150 original, growing | BSD-2 (ours, no attribution) | yes, <5 ms/sentence | rule-based tagger + recursive matcher | 100% of own examples fire; 0.0% FP on 30-sentence clean corpus |
-| **kotoshu (rules + tagger, planned)** | 150 + neural | ours | yes, int8 ONNX | full-sentence transformer (GECToR-style) | target: F0.5 >= 50 on BEA-2019 |
+| **kotoshu (rules)** | 180 original (en 150 + de/es/fr) | BSD-2 (ours, no attribution) | yes, <5 ms/sentence | rule-based tagger + recursive matcher | 180/180 own examples fire; 0.0% FP on clean corpus |
+| **kotoshu (rules + tagger)** | 180 + neural | ours | **yes — 78.6 MB int8, MEASURED** | GECToR-style tagger, our own training data | pipeline validated end-to-end; full run = scale-up |
 | LanguageTool | ~1,700 en (+2,000 de...) | LGPL-2.1+ (data + code) | yes (Java) | hand rules + their tagger | ~100% of own examples (by construction) |
 | Grammarly | closed | proprietary | no (cloud) | large neural + rules | closed; de facto market quality bar |
 | GECToR (2020, literature) | learned | research | borderline (350 MB) | transformer tagger | BEA-2019 F0.5 ~56-65 |
@@ -33,10 +33,12 @@ superseded; it stays on its branch as reference only.
 
 | metric | value |
 |---|---|
-| original rules | 150 (8 files, DSL v2) |
-| own bad examples fired | 150/150 (the gate spec) |
+| original rules | 180 (en 150 + de/es/fr 10 each; 12 files) |
+| own bad examples fired | 180/180 (gate spec, all 4 languages) |
 | own good examples FP | 0/102 |
 | clean-corpus FP (30 prose sentences) | 0.0% |
+| local tagger size (int8 ONNX, measured) | 78.6 MB — 2.5x under the 200 MB budget |
+| Rust/Ruby conformance | 15 sentences, 29 errors, exact replay |
 | check latency | < 5 ms/sentence (rule-based, no model) |
 
 ## Path to success (ordered)
