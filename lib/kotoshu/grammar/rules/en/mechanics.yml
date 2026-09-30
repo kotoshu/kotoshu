@@ -1,0 +1,338 @@
+# Doubled-word and phrase-level mechanics (TODO.grammar/2).
+
+- id: EN_DUP_IS
+  category: doubled
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["is is", "are are", "was was", "were were", "be be"]
+  message: "Duplicated word"
+  suggestions:
+    - replace_span: { with: "is" }
+  examples:
+    - bad: "What this is is unclear."
+      good: "What this is unclear."
+
+- id: EN_DUP_AND
+  category: doubled
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["and and", "or or", "but but", "the the", "to to", "of of", "in in", "on on", "for for", "it it", "he he", "she she", "they they", "that that", "a a"]
+  message: "Duplicated word"
+  suggestions:
+    - replace: { word: and, with: "" }
+  examples:
+    - bad: "I like tea and and coffee."
+      good: "I like tea and coffee."
+
+- id: EN_DUP_VERB
+  category: doubled
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["had had", "have have", "do do", "did did", "will will", "can can"]
+  message: "Duplicated word"
+  suggestions:
+    - replace_span: { with: "had" }
+  examples:
+    - bad: "They had had enough."
+      good: "They had enough."
+
+- id: EN_OFF_OF
+  category: style
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["off of"]
+  message: "'Off of' — drop the 'of'"
+  suggestions:
+    - replace: { word: of, with: "" }
+  examples:
+    - bad: "Take the book off of the table."
+      good: "Take the book off the table."
+
+- id: EN_CAN_HARDLY
+  category: style
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [can, could, ca] }
+    - { word: "n't" }
+    - { word: [hardly, scarcely] }
+  message: "'Hardly' is negative — 'can hardly' without the negation"
+  suggestions:
+    - replace_span: { with: "can hardly" }
+  examples:
+    - bad: "I can't hardly wait."
+      good: "I can hardly wait."
+
+- id: EN_SHOULDNT_NEVER
+  category: style
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [should, would, could, must] }
+    - { word: "n't" }
+    - { word: never }
+  message: "Double negative — 'should never' without the n't"
+  suggestions:
+    - replace: { word: never, with: ever }
+  examples:
+    - bad: "You shouldn't never lie."
+      good: "You shouldn't ever lie."
+
+- id: EN_ON_ACCIDENT
+  category: style
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["on accident"]
+  message: "The idiom is 'by accident'"
+  suggestions:
+    - replace: { word: on, with: by }
+  examples:
+    - bad: "I broke it on accident."
+      good: "I broke it by accident."
+
+- id: EN_IN_REGARDS_TO
+  category: style
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["in regards to"]
+  message: "Use 'in regard to' (or simply 'regarding')"
+  suggestions:
+    - replace: { word: regards, with: regard }
+  examples:
+    - bad: "In regards to your letter, we agree."
+      good: "In regard to your letter, we agree."
+
+- id: EN_REASON_IS_BECAUSE
+  category: style
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["reason is because"]
+  message: "'The reason is that...' — 'because' duplicates 'reason'"
+  suggestions:
+    - replace: { word: because, with: that }
+  examples:
+    - bad: "The reason is because it rained."
+      good: "The reason is that it rained."
+
+- id: EN_ATM_MACHINE
+  category: redundancy
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["ATM machine", "ATM machines", "PIN number", "PIN numbers", "HIV virus"]
+  message: "Redundant acronym expansion (the M/N/V already says it)"
+  suggestions:
+    - replace: { word: machine, with: "" }
+  examples:
+    - bad: "Find an ATM machine nearby."
+      good: "Find an ATM nearby."
+
+- id: EN_BRIEF_SUMMARY
+  category: redundancy
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["brief summary", "final outcome", "new innovation", "future plans", "past records", "general consensus", "basic fundamentals"]
+  message: "Redundant modifier — the noun already implies it"
+  suggestions:
+    - replace: { word: brief, with: "" }
+  examples:
+    - bad: "Give a brief summary."
+      good: "Give a summary."
+
+- id: EN_LISTEN_MUSIC
+  category: prepositions
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["listen music", "listens music", "listened music", "listening music"]
+  message: "Use 'listen to music'"
+  suggestions:
+    - replace_span: { with: "listen to music" }
+  examples:
+    - bad: "I like to listen music."
+      good: "I like to listen to music."
+
+- id: EN_IN_THE_INTERNET
+  category: prepositions
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["in the internet", "in internet"]
+  message: "Use 'on the internet'"
+  suggestions:
+    - replace: { word: in, with: on }
+  examples:
+    - bad: "I found it in the internet."
+      good: "I found it on the internet."
+
+- id: EN_IS_BEEN
+  category: agreement
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [is, are, was, were] }
+    - { word: been }
+  message: "Use 'has/have been' (or 'is being')"
+  suggestions:
+    - replace_span: { with: "has been" }
+  examples:
+    - bad: "He is been sick."
+      good: "He has been sick."
+
+- id: EN_AM_GO
+  category: agreement
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: i }
+    - { word: [goes, goes] }
+  message: "'I go', not 'I goes'"
+  suggestions:
+    - replace: { word: goes, with: go }
+  examples:
+    - bad: "I goes to work."
+      good: "I go to work."
+
+- id: EN_DOES_PLURAL
+  category: agreement
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [they, we] }
+    - { word: does }
+  message: "Plural subject takes 'do'"
+  suggestions:
+    - replace: { word: does, with: do }
+  examples:
+    - bad: "They does the work."
+      good: "They do the work."
+
+- id: EN_DONT_PLURAL_OK
+  category: agreement
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [he, she, it] }
+    - { word: do }
+    - { word: "n't" }
+  message: "Singular subject takes 'doesn't'"
+  suggestions:
+    - replace_span: { with: "doesn't" }
+  examples:
+    - bad: "He don't like it."
+      good: "He doesn't like it."
+
+- id: EN_THEM_SUBJECT
+  category: agreement
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { pos: SENT_START }
+    - { word: them }
+    - { pos: [NOUN, SING_NOUN, PLUR_NOUN] }
+  message: "'Them' is an object pronoun — use 'those' before a noun"
+  suggestions:
+    - replace: { word: them, with: those }
+  examples:
+    - bad: "Them boys are loud."
+      good: "Those boys are loud."
+
+- id: EN_MYSELF_SUBJECT
+  category: agreement
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { pos: SENT_START }
+    - { word: myself }
+  message: "'Myself' is reflexive — use 'I' as subject"
+  suggestions:
+    - replace: { word: myself, with: I }
+  examples:
+    - bad: "Myself and John went."
+      good: "John and I went."
+
+- id: EN_MORE_PERFECT
+  category: style
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["more perfect", "most perfect", "more complete", "very complete", "very impossible", "very essential"]
+  message: "Absolute adjectives cannot be graded"
+  suggestions:
+    - replace: { word: more, with: "" }
+  examples:
+    - bad: "A more perfect union."
+      good: "A perfect union."
+
+- id: EN_VERY_VERY
+  category: style
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["very very", "really really", "so so much"]
+  message: "Duplicated intensifier"
+  suggestions:
+    - replace: { word: very, with: "" }
+  examples:
+    - bad: "It was very very good."
+      good: "It was very good."
+
+- id: EN_A_LOT_OF_WORD
+  category: style
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["alot"]
+  message: "'Alot' is not a word — use 'a lot'"
+  suggestions:
+    - replace: { word: alot, with: "a lot" }
+  examples:
+    - bad: "Thanks alot."
+      good: "Thanks a lot."
+
+- id: EN_EACHOTHER
+  category: style
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["eachother"]
+  message: "Use 'each other' (two words)"
+  suggestions:
+    - replace: { word: eachother, with: "each other" }
+  examples:
+    - bad: "They love eachother."
+      good: "They love each other."
+
+- id: EN_INCASE
+  category: style
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["incase"]
+  message: "Use 'in case' (two words)"
+  suggestions:
+    - replace: { word: incase, with: "in case" }
+  examples:
+    - bad: "Take an umbrella incase it rains."
+      good: "Take an umbrella in case it rains."
+
+- id: EN_ASWELL
+  category: style
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["aswell"]
+  message: "Use 'as well' (two words)"
+  suggestions:
+    - replace: { word: aswell, with: "as well" }
+  examples:
+    - bad: "Come aswell."
+      good: "Come as well."

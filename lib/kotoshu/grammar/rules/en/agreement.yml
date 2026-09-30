@@ -9,10 +9,10 @@
   matcher: pos_sequence
   pattern:
     - { pos: PRON_3SG }
-    - { pos: VERB_BASE, exception: [can, could, may, might, must, shall, should, will, would, do, did, have, had, be, been, being, go, come] }
+    - { pos: VERB_BASE, exception: [can, could, may, might, must, shall, should, will, would, do, did, have, had, be, been, being] }
   message: "Subject-verb agreement: '{{0}}' requires a third-person verb form"
   suggestions:
-    - template: "{{1}}s"
+    - template: "{{1|3sg}}"
   examples:
     - bad: "He go to school"
       good: "He goes to school"
@@ -31,7 +31,7 @@
     - { word: [goes, makes, seems, takes, sees, comes, gets, gives, finds, tells, says, knows, writes, puts, sets] }
   message: "Subject-verb agreement: '{{0}}' requires a base verb form (no -s)"
   suggestions:
-    - template: "{{1}}"
+    - template: "{{1|base}}"
   examples:
     - bad: "They goes to school"
       good: "They go to school"
@@ -46,6 +46,7 @@
   pattern:
     - { word: there }
     - { word: is }
+    - { pos: [NUMBER, ADJ, DET], optional: true }
     - { pos: PLUR_NOUN }
   message: "Use 'are' with a plural noun: 'there are {{2}}'"
   suggestions:

@@ -1,0 +1,178 @@
+# Agreement rules, second set (TODO.grammar/2).
+
+- id: EN_ONE_OF_ARE
+  category: agreement
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: one }
+    - { word: of }
+    - { word: the, optional: true }
+    - { pos: ANY, skip: 2 }
+    - { word: [are, were] }
+  message: "'One' is singular — use 'is'/'was'"
+  suggestions:
+    - replace: { word: are, with: is }
+  examples:
+    - bad: "One of the books are missing."
+      good: "One of the books is missing."
+    - bad: "One of my friends were late."
+      good: "One of my friends was late."
+
+- id: EN_EACH_OF_HAVE
+  category: agreement
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [each, every, either, neither] }
+    - { word: of }
+    - { pos: ANY, skip: 2 }
+    - { word: [have, are, were] }
+  message: "'Each/every/either/neither' are singular"
+  suggestions:
+    - replace: { word: have, with: has }
+  examples:
+    - bad: "Each of the students have a laptop."
+      good: "Each of the students has a laptop."
+
+- id: EN_THERE_WAS_PLURAL
+  category: agreement
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: there }
+    - { word: was }
+    - { pos: [NUMBER, ADJ, DET], optional: true }
+    - { pos: PLUR_NOUN }
+  message: "Plural noun needs 'there were'"
+  suggestions:
+    - replace: { word: was, with: were }
+  examples:
+    - bad: "There was many people there."
+      good: "There were many people there."
+
+- id: EN_A_PLURAL_NOUN
+  category: agreement
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [a, an] }
+    - { pos: PLUR_NOUN }
+  message: "Use 'a/an' only with singular nouns"
+  suggestions: []
+  examples:
+    - bad: "I saw a birds in the tree."
+      good: "I saw a bird in the tree."
+
+- id: EN_THESE_KIND
+  category: agreement
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["these kind of", "those kind of", "this kind of things", "these sorts of thing"]
+  message: "Match the demonstrative to the noun: 'these kinds of', 'this kind of'"
+  suggestions:
+    - replace: { word: kind, with: kinds }
+  examples:
+    - bad: "These kind of problems recur."
+      good: "These kinds of problems recur."
+
+- id: EN_MY_FRIEND_AND_ME
+  category: agreement
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["me and my friend", "me and my sister", "me and my brother", "me and him", "me and her", "me and them"]
+  message: "Use the subject pronoun: 'my friend and I'"
+  suggestions:
+    - replace_span: { with: "my friend and I" }
+  examples:
+    - bad: "Me and my friend went out."
+      good: "My friend and I went out."
+
+- id: EN_IS_ATE
+  category: agreement
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [is, are, was, were] }
+    - { word: [walk, go, eat, sleep, run, see, come, write, read, speak,
+               talk, work, play, study, drive, swim, buy, bring, take,
+               make, drink, sing, dance, sit, stand, arrive, leave,
+               open, close, start, finish, help, call, answer, watch,
+               listen, cook, clean, wash, ride, send] }
+  message: "Verb to be + base verb is ungrammatical"
+  suggestions: []
+  examples:
+    - bad: "He is walk to school."
+      good: "He walked to school."
+
+- id: EN_HAVE_WENT
+  category: agreement
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [have, has, had] }
+    - { word: went }
+  message: "Use the participle: 'have gone'"
+  suggestions:
+    - replace: { word: went, with: gone }
+  examples:
+    - bad: "They have went home."
+      good: "They have gone home."
+
+- id: EN_HAVE_SAW
+  category: agreement
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [have, has, had] }
+    - { word: saw }
+  message: "Use the participle: 'have seen'"
+  suggestions:
+    - replace: { word: saw, with: seen }
+  examples:
+    - bad: "I have saw that movie."
+      good: "I have seen that movie."
+
+- id: EN_HAVE_DID
+  category: agreement
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [have, has, had] }
+    - { word: did }
+  message: "Use the participle: 'have done'"
+  suggestions:
+    - replace: { word: did, with: done }
+  examples:
+    - bad: "She has did it."
+      good: "She has done it."
+
+- id: EN_HAVE_CAME
+  category: agreement
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [have, has, had] }
+    - { word: came }
+  message: "Use the participle: 'have come'"
+  suggestions:
+    - replace: { word: came, with: come }
+  examples:
+    - bad: "The results have came in."
+      good: "The results have come in."
+
+- id: EN_HAVE_TOOK
+  category: agreement
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [have, has, had] }
+    - { word: took }
+  message: "Use the participle: 'have taken'"
+  suggestions:
+    - replace: { word: took, with: taken }
+  examples:
+    - bad: "He has took the car."
+      good: "He has taken the car."

@@ -1,0 +1,214 @@
+# Redundancy rules: phrases where a word repeats meaning already
+# carried by its neighbor (TODO.grammar/2).
+
+- id: EN_REDUNDANT_FREE_GIFT
+  category: redundancy
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["free gift"]
+  message: "'Gifts' are free by definition — 'free gift' is redundant"
+  suggestions:
+    - replace: { word: free, with: "" }
+  examples:
+    - bad: "Sign up and get a free gift."
+      good: "Sign up and get a gift."
+
+- id: EN_REDUNDANT_PAST_HISTORY
+  category: redundancy
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["past history"]
+  message: "'History' already refers to the past"
+  suggestions:
+    - replace: { word: past, with: "" }
+  examples:
+    - bad: "The patient has a past history of fractures."
+      good: "The patient has a history of fractures."
+
+- id: EN_REDUNDANT_END_RESULT
+  category: redundancy
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["end result"]
+  message: "'Result' already implies the end"
+  suggestions:
+    - replace: { word: end, with: "final" }
+  examples:
+    - bad: "The end result was a success."
+      good: "The final result was a success."
+
+- id: EN_REDUNDANT_REPEAT_AGAIN
+  category: redundancy
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["repeat again", "repeat it again"]
+  message: "'Repeat' means to say or do again"
+  suggestions:
+    - replace: { word: again, with: "" }
+  examples:
+    - bad: "Could you repeat again?"
+      good: "Could you repeat that?"
+
+- id: EN_REDUNDANT_RETURN_BACK
+  category: redundancy
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["return back"]
+  message: "'Return' already means to go or give back"
+  suggestions:
+    - replace: { word: back, with: "" }
+  examples:
+    - bad: "Please return back the books."
+      good: "Please return the books."
+
+- id: EN_REDUNDANT_JOIN_TOGETHER
+  category: redundancy
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: join }
+    - { pos: ANY, skip: 3 }
+    - { word: together }
+  message: "'Join' already means to bring together"
+  suggestions:
+    - replace: { word: together, with: "" }
+  examples:
+    - bad: "Join the two wires together."
+      good: "Join the two wires."
+
+- id: EN_REDUNDANT_ABSOLUTELY_ESSENTIAL
+  category: redundancy
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["absolutely essential"]
+  message: "'Essential' is absolute — it cannot be modified"
+  suggestions:
+    - replace: { word: absolutely, with: "" }
+  examples:
+    - bad: "Water is absolutely essential for life."
+      good: "Water is essential for life."
+
+- id: EN_REDUNDANT_ADVANCE_PLANNING
+  category: redundancy
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["advance planning", "advance plans"]
+  message: "Planning is inherently done in advance"
+  suggestions:
+    - replace: { word: advance, with: "" }
+  examples:
+    - bad: "Advance planning prevents problems."
+      good: "Planning prevents problems."
+
+- id: EN_REDUNDANT_EXACT_SAME
+  category: redundancy
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["exact same", "exactly the same"]
+  message: "Prefer 'the same' or 'identical'"
+  suggestions:
+    - replace: { word: exact, with: "" }
+  examples:
+    - bad: "We wore the exact same dress."
+      good: "We wore the same dress."
+
+- id: EN_REDUNDANT_CLOSE_PROXIMITY
+  category: redundancy
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["close proximity"]
+  message: "'Proximity' already means closeness"
+  suggestions:
+    - replace: { word: close, with: "" }
+  examples:
+    - bad: "The hotel is in close proximity to the station."
+      good: "The hotel is in proximity to the station."
+
+- id: EN_REDUNDANT_STILL_REMAINS
+  category: redundancy
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["still remains", "still remains unclear"]
+  message: "'Remains' already means continues to be"
+  suggestions:
+    - replace: { word: still, with: "" }
+  examples:
+    - bad: "The question still remains."
+      good: "The question remains."
+
+- id: EN_REDUNDANT_NAMED_AS
+  category: redundancy
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["named as", "termed as", "christened as"]
+  message: "'Named' takes no 'as'"
+  suggestions:
+    - replace: { word: as, with: "" }
+  examples:
+    - bad: "The ship was named as Titanic."
+      good: "The ship was named Titanic."
+
+- id: EN_REDUNDANT_CONFIRM_AGAIN
+  category: redundancy
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["repeat the same question again", "confirm again the same"]
+  message: "Redundant repetition"
+  suggestions:
+    - replace: { word: again, with: "" }
+  examples:
+    - bad: "Do not repeat the same question again."
+      good: "Do not repeat the same question."
+
+- id: EN_REDUNDANT_FIRST_BUILT
+  category: redundancy
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["first built in the year", "first introduced in the year"]
+  message: "'First' with a year needs no 'the year'"
+  suggestions:
+    - replace_span: { with: "first built in" }
+  examples:
+    - bad: "It was first built in the year 1900."
+      good: "It was first built in 1900."
+
+- id: EN_REDUNDANT_AND_ALSO
+  category: redundancy
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["and also", "but however"]
+  message: "Double conjunction — pick one"
+  suggestions:
+    - replace: { word: also, with: "" }
+  examples:
+    - bad: "He sings, and also plays guitar."
+      good: "He sings, and plays guitar."
+
+- id: EN_REDUNDANT_MERGE_TOGETHER
+  category: redundancy
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [merge, combine, blend, mix, unite, join] }
+    - { pos: ANY, skip: 3 }
+    - { word: together }
+  message: "Merging already brings things together"
+  suggestions:
+    - replace: { word: together, with: "" }
+  examples:
+    - bad: "Merge the two files together."
+      good: "Merge the two files."

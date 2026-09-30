@@ -331,6 +331,23 @@ module Kotoshu
     checker.check(text, suggestions_filter: suggestions_filter)
   end
 
+  # Check text for grammar errors (TODO.grammar/1). Independent of the
+  # spelling pipeline: no dictionary setup is required, rules are
+  # bundled with the gem.
+  #
+  # @param text [String] the text to check
+  # @param language [String, Symbol] language code (default "en")
+  # @return [Array<Hash>] grammar errors with character offsets,
+  #   rule ids, messages, and suggestion strings
+  #
+  # @example
+  #   Kotoshu.grammar_check("He go to school.")
+  #   # => [{ rule_id: "EN_SV_AGREEMENT_3SG", start_offset: 3, ...,
+  #   #       suggestions: ["goes"] }]
+  def self.grammar_check(text, language: "en")
+    Grammar::Checker.new(language: language.to_s).check(text)
+  end
+
   # Check a file for spelling errors. Hot path.
   #
   # @param path [String] The file path

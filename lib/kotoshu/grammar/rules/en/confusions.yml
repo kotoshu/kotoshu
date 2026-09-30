@@ -1,0 +1,456 @@
+# Word confusion rules, second set (TODO.grammar/2). Word-pair and
+# single-word confusions; word_list constraints for reliability.
+
+- id: EN_ADVICE_ADVISE
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["advice him", "advice her", "advice them", "advice me", "advice you"]
+  message: "'Advice' is the noun; the verb is 'advise'"
+  suggestions:
+    - replace: { word: advice, with: advise }
+  examples:
+    - bad: "Please advice me on this."
+      good: "Please advise me on this."
+
+- id: EN_ACCEPT_EXCEPT
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["except the offer", "except the invitation", "except my apology", "except the gift"]
+  message: "'Except' excludes; the verb meaning 'take in' is 'accept'"
+  suggestions:
+    - replace: { word: except, with: accept }
+  examples:
+    - bad: "I except the offer."
+      good: "I accept the offer."
+
+- id: EN_CHOICE_CHOOSE
+  category: confusion
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [i, we, they, he, she] }
+    - { word: choose }
+    - { pos: ANY, skip: 2 }
+    - { word: [yesterday, "yesterday,", "last"] }
+  message: "Past time needs 'chose'"
+  suggestions:
+    - replace: { word: choose, with: chose }
+  examples:
+    - bad: "I choose to stay home yesterday."
+      good: "I chose to stay home yesterday."
+
+- id: EN_THEN_THAN_COMPARE
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["better then", "worse then", "more then", "less then", "older then", "younger then", "bigger then", "smaller then", "rather then", "other then"]
+  message: "Comparisons use 'than'"
+  suggestions:
+    - replace: { word: then, with: than }
+  examples:
+    - bad: "This is better then that."
+      good: "This is better than that."
+    - bad: "It cost more then ten dollars."
+      good: "It cost more than ten dollars."
+
+- id: EN_THAN_THEN_TIME
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["than we went", "than he left", "than she arrived", "than it broke"]
+  message: "Sequences use 'then'"
+  suggestions:
+    - replace: { word: than, with: then }
+  examples:
+    - bad: "We ate dinner than we went out."
+      good: "We ate dinner then we went out."
+
+- id: EN_YOUR_YOU_RE_ARE
+  category: confusion
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: your }
+    - { word: [going, coming, running, welcome, right, wrong, amazing, awesome] }
+  message: "'Your' is possessive; 'you're' means 'you are'"
+  suggestions:
+    - replace: { word: your, with: "you're" }
+  examples:
+    - bad: "Your going to love this."
+      good: "You're going to love this."
+    - bad: "Your welcome."
+      good: "You're welcome."
+
+- id: EN_ITS_IT_S_IS
+  category: confusion
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: its }
+    - { word: [going, coming, working, time, done, over, important, clear] }
+  message: "'Its' is possessive; 'it's' means 'it is'"
+  suggestions:
+    - replace: { word: its, with: "it's" }
+  examples:
+    - bad: "Its going to rain."
+      good: "It's going to rain."
+    - bad: "Its time to leave."
+      good: "It's time to leave."
+
+- id: EN_LOOSE_LOSE_WEIGHT
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["loose weight", "loose the game", "loose a game", "loose my job", "loose money", "loose my mind"]
+  message: "'Loose' means not tight; to misplace is 'lose'"
+  suggestions:
+    - replace: { word: loose, with: lose }
+  examples:
+    - bad: "I don't want to loose weight."
+      good: "I don't want to lose weight."
+
+- id: EN_AFFECT_EFFECT_NOUN
+  category: confusion
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [the, this, that, an, any] }
+    - { word: affect }
+  message: "The noun is 'effect'; 'affect' is usually the verb"
+  suggestions:
+    - replace: { word: affect, with: effect }
+  examples:
+    - bad: "The affect of the law was small."
+      good: "The effect of the law was small."
+
+- id: EN_EFFECT_EFFECTED_VERB
+  category: confusion
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [will, would, can, could, may, might, must, should] }
+    - { word: effect }
+  message: "The verb is 'affect'"
+  suggestions:
+    - replace: { word: effect, with: affect }
+  examples:
+    - bad: "This will effect the outcome."
+      good: "This will affect the outcome."
+
+- id: EN_WEATHER_WHETHER
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["weather or not"]
+  message: "Use 'whether' for alternatives"
+  suggestions:
+    - replace: { word: weather, with: whether }
+  examples:
+    - bad: "I asked weather or not to come."
+      good: "I asked whether or not to come."
+
+- id: EN_QUIET_QUITE
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["quiet a lot", "quiet good", "quiet big", "quiet often", "quiet sure"]
+  message: "'Quiet' means silent; 'quite' means fairly"
+  suggestions:
+    - replace: { word: quiet, with: quite }
+  examples:
+    - bad: "It was quiet a lot of work."
+      good: "It was quite a lot of work."
+
+- id: EN_PEACE_PIECE
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["peace of cake", "peace of paper", "peace of pizza", "peace of mind is quiet"]
+  message: "A portion is a 'piece'"
+  suggestions:
+    - replace: { word: peace, with: piece }
+  examples:
+    - bad: "Give me a peace of paper."
+      good: "Give me a piece of paper."
+
+- id: EN_HEAR_HERE
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["here you go ok", "hear i am", "hear we are", "hear it is"]
+  message: "Check hear (listen) vs here (location)"
+  suggestions:
+    - replace: { word: hear, with: here }
+  examples:
+    - bad: "Hear it is."
+      good: "Here it is."
+
+- id: EN_BUY_BY
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["by a car", "by a house", "by tickets", "by groceries"]
+  message: "To purchase is 'buy'"
+  suggestions:
+    - replace: { word: by, with: buy }
+  examples:
+    - bad: "I want to by a car."
+      good: "I want to buy a car."
+
+- id: EN_WRITE_RIGHT
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["right a letter", "right a book", "right an email", "right a report"]
+  message: "To compose text is 'write'"
+  suggestions:
+    - replace: { word: right, with: write }
+  examples:
+    - bad: "Please right a report."
+      good: "Please write a report."
+
+- id: EN_NO_KNOW
+  category: confusion
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: i }
+    - { word: "no" }
+  message: "Did you mean 'know'?"
+  suggestions:
+    - replace: { word: no, with: know }
+  examples:
+    - bad: "I no the answer."
+      good: "I know the answer."
+
+- id: EN_MEAT_MEET
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["meat me", "meat him", "meat her", "meat them", "meat us", "meat tomorrow", "meat you"]
+  message: "To encounter is 'meet'"
+  suggestions:
+    - replace: { word: meat, with: meet }
+  examples:
+    - bad: "Lets meat tomorrow."
+      good: "Lets meet tomorrow."
+
+- id: EN_BRAKE_BREAK
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["break failure", "break pedal", "break light", "break pad"]
+  message: "The car part is 'brake'"
+  suggestions:
+    - replace: { word: break, with: brake }
+  examples:
+    - bad: "The break pedal is stuck."
+      good: "The brake pedal is stuck."
+
+- id: EN_DESERT_DESSERT
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["desert for dinner", "desert after dinner", "chocolate desert", "ice cream desert", "for desert"]
+  message: "The sweet course is 'dessert' (double s)"
+  suggestions:
+    - replace: { word: desert, with: dessert }
+  examples:
+    - bad: "What is for desert?"
+      good: "What is for dessert?"
+
+- id: EN_PRINCIPAL_PRINCIPLE
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["school principle", "principles office"]
+  message: "The head of a school is the 'principal'"
+  suggestions:
+    - replace: { word: principle, with: principal }
+  examples:
+    - bad: "The school principle spoke."
+      good: "The school principal spoke."
+
+- id: EN_ALTOGETHER_ALL_TOGETHER
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["all together different", "all together wrong", "all together different from"]
+  message: "'Altogether' means entirely"
+  suggestions:
+    - replace: { word: all, with: "" }
+    - replace: { word: together, with: altogether }
+  examples:
+    - bad: "That is all together wrong."
+      good: "That is altogether wrong."
+
+- id: EN_ALREADY_ALL_READY
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["all ready finished", "all ready done", "all ready left", "all ready eaten"]
+  message: "'Already' means by now"
+  suggestions:
+    - replace: { word: all, with: "" }
+    - replace: { word: ready, with: already }
+  examples:
+    - bad: "I am all ready finished."
+      good: "I am already finished."
+
+- id: EN_STATIONARY_STATIONERY
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["stationery store is not moving", "stationary supplies", "office stationary"]
+  message: "Writing supplies are 'stationery'"
+  suggestions:
+    - replace: { word: stationary, with: stationery }
+  examples:
+    - bad: "We ordered office stationary."
+      good: "We ordered office stationery."
+
+- id: EN_LOST_LOSE_TENSE
+  category: confusion
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [will, would, can, could, may, might, must, should] }
+    - { word: lost }
+  message: "After a modal use the base form 'lose'"
+  suggestions:
+    - replace: { word: lost, with: lose }
+  examples:
+    - bad: "We will lost the game."
+      good: "We will lose the game."
+
+- id: EN_SEEN_SAW
+  category: confusion
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: i }
+    - { word: seen }
+  message: "Use 'saw' (past) or 'have seen'"
+  suggestions:
+    - replace: { word: seen, with: saw }
+  examples:
+    - bad: "I seen him yesterday."
+      good: "I saw him yesterday."
+
+- id: EN_DONE_DID
+  category: confusion
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: i }
+    - { word: done }
+  message: "Use 'did' (past) or 'have done'"
+  suggestions:
+    - replace: { word: done, with: did }
+  examples:
+    - bad: "I done my homework."
+      good: "I did my homework."
+
+- id: EN_GONE_WENT
+  category: confusion
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [he, she, it] }
+    - { word: gone }
+  message: "Use 'went' (past) or 'has gone'"
+  suggestions:
+    - replace: { word: gone, with: went }
+  examples:
+    - bad: "He gone home."
+      good: "He went home."
+
+- id: EN_BEEN_BEING
+  category: confusion
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [is, are, was, were] }
+    - { word: been }
+  message: "Use 'being' with the verb to be (or 'been' with 'has/have')"
+  suggestions:
+    - replace: { word: been, with: being }
+  examples:
+    - bad: "He is been helpful."
+      good: "He is being helpful."
+
+- id: EN_LOOSE_ENDS_IS_OK
+  category: confusion
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: than }
+    - { word: then }
+  message: "Double connective 'than then'"
+  suggestions:
+    - replace: { word: then, with: "" }
+  examples:
+    - bad: "Better than then before."
+      good: "Better than before."
+
+- id: EN_MORE_OVER
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["in Spit of", "inspite of"]
+  message: "Use 'in spite of' (or 'despite')"
+  suggestions:
+    - replace_span: { with: "in spite of" }
+  examples:
+    - bad: "Inspite of the rain, we left."
+      good: "In spite of the rain, we left."
+
+- id: EN_HIS_SELF
+  category: confusion
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["his self", "their self", "our self"]
+  message: "Use 'himself', 'themselves', 'ourselves'"
+  suggestions:
+    - replace_span: { with: "himself" }
+  examples:
+    - bad: "He hurt his self."
+      good: "He hurt himself."
+
+- id: EN_ONE_OF_THE_ONLY
+  category: agreement
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: i }
+    - { word: [is, was] }
+  message: "'I' takes 'am' or 'was' — never 'is'"
+  suggestions:
+    - replace: { word: is, with: am }
+  examples:
+    - bad: "I is ready."
+      good: "I am ready."
+    - bad: "I was ready."
+      good: "I was ready."

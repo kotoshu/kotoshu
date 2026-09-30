@@ -1,0 +1,206 @@
+# Style rules: modifiers, negatives, and common nonstandard forms
+# (TODO.grammar/2).
+
+- id: EN_VERY_UNIQUE
+  category: style
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["very unique", "quite unique", "somewhat unique"]
+  message: "'Unique' means one of a kind — it cannot be graded"
+  suggestions:
+    - replace: { word: very, with: "" }
+  examples:
+    - bad: "The design is very unique."
+      good: "The design is unique."
+
+- id: EN_MORE_BETTER
+  category: style
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["more better", "more worse", "more faster", "more bigger", "more smaller", "more easier", "more harder"]
+  message: "Double comparative — use the single comparative form"
+  suggestions:
+    - replace_span: { with: "better" }
+  examples:
+    - bad: "This is more better than before."
+      good: "This is better than before."
+
+- id: EN_MOST_BEST
+  category: style
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["most best", "most worst", "most fastest"]
+  message: "Double superlative — use the single superlative form"
+  suggestions:
+    - replace: { word: most, with: "" }
+  examples:
+    - bad: "He is the most best player."
+      good: "He is the best player."
+
+- id: EN_DOUBLE_NEGATIVE
+  category: style
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [do, does, did, can, could, will, would, have, has, had, is, are, was, were] }
+    - { word: "n't", skip: 2 }
+    - { word: ["no", "nothing", "nobody", "none", "never", "nowhere", "not"] }
+  message: "Double negative — use one negative element"
+  suggestions: []
+  examples:
+    - bad: "I don't have no money."
+      good: "I don't have any money."
+    - bad: "He didn't say nothing."
+      good: "He didn't say anything."
+
+- id: EN_COULD_CARE_LESS
+  category: style
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["could care less"]
+  message: "The idiom is 'couldn't care less' — you care so little you could not care less"
+  suggestions:
+    - replace: { word: could, with: "couldn't" }
+  examples:
+    - bad: "I could care less about that."
+      good: "I couldn't care less about that."
+
+- id: EN_IRREGARDLESS
+  category: style
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["irregardless"]
+  message: "'Irregardless' is nonstandard — use 'regardless'"
+  suggestions:
+    - replace: { word: irregardless, with: regardless }
+  examples:
+    - bad: "Irregardless of the cost, we proceed."
+      good: "Regardless of the cost, we proceed."
+
+- id: EN_AIN_T
+  category: style
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: ai }
+    - { word: "n't" }
+  message: "'Ain't' is nonstandard — use 'isn't', 'aren't', or 'am not'"
+  suggestions:
+    - replace_span: { with: "isn't" }
+  examples:
+    - bad: "That ain't right."
+      good: "That isn't right."
+
+- id: EN_WOULD_OF
+  category: style
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: [would, could, should, might, must] }
+    - { word: of }
+  message: "Use 'have', not 'of', after a modal verb"
+  suggestions:
+    - replace: { word: of, with: have }
+  examples:
+    - bad: "I would of gone."
+      good: "I would have gone."
+    - bad: "She should of known."
+      good: "She should have known."
+
+- id: EN_BETWEEN_YOU_AND_I
+  category: style
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["between you and i", "between him and i", "between she and i"]
+  message: "After a preposition use the object pronoun: 'between you and me'"
+  suggestions:
+    - replace: { word: i, with: me }
+  examples:
+    - bad: "This is between you and I."
+      good: "This is between you and me."
+
+- id: EN_LESS_UNCOUNTABLE_OK
+  category: style
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: less }
+    - { pos: PLUR_NOUN, exception: [money, time, work, water, effort, trouble] }
+  message: "Use 'fewer' with countable plural nouns"
+  suggestions:
+    - replace: { word: less, with: fewer }
+  examples:
+    - bad: "There are less cars on the road."
+      good: "There are fewer cars on the road."
+    - bad: "Less options were available."
+      good: "Fewer options were available."
+
+- id: EN_DEAD_METAPHOR_MIX
+  category: style
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["its a", "thats a", "lets do it"]
+  message: "Missing apostrophe: 'it's', 'that's', 'let's'"
+  suggestions:
+    - replace: { word: its, with: "it's" }
+  examples:
+    - bad: "Its a beautiful day."
+      good: "It's a beautiful day."
+
+- id: EN_COULD_OF_STYLE
+  category: style
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: must }
+    - { word: of }
+  message: "Use 'must have'"
+  suggestions:
+    - replace: { word: of, with: have }
+  examples:
+    - bad: "You must of seen it."
+      good: "You must have seen it."
+
+- id: EN_KINDA_SORTA
+  category: style
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["kinda", "sorta", "gotta", "wanna", "gonna"]
+  message: "Informal contraction — avoid in writing"
+  suggestions:
+    - replace: { word: gonna, with: "going to" }
+  examples:
+    - bad: "Im gonna leave."
+      good: "I am going to leave."
+
+- id: EN_OK_OKAY_DOUBLE
+  category: punctuation
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { pos: PUNCT }
+    - { word: [and, or] }
+    - { pos: PUNCT }
+  message: "Suspensive punctuation with a conjunction"
+  suggestions: []
+  examples:
+    - good: "Yes, and no."
+
+- id: EN_DOUBLE_SPACE_WORD
+  category: punctuation
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["very unique one", "a  b"]
+  message: "Check spacing"
+  suggestions: []
+  examples:
+    - good: "A single space separates words."

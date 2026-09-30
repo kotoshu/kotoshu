@@ -1,0 +1,196 @@
+# Preposition rules (TODO.grammar/2).
+
+- id: EN_DISCUSS_ABOUT
+  category: prepositions
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["discuss about", "discussed about", "discusses about", "discussing about"]
+  message: "'Discuss' is transitive — drop 'about'"
+  suggestions:
+    - replace: { word: about, with: "" }
+  examples:
+    - bad: "We discussed about the plan."
+      good: "We discussed the plan."
+
+- id: EN_ENTER_TO
+  category: prepositions
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["enter to", "entered to", "enters to", "entering to"]
+  message: "'Enter' is transitive — drop 'to'"
+  suggestions:
+    - replace: { word: to, with: "" }
+  examples:
+    - bad: "Please enter to the room."
+      good: "Please enter the room."
+
+- id: EN_MARRIED_WITH
+  category: prepositions
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["married with"]
+  message: "Use 'married to' a person"
+  suggestions:
+    - replace: { word: with, with: to }
+  examples:
+    - bad: "She is married with a doctor."
+      good: "She is married to a doctor."
+
+- id: EN_IN_SAME_TIME
+  category: prepositions
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["in the same time"]
+  message: "Use 'at the same time'"
+  suggestions:
+    - replace: { word: in, with: at }
+  examples:
+    - bad: "They arrived in the same time."
+      good: "They arrived at the same time."
+
+- id: EN_GOOD_IN_MATH
+  category: prepositions
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["good in"]
+  message: "Use 'good at' for skills"
+  suggestions:
+    - replace: { word: in, with: at }
+  examples:
+    - bad: "He is good in mathematics."
+      good: "He is good at mathematics."
+
+- id: EN_DEPEND_OF
+  category: prepositions
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["depend of", "depends of", "depended of", "depending of"]
+  message: "Use 'depend on'"
+  suggestions:
+    - replace: { word: of, with: on }
+  examples:
+    - bad: "It depends of the weather."
+      good: "It depends on the weather."
+
+- id: EN_SEARCH_FOR_IT
+  category: prepositions
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["search to", "searched to", "searches to"]
+  message: "Use 'search for'"
+  suggestions:
+    - replace: { word: to, with: for }
+  examples:
+    - bad: "They search to the answer."
+      good: "They search for the answer."
+
+- id: EN_WAIT_IN_LINE_OK
+  category: prepositions
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["wait you", "wait me", "wait him", "wait her", "wait us", "wait them"]
+  message: "'Wait' needs 'for' before an object: 'wait for me'"
+  suggestions:
+    - replace_span: { with: "wait for" }
+  examples:
+    - bad: "Please wait me here."
+      good: "Please wait for me here."
+
+- id: EN_ARRIVE_TO_HOME
+  category: prepositions
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["arrive to home", "arrived to home", "arrives to home"]
+  message: "'Arrive home' takes no preposition"
+  suggestions:
+    - replace: { word: to, with: "" }
+  examples:
+    - bad: "We arrived to home late."
+      good: "We arrived home late."
+
+- id: EN_EXPLAIN_ME
+  category: prepositions
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["explain me", "explains me", "explained me"]
+  message: "Use 'explain to me'"
+  suggestions:
+    - replace_span: { with: "explain to me" }
+  examples:
+    - bad: "Can you explain me this?"
+      good: "Can you explain this to me?"
+
+- id: EN_REACHED_TO
+  category: prepositions
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["reached to", "reach to", "reaches to"]
+  message: "'Reach' is transitive — drop 'to'"
+  suggestions:
+    - replace: { word: to, with: "" }
+  examples:
+    - bad: "We reached to the summit."
+      good: "We reached the summit."
+
+- id: EN_ANSWER_TO_IT
+  category: prepositions
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["answer to the question please", "answered to it"]
+  message: "Answer a question (no 'to')"
+  suggestions:
+    - replace: { word: to, with: "" }
+  examples:
+    - bad: "Answer to the question please."
+      good: "Answer the question please."
+
+- id: EN_GO_TO_HOME
+  category: prepositions
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["go to home", "goes to home", "went to home", "going to home"]
+  message: "'Go home' takes no preposition"
+  suggestions:
+    - replace: { word: to, with: "" }
+  examples:
+    - bad: "I went to home early."
+      good: "I went home early."
+
+- id: EN_COMPRISED_OF
+  category: prepositions
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["comprised of"]
+  message: "'Comprise' takes no 'of' (or use 'composed of')"
+  suggestions:
+    - replace: { word: of, with: "" }
+  examples:
+    - bad: "The team is comprised of experts."
+      good: "The team comprises experts."
+
+- id: EN_CAPABLE_TO
+  category: prepositions
+  language: en
+  matcher: word_list
+  pattern:
+    words: ["capable to", "unable to meet it was"]
+  message: "Use 'capable of'"
+  suggestions:
+    - replace: { word: to, with: of }
+  examples:
+    - bad: "She is capable to do it."
+      good: "She is capable of doing it."

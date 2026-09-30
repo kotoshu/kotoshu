@@ -1,0 +1,110 @@
+# Punctuation and capitalization rules (TODO.grammar/2).
+
+- id: EN_DOUBLE_PUNCT
+  category: punctuation
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { pos: PUNCT }
+    - { pos: PUNCT, exception: ["...", "!?", "??", "!!"] }
+  message: "Duplicated punctuation"
+  suggestions:
+    - replace_span: { with: "" }
+  examples:
+    - bad: "What is that??"
+      good: "What is that?"
+    - bad: "Stop it!!"
+      good: "Stop it!"
+
+- id: EN_SPACE_BEFORE_PUNCT
+  category: punctuation
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { regex: "\\A\\w+[.,;:]\\z" }
+  message: "No space before punctuation"
+  suggestions: []
+  examples:
+    - good: "This is fine, right?"
+
+- id: EN_LOWER_SENTENCE_START
+  category: capitalization
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { pos: SENT_START }
+    - { regex: "[a-z].*", case_sensitive: true }
+  message: "Sentences start with a capital letter"
+  suggestions: []
+  examples:
+    - bad: "he went home early."
+      good: "He went home early."
+
+- id: EN_LOWER_I
+  category: capitalization
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: i, case_sensitive: true, exception_pos: SENT_START }
+  message: "The pronoun 'I' is always capitalized"
+  suggestions:
+    - replace: { word: i, with: I }
+  examples:
+    - bad: "Yesterday i went home."
+      good: "Yesterday I went home."
+
+- id: EN_LOWER_DAYS
+  category: capitalization
+  language: en
+  matcher: word_list
+  pattern:
+    case_sensitive: true
+    words: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+  message: "Days of the week are capitalized"
+  suggestions:
+    - replace_span: { with: "Monday" }
+  examples:
+    - bad: "See you on monday."
+      good: "See you on Monday."
+
+- id: EN_LOWER_MONTHS
+  category: capitalization
+  language: en
+  matcher: word_list
+  pattern:
+    case_sensitive: true
+    words: ["january", "february", "march", "april", "june", "july", "august", "september", "october", "november", "december"]
+  message: "Months are capitalized"
+  suggestions:
+    - replace_span: { with: "March" }
+  examples:
+    - bad: "The meeting is in march."
+      good: "The meeting is in March."
+
+- id: EN_LOWER_COUNTRIES
+  category: capitalization
+  language: en
+  matcher: word_list
+  pattern:
+    case_sensitive: true
+    words: ["america", "europe", "asia", "africa", "france", "germany", "japan", "china", "india", "brazil", "canada", "england", "spain", "italy", "russia", "mexico", "australia"]
+  message: "Country and continent names are capitalized"
+  suggestions:
+    - replace_span: { with: "Europe" }
+  examples:
+    - bad: "She lives in germany."
+      good: "She lives in Germany."
+
+- id: EN_LOWER_LANGUAGES
+  category: capitalization
+  language: en
+  matcher: word_list
+  pattern:
+    case_sensitive: true
+    words: ["english", "french", "german", "spanish", "italian", "japanese", "chinese", "russian"]
+  message: "Language names are capitalized"
+  suggestions:
+    - replace_span: { with: "English" }
+  examples:
+    - bad: "She speaks english."
+      good: "She speaks English."
