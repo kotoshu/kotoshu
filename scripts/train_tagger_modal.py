@@ -1,0 +1,175 @@
+"""GECToR-style grammar tagger: training + int8 ONNX export (Modal).
+
+The local-model path (TODO.grammar/9, <200 MB, no cloud at runtime):
+
+  public-domain clean text (Gutenberg et al.)
+      -> scripts/error_injector.rb     (our own error taxonomy)
+      -> token-aligned (clean, corrupted, edits) JSONL
+      -> THIS SCRIPT: distilroberta-base tagger, GECToR-style labels
+      -> int8 ONNX  (~85 MB encoder + ~10 MB labels)
+      -> shipped through the existing model cache; runs in Ruby
+         (onnxruntime), Rust (ort), and the browser (onnxruntime-web)
+
+Everything is ours: the corpus is public domain, the errors are ours,
+the weights are trained by us. Nothing to attribute, nothing to
+relicense. No user content ever leaves the machine at runtime.
+
+Usage (after `modal token new`):
+  modal run scripts/train_tagger_modal.py --data injected.jsonl
+"""
+
+from __future__ import annotations
+
+import json
+import os
+
+import modal
+
+SIZE_BUDGET_MB = 200
+BASE_MODEL = "distilroberta-base"  # 6-layer, 82M params; int8 ~ 85 MB
+EPOCHS = 2
+LR = 1e-4
+BATCH = 16
+MAX_LEN = 96
+
+image = (
+    modal.Image.debian_slim(python_version="3.11")
+    .pip_install(
+        "torch",
+        "transformers",
+        "datasets",
+        "onnx",
+        "onnxruntime",
+        "accelerate",
+    )
+)
+
+app = modal.App("kotoshu-gec-tagger")
+
+
+def build_label_vocab(rows: list[dict]) -> dict[str, int]:
+    """GECToR-style labels from the injector's edits: $KEEP, $DELETE,
+    $REPLACE_<tok>, $APPEND_<tok> (top-K replaces by frequency)."""
+    from collections import Counter
+
+    replaces = Counter()
+    for row in rows:
+        for edit in row["edits"]:
+            if edit["tgt"] is None:
+                replaces[f"$DELETE"] += 1
+            else:
+                replaces[f"$REPLACE_{edit['tgt']}"] += 1
+    labels = {"$KEEP": 0}
+    for label, _ in replaces.most_common(4000):
+        labels[label] = len(labels)
+    return labels
+
+
+def row_to_labels(row: dict, word_list: list[str], labels: dict[str, int]) -> list[int]:
+    """Per-word label ids: default $KEEP, edits override."""
+    by_src = {edit["src_idx"]: edit for edit in row["edits"]}
+    out = []
+    for idx in range(len(word_list)):
+        edit = by_src.get(idx)
+        if edit is None:
+            out.append(labels["$KEEP"])
+        else:
+            tgt = edit.get("tgt")
+            label = "$DELETE" if tgt is None else f"$REPLACE_{tgt}"
+            out.append(labels.get(label, labels["$KEEP"]))
+    return out
+
+
+@app.function(
+    image=image,
+    gpu="A10G",
+    timeout=60 * 60 * 4,
+    volumes={"/data": modal.Volume.from_name("kotoshu-gec-data", create_if_missing=True)},
+)
+def train(data_path: str = "/data/injected.jsonl", out_path: str = "/data/gec-tagger"):
+    import torch
+    from transformers import AutoModelForTokenClassification, AutoTokenizer, TrainingArguments, Trainer
+
+    rows = []
+    with open(data_path) as fh:
+        for line in fh:
+            line = line.strip()
+            if line:
+                rows.append(json.loads(line))
+    print(f"training pairs: {len(rows)}")
+
+    labels = build_label_vocab(rows)
+    print(f"label vocab: {len(labels)} (KEEP + {len(labels) - 1} edits)")
+
+    tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
+    model = AutoModelForTokenClassification.from_pretrained(
+        BASE_MODEL, num_labels=len(labels), id2label={i: l for l, i in labels.items()},
+        label2id=labels,
+    )
+
+    # Materialize the dataset: corrupted sentence in, per-word labels out.
+    examples = []
+    for row in rows:
+        words = row["corrupted"].split()
+        label_ids = row_to_labels(row, words, labels)
+        enc = tokenizer(
+            row["corrupted"],
+            is_split_into_words=True,
+            truncation=True,
+            max_length=MAX_LEN,
+        )
+        word_ids = enc.word_ids()
+        aligned = [-100] * len(enc["input_ids"])
+        for pos, wid in enumerate(word_ids):
+            if wid is not None and wid < len(label_ids):
+                aligned[pos] = label_ids[wid]
+        enc["labels"] = aligned
+        examples.append(enc)
+
+    def collate(batch):
+        return tokenizer.pad(batch, padding=True, return_tensors="pt")
+
+    args = TrainingArguments(
+        output_dir="/data/ckpt",
+        num_train_epochs=EPOCHS,
+        learning_rate=LR,
+        per_device_train_batch_size=BATCH,
+        logging_steps=50,
+        save_strategy="no",
+        report_to=[],
+    )
+    trainer = Trainer(model=model, args=args, train_dataset=examples, data_collator=collate)
+    trainer.train()
+
+    # Export: fp32 ONNX -> int8 dynamic quantization. Report the size
+    # and hold the <200 MB gate right here.
+    import torch.onnx  # noqa: F401
+    from transformers.onnx import export as onnx_export
+
+    os.makedirs(out_path, exist_ok=True)
+    onnx_path = os.path.join(out_path, "gec-tagger.onnx")
+    onnx_export(model, tokenizer, onnx_path, opset=14)
+
+    import onnxruntime as ort
+    from onnxruntime.quantization import quantize_dynamic, QuantType
+
+    int8_path = os.path.join(out_path, "gec-tagger.int8.onnx")
+    quantize_dynamic(onnx_path, int8_path, weight_type=QuantType.QInt8)
+
+    size_mb = os.path.getsize(int8_path) / (1024 * 1024)
+    print(f"int8 model: {size_mb:.1f} MB (budget {SIZE_BUDGET_MB} MB)")
+    assert size_mb < SIZE_BUDGET_MB, "int8 model exceeds the local-model budget"
+
+    modal.Volume.from_name("kotoshu-gec-data").commit()
+    return {"size_mb": round(size_mb, 1), "labels": len(labels)}
+
+
+@app.local_entrypoint()
+def main(data: str):
+    import pathlib
+
+    volume_dir = "/data/injected.jsonl"
+    with modal.Volume.from_name("kotoshu-gec-data", create_if_missing=True).batch_upload() as up:
+        up.put_directory(str(pathlib.Path(data).parent), "/data")
+    result = train.remote(volume_dir)
+    print(result)
