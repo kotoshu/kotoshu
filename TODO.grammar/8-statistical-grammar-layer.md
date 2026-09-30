@@ -1,51 +1,28 @@
-# 8 — Statistical grammar layer (our unique advantage)
+# 8 — Statistical collocation layer (DEMOTED to a ranking signal)
 
-Nobody else has client-side statistical grammar checking. We have the
-models (57 languages of fasttext embeddings); the wiring is the work.
+DEMOTION (2026-09-30): a collocation-anomaly score only DETECTS that
+a word pair is unusual. It cannot produce the correct correction —
+"depend of" is anomalous, but the embedding neighborhood does not
+tell you the fix is "depend on". Detection without generation is not
+a grammar checker. Context-dependent grammar is handled by the
+neural tagger (TODO.grammar/9), which both detects AND generates the
+correction from full-sentence context.
 
-## What it catches (that rules miss)
+## What remains valid here
 
-- **Collocation errors**: "depend of" → "depend on" (the embedding
-  distance between "depend" and "of" is anomalous)
-- **Redundant prepositions**: "discuss about" → "discuss"
-- **Wrong preposition**: "interesting in" → "interested in"
-- **Agreement errors the rules miss**: complex subjects with
-  intervening phrases ("The list of items ARE..." → "IS")
-- **Word order anomalies**: "have I a question" vs "do I have"
+The fasttext embeddings (57 languages) stay useful as a SECONDARY
+signal only:
 
-## How it works
+- reranking candidate suggestions the rule engine produces (prefer
+  the candidate that fits the embedding context)
+- cheap anomaly prefiltering to route sentences to the neural layer
 
-For each pair of adjacent words in a sentence:
-1. Look up the fasttext embedding for each word
-2. Compute the context likelihood (how expected is this word pair?)
-3. If the pair is anomalous (below a threshold) AND neither word is
-   flagged by spelling, flag it as a potential grammar error
-4. Offer suggestions from the nearest neighbors in embedding space
+They are no longer a standalone "grammar layer". No rule fires on
+embedding anomaly alone; every user-facing error must carry a
+correction string from a rule or the tagger.
 
-## What we already have
+## Acceptance (demoted scope)
 
-- The fasttext models: ✅ 57 languages, ONNX, int8, client-side
-- The embedding lookup infrastructure: ✅ (Embeddings::Vocabulary, SimilaritySearch)
-- The realword detection: ✅ already scores context anomaly
-- The ONNX runtime: ✅ same infrastructure as the spelling models
-
-## What we need to build
-
-- The pair-scoring function (two adjacent words → anomaly score)
-- The grammar-specific threshold calibration
-- The suggestion generation (nearest neighbor in the pair context)
-- The integration with the rule engine (rules first, stats on residual)
-
-## Performance target
-
-- Pair scoring: <0.5ms per word pair (embedding lookups are cached)
-- A 20-word sentence: <10ms on the statistical layer
-- Combined with rules: <15ms per sentence (client-side viable)
-
-## The hybrid pipeline
-
-```
-1. Rule engine fires (high precision, fast)          → 80% of errors
-2. Statistical layer on unflagged pairs (recall)     → the long tail
-3. Optional: neural tagger (if a model is loaded)    → the hardest cases
-```
+- suggestion reranking measurably improves top-1 quality on the
+  grammar example suites
+- zero user-facing errors sourced from bare anomaly scores
