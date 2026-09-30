@@ -56,6 +56,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency "thor", "~> 1.0"
   spec.add_dependency "rubyzip", "~> 2.3"
   spec.add_dependency "lutaml-model", "~> 0.8"
+  spec.add_dependency "moxml", "~> 0.5"
+  spec.add_dependency "leptris", "~> 1.9"
 
   # Required to build the Rust extension (parsanol policy).
   spec.add_dependency "rb_sys", "~> 0.9"
