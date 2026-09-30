@@ -81,8 +81,27 @@ Synthetic-errors-only training is how GECToR itself reached most of
 its accuracy; taxonomy alignment specializes the tagger in exactly
 the residual classes the rules cannot reach.
 
-## Status
+## Status — SCALED RUN MEASURED (2026-10-01)
 
-INJECTOR + TRAINING SCAFFOLD SHIPPED (rules branch, PR #247). Data
-volume, epochs, and GPU spend are owner decisions; the pipeline is
-launch-ready on Modal.
+| metric | value |
+|---|---|
+| training | 3,068 PD pairs, 6 epochs, ~4 min A10G |
+| int8 model | **79.4 MB** (budget 200 MB) |
+| dev (355 pairs, sentence-disjoint) | token accuracy 96.6% |
+| corrupted-sentence detection | ~86% (13.8% predicted all-KEEP) |
+| end-to-end exact correction | **0%** — honest limit |
+| local Ruby inference (onnxruntime int8) | **5.7 ms/sentence**, clean text silent |
+
+Reading: DETECTION is learned at smoke scale (right token flagged,
+clean text quiet). EXACT-REPLACEMENT is not — the label vocab is the
+open vocabulary of clean words (1,664 labels from 3k pairs; GECToR
+trains on 500k+). Two paths forward, both in-design:
+
+1. scale the injector (Gutenberg has 70k books; 100k+ pairs is a
+   download + one Modal run)
+2. closed-class hybrid: the tagger predicts the ERROR CLASS, our
+   rules/morphology generate the fix — bounded labels, fits the
+   existing suggestion machinery
+
+labels.json ships with the model (tie-ordered Counter map; consumers
+must not rebuild it — PR #249).
