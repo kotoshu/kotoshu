@@ -1,0 +1,164 @@
+# English grammar rules: agreement (TODO.grammar/2)
+# The highest-impact class: subject-verb agreement errors.
+# Each rule has an FP budget — rules that fire on clean text are rejected.
+
+- id: EN_SV_AGREEMENT_3SG
+  category: agreement
+  severity: error
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { pos: PRON_3SG }
+    - { pos: VERB_BASE, exception: [can, could, may, might, must, shall, should, will, would, do, did, have, had, be, been, being, go, come] }
+  message: "Subject-verb agreement: '{{0}}' requires a third-person verb form"
+  suggestions:
+    - template: "{{1}}s"
+  examples:
+    - bad: "He go to school"
+      good: "He goes to school"
+    - bad: "She make a mistake"
+      good: "She makes a mistake"
+    - bad: "It seem wrong"
+      good: "It seems wrong"
+
+- id: EN_SV_AGREEMENT_PLURAL
+  category: agreement
+  severity: error
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { pos: PRON_PLURAL }
+    - { word: [goes, makes, seems, takes, sees, comes, gets, gives, finds, tells, says, knows, writes, puts, sets] }
+  message: "Subject-verb agreement: '{{0}}' requires a base verb form (no -s)"
+  suggestions:
+    - template: "{{1}}"
+  examples:
+    - bad: "They goes to school"
+      good: "They go to school"
+    - bad: "We makes mistakes"
+      good: "We make mistakes"
+
+- id: EN_THERE_IS_PLURAL
+  category: agreement
+  severity: error
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: there }
+    - { word: is }
+    - { pos: PLUR_NOUN }
+  message: "Use 'are' with a plural noun: 'there are {{2}}'"
+  suggestions:
+    - replace: { word: is, with: are }
+  examples:
+    - bad: "There is many reasons"
+      good: "There are many reasons"
+    - bad: "There is some books"
+      good: "There are some books"
+
+- id: EN_WAS_PLURAL
+  category: agreement
+  severity: error
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { pos: PRON_PLURAL }
+    - { word: was }
+  message: "Use 'were' with a plural subject"
+  suggestions:
+    - replace: { word: was, with: were }
+  examples:
+    - bad: "They was late"
+      good: "They were late"
+    - bad: "We was tired"
+      good: "We were tired"
+
+- id: EN_HAS_PLURAL
+  category: agreement
+  severity: error
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { pos: PRON_PLURAL }
+    - { word: has }
+  message: "Use 'have' with a plural subject"
+  suggestions:
+    - replace: { word: has, with: have }
+  examples:
+    - bad: "They has finished"
+      good: "They have finished"
+
+- id: EN_THIS_PLURAL
+  category: agreement
+  severity: error
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: this }
+    - { pos: PLUR_NOUN }
+  message: "Use 'these' with a plural noun"
+  suggestions:
+    - replace: { word: this, with: these }
+  examples:
+    - bad: "This books are old"
+      good: "These books are old"
+
+- id: EN_THAT_PLURAL
+  category: agreement
+  severity: error
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: that }
+    - { pos: PLUR_NOUN }
+  message: "Use 'those' with a plural noun"
+  suggestions:
+    - replace: { word: that, with: those }
+  examples:
+    - bad: "That books are old"
+      good: "Those books are old"
+
+- id: EN_A_PLURAL
+  category: agreement
+  severity: error
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: a }
+    - { pos: PLUR_NOUN }
+  message: "Use 'some' or a number before a plural noun"
+  suggestions:
+    - replace: { word: a, with: some }
+  examples:
+    - bad: "I have a books"
+      good: "I have some books"
+
+- id: EN_EACH_ARE
+  category: agreement
+  severity: error
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: each }
+    - { word: are }
+  message: "'Each' takes a singular verb: 'each is'"
+  suggestions:
+    - replace: { word: are, with: is }
+  examples:
+    - bad: "Each are important"
+      good: "Each is important"
+
+- id: EN_NEITHER_WERE
+  category: agreement
+  severity: error
+  language: en
+  matcher: pos_sequence
+  pattern:
+    - { word: neither }
+    - { word: were }
+  message: "'Neither' takes a singular verb: 'neither was'"
+  suggestions:
+    - replace: { word: were, with: was }
+  examples:
+    - bad: "Neither were correct"
+      good: "Neither was correct"

@@ -9,6 +9,7 @@ module Kotoshu
     autoload :Rule, "kotoshu/grammar/rule"
     autoload :RuleEngine, "kotoshu/grammar/rule_engine"
     autoload :RuleLoader, "kotoshu/grammar/rule_loader"
+    autoload :PosTagger, "kotoshu/grammar/pos_tagger"
 
     module PatternMatchers
       autoload :BaseMatcher, "kotoshu/grammar/pattern_matchers/base_matcher"
@@ -19,6 +20,7 @@ module Kotoshu
       autoload :PhraseMatcher, "kotoshu/grammar/pattern_matchers/phrase_matcher"
       autoload :SentenceStartMatcher, "kotoshu/grammar/pattern_matchers/sentence_start_matcher"
       autoload :WordListMatcher, "kotoshu/grammar/pattern_matchers/word_list_matcher"
+      autoload :PosSequenceMatcher, "kotoshu/grammar/pattern_matchers/pos_sequence_matcher"
     end
   end
 end
