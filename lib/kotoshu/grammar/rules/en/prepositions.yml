@@ -73,7 +73,7 @@
     words: ["depend of", "depends of", "depended of", "depending of"]
   message: "Use 'depend on'"
   suggestions:
-    - replace: { word: of, with: on }
+    - replace: { word: of, with: "on" }
   examples:
     - bad: "It depends of the weather."
       good: "It depends on the weather."
