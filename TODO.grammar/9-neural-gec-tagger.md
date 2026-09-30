@@ -105,3 +105,21 @@ trains on 500k+). Two paths forward, both in-design:
 
 labels.json ships with the model (tie-ordered Counter map; consumers
 must not rebuild it — PR #249).
+
+## CLOSED-CLASS HYBRID — THE MEASURED ANSWER (2026-10-01)
+
+Open-vocab $REPLACE labels do NOT converge (0% end-to-end at 3k AND
+27k pairs — the label set IS the open vocabulary of clean words,
+4,001 labels at scale). The closed-class variant converges hard:
+
+| run | labels | int8 | token acc | class acc (corrupted) | sentence detection |
+|---|---|---|---|---|---|
+| 3k open | 1,665 | 79.4 MB | 96.6% | — | 86% |
+| 27k open | 4,001 | 81.1 MB | 98.8% | — | 80.5% |
+| **27k closed** | **8** | **78.2 MB** | **99.2%** | **95.4%** | **99.25%** |
+
+Architecture (final): the tagger detects WHICH token is wrong and
+NAMES the error class (8 classes mirroring the rule taxonomy); the
+RULES and morphology verbs generate the concrete fix. Neural
+detection + deterministic, dual-gated correction — 78 MB, fully
+local, license-pure end to end.
