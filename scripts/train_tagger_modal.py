@@ -27,7 +27,7 @@ import modal
 
 SIZE_BUDGET_MB = 200
 BASE_MODEL = "distilroberta-base"  # 6-layer, 82M params; int8 ~ 85 MB
-EPOCHS = 2
+EPOCHS = 6
 LR = 1e-4
 BATCH = 16
 MAX_LEN = 96
@@ -79,6 +79,62 @@ def row_to_labels(row: dict, word_list: list[str], labels: dict[str, int]) -> li
             label = "$DELETE" if tgt is None else f"$REPLACE_{tgt}"
             out.append(labels.get(label, labels["$KEEP"]))
     return out
+
+
+def evaluate(model, tokenizer, labels: dict, dev_path: str):
+    """Held-out accuracy on sentence-disjoint injected pairs: token
+    label exact-match, and end-to-end correction (apply predicted
+    REPLACE labels -> compare to clean)."""
+    import torch
+
+    model.eval()
+    rows = [json.loads(l) for l in open(dev_path) if l.strip()]
+    tok_correct = 0
+    tok_total = 0
+    sent_exact = 0
+    corrected_exact = 0
+    with torch.no_grad():
+        for row in rows:
+            words = row["corrupted"].split()
+            gold = row_to_labels(row, words, labels)
+            enc = tokenizer(words, is_split_into_words=True, truncation=True,
+                            max_length=MAX_LEN, return_tensors="pt")
+            logits = model(**{k: v.to(model.device) for k, v in enc.items()}).logits
+            word_ids = enc.word_ids()
+            pred_word = {}
+            for pos, wid in enumerate(word_ids):
+                if wid is not None and wid not in pred_word:
+                    pred_word[wid] = logits[0, pos].argmax().item()
+            for idx in range(len(words)):
+                tok_total += 1
+                pred = pred_word.get(idx, 0)
+                if pred == gold[idx]:
+                    tok_correct += 1
+            # end-to-end: apply predicted labels
+            id2label = {i: l for l, i in labels.items()}
+            out = []
+            for idx in range(len(words)):
+                lab = id2label.get(pred_word.get(idx, 0), "$KEEP")
+                if lab.startswith("$REPLACE_"):
+                    out.append(lab[len("$REPLACE_"):])
+                elif lab == "$DELETE":
+                    continue
+                else:
+                    out.append(words[idx])
+            corrected = " ".join(out)
+            if corrected == row["corrupted"].replace("$KEEP", "") and all(
+                id2label.get(pred_word.get(i, 0), "$KEEP") == "$KEEP" for i in range(len(words))
+            ):
+                sent_exact += 1
+            if corrected == " ".join(row["clean"].split()):
+                corrected_exact += 1
+    n = len(rows)
+    return {
+        "dev_pairs": n,
+        "token_label_accuracy": round(tok_correct / max(tok_total, 1), 4),
+        "sentences_all_keep_pred": round(sent_exact / n, 4),
+        "end_to_end_exact_correction": round(corrected_exact / n, 4),
+    }
 
 
 @app.function(
@@ -187,13 +243,27 @@ def train(data_path: str = "/data/injected.jsonl", out_path: str = "/data/gec-ta
     print(f"int8 model: {size_mb:.1f} MB (budget {SIZE_BUDGET_MB} MB)")
     assert size_mb < SIZE_BUDGET_MB, "int8 model exceeds the local-model budget"
 
+    # The label map ships WITH the model: inference correctness depends
+    # on the exact id->label ordering (Counter.most_common ties are
+    # first-seen ordered; consumers must not rebuild it independently).
+    with open(os.path.join(out_path, "labels.json"), "w") as fh:
+        json.dump({str(i): lab for lab, i in labels.items()}, fh, indent=1)
+
+    import os as _os
+
+    eval_result = {}
+    if _os.path.exists("/data/dev.jsonl"):
+        eval_result = evaluate(model, tokenizer, labels, "/data/dev.jsonl")
+
     modal.Volume.from_name("kotoshu-gec-data").commit()
-    return {"size_mb": round(size_mb, 1), "labels": len(labels)}
+    return {"size_mb": round(size_mb, 1), "labels": len(labels), **eval_result}
 
 
 @app.local_entrypoint()
-def main(data: str):
+def main(data: str, dev: str = ""):
     with modal.Volume.from_name("kotoshu-gec-data", create_if_missing=True).batch_upload() as up:
         up.put_file(data, "injected.jsonl")
+        if dev:
+            up.put_file(dev, "dev.jsonl")
     result = train.remote("/data/injected.jsonl")
     print(result)
