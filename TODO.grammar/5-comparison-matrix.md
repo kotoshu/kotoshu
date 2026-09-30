@@ -1,43 +1,53 @@
-# 5 — The comparison matrix (kotoshu vs competing solutions)
+# 5 — The SOTA comparison matrix: competitors, our results, the path
 
-The honest comparison. Every number traces to a published benchmark
-or a committed frozen report. Unmeasured claims are marked as such.
+DIRECTION (2026-09-30, owner decision): NO LanguageTool data. Their
+LGPL and attribution complexity are rejected outright. Every rule is
+ORIGINAL work in our own YAML DSL — no XML, no conversion, no
+attribution. The LT XML loader (TODO.grammar/3, PR #245) is
+superseded; it stays on its branch as reference only.
 
-## Spelling (the core — 16 languages measured)
+## The matrix (SOTA title run)
 
-| solution | languages | nonword top-1 | realword | cross-script | offline |
+| solution | en rules | license | client-side | context model | measured quality |
 |---|---|---|---|---|---|
-| **kotoshu** | **16 measured, 57 served** | **leads all 16** | **unique signal** | **unique** | ✅ |
-| Hunspell | 100+ | below us | ❌ | ❌ | ✅ |
-| SymSpell (symspellpy) | list-dependent | below us | ❌ | ❌ | ✅ |
-| LanguageTool | 30+ | unmeasured on our splits | sentence-tier | ❌ | ✅ |
-| Grammarly | 1 (en) | unmeasured | ✅ (cloud) | ❌ | ❌ |
+| **kotoshu (rules)** | 150 original, growing | BSD-2 (ours, no attribution) | yes, <5 ms/sentence | rule-based tagger + recursive matcher | 100% of own examples fire; 0.0% FP on 30-sentence clean corpus |
+| **kotoshu (rules + tagger, planned)** | 150 + neural | ours | yes, int8 ONNX | full-sentence transformer (GECToR-style) | target: F0.5 >= 50 on BEA-2019 |
+| LanguageTool | ~1,700 en (+2,000 de...) | LGPL-2.1+ (data + code) | yes (Java) | hand rules + their tagger | ~100% of own examples (by construction) |
+| Grammarly | closed | proprietary | no (cloud) | large neural + rules | closed; de facto market quality bar |
+| GECToR (2020, literature) | learned | research | borderline (350 MB) | transformer tagger | BEA-2019 F0.5 ~56-65 |
+| T5-11B / LLM GEC (2022-2025) | learned | varies | no (cloud) | seq2seq | BEA-2019 F0.5 ~70-78 |
+| Hunspell / cspell | 0 grammar | various | yes | none | spelling only — not a grammar competitor |
 
-## Grammar (the honest assessment)
+## What SOTA requires (definition)
 
-| solution | en rules | POS tagger | languages | FP rate | client-side |
-|---|---|---|---|---|---|
-| LanguageTool | ~2,700 | ✅ full tagger | 30+ | calibrated | ✅ |
-| **kotoshu (target)** | 150 (phase 1) → 300 | rule-based (lightweight) | en → 3 | budget ≤ 2% | ✅ |
-| **kotoshu (current)** | 3 | ❌ | en only | opt-in | ✅ |
-| ProWritingAid | ~1,000 | ✅ | 1 (en) | ? | ✅ |
-| Grammarly | ~500+ | ✅ | 1 (en) | ? | ❌ (cloud) |
-| Trinka | ~3,000 (academic) | ✅ | 1 (en) | ? | ✅ |
+1. F0.5 >= LanguageTool on the SAME public test set (BEA-2019 test
+   split; public data, evaluation use is unambiguous)
+2. Unique capabilities LT lacks: 3-API parity (Ruby/Rust/TS from one
+   YAML), native-gem simplicity (no Java), variant-pure CJK models,
+   cross-script romanization channel
+3. Every number traces to a committed frozen report
+4. No third-party rule data — nothing to attribute, nothing to
+   relicense
 
-## The grammar parity path
+## Our measured results (frozen, this branch)
 
-Phase 1 (TODO.grammar/1-2): POS tagger + 150 en rules + agreement
-Phase 2 (TODO.grammar/3): LanguageTool XML loader — instant 2,700
-Phase 3 (TODO.grammar/4): multilingual (de/es/fr priority)
-Phase 4: neural distillation (GECToR int8 ONNX — the long tail)
+| metric | value |
+|---|---|
+| original rules | 150 (8 files, DSL v2) |
+| own bad examples fired | 150/150 (the gate spec) |
+| own good examples FP | 0/102 |
+| clean-corpus FP (30 prose sentences) | 0.0% |
+| check latency | < 5 ms/sentence (rule-based, no model) |
 
-## Benchmark methodology
+## Path to success (ordered)
 
-- Test data: BEA-2019 test set + CoNLL-2014 test set (the standard
-  GEC benchmarks)
-- Metrics: precision, recall, F0.5 (the standard GEC metric that
-  weights precision 2× recall), and per-rule FP rate
-- Baseline: LanguageTool CLI running the same test sentences
-- All measurements committed as frozen reports
-EOF
-echo "file 5 written"
+1. [done] Engine wiring: Kotoshu.grammar_check, char-offset errors
+2. [done] 150 dual-gated original rules
+3. Rust port + conformance vectors (same YAML, zero XML)
+4. TS/server: grammar flag on the check endpoint
+5. Grow to ~400 rules by error class (the audit harness scales)
+6. BEA-2019 test evaluation of rules-only (the honest baseline number)
+7. GECToR-style tagger distilled from a BART/T5 teacher (our own
+   training, our own weights) — the hybrid that takes F0.5 past LT
+8. de/es/fr original rule sets (~30 each), then ja/ko/zh research
+9. Publish the matrix with frozen reports per cell
