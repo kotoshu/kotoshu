@@ -12,6 +12,9 @@ module Kotoshu
     autoload :RuleLoader, "kotoshu/grammar/rule_loader"
     autoload :PosTagger, "kotoshu/grammar/pos_tagger"
     autoload :Checker, "kotoshu/grammar/checker"
+    autoload :ByteBpe, "kotoshu/grammar/byte_bpe"
+    autoload :Morphology, "kotoshu/grammar/morphology"
+    autoload :Tagger, "kotoshu/grammar/tagger"
 
     module PatternMatchers
       autoload :BaseMatcher, "kotoshu/grammar/pattern_matchers/base_matcher"

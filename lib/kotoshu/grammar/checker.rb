@@ -22,10 +22,13 @@ module Kotoshu
       # @param rules [Array<PatternRule, Rule>, nil] explicit rules;
       #   defaults to the gem-bundled rules for the language
       # @param include_disabled [Boolean] load rules marked default: off
-      def initialize(language: "en", rules: nil, include_disabled: false)
+      # @param tagger [Tagger, nil] the neural closed-class detector —
+      #   the residual pass behind the rules (the hybrid architecture)
+      def initialize(language: "en", rules: nil, include_disabled: false, tagger: nil)
         @language = language
         @include_disabled = include_disabled
         @rules = rules || load_rules
+        @tagger = tagger
       end
 
       # Check text and return grammar errors with character offsets.
@@ -41,10 +44,35 @@ module Kotoshu
           tokens = tagged_tokens(tokenize_with_offsets(sentence, offset))
           next if tokens.empty?
 
+          covered = {}
           @rules.each do |rule|
             rule.check(tokens).each do |error|
+              (error[:start_index]..error[:end_index]).each { |i| covered[i] = true }
               errors << spanned_error(error, tokens, sentence)
             end
+          end
+          next if @tagger.nil?
+
+          # The hybrid residual: the tagger catches what the rules
+          # missed; fixes come from the class deterministically.
+          words = tokens.map { |t| t[:word] }
+          @tagger.detect(words).each do |finding|
+            next if covered[finding[:index]]
+
+            token = tokens[finding[:index]]
+            next if token.nil?
+
+            errors << {
+              rule_id: finding[:label],
+              type: "neural",
+              start_offset: token[:start_offset],
+              end_offset: token[:end_offset],
+              target_word: token[:word],
+              tokens: [token[:word]],
+              message: @tagger.message_for(finding[:label]),
+              suggestions: @tagger.fix_for(finding[:label], token[:word]),
+              sentence: sentence
+            }
           end
         end
         errors
