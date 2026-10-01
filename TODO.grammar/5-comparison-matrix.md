@@ -11,7 +11,7 @@ superseded; it stays on its branch as reference only.
 | solution | en rules | license | client-side | context model | measured quality |
 |---|---|---|---|---|---|
 | **kotoshu (rules)** | 180 original (en 150 + de/es/fr) | BSD-2 (ours, no attribution) | yes, <5 ms/sentence | rule-based tagger + recursive matcher | 180/180 own examples fire; 0.0% FP on clean corpus |
-| **kotoshu (rules + tagger)** | 180 + neural | ours | **yes — 78.6 MB int8, MEASURED** | GECToR-style tagger, our own training data | pipeline validated end-to-end; full run = scale-up |
+| **kotoshu (hybrid, measured)** | 180 + closed-class tagger | ours | **yes — 78.2 MB int8** | tagger detects (99.25% sent), rules fix (0% FP) | **F0.5 0.827 vs LT 0.432 on identical sentences** (2,392, token-level) |
 | LanguageTool | ~1,700 en (+2,000 de...) | LGPL-2.1+ (data + code) | yes (Java) | hand rules + their tagger | ~100% of own examples (by construction) |
 | Grammarly | closed | proprietary | no (cloud) | large neural + rules | closed; de facto market quality bar |
 | GECToR (2020, literature) | learned | research | borderline (350 MB) | transformer tagger | BEA-2019 F0.5 ~56-65 |
@@ -39,6 +39,8 @@ superseded; it stays on its branch as reference only.
 | clean-corpus FP (30 prose sentences) | 0.0% |
 | local tagger size (int8 ONNX, measured) | 78.6 MB — 2.5x under the 200 MB budget |
 | Rust/Ruby conformance | 15 sentences, 29 errors, exact replay |
+| **head-to-head vs LanguageTool 6.6 (free desktop), identical 2,392 injected sentences, token-level** | **hybrid: P 0.807 / R 0.919 / F0.5 0.827 — LT: P 0.720 / R 0.166 / F0.5 0.432 — rules-only: 0.305** |
+| hybrid latency | local Ruby onnxruntime, ~6 ms/sentence |
 | check latency | < 5 ms/sentence (rule-based, no model) |
 
 ## Path to success (ordered)
