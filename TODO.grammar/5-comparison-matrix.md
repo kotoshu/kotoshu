@@ -119,6 +119,25 @@ GECToR itself (~56 vs 0.34) remains the licensed data (NUCLE+Lang-8,
 ~1M sentences), roberta-base depth, and per-label thresholds — in
 that order. 81.9 MB int8, fully local.
 
+## FINAL FULL-SET SCORE (2026-10-01, complete 1,312-sentence CoNLL-14, official M2 scorer)
+
+| system | P | R | F0.5 | local |
+|---|---|---|---|---|
+| **kotoshu GECToR-recipe (FCE+W&I, 96,813 sents)** | **0.410** | **0.155** | **0.309** | **81.9 MB** |
+| LanguageTool 6.6 free | 0.305 | 0.060 | 0.168 | Java |
+| kotoshu hybrid (closed-class, synthetic) | 0.143 | 0.029 | 0.080 | 78.2 MB |
+
+1.84x LanguageTool on the complete official benchmark, higher
+precision AND higher recall, fully local. The NUCLE-augmented model
+(153,753 sentences, 19/20 training hits, loss 0.17) is decoding now;
+its full-set score lands next.
+
+Corpus status: NUCLE (57,131) is ungated on HuggingFace
+(nusnlp/NUCLE) and already in the training mix; cLang-8 targets
+(181 MB, gT5-cleaned) downloaded — sources await the Lang-8
+registration email. After cLang-8: ~1.2M training sentences, the
+corpus class that took T5-11B to SOTA.
+
 ## What SOTA requires (definition)
 
 1. F0.5 >= LanguageTool on the SAME public test set (BEA-2019 test
