@@ -103,34 +103,11 @@ module Kotoshu
         text.gsub(/\{\{(\d+)(?:\|(3sg|base))?\}\}/) do
           word = window[Regexp.last_match(1).to_i]&.fetch(:word, "").to_s
           case Regexp.last_match(2)
-          when "3sg" then inflect_3sg(word)
-          when "base" then uninflect_3sg(word)
+          when "3sg" then Morphology.inflect_3sg(word)
+          when "base" then Morphology.uninflect_3sg(word)
           else word
           end
         end
-      end
-
-      # Third-person singular inflection: irregular table first, then
-      # the s/sh/ch/x/z/o → es, consonant+y → ies, else +s rules.
-      def inflect_3sg(word)
-        base = word.downcase
-        return PosTagger::IRREGULAR_VERBS[base][0] if PosTagger::IRREGULAR_VERBS.key?(base)
-
-        return "#{base}es" if base.match?(/(?:s|sh|ch|x|z)o\z/) || base.match?(/(?:s|sh|ch|x|z)\z/)
-        return "#{base[0..-2]}ies" if base.match?(/[^aeiou]y\z/)
-
-        "#{base}s"
-      end
-
-      # Inverse of inflect_3sg for the words it can invert safely.
-      def uninflect_3sg(word)
-        base = word.downcase
-        PosTagger::IRREGULAR_VERBS.each { |k, forms| return k if forms[0] == base }
-        return "#{base[0..-4]}y" if base.match?(/[^aeiou]ies\z/)
-        return base[0..-3] if base.match?(/(?:ch|sh|x|z|o)es\z/)
-        return base[0..-2] if base.match?(/[^s]s\z/) && base.length >= 4
-
-        word
       end
 
       # Check tokens: run the matcher, suppress antipattern hits.
