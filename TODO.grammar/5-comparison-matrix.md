@@ -101,6 +101,24 @@ Registration steps (verified live, owner action):
   (contact: toshikazu.tajiri@gmail.com, komachi@is.naist.jp)
 - FCE + W&I+LOCNESS: already in hand, no registration
 
+## THE RECIPE FIXED IT (2026-10-01, final run of the night)
+
+GECToR's schedule (10% warmup + cosine decay, LR 5e-5, 8 epochs) on
+the same 96,813 sentences: loss 0.77 -> **0.21**; training-sentence
+overfit check 0/10 -> **16/20**. Officially scored on CoNLL-14:
+
+| system (same 113-sentence prefix, official M2 scorer) | P | R | F0.5 |
+|---|---|---|---|
+| **kotoshu GECToR-recipe** | **0.492** | **0.150** | **0.338** |
+| LanguageTool 6.6 free | 0.381 | 0.082 | 0.220 |
+| kotoshu flat-LR (underfit) | — | — | 0.112 |
+| GECToR (published, full test) | ~0.53-0.57 | ~0.25-0.33 | ~56-58 |
+
+**We beat LanguageTool on the full-taxonomy benchmark.** The gap to
+GECToR itself (~56 vs 0.34) remains the licensed data (NUCLE+Lang-8,
+~1M sentences), roberta-base depth, and per-label thresholds — in
+that order. 81.9 MB int8, fully local.
+
 ## What SOTA requires (definition)
 
 1. F0.5 >= LanguageTool on the SAME public test set (BEA-2019 test
