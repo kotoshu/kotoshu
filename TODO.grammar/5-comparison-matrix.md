@@ -42,6 +42,40 @@ closed classes toward the CoNLL type inventory, (3) the <200 MB
 constrained rewriter for the flagged residual. Reproducible:
 scripts/grammar_headtohead.rb + the m2scorer pipeline.
 
+## GECToR-technique replication attempt (2026-10-01, measured)
+
+Adopted the SOTA recipe as far as public data allows — GECToR label
+scheme ($TRANSFORM_VERB_*, $APPEND, $DELETE, $MERGE, $REPLACE),
+distilroberta tagger, iterative 2-round decode in Ruby — trained on
+FCE train (28,337 sentences, the only public real-error corpus):
+
+| system (130-sentence CoNLL-14 prefix, official scorer) | F0.5 |
+|---|---|
+| LanguageTool 6.6 free | 0.217 |
+| kotoshu hybrid (closed-class, synthetic) | 0.080 (full set) |
+| kotoshu GECToR-on-FCE (this attempt) | 0.071 (prefix) |
+
+Why we are NOT close to GECToR (~56) — the honest gap inventory:
+
+1. **Data**: GECToR trains on ~1M+ sentences across NUCLE + Lang-8 +
+   FCE + W&I+LOCNESS. We used the 28k FCE train split (the ONLY
+   public-download corpus; the rest need license applications — owner
+   action). Domain gap compounds it: FCE = European exam essays,
+   CoNLL-14 = NUCLE Asian-learner scientific writing.
+2. **Encoder**: distilroberta (6-layer, 82M) vs GECToR's roberta-base
+   (12-layer) — the 2x depth matters at this task.
+3. **Inference tuning**: GECToR's per-label confidence thresholds
+   tuned on dev are a significant fraction of their score; ours are
+   untuned.
+4. **Label alignment**: their extraction uses POS-aware verb-form
+   detection; the naive difflib alignment mis-aligns (observed:
+   "marrige" -> "modern" — an alignment artifact in training data).
+
+The order-of-operations to close it: license NUCLE/Lang-8/W&I
+(owner registrations), combine corpora, switch to roberta-base int8
+(~130 MB, still under budget), tune thresholds on FCE dev. Every
+step is known; none is free.
+
 ## What SOTA requires (definition)
 
 1. F0.5 >= LanguageTool on the SAME public test set (BEA-2019 test

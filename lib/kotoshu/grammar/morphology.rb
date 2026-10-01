@@ -5,6 +5,9 @@ module Kotoshu
     # English morphology shared by PatternRule suggestions and the
     # neural tagger's deterministic fix generation.
     module Morphology
+      # base -> simple past for the irregular table (forms[1]).
+      PAST_OF = PosTagger::IRREGULAR_VERBS.to_h { |base, forms| [base, forms[1]] }.freeze
+
       class << self
         # Third-person singular inflection: irregular table first, then
         # the s/sh/ch/x/z → es, consonant+y → ies, else +s rules.

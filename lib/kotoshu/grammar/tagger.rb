@@ -35,7 +35,7 @@ module Kotoshu
         "$SPELLING" => "Possible spelling error"
       }.freeze
 
-      attr_reader :labels
+      attr_reader :labels, :model, :tokenizer
 
       # @param model_path [String] int8 ONNX tagger
       # @param labels_path [String] labels.json shipped with the model
