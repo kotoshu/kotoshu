@@ -76,6 +76,31 @@ The order-of-operations to close it: license NUCLE/Lang-8/W&I
 (~130 MB, still under budget), tune thresholds on FCE dev. Every
 step is known; none is free.
 
+## Data-scale experiment result (2026-10-01, final measurement of the night)
+
+**Finding: W&I+LOCNESS (68,616 train sentences, the corpus we thought
+was license-gated) downloads directly from the BEA-2019 page** —
+combined with FCE = 96,813 real-error sentences (3.4x the FCE-only
+run). Trained 4 epochs: loss stalled at 0.77 (the trivial all-KEEP
+baseline is ~0.10) and the model predicts $KEEP on its own training
+data — 0/10 training-sentence hits, fp32 verified (not a quantization
+artifact).
+
+Root cause: **training recipe, not data volume**. GECToR's recipe
+uses a two-stage schedule (encoder LR 1e-5, head LR 1e-4), roberta-
+base (12-layer), and per-label confidence thresholds. Our flat 1e-4
+on distilroberta (6-layer) with a 5,000-class head underfits — the
+5000-way softmax needs the careful schedule to move off the majority
+class. Each recipe fix is a training iteration (A10G minutes), but
+the sequence is: two-stage LR → roberta-base → threshold tuning →
+then the licensed data on top.
+
+Registration steps (verified live, owner action):
+- NUCLE: sterling8.d2.comp.nus.edu.sg/nucle_download/nucle.php
+- Lang-8: docs.google.com/forms/d/17gZZsC_rnaACMXmPiab3kjqBEtRHPMz0UG9Dk-x_F0k
+  (contact: toshikazu.tajiri@gmail.com, komachi@is.naist.jp)
+- FCE + W&I+LOCNESS: already in hand, no registration
+
 ## What SOTA requires (definition)
 
 1. F0.5 >= LanguageTool on the SAME public test set (BEA-2019 test
