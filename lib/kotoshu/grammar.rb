@@ -15,6 +15,7 @@ module Kotoshu
     autoload :ByteBpe, "kotoshu/grammar/byte_bpe"
     autoload :Morphology, "kotoshu/grammar/morphology"
     autoload :Tagger, "kotoshu/grammar/tagger"
+    autoload :GectorDecoder, "kotoshu/grammar/gector_decoder"
 
     module PatternMatchers
       autoload :BaseMatcher, "kotoshu/grammar/pattern_matchers/base_matcher"
