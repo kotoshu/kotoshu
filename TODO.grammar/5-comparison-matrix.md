@@ -18,6 +18,30 @@ superseded; it stays on its branch as reference only.
 | T5-11B / LLM GEC (2022-2025) | learned | varies | no (cloud) | seq2seq | BEA-2019 F0.5 ~70-78 |
 | Hunspell / cspell | 0 grammar | various | yes | none | spelling only — not a grammar competitor |
 
+## The FULL-TAXONOMY benchmark (CoNLL-2014 test, official M2 scorer, 2026-10-01)
+
+Real learner errors, all 28 types, 1,312 sentences, beta 0.5 — the
+market's home field. OUR ROWS MEASURED TODAY, same gold, same scorer:
+
+| system | P | R | F0.5 | local? |
+|---|---|---|---|---|
+| T5-11B (published) | ~0.69-0.79 | ~0.33-0.40 | **~72-75** | no (42 GB) |
+| GECToR (published) | ~0.53-0.57 | ~0.25-0.33 | **~56-58** | borderline |
+| **LanguageTool 6.6 free (measured)** | **0.305** | **0.060** | **0.168** | yes (Java) |
+| **kotoshu hybrid (measured)** | **0.143** | **0.029** | **0.080** | **yes (78 MB)** |
+
+Read honestly: on the full error distribution WE LOSE TO EVERYONE —
+LT doubles us; GECToR is 7x; T5-11B is 9x. The in-distribution win
+(F0.5 0.827 vs LT 0.432 on our 7-class taxonomy) does NOT transfer:
+our closed classes cover a slice of the real error mass, the tagger
+overfires off-distribution ("because of" -> "have"), and there is no
+generative tail. Both results are true; the market benchmark is this
+one. The path from 0.08 toward 56+: (1) tagger trained on REAL error
+data (BEA/FCE train, public) not synthetic injection alone, (2) grow
+closed classes toward the CoNLL type inventory, (3) the <200 MB
+constrained rewriter for the flagged residual. Reproducible:
+scripts/grammar_headtohead.rb + the m2scorer pipeline.
+
 ## What SOTA requires (definition)
 
 1. F0.5 >= LanguageTool on the SAME public test set (BEA-2019 test
