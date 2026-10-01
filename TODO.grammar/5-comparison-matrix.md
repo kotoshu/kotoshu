@@ -124,13 +124,14 @@ that order. 81.9 MB int8, fully local.
 | system | P | R | F0.5 | local |
 |---|---|---|---|---|
 | **kotoshu GECToR-recipe (FCE+W&I, 96,813 sents)** | **0.410** | **0.155** | **0.309** | **81.9 MB** |
+| **kotoshu +NUCLE (FCE+W&I+NUCLE, 153,753 sents)** | **0.478** | **0.151** | **0.334** | **81.9 MB** |
 | LanguageTool 6.6 free | 0.305 | 0.060 | 0.168 | Java |
 | kotoshu hybrid (closed-class, synthetic) | 0.143 | 0.029 | 0.080 | 78.2 MB |
 
-1.84x LanguageTool on the complete official benchmark, higher
-precision AND higher recall, fully local. The NUCLE-augmented model
-(153,753 sentences, 19/20 training hits, loss 0.17) is decoding now;
-its full-set score lands next.
+NUCLE lifted the full-set F0.5 from 0.309 to 0.334 (1.99x
+LanguageTool) — entirely through precision (0.410 -> 0.478). The
+quad model (+CoEdIT, 173,568 sentences; prefix F0.5 0.381, P 0.654)
+is decoding the full set now.
 
 Corpus status: NUCLE (57,131) is ungated on HuggingFace
 (nusnlp/NUCLE) and already in the training mix; cLang-8 targets
