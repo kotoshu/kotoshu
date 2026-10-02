@@ -127,6 +127,7 @@ that order. 81.9 MB int8, fully local.
 | **kotoshu +NUCLE (FCE+W&I+NUCLE, 153,753 sents)** | **0.478** | **0.151** | **0.334** | **81.9 MB** |
 | **kotoshu quad (+CoEdIT, 173,568 sents)** | **0.506** | **0.176** | **0.369** | **81.9 MB** |
 | kotoshu quad + dev-tuned per-label thresholds | 0.523 | 0.168 | 0.367 | 81.9 MB |
+| **kotoshu penta (quad + c4_200m web-domain, 266,761 sents)** | **0.545** | **0.217** | **0.419** | **81.9 MB** |
 | LanguageTool 6.6 free | 0.305 | 0.060 | 0.168 | Java |
 | kotoshu hybrid (closed-class, synthetic) | 0.143 | 0.029 | 0.080 | 78.2 MB |
 
@@ -134,9 +135,13 @@ NUCLE lifted precision (0.410 -> 0.478); CoEdIT lifted recall
 (0.151 -> 0.176). Quad full-set F0.5 0.369 = 2.19x LanguageTool.
 Per-label thresholds (GECToR recipe, tuned on W&I dev) are NEUTRAL
 on this model: 0.367 — the argmax operating point is already optimal;
-threshold machinery retained for future models. Penta (quad + 93k
-c4_200m web-domain) decoding; the cLang-8 mega corpus (~2M+ pairs,
-built from the raw Lang-8 dump in kotoshu/lang-8 private) is next.
+threshold machinery retained for future models. **The c4_200m
+web-domain epoch CONFIRMED: penta 0.419 = 2.49x LT** — web-domain
+data lifts BOTH precision (0.506->0.545) and recall (0.176->0.217)
+on the exam-domain benchmark; the "web won't transfer" hypothesis is
+falsified. Mega (cLang-8 2,345,088 pairs + quad = 2,518,656 sents,
+built from the raw Lang-8 dump in kotoshu/lang-8 private) is
+training; the mega+c4 final combination follows.
 higher precision AND recall, fully local, 10x smaller than the
 smallest generative proofreader (Qwen 0.8B Q4 ~500 MB).
 
