@@ -9,10 +9,19 @@ module Kotoshu
       # @param tagger [Tagger] the trained label tagger
       # @param rounds [Integer] apply-and-retag iterations
       # @param min_confidence [Float] skip labels below this softmax
-      def initialize(tagger:, rounds: 2, min_confidence: 0.0)
+      # @param label_thresholds [Hash{String=>Float}] per-label minimum
+      #   confidence (GECToR's dev-tuned thresholds); labels absent
+      #   fall back to min_confidence
+      def initialize(tagger:, rounds: 2, min_confidence: 0.0, label_thresholds: {})
         @tagger = tagger
         @rounds = rounds
         @min_confidence = min_confidence
+        @label_thresholds = label_thresholds
+      end
+
+      # The effective confidence floor for a label.
+      def threshold_for(label)
+        @label_thresholds.fetch(label, @min_confidence)
       end
 
       # Correct a sentence: returns the corrected token list and the
@@ -27,7 +36,7 @@ module Kotoshu
           findings = detect_with_confidence(tokens)
           changed = false
           findings.each do |f|
-            next if f[:confidence] < @min_confidence
+            next if f[:confidence] < threshold_for(f[:label])
 
             result = apply(f[:label], tokens, f[:index])
             next if result.nil?
