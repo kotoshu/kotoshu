@@ -126,11 +126,17 @@ that order. 81.9 MB int8, fully local.
 | **kotoshu GECToR-recipe (FCE+W&I, 96,813 sents)** | **0.410** | **0.155** | **0.309** | **81.9 MB** |
 | **kotoshu +NUCLE (FCE+W&I+NUCLE, 153,753 sents)** | **0.478** | **0.151** | **0.334** | **81.9 MB** |
 | **kotoshu quad (+CoEdIT, 173,568 sents)** | **0.506** | **0.176** | **0.369** | **81.9 MB** |
+| kotoshu quad + dev-tuned per-label thresholds | 0.523 | 0.168 | 0.367 | 81.9 MB |
 | LanguageTool 6.6 free | 0.305 | 0.060 | 0.168 | Java |
 | kotoshu hybrid (closed-class, synthetic) | 0.143 | 0.029 | 0.080 | 78.2 MB |
 
 NUCLE lifted precision (0.410 -> 0.478); CoEdIT lifted recall
-(0.151 -> 0.176). Quad full-set F0.5 0.369 = 2.19x LanguageTool,
+(0.151 -> 0.176). Quad full-set F0.5 0.369 = 2.19x LanguageTool.
+Per-label thresholds (GECToR recipe, tuned on W&I dev) are NEUTRAL
+on this model: 0.367 — the argmax operating point is already optimal;
+threshold machinery retained for future models. Penta (quad + 93k
+c4_200m web-domain) decoding; the cLang-8 mega corpus (~2M+ pairs,
+built from the raw Lang-8 dump in kotoshu/lang-8 private) is next.
 higher precision AND recall, fully local, 10x smaller than the
 smallest generative proofreader (Qwen 0.8B Q4 ~500 MB).
 
