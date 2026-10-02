@@ -108,10 +108,10 @@ def train(data_path: str = "/data/fce_gector.jsonl", out_path: str = "/data/gec-
 
 
 @app.local_entrypoint()
-def main(data: str):
+def main(data: str, remote: str = "fce_gector.jsonl", out: str = "/data/gec-gector"):
     with modal.Volume.from_name("kotoshu-gec-data", create_if_missing=True).batch_upload() as up:
-        up.put_file(data, "fce_gector.jsonl")
-    print(train.remote())
+        up.put_file(data, remote)
+    print(train.remote(data_path=f"/data/{remote}", out_path=out))
 
 
 if __name__ == "__main__":
