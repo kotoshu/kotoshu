@@ -23,7 +23,8 @@ end
 
 def f05(p, r)
   return 0.0 if p + r == 0
-  (1.25 * p * r) / (0.25 * p + r)
+
+  (1.25 * p * r) / ((0.25 * p) + r)
 end
 
 # --- LanguageTool: file-level offsets -> per-line word indices
@@ -74,7 +75,7 @@ gold.each_with_index do |row, i|
   end
 end
 
-puts format("%-8s %6s %6s %6s %8s %8s %8s", "tool", "TP", "FP", "FN", "prec", "rec", "F0.5")
+puts "tool         TP     FP     FN     prec      rec     F0.5"
 results.each do |tool, c|
   p = c[:tp].to_f / [c[:tp] + c[:fp], 1].max
   r = c[:tp].to_f / [c[:tp] + c[:fn], 1].max
