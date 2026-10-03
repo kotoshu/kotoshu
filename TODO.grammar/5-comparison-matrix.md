@@ -128,6 +128,7 @@ that order. 81.9 MB int8, fully local.
 | **kotoshu quad (+CoEdIT, 173,568 sents)** | **0.506** | **0.176** | **0.369** | **81.9 MB** |
 | kotoshu quad + dev-tuned per-label thresholds | 0.523 | 0.168 | 0.367 | 81.9 MB |
 | **kotoshu penta (quad + c4_200m web-domain, 266,761 sents)** | **0.545** | **0.217** | **0.419** | **81.9 MB** |
+| **Qwen3.5-27B zero-shot (measured, 2026-10-03)** | 0.321 | 0.553 | 0.351 | no — 54 GB, H100 |
 | LanguageTool 6.6 free | 0.305 | 0.060 | 0.168 | Java |
 | kotoshu hybrid (closed-class, synthetic) | 0.143 | 0.029 | 0.080 | 78.2 MB |
 
@@ -141,7 +142,13 @@ data lifts BOTH precision (0.506->0.545) and recall (0.176->0.217)
 on the exam-domain benchmark; the "web won't transfer" hypothesis is
 falsified. Mega (cLang-8 2,345,088 pairs + quad = 2,518,656 sents,
 built from the raw Lang-8 dump in kotoshu/lang-8 private) is
-training; the mega+c4 final combination follows.
+training; the mega+c4 final combination follows. **Qwen3.5-27B
+zero-shot (vLLM-incompatible-Modal -> transformers batched greedy,
+generic GEC prompt, thinking off): F0.5 0.351 — recall 0.553 but
+precision 0.321 (over-edits)**. Our 81.9 MB penta BEATS the 27B LLM
+zero-shot on the official benchmark; the teacher's recall (0.553 vs
+our 0.217) is exactly what distillation should harvest — with
+precision filters (drop over-edited pairs) in Experiment B.
 higher precision AND recall, fully local, 10x smaller than the
 smallest generative proofreader (Qwen 0.8B Q4 ~500 MB).
 
