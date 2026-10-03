@@ -20,7 +20,7 @@ image = (
 app = modal.App("kotoshu-gec-gector")
 
 
-@app.function(image=image, gpu="A10G", timeout=60 * 60 * 12,
+@app.function(image=image, gpu="H100", timeout=60 * 60 * 12,
               volumes={"/data": modal.Volume.from_name("kotoshu-gec-data", create_if_missing=True)})
 def train(data_path: str = "/data/fce_gector.jsonl", out_path: str = "/data/gec-gector"):
     from collections import Counter
@@ -74,14 +74,27 @@ def train(data_path: str = "/data/fce_gector.jsonl", out_path: str = "/data/gec-
 
     # GECToR's recipe: warmup + cosine decay (their T5/BERT runs use
     # ~10% warmup); the flat 1e-4 collapsed to the majority class.
+    # Checkpoints + resume: Modal preemption killed three 7h runs;
+    # every checkpoint is volume-committed so a relaunch resumes.
+    ckpt_dir = "/data/ckpt" + out_path.replace("/data", "")
     total_steps = (len(examples) // BATCH) * EPOCHS
-    args = TrainingArguments(output_dir="/data/ckpt-gector", num_train_epochs=EPOCHS,
+    args = TrainingArguments(output_dir=ckpt_dir, num_train_epochs=EPOCHS,
                              learning_rate=5e-5, per_device_train_batch_size=BATCH,
                              warmup_steps=int(total_steps * 0.10),
                              lr_scheduler_type="cosine",
-                             logging_steps=100, save_strategy="no", report_to=[])
-    trainer = Trainer(model=model, args=args, train_dataset=examples, data_collator=collate)
-    trainer.train()
+                             logging_steps=100, save_strategy="steps",
+                             save_steps=20000, save_total_limit=2, report_to=[])
+    from transformers import TrainerCallback
+
+    class VolumeCommit(TrainerCallback):
+        def on_save(self, args, state, control, **kwargs):
+            modal.Volume.from_name("kotoshu-gec-data").commit()
+
+    trainer = Trainer(model=model, args=args, train_dataset=examples, data_collator=collate,
+                      callbacks=[VolumeCommit()])
+    import glob
+    prior = sorted(glob.glob(f"{ckpt_dir}/checkpoint-*"), key=lambda p: int(p.rsplit("-", 1)[1]))
+    trainer.train(resume_from_checkpoint=prior[-1] if prior else None)
 
     model.eval()
     os.makedirs(out_path, exist_ok=True)
