@@ -20,7 +20,7 @@ image = (
 app = modal.App("kotoshu-gec-gector")
 
 
-@app.function(image=image, gpu="A10G", timeout=60 * 60 * 4,
+@app.function(image=image, gpu="A10G", timeout=60 * 60 * 12,
               volumes={"/data": modal.Volume.from_name("kotoshu-gec-data", create_if_missing=True)})
 def train(data_path: str = "/data/fce_gector.jsonl", out_path: str = "/data/gec-gector"):
     from collections import Counter
@@ -109,8 +109,11 @@ def train(data_path: str = "/data/fce_gector.jsonl", out_path: str = "/data/gec-
 
 @app.local_entrypoint()
 def main(data: str, remote: str = "fce_gector.jsonl", out: str = "/data/gec-gector"):
-    with modal.Volume.from_name("kotoshu-gec-data", create_if_missing=True).batch_upload() as up:
-        up.put_file(data, remote)
+    try:
+        with modal.Volume.from_name("kotoshu-gec-data", create_if_missing=True).batch_upload() as up:
+            up.put_file(data, remote)
+    except FileExistsError:
+        print(f"upload skipped: {remote} already on the volume")
     print(train.remote(data_path=f"/data/{remote}", out_path=out))
 
 
