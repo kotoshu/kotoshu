@@ -108,12 +108,17 @@ def train(data_path: str = "/data/fce_gector.jsonl", out_path: str = "/data/gec-
 
 
 @app.local_entrypoint()
-def main(data: str, remote: str = "fce_gector.jsonl", out: str = "/data/gec-gector"):
-    try:
-        with modal.Volume.from_name("kotoshu-gec-data", create_if_missing=True).batch_upload() as up:
-            up.put_file(data, remote)
-    except FileExistsError:
-        print(f"upload skipped: {remote} already on the volume")
+def main(data: str = "", remote: str = "fce_gector.jsonl", out: str = "/data/gec-gector"):
+    import os
+
+    if data and os.path.exists(data):
+        try:
+            with modal.Volume.from_name("kotoshu-gec-data", create_if_missing=True).batch_upload() as up:
+                up.put_file(data, remote)
+        except FileExistsError:
+            print(f"upload skipped: {remote} already on the volume")
+    else:
+        print(f"no local data for {remote}; using the volume copy")
     print(train.remote(data_path=f"/data/{remote}", out_path=out))
 
 
