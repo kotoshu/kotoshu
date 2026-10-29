@@ -1,0 +1,44 @@
+# KLF corruption registry — per-language declaration (data, not code).
+#
+# The engine (factory/corrupt.py) applies a closed set of typed
+# operations driven by these tables. A new language is a file here
+# plus a held-out gold slice — no code changes required.
+#
+# Operation primitives:
+#   swap         — replace a token via {from: [to, ...]} table
+#   context_swap — swap when an adjacent token matches context class
+#                  (e.g. prev=numeric for measure words)
+#   drop         — delete a matching token
+#   ko_space     — split a long word at its midpoint (띄어쓰기)
+#   ko_suffix    — word-final particle table swap
+
+lang: zh-Hans
+script: han-simplified
+segmentation: zh_dag            # engine hook: ZhSegmenter (gem) via zh_segment_corpus.rb
+prompt_lang: zh
+base:
+  source: c4                    # allenai/c4 mirror (script loaders removed on HF)
+  config: zh
+  purity: t2s                   # keep sentences already Simplified (owner law)
+  min_native_len: 12
+classes:
+  det:
+    op: swap
+    table: {的: [得, 地], 得: [的], 地: [的]}
+  mw:
+    op: context_swap
+    prev_numeric: true
+    table: {个: [只, 位, 名], 只: [个, 条], 本: [册, 份], 张: [个, 块],
+            条: [根, 个], 件: [个, 项], 辆: [个, 台], 台: [个, 架], 所: [个, 座]}
+  asp:
+    op: swap
+    table: {了: [""], 过: [了], 着: [了]}
+  ba:
+    op: drop
+    table: {把: []}
+  lex:
+    op: swap
+    table: {再: [在], 在: [再], 做: [作], 作: [做], 以: [已], 象: [像], 像: [象]}
+base:
+  prune_corpus: base_zh_hans.txt
+rate: 0.8
