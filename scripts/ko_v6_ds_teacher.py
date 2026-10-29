@@ -76,7 +76,7 @@ with cf.ThreadPoolExecutor(int(os.environ.get("DS_CONC", "12"))) as ex:
             out.flush()
             hits += txt == p["clean"]
         n += 1
-        if n % 250 == 0:
+        if n % 2500 == 0:
             print(f"ko_ds {n}/{len(recs)}: exact={hits} ({hits/n:.1%})", flush=True)
             sync()
 sync()
