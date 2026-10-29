@@ -1,0 +1,17 @@
+lang: it
+script: latin
+segmentation: whitespace
+prompt_lang: it
+route: legacy_multi
+legacy_lang: it
+encoder: microsoft/mdeberta-v3-base
+bf16: true
+keep: 0.6
+base:
+  source: wikipedia
+  config: 20231101.it
+rate: 0.8
+ckpt_repo: kotoshu/gec-ckpt-it
+eval:
+  slices:
+    - it_heldout_eval_sources.txt

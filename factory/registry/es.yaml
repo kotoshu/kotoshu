@@ -1,0 +1,9 @@
+lang: es
+script: latin
+segmentation: whitespace
+prompt_lang: es
+route: legacy_multi
+base:
+  source: wikipedia
+  config: 20231101.es
+rate: 0.8

@@ -13,6 +13,8 @@ module Kotoshu
     autoload :PosTagger, "kotoshu/grammar/pos_tagger"
     autoload :Checker, "kotoshu/grammar/checker"
     autoload :ByteBpe, "kotoshu/grammar/byte_bpe"
+    autoload :SpmBpe, "kotoshu/grammar/spm_bpe"
+    autoload :ZhSegmenter, "kotoshu/grammar/zh_segmenter"
     autoload :Morphology, "kotoshu/grammar/morphology"
     autoload :Tagger, "kotoshu/grammar/tagger"
     autoload :GectorDecoder, "kotoshu/grammar/gector_decoder"

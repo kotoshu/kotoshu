@@ -1,0 +1,12 @@
+lang: ja
+script: han
+segmentation: suika
+prompt_lang: ja
+route: legacy_jako
+base:
+  source: wikipedia
+  config: 20231101.zh
+  purity: null
+base:
+  prune_corpus: base_ja.txt
+rate: 0.8
