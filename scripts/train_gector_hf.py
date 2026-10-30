@@ -94,6 +94,7 @@ def main() -> None:
     ap.add_argument("--batch", type=int, default=16)
     ap.add_argument("--max-len", type=int, default=96)
     ap.add_argument("--top-labels", type=int, default=5000)
+    ap.add_argument("--keep-weight-s1", type=float, default=1.0)
     ap.add_argument("--bf16", action="store_true",
                     help="mdeberta-family: fp32 forward overflows (pretrained fp16)")
     ap.add_argument("--ckpt-vol", default="",
@@ -221,7 +222,7 @@ def main() -> None:
                                  data_collator=collate,
                                  callbacks=[HubCallback(run_name)],
                                  optimizers=(opt, None))
-            trainer.keep_weight = args.keep if weighted else 1.0
+            trainer.keep_weight = (args.keep if weighted else args.keep_weight_s1)
             print(f"round {rnd} stage {stage}: {epochs}ep enc {enc_lr} head {head_lr} "
                   f"resume {resume}", flush=True)
             trainer.train(resume_from_checkpoint=resume)
