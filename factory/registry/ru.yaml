@@ -5,7 +5,8 @@ prompt_lang: ru
 route: legacy_multi
 encoder: microsoft/mdeberta-v3-base
 bf16: true
-keep: 0.6
+keep: 0.3
+keep_s1: 0.6
 base:
   source: wikipedia
   config: 20231101.ru
