@@ -18,16 +18,24 @@ image = modal.Image.debian_slim(python_version="3.12").pip_install(
     "transformers", "torch", "accelerate", "sentencepiece"
 )
 
-PROMPT = (
-    "Correct all grammatical errors in the text below. Return ONLY the "
-    "corrected text — no explanations, no quotes, no added content. "
-    "If the text is already correct, return it unchanged.\n\n{text}"
-)
+PROMPTS = {
+    "default": (
+        "Correct all grammatical errors in the text below. Return ONLY the "
+        "corrected text — no explanations, no quotes, no added content. "
+        "If the text is already correct, return it unchanged.\n\n{text}"
+    ),
+    "minimal": (
+        "Correct ONLY the grammatical errors in the text below, changing as "
+        "few words as possible. Do not rephrase, do not improve style, do not "
+        "reorder, keep the author's wording. Return ONLY the minimally "
+        "corrected text — no explanations, no quotes. If the text is already "
+        "grammatical, return it unchanged.\n\n{text}"
+    ),
+}
 
 
-@app.function(image=image, gpu="H100", timeout=60 * 60 * 4,
-              volumes={"/data": modal.Volume.from_name("kotoshu-gec-data", create_if_missing=True)})
-def correct(sentences: list[str], model_id: str, batch_size: int = 16) -> dict:
+def _run_correction(sentences: list[str], model_id: str, batch_size: int,
+                   prompt_style: str) -> dict:
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -35,12 +43,12 @@ def correct(sentences: list[str], model_id: str, batch_size: int = 16) -> dict:
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
     model = AutoModelForCausalLM.from_pretrained(
-        model_id, torch_dtype=torch.bfloat16, device_map="cuda"
+        model_id, torch_dtype=torch.bfloat16, device_map="auto", trust_remote_code=True
     )
     model.eval()
 
     def build_prompt(sentence: str) -> str:
-        msgs = [{"role": "user", "content": PROMPT.format(text=sentence)}]
+        msgs = [{"role": "user", "content": PROMPTS[prompt_style].format(text=sentence)}]
         try:
             return tok.apply_chat_template(
                 msgs, tokenize=False, add_generation_prompt=True, enable_thinking=False
@@ -76,11 +84,27 @@ def correct(sentences: list[str], model_id: str, batch_size: int = 16) -> dict:
     return {"model": model_id, "n": len(corrected), "corrected": corrected}
 
 
+@app.function(image=image, gpu="H100", timeout=60 * 60 * 4,
+              volumes={"/data": modal.Volume.from_name("kotoshu-gec-data", create_if_missing=True)})
+def correct(sentences: list[str], model_id: str, batch_size: int = 16,
+            prompt_style: str = "default") -> dict:
+    return _run_correction(sentences, model_id, batch_size, prompt_style)
+
+
+@app.function(image=image, gpu="H100:4", timeout=60 * 60 * 4,
+              volumes={"/data": modal.Volume.from_name("kotoshu-gec-data", create_if_missing=True)})
+def correct_big(sentences: list[str], model_id: str, batch_size: int = 16,
+                prompt_style: str = "default") -> dict:
+    return _run_correction(sentences, model_id, batch_size, prompt_style)
+
+
 @app.local_entrypoint()
-def main(inp: str, out: str, model: str = "Qwen/Qwen3.5-27B"):
+def main(inp: str, out: str, model: str = "Qwen/Qwen3.5-27B",
+         prompt_style: str = "default", gpus: str = ""):
     sentences = [line.rstrip("\n") for line in open(inp)]
-    print(f"{len(sentences)} sentences, model {model}")
-    result = correct.remote(sentences, model)
+    print(f"{len(sentences)} sentences, model {model}, prompt {prompt_style}, gpus {gpus or 'default'}")
+    fn = correct_big if gpus else correct
+    result = fn.remote(sentences, model, prompt_style=prompt_style)
     with open(out, "w") as fh:
         for line in result["corrected"]:
             fh.write(line.replace("\n", " ") + "\n")

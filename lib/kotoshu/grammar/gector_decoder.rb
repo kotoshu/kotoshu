@@ -35,9 +35,12 @@ module Kotoshu
         @rounds.times do
           findings = detect_with_confidence(tokens)
           changed = false
-          findings.each do |f|
-            next if f[:confidence] < threshold_for(f[:label])
-
+          # One round's edits land against that round's original positions:
+          # apply right-to-left so DELETE/APPEND/MERGE shifts never stale the
+          # indices of edits still to their left (GECToR reference semantics).
+          findings.select { |f| f[:confidence] >= threshold_for(f[:label]) && f[:index] < tokens.length }
+            .sort_by { |f| -f[:index] }
+            .each do |f|
             result = apply(f[:label], tokens, f[:index])
             next if result.nil?
 

@@ -1,0 +1,20 @@
+lang: zh-Hant
+script: han-traditional
+segmentation: zh_dag
+prompt_lang: zh
+base:
+  source: wikipedia
+  config: 20231101.zh
+  purity: s2t
+  prune_corpus: base_zh_hant.txt
+classes:
+  det:
+    op: swap
+    table: {的: [得, 地], 得: [的], 地: [的]}
+  asp:
+    op: swap
+    table: {了: [""], 過: [了], 著: [了]}
+  lex:
+    op: swap
+    table: {再: [在], 在: [再], 於: [于], 做: [作], 作: [做]}
+rate: 0.8

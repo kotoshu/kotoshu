@@ -1,0 +1,24 @@
+lang: cjk
+script: han-hangul-multi
+segmentation: pre_segmented
+prompt_lang: zh
+encoder: microsoft/mdeberta-v3-base
+bf16: true
+keep: 0.6
+base:
+  prune_corpus: base_cjk_union.txt
+note: 'ONE model over zh-Hans + zh-Hant + ko (region-law: scripts are self-separating
+  in the SP vocab; ja joins in v2 after its base rebuild). No aggressive vocab prune
+  (owner size law: <=500MB int8).
+
+  '
+rate: 0.8
+ckpt_repo: kotoshu/gec-ckpt-cjk-v5
+eval:
+  slices:
+    - zh_hans_heldout_eval_sources.txt
+    - zh_hant_heldout_eval_sources.txt
+    - ko_heldout_eval_sources.txt
+    - zh_nlpcc_heldout_eval_sources.txt
+    - ja_jwtd_heldout_eval_sources.txt
+    - ko_union_heldout_eval_sources.txt

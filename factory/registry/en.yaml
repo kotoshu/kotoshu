@@ -1,0 +1,26 @@
+# KLF corruption registry — English (distillation classes).
+# The proven English engine is scripts/corrupt_and_distill.py (regex +
+# word tables + verb morphology); this registry declares the same class
+# set for the framework surface. Until the registry engine implements
+# verb morphology, the orchestrator routes en to the proven script.
+lang: en
+script: latin
+segmentation: whitespace
+prompt_lang: en
+base:
+  source: wikipedia
+  config: 20231101.en
+  prune_corpus: base_en_xl.txt
+  purity: null
+classes:
+  artordet:  {route: legacy_en}   # articles/determiners
+  prep:      {route: legacy_en}   # prepositions
+  nn:        {route: legacy_en}   # noun number
+  sva:       {route: legacy_en}   # subject-verb agreement
+  wci:       {route: legacy_en}   # word choice/confusion
+  mec:       {route: legacy_en}   # mechanics (caps, spacing)
+rate: 0.8
+
+eval:
+  official: true
+  benchmark: conll14
