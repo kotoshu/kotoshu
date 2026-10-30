@@ -9,13 +9,16 @@
 # Without out.yml, prints conversion stats and example-suite results.
 
 require "kotoshu/grammar"
+require "kotoshu/components/hunspell_synthesizer"
 
 path = ARGV[0] or abort "usage: lt_convert.rb GRAMMAR_XML LANG [OUT_YML]"
 lang = ARGV[1] || "en"
 out = ARGV[2]
 
 xml = File.read(path)
-loader = Kotoshu::Grammar::Loaders::LanguageToolXml.new(xml, language: lang)
+d = File.expand_path("~/.cache/kotoshu/languages/#{lang}/spelling/index")
+synth = File.exist?("#{d}.aff") ? Kotoshu::Components::HunspellSynthesizer.new(aff_path: "#{d}.aff", dic_path: "#{d}.dic") : nil
+loader = Kotoshu::Grammar::Loaders::LanguageToolXml.new(xml, language: lang, synthesizer: synth)
 
 total = loader.stats[:converted] + loader.stats[:skipped]
 puts "converted: #{loader.stats[:converted]}/#{total} " \
