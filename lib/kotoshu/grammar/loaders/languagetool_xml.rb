@@ -30,8 +30,9 @@ module Kotoshu
 
         attr_reader :rules, :stats
 
-        def initialize(xml, language: "en")
+        def initialize(xml, language: "en", synthesizer: nil)
           @language = language
+        @synthesizer = synthesizer
           @rules = []
           @stats = { converted: 0, skipped: 0, skip_reasons: Hash.new(0) }
           @doc = Moxml.parse(xml)
@@ -54,11 +55,31 @@ module Kotoshu
           end
         end
 
-        def convert_rule(node, group_id, unnamed_index = nil)
+        def convert_rule(node, group_id, unnamed_index = nil, id_suffix = nil)
           id = unnamed_index ? unnamed_index.to_s : node["id"]
           full_id = group_id ? "#{group_id}_#{id}" : id
+          full_id = "#{full_id}#{id_suffix}" if id_suffix
           pattern_node = node.at_xpath("pattern")
           raise Unsupported, "no_pattern" if pattern_node.nil? || pattern_node.xpath("token").empty?
+
+          # Repetition fan-out: a single ranged token (min=2, max=4) is
+          # four concrete patterns, not one — duplicate the rule per
+          # count (capped) instead of needing quantifier support in the
+          # sequence matcher. Multi-ranged-token rules stay skipped.
+          ranged = pattern_node.xpath("token").select { |t| (t["min"]&.to_i || 1) > 1 }
+          if ranged.size == 1
+            t = ranged[0]
+            lo = t["min"].to_i
+            hi = [t["max"]&.to_i || lo, lo + 2].min
+            if hi > lo
+              lo.upto(hi) do |k|
+                t["min"] = k.to_s
+                t["max"] = k.to_s
+                convert_rule(node, group_id, unnamed_index, "_x#{k}")
+              end
+              return
+            end
+          end
 
           rule_hash = build_rule_hash(node, full_id, pattern_node)
           @rules << rule_hash
@@ -101,7 +122,16 @@ module Kotoshu
 
         def convert_token(token)
           raise Unsupported, "and_or" if token.xpath("and").any? || token.xpath("or").any?
-          raise Unsupported, "inflected" if token["inflected"] == "yes"
+          # inflected="yes": LT wants every surface form of the lemma.
+          # With a synthesizer we expand the lemma through the Hunspell
+          # affix rules; without one the rule still converts on the
+          # exact word (strict subset match, never a false positive).
+          if token["inflected"] == "yes" && @synthesizer
+            inflected_word = direct_text(token)
+            unless inflected_word.empty? || inflected_word.include?("|") || token["regexp"] == "yes"
+              return { "word" => @synthesizer.synthesize(inflected_word) }
+            end
+          end
           raise Unsupported, "chunk_phrasename" if token["chunk"] || token["phrasename"]
 
           word = direct_text(token)
