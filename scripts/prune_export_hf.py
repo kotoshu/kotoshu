@@ -79,6 +79,7 @@ def prune_and_export(ckpt_dir, corpus_path, charsmap_path, out_dir,
     # graphs (flat logits). quantize_dynamic stays as the NaN gate; the
     # SHIPPED file is the float dequantization of it — sound ops in
     # every ORT build, same loader filename.
+    scripts = os.path.dirname(os.path.abspath(__file__))
     subprocess.run([sys.executable,
                     os.path.join(scripts, "dequantize_int8_onnx.py"),
                     int8, int8 + ".fq"], check=True)
@@ -86,7 +87,6 @@ def prune_and_export(ckpt_dir, corpus_path, charsmap_path, out_dir,
     print(f"fp32-fied: {os.path.getsize(int8) / (1024 * 1024):.1f}MB", flush=True)
     shutil.copy(onnx_path, os.path.join(out_dir, "gec-gector.onnx"))
 
-    scripts = os.path.dirname(os.path.abspath(__file__))
     subprocess.run([sys.executable,
                     os.path.join(scripts, "rebuild_pruned_pieces.py"),
                     "--onnx", onnx_path,
