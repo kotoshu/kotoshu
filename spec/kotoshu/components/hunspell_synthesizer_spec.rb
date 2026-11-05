@@ -11,6 +11,10 @@ RSpec.describe Kotoshu::Components::HunspellSynthesizer do
   #   SFX G "[^e]"     → stem must NOT end e: +ing
   #   SFX G "ck"       → literal suffix:      strip k, +ks
   #   PFX U "[^a]"     → prefix on stems not starting a: +un (prefix path)
+  subject(:synth) do
+    described_class.new(aff_path: File.join(dir, "t.aff"), dic_path: File.join(dir, "t.dic"))
+  end
+
   let(:dir) do
     d = Dir.mktmpdir
     File.write(File.join(d, "t.aff"), <<~AFF)
@@ -33,10 +37,6 @@ RSpec.describe Kotoshu::Components::HunspellSynthesizer do
   end
 
   after { FileUtils.remove_entry(dir) if dir }
-
-  subject(:synth) do
-    described_class.new(aff_path: File.join(dir, "t.aff"), dic_path: File.join(dir, "t.dic"))
-  end
 
   it "expands a regular stem through every matching rule" do
     expect(synth.synthesize("run")).to contain_exactly("run", "runs", "runing")

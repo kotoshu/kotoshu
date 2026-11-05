@@ -65,7 +65,11 @@ module Kotoshu
                when :class then cond.chars.include?(anchor)
                when :negclass then !cond.chars.include?(anchor)
                end
-        pass ? (suffix ? stripped + cond.append : cond.append + stripped) : nil
+        if pass
+          suffix ? stripped + cond.append : cond.append + stripped
+        else
+          nil
+        end
       end
 
       def parse_cond(field)
