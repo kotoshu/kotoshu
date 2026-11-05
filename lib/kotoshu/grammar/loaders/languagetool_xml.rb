@@ -32,7 +32,7 @@ module Kotoshu
 
         def initialize(xml, language: "en", synthesizer: nil)
           @language = language
-        @synthesizer = synthesizer
+          @synthesizer = synthesizer
           @rules = []
           @stats = { converted: 0, skipped: 0, skip_reasons: Hash.new(0) }
           @doc = Moxml.parse(xml)
@@ -122,6 +122,7 @@ module Kotoshu
 
         def convert_token(token)
           raise Unsupported, "and_or" if token.xpath("and").any? || token.xpath("or").any?
+
           # inflected="yes": LT wants every surface form of the lemma.
           # With a synthesizer we expand the lemma through the Hunspell
           # affix rules; without one the rule still converts on the
