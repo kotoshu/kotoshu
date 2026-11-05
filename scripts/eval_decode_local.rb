@@ -20,8 +20,13 @@ seg = seg_flag == "SEG.zh" ? Kotoshu::Grammar::ZhSegmenter.new(dict) : nil
 File.open(output, "w") do |out|
   File.foreach(input) do |line|
     s = line.chomp
-    toks = s.empty? ? [] : (seg ? seg.segment(s) : s.split)
+    toks = if s.empty?
+             []
+           else
+             (seg ? seg.segment(s) : s.split)
+           end
     next out.puts if toks.empty?
+
     res = decoder.correct(toks)
     out.puts res[:corrected].join(" ")
     out.flush

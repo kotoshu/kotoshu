@@ -16,8 +16,10 @@ File.open(output, "w") do |out|
   File.foreach(input).each_with_index do |line, i|
     s = line.chomp
     next if s.empty?
+
     words = seg.segment(s)
     next if words.size < 3
+
     out.puts "#{i}\t#{words.join(' ')}"
   end
 end

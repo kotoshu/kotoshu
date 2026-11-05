@@ -19,11 +19,12 @@ puts "labels table size: #{tagger.labels.size}"
 puts "labels sample: #{tagger.labels.first(3).inspect} key0: #{tagger.labels['0'].inspect}"
 
 logits = tagger.model.predict({ "input_ids" => [ids],
-                               "attention_mask" => [tok.mask_for(ids)] })["logits"][0]
+                                "attention_mask" => [tok.mask_for(ids)] })["logits"][0]
 puts "logits rows: #{logits.size}  cols: #{logits[0].size}"
 
 align.each_with_index do |word_index, pos|
   next if word_index.nil? || pos > 12
+
   row = logits[pos]
   exps = row.map { |v| Math.exp(v - row.max) }
   sum = exps.sum

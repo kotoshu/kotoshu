@@ -11,8 +11,10 @@ File.open(ARGV[1], "w") do |out|
   File.foreach(ARGV[0]).each_with_index do |line, i|
     s = line.chomp
     next if s.empty?
+
     words = t.parse(s).map { |n| n.to_s.split("\t")[0] }
     next if words.size < 3
+
     out.puts "#{i}\t#{words.join(' ')}"
   end
 end
