@@ -299,8 +299,7 @@ def spellcheck_word_regex: () -> Regexp
 
       attr_reader outcomes (): Array[FileOutcome]
 
-      def initialize: (Array[String] roots, check: untyped check, ?baseline_path: String? baseline_path,
-                       ?include_globs: Array[String] include_globs, ?exclude_globs: Array[String] exclude_globs) -> void
+      def initialize: (Array[String] roots, check: untyped, ?baseline_path: String?, ?include_globs: Array[String], ?exclude_globs: Array[String]) -> void
       def run: () -> Array[FileOutcome]
       def file_count: () -> Integer
       def error_count: () -> Integer
