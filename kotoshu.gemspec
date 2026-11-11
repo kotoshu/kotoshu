@@ -54,7 +54,7 @@ Gem::Specification.new do |spec|
 
   # Runtime dependencies
   spec.add_dependency "thor", "~> 1.0"
-  spec.add_dependency "rubyzip", "~> 2.3"
+  spec.add_dependency "rubyzip", ">= 2.3", "< 4"
   spec.add_dependency "lutaml-model", "~> 0.8"
   spec.add_dependency "moxml", "~> 0.5"
   spec.add_dependency "leptris", "~> 1.9"

@@ -5,7 +5,7 @@ source "https://rubygems.org"
 # Specify your gem's dependencies in kotoshu.gemspec
 gemspec
 
-gem "rubyzip", "~> 2.3"
+gem "rubyzip", ">= 2.3", "< 4"
 gem "irb"
 gem "rake", "~> 13.0"
 gem "thor", "~> 1.0"
