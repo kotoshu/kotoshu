@@ -188,11 +188,54 @@ module Kotoshu
           # zh-Hant-HK wave-2 probe showed edit_distance/phonetic
           # echoes of primary entries consuming half the limit
           # (['資產','資產','資產'] under a 5-suggestion limit).
+          typed = context.word
           seen = primary_slate.map { |s| s.word.downcase }.to_set
           tail_slate = tail.flat_map { |s| s.generate(context).suggestions }
             .select { |s| seen.add?(s.word.downcase) }
-          merged = primary_slate + tail_slate
-          SuggestionSet.new(merged, max_size: context.max_results, ranked: true)
+          # The input word itself is never a suggestion: tail
+          # strategies can echo it (StubStrategy/spec, phonetic
+          # echoes), and the band sort would rank its true-dist-0
+          # first.
+          merged = (primary_slate + tail_slate)
+            .reject { |s| s.word.casecmp?(typed) }
+          # Distance-band merge with slate precedence: within each edit
+          # distance the primary slate's (pattern, confusion, rank)
+          # order stays authoritative, and tail entries — including
+          # correct answers the compact frequency list missed
+          # ("ommitted" -> "omitted" lost to slate-entry "committed")
+          # — join at the END of their own distance band, ahead of the
+          # NEXT distance. A full re-rank by combined_score is wrong
+          # here: each strategy normalizes confidence inside its own
+          # pool, so the scales are not comparable across strategies
+          # (measured 87.5 -> 63.3 top-1 when they were mixed).
+          slate_size = primary_slate.size
+          typed = context.word
+          ordered = merged.each_with_index.sort_by do |(s, i)|
+            # TRUE edit distance recomputed per candidate: tail
+            # strategies self-report distances on their own scales
+            # (phonetic emits 0/1), so the Suggestion#distance of a
+            # merged pool is not comparable across origins.
+            true_dist = Algorithms::EditDistance.distance_with_threshold(
+              typed, s.word, 3
+            ) || 9
+            # Band order: (1) true distance, (2) the corpus's dominant
+            # single-edit class (missing/extra double letter), (3) the
+            # channel op class — a dropped/extra keystroke explains the
+            # typo better than a far-key substitution, so tail entries
+            # the compact frequency list missed ("containing" for
+            # "containg") interleave at the right position.
+            # Morph candidates are lookup-verified inflections of the
+            # typed stem ("trys"->"tries", "containg"->"containing"):
+            # they form their own channel class between the
+            # double-letter fix and plain edits — within a distance
+            # band a verified inflection of the typed stem outranks
+            # unrelated words of the same edit class, slate or tail.
+            [true_dist,
+             Patterns.double_letter_fix?(typed, s.word) ? 0 : 1,
+             s.metadata[:morph] ? 1 : Patterns.single_edit_op(typed, s.word),
+             i < slate_size ? 0 : 1, i]
+          end.map(&:first)
+          SuggestionSet.new(ordered, max_size: context.max_results, ranked: true)
         end
 
         # The cascade decision object. An explicit

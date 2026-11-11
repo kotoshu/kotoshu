@@ -88,9 +88,26 @@ module Kotoshu
 
         # Get frequency bonus for a word
         #
+        # Two regimes:
+        # - When the provider carries a full rank map (warm Kelly /
+        #   wiki-unigram cache), a continuous log-scale bonus grades
+        #   frequency smoothly instead of the coarse 3-tier jumps —
+        #   equal-distance candidates like column/columns or
+        #   specify/specific then order by real corpus frequency.
+        # - Otherwise (frozen-tier machines — conformance path) the
+        #   legacy tier bonus applies unchanged.
+        #
         # @param word [String] The word to check
-        # @return [Integer] Frequency bonus (0-200)
+        # @return [Float] Frequency bonus (0-300; lower is better)
         def frequency_bonus(word)
+          ranks = frequency_ranks
+          unless ranks.empty?
+            r = ranks[word.downcase]
+            return 0.0 unless r
+
+            return (300.0 - (45.0 * Math.log10(r))).clamp(0.0, 300.0)
+          end
+
           tiers = frequency_tiers
           return 0 unless tiers
 
@@ -107,6 +124,11 @@ module Kotoshu
 
           # Not in common words: no bonus
           0
+        end
+
+        # Full rank map from the provider (empty on frozen-tier machines).
+        def frequency_ranks
+          @frequency_ranks ||= @frequency_provider.ranks_for(@language_code)
         end
 
         # Frequency tiers used for ranking. Lazy-loads from the
@@ -189,6 +211,24 @@ module Kotoshu
             candidates << [candidate, dist, score]
           end
 
+          # Morphological sweep: many learner typos are mangled INFLECTED
+          # forms ("containg" -> "containing", "trys" -> "tries") whose
+          # targets are derived dictionary forms — they are not raw
+          # dictionary entries, so neither the length-range scan nor the
+          # single-edit sweep can enumerate them. Generate the regular
+          # inflection surface forms of the typed word (with
+          # consonant-doubling and e-restoration), keep the ones the
+          # affix-aware lookup accepts, and score them as length-changing
+          # edits. Bounded: ~20 variants per word.
+          morph_words = []
+          morph_sweep_candidates(context, word, case_insensitive: case_insensitive,
+                                                max_dist: max_dist) do |candidate, dist, strong|
+            compare_candidate = case_insensitive ? candidate.downcase : candidate
+            score = calculate_enhanced_score(compare_word, compare_candidate, dist)
+            candidates << [candidate, dist, score]
+            morph_words << candidate.downcase if strong
+          end
+
           # Sort by enhanced score (lower is better)
           sorted_candidates = candidates.sort_by { |_, _, score| score }
 
@@ -240,8 +280,13 @@ module Kotoshu
             compare_dict = case_insensitive ? dict_word.downcase : dict_word
             jaro_similarity = calculate_ngram_similarity(compare_word, compare_dict)
 
-            # Skip low-confidence or low-similarity suggestions (unless we need more for min_results)
-            if (confidence < min_confidence || jaro_similarity < min_similarity) && (suggestions.size >= min_results)
+            # Skip low-confidence or low-similarity suggestions (unless we need more for min_results).
+            # Morph-sweep candidates are exempt: they are affix-aware
+            # lookup-verified dictionary forms — the confidence gate
+            # would otherwise cut exactly the distance-2 inflected
+            # corrections the sweep exists to surface.
+            if (confidence < min_confidence || jaro_similarity < min_similarity) &&
+                (suggestions.size >= min_results) && !morph_words.include?(dict_word.downcase)
               next
             end
 
@@ -252,7 +297,9 @@ module Kotoshu
               source: @name,
               original_length: word.length,
               ngram_score: jaro_similarity, # Now stores Jaro-Winkler similarity (0.0-1.0)
-              enhanced_score: score
+              enhanced_score: score,
+              pattern_fix: typo_pattern_bonus(compare_word, compare_dict).positive?,
+              morph: morph_words.include?(dict_word.downcase)
             )
 
             # Stop when we have enough high-quality suggestions
@@ -447,6 +494,87 @@ module Kotoshu
 
           # Deletion of one character at each position.
           Algorithms::Permutations.extrachar(word, &block)
+        end
+
+        # Morphological sweep: generate the regular-inflection surface
+        # forms of the typed word (plurals, -ed/-ing with consonant
+        # doubling and e-restoration, y->ies, plus a vowel-insertion
+        # sweep for dropped-vowel typos) and yield the ones the
+        # affix-aware lookup accepts ("containg" -> "containing",
+        # "trys" -> "tries"). True distances are computed against the
+        # typed word; variants beyond +max_dist+ are dropped.
+        #
+        # @param context [Context] The suggestion context
+        # @param word [String] The misspelled word
+        # @param case_insensitive [Boolean] Comparison case handling
+        # @param max_dist [Integer] Maximum accepted distance
+        # @yield [String, Integer] Each accepted candidate and distance
+        def morph_sweep_candidates(context, word, case_insensitive:, max_dist:)
+          w = case_insensitive ? word.downcase : word
+          seen = Set.new
+          morph_variants(w).each do |cand, strong|
+            next if cand == w
+            next unless seen.add?(cand)
+            next unless dictionary_lookup(context, cand)
+
+            # The max_distance contract holds for every yielded
+            # candidate (property spec); stripped-inflection targets
+            # beyond it are dropped.
+            dist = edit_distance_with_threshold(w, cand, max_dist)
+            next unless dist && dist.positive?
+
+            yield cand, dist, strong
+          end
+        end
+
+        # Bounded morphological variant generator for +w+ (~20-45
+        # strings; every variant is lookup-checked by the caller, so
+        # over-generation is cheap).
+        # Returns [variant, strong] pairs: STRONG variants are true
+        # inflection transforms of the typed word (affix strips and
+        # additions — the typo is a mangled inflection), WEAK ones are
+        # single vowel insertions (over-generating: any vowel hit that
+        # happens to be a word ranks below the strong class).
+        def morph_variants(w)
+          return [] if w.empty?
+
+          v = []
+          last = w[-1]
+          add = ->(cand, strong) { v << [cand, strong] }
+          add.call(w + "s", true)
+          add.call(w + "es", true)
+          add.call(w + last + "s", true) unless last.match?(/[sxz]/)
+          add.call(w[0..-2] + "ies", true) if w.end_with?("y")
+          add.call(w + "ed", true)
+          add.call(w + last + "ed", true) if last.match?(/[b-df-hj-np-tv-z]/)
+          add.call(w + "ing", true)
+          add.call(w + last + "ing", true) if last.match?(/[b-df-hj-np-tv-z]/)
+          add.call(w[0..-2] + "ing", true) if w.end_with?("e")
+          add.call(w[0..-2] + "ing", true) if w.end_with?("ng")
+          if w.end_with?("s")
+            stem = w[0..-2]
+            add.call(stem, true)
+            add.call(stem[0..-2] + "ies", true) if stem.end_with?("y")
+            add.call(stem + "ing", true)
+          end
+          if w.end_with?("ed")
+            stem = w[0..-3]
+            add.call(stem, true)
+            add.call(stem + "e", true)
+            add.call(stem[0..-2], true) if stem.length > 2 && stem[-1] == stem[-2]
+          end
+          if w.end_with?("ing")
+            stem = w[0..-4]
+            add.call(stem, true)
+            add.call(stem + "e", true)
+            add.call(stem[0..-2], true) if stem.length > 2 && stem[-1] == stem[-2]
+          end
+          %w[a e i o u].each do |c|
+            (1...w.length).each do |i|
+              add.call(w[0...i] + c + w[i..], false)
+            end
+          end
+          v
         end
 
         # The substitution/insertion alphabet for the edit sweep: an

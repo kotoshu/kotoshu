@@ -144,34 +144,65 @@ module Kotoshu
           # ranking distance switches.
           typed_fold = fold_word(word_lower)
           scored = candidates.filter_map do |cand|
+            fold_hit = false
             dist = if (td = translit_hits[cand])
+                     fold_hit = word_lower != cand
                      td
                    elsif fold_scoring?
                      cand_fold = @folded_words&.[](cand) || fold_word(cand)
-                     folded_distance(typed_fold, cand_fold, max_dist + 1)
+                     fd = folded_distance(typed_fold, cand_fold, max_dist + 1)
+                     # fold-equal while the raw strings differ: the C9
+                     # sanctioned fold case (de ß) — it must keep its
+                     # precedence over same-distance raw matches
+                     fold_hit = fd && word_lower != cand
+                     fd
                    else
                      bounded_edit_distance(word_lower.chars, cand.chars,
                                            max_dist + 1)
                    end
             next if dist.nil? || dist > max_dist + 1
 
-            [cand, dist]
+            [cand, dist, fold_hit]
           end
-          distances = scored.to_h
-          sorted = scored.sort_by do |cand, dist|
-            rank = @ranks[cand] || 1_000_000_000
-            # Missing/extra double-letter is the corpus's dominant
-            # single-edit class ("helo"→"hello", "commiting"→
-            # "committing"); order it ahead of same-distance edits
-            # regardless of frequency (plan C6; mirrors
-            # EditDistanceStrategy#typo_pattern_bonus).
-            pattern = double_letter_pattern?(context.word, cand) ? 0 : 1
-            # CJK: a pinyin-homophone substitution (the IME error
-            # class) outranks an equal-distance non-hit — edit
-            # distance does not model IME confusions at all
-            # (TODO.sota/4).
-            conf = @confusion_set.confusion_hit?(word_lower, cand) ? 0 : 1
-            [dist, pattern, conf, rank]
+          # Sort: distance, then the C6 pattern flag, then the C9 fold
+          # flag; after that the channel prior decides ONLY within a
+          # narrow frequency window (~2x rank ratio) — outside it the
+          # dominant corpus rank keeps C9's ordering law ("gejoscht"
+          # -> "geloescht" rank 1 beats an insert-shaped "gekocht").
+          op_weight = lambda do |cand|
+            case Patterns.single_edit_op(context.word, cand)
+            when 1 then 0.5
+            when 2 then 0.3
+            when 3 then 0.0
+            else -0.5
+            end
+          end
+          sorted = scored.sort do |(a, da, fa), (b, db, fb)|
+            next da <=> db unless da == db
+
+            pa = double_letter_pattern?(context.word, a) ? 0 : 1
+            pb = double_letter_pattern?(context.word, b) ? 0 : 1
+            next pa <=> pb unless pa == pb
+
+            next (fa ? 0 : 1) <=> (fb ? 0 : 1) unless fa == fb
+
+            ra = @ranks[a] || 1_000_000_000
+            rb = @ranks[b] || 1_000_000_000
+            la = Math.log10(ra.clamp(1, 10**8))
+            lb = Math.log10(rb.clamp(1, 10**8))
+            if (la - lb).abs <= 0.3
+              ob = op_weight.call(b) <=> op_weight.call(a)
+              next ob unless ob.zero?
+
+              next la <=> lb
+            end
+            next la <=> lb unless la == lb
+
+            ca = @confusion_set.confusion_hit?(word_lower, a) ? 0 : 1
+            cb = @confusion_set.confusion_hit?(word_lower, b) ? 0 : 1
+            next ca <=> cb unless ca == cb
+
+            a <=> b
           end
           # ranked: true — the (distance, frequency-rank) order IS the
           # product decision; base create_suggestion_set would re-sort
@@ -180,11 +211,19 @@ module Kotoshu
           limit = [context.max_results, max_results].min
           suggestions = sorted.first(limit).map do |cand, dist|
             ngram = calculate_ngram_similarity(context.word, cand)
+            # Pattern/confusion are symspell-only signals; the composite
+            # re-ranks the merged pool by (distance, combined_score), so
+            # they must ride on confidence to survive the re-sort.
+            base_conf = calculate_confidence(dist)
+            patterned = double_letter_pattern?(context.word, cand)
+            confused = @confusion_set.confusion_hit?(word_lower, cand)
+            conf = (base_conf * (patterned ? 1.0 : 0.95) * (confused ? 1.05 : 1.0)).clamp(0.0, 1.0)
             create_suggestion(
               cand, distance: dist,
-                    confidence: calculate_confidence(dist),
+                    confidence: conf,
                     original_length: context.word.length,
-                    ngram_score: ngram
+                    ngram_score: ngram,
+                    pattern_fix: patterned
             )
           end
           SuggestionSet.new(suggestions, max_size: limit, ranked: true)
