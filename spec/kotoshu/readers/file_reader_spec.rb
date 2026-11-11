@@ -178,8 +178,9 @@ RSpec.describe Kotoshu::Readers::ZipReader, if: defined?(Zip) do
 
   it "reads lines from a zip entry" do
     zip_path = File.join(tmpdir, "test.zip")
-    Zip::File.open(zip_path, Zip::File::CREATE) do |zip|
-      zip.get_output_stream("data.txt") { |f| f.write("line1\nline2\n\nline3\n") }
+    Zip::OutputStream.open(zip_path) do |zip|
+      zip.put_next_entry("data.txt")
+      zip.write("line1\nline2\n\nline3\n")
     end
 
     Zip::File.open(zip_path) do |zipfile|
