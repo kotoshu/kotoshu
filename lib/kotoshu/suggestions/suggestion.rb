@@ -85,11 +85,16 @@ module Kotoshu
         self.source == source.to_s
       end
 
-      # Compare suggestions for sorting (higher combined score first).
+      # Compare suggestions for sorting.
       #
-      # Ranking priority (following CSpell/Hunspell approach):
-      # 1. Combined score (higher is better)
-      # 2. Edit distance (lower is better)
+      # Ranking priority (noisy-channel ordering):
+      # 1. Edit distance (lower is better) — the channel term: a
+      #    distance-1 candidate explains the typo better than a
+      #    distance-2 one regardless of any strategy's self-scored
+      #    confidence, whose per-pool min-max normalization is not
+      #    comparable across strategies.
+      # 2. Combined score (higher is better) — orders candidates of
+      #    EQUAL distance (frequency, typo-pattern bonuses).
       # 3. Length similarity (prefer similar length to original word)
       # 4. N-gram similarity (more shared n-grams is better)
       # 5. Alphabetical (ONLY as final tiebreaker)
@@ -99,11 +104,11 @@ module Kotoshu
       def <=>(other)
         return nil unless other.is_a?(Suggestion)
 
-        score_cmp = other.combined_score <=> combined_score
-        return score_cmp unless score_cmp.zero?
-
         distance_cmp = distance <=> other.distance
         return distance_cmp unless distance_cmp.zero?
+
+        score_cmp = other.combined_score <=> combined_score
+        return score_cmp unless score_cmp.zero?
 
         orig_len = metadata[:original_length] || word.length
         other_orig_len = other.metadata[:original_length] || other.word.length

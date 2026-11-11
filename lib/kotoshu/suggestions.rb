@@ -7,6 +7,7 @@ module Kotoshu
     autoload :FrequencyProvider, "kotoshu/suggestions/frequency_provider"
     autoload :FrozenTiers, "kotoshu/data/frozen_kelly"
     autoload :Generator, "kotoshu/suggestions/generator"
+    autoload :Patterns, "kotoshu/suggestions/patterns"
     autoload :Pipeline, "kotoshu/suggestions/pipeline"
     autoload :SemanticCascade, "kotoshu/suggestions/semantic_cascade"
     autoload :Suggestion, "kotoshu/suggestions/suggestion"
