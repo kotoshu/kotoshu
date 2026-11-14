@@ -1,6 +1,7 @@
-"""GECToR trainer for HF Jobs — vendor-neutral twin of
-train_gector_deep_modal.py (same recipe: ROUNDS x (4ep uniform + 2ep
-KEEP-0.5/10), differential LRs, smoothing 0.03).
+"""GECToR trainer for HF Jobs — 2stage-proven schedule (s1 vanilla CE
+4ep, s2 KEEP-weighted 2ep at LR/10; label smoothing 0.0): the 2026-10-31
+matrix + restored-recipe arms isolated that smoothing>0 and s1
+keep-weighting break fitting entirely under this stack.
 
 Storage is all huggingface_hub, no platform volumes:
   data       -> private dataset repo (kotoshu/gec-training-private)
@@ -94,7 +95,12 @@ def main() -> None:
     ap.add_argument("--batch", type=int, default=16)
     ap.add_argument("--max-len", type=int, default=96)
     ap.add_argument("--top-labels", type=int, default=5000)
+    ap.add_argument("--epochs-s1", type=int, default=4)
+    ap.add_argument("--epochs-s2", type=int, default=2)
+    ap.add_argument("--label-smoothing", type=float, default=0.0)
     ap.add_argument("--keep-weight-s1", type=float, default=1.0)
+    ap.add_argument("--s2-lr-div", type=int, default=10,
+                    help="era-recipe reproduction: pass 1 for the pre-regression same-LR stage 2")
     ap.add_argument("--bf16", action="store_true",
                     help="mdeberta-family: fp32 forward overflows (pretrained fp16)")
     ap.add_argument("--ckpt-vol", default="",
@@ -121,7 +127,11 @@ def main() -> None:
             labels[lab] = len(labels)
     print(f"label vocab: {len(labels)}", flush=True)
 
-    tokenizer = AutoTokenizer.from_pretrained(args.base_model)
+    # transformers>=4.x hard-asserts the INSTANCE attribute for
+    # roberta-family + is_split_into_words; the flag only takes effect at
+    # construction (a call-site kwarg silently does nothing).
+    tkw = {"add_prefix_space": True} if "roberta" in args.base_model.lower() else {}
+    tokenizer = AutoTokenizer.from_pretrained(args.base_model, **tkw)
     model = AutoModelForTokenClassification.from_pretrained(
         args.base_model, num_labels=len(labels), torch_dtype=torch.float32,
         id2label={i: l for l, i in labels.items()}, label2id=labels)
@@ -148,7 +158,7 @@ def main() -> None:
         return out
 
     class HubCallback(TrainerCallback):
-        # on_save fires at save_steps=20000 — each save is pushed to
+        # on_save fires at save_steps=max(20000, total_steps) — each save is pushed to
         # the checkpoint repo directly (save_total_limit keeps one)
         def __init__(self, run_name: str):
             self.run_name = run_name
@@ -191,12 +201,18 @@ def main() -> None:
             loss = nn.functional.cross_entropy(
                 outputs.logits.view(-1, model.config.num_labels),
                 inputs["labels"].view(-1), weight=weight,
-                label_smoothing=0.03, ignore_index=-100)
+                label_smoothing=args.label_smoothing, ignore_index=-100)
             return (loss, outputs) if return_outputs else loss
 
+    # 2stage-proven schedule: vanilla CE in s1 (keep weight 1.0), s2 LR /10.
+    # label_smoothing>0 and s1 keep-weighting UNDER this Trainer/stack break
+    # fitting entirely (all arms plateau ~1.2; restored recipe fits 0.14 —
+    # isolated 2026-10-31, matrix + restored-recipe arms on h200).
     for rnd in range(1, args.rounds + 1):
-        enc_lr, head_lr = args.enc_lr / (5 ** (rnd - 1)), args.head_lr / (5 ** (rnd - 1))
-        for stage, (epochs, weighted) in enumerate([(4, False), (2, True)], 1):
+        for stage, (epochs, weighted) in enumerate([(args.epochs_s1, False),
+                                                    (args.epochs_s2, True)], 1):
+            s2div = args.s2_lr_div if stage == 2 else 1
+            enc_lr, head_lr = args.enc_lr / s2div, args.head_lr / s2div
             run_name = f"r{rnd}s{stage}"
             ckpt_dir = os.path.join(local_ckpt, run_name)
             resume = fetch_latest_checkpoint(args.ckpt_repo, local_ckpt,
@@ -249,6 +265,9 @@ def main() -> None:
         quantize_dynamic(onnx_path, int8, weight_type=QuantType.QUInt8)
     json.dump({str(i): l for l, i in labels.items()},
               open("export/labels.json", "w"), indent=1)
+    if tkw.get("add_prefix_space"):
+        # serve-side marker: ByteBpe must encode words space-prefixed
+        open("export/prefix_space", "w").write("1\n")
     # roberta-family: vocab_files_names keys are vocab_file/merges_file —
     # init_kwargs lookup silently misses and decodes die on ENOENT
     vfn = getattr(tokenizer, "vocab_files_names", {}) or {}
@@ -259,7 +278,8 @@ def main() -> None:
     out_repo = args.out_repo or args.ckpt_repo
     if args.ckpt_vol:
         os.makedirs(os.path.join(args.ckpt_vol, "export"), exist_ok=True)
-        for f in ("gec-tagger.int8.onnx", "labels.json", "vocab.json", "merges.txt"):
+        for f in ("gec-tagger.int8.onnx", "labels.json", "vocab.json", "merges.txt",
+                  "prefix_space"):
             fp = os.path.join("export", f)
             if os.path.exists(fp):
                 shutil.copy(fp, os.path.join(args.ckpt_vol, "export", f))
@@ -268,7 +288,8 @@ def main() -> None:
         return
     # export int8 + labels + tokenizer ONLY — the fp32 ONNX (0.5-1.1GB)
     # blows private storage at the final push (killed 5 runs silently)
-    for f in ("gec-tagger.int8.onnx", "labels.json", "vocab.json", "merges.txt"):
+    for f in ("gec-tagger.int8.onnx", "labels.json", "vocab.json", "merges.txt",
+                  "prefix_space"):
         fp = os.path.join("export", f)
         if os.path.exists(fp):
             hub().upload_file(path_or_fileobj=fp, path_in_repo=f,
