@@ -204,6 +204,7 @@ module Kotoshu
       # grid; the id sk et lt lv Latin members follow.
       register(Layouts::Arabic101)
       register(Layouts::PersianStandard)
+      register(Layouts::UrduPhonetic)
       register(Layouts::HebrewSI1452)
       register(Layouts::Croatian)
       register(Layouts::Slovenian)
