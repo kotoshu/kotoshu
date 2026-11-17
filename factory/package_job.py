@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 
@@ -34,6 +35,12 @@ def main():
     ckpt = cks[-1]
     print("CKPT:", ckpt, flush=True)
     labels = hf_hub_download(repo, "labels.json")
+    # v8-era roberta models: serve-side prefix-space marker (optional;
+    # pre-v8 models have none and keep bare-word encoding)
+    try:
+        marker = hf_hub_download(repo, "prefix_space", repo_type="model")
+    except Exception:
+        marker = None
     prune_corpus = reg.get("base", {}).get(
         "prune_corpus", f"base_{lang}.txt")
     print("prune corpus:", prune_corpus, flush=True)
@@ -41,11 +48,18 @@ def main():
     scripts = "/app/scripts"
     out = "/tmp/out"
     os.makedirs(out, exist_ok=True)
+    # en is roberta-family (50k vocab): the pruner's default mdeberta
+    # tokenizer (250k) overruns the embedding matrix (2026-10-31 IndexError)
+    tokenizer = reg.get("tokenizer", "microsoft/mdeberta-v3-base")
+    np = [] if reg.get("prune", True) else ["--no-prune"]
     subprocess.run([sys.executable, os.path.join(scripts, "prune_export_hf.py"),
                     "--ckpt-dir", ckpt, "--labels", labels,
                     "--corpus", f"/corpora/{prune_corpus}",
                     "--charsmap", "/code/data/charsmap_mdeberta.json",
-                    "--out-dir", out], check=True)
+                    "--tokenizer", tokenizer,
+                    "--out-dir", out] + np, check=True)
+    if marker:
+        shutil.copy(marker, os.path.join(out, "prefix_space"))
 
     parity = os.path.join(out, "parity.json")
     subprocess.run([sys.executable, "/app/factory/parity.py",
@@ -53,7 +67,8 @@ def main():
                     "--full-ckpt", os.path.join(ckpt, "model.safetensors"),
                     "--corpus", f"/corpora/{prune_corpus}",
                     "--rows", str(a.rows), "--json", parity,
-                    "--labels", labels, "--tok-dir", out], check=True)
+                    "--labels", labels, "--tok-dir", out,
+                    "--base-model", tokenizer], check=True)
     gate = json.load(open(parity))["gate"]
     assert gate == "PASS", f"PARITY GATE FAILED"
 

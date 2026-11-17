@@ -5,8 +5,8 @@ require "json"
 require "kotoshu/grammar"
 
 RSpec.describe Kotoshu::Grammar::ByteBpe do
-  let(:vocab_path) { File.expand_path("/tmp/roberta_tok/vocab.json") }
-  let(:merges_path) { File.expand_path("/tmp/roberta_tok/merges.txt") }
+  let(:vocab_path) { ENV["KOTOSHU_ROBERTA_VOCAB"] || File.expand_path("/tmp/roberta_tok/vocab.json") }
+  let(:merges_path) { ENV["KOTOSHU_ROBERTA_MERGES"] || File.expand_path("/tmp/roberta_tok/merges.txt") }
   let(:tokenizer) { described_class.new(vocab_path, merges_path) }
   let(:fixture) { JSON.parse(File.read(File.expand_path("../../fixtures/grammar/bpe_conformance.json", __dir__))) }
 
@@ -40,5 +40,23 @@ RSpec.describe Kotoshu::Grammar::ByteBpe do
     expect(ids.first).to eq(0)
     expect(ids.last).to eq(2)
     expect(tokenizer.mask_for(ids)).to all(eq(1))
+  end
+
+  describe "prefix_space" do
+    it "encodes words space-prefixed when enabled (v8-era models)" do
+      ps = described_class.new(vocab_path, merges_path, prefix_space: true)
+      bare = described_class.new(vocab_path, merges_path)
+      words = %w[Hello world]
+      # the prefixed encoding must differ from bare and match encoding
+      # the joined text with leading spaces
+      expect(ps.encode_words(words)).not_to eq(bare.encode_words(words))
+      expect(ps.encode_words(words)).to eq(bare.encode(" Hello world"))
+    end
+
+    it "defaults to bare-word encoding (v1 models)" do
+      words = %w[Hello world]
+      expect(described_class.new(vocab_path, merges_path).encode_words(words))
+        .to eq(described_class.new(vocab_path, merges_path, prefix_space: false).encode_words(words))
+    end
   end
 end

@@ -12,7 +12,7 @@ import sys
 
 
 def run_parity(pruned_onnx, full_ckpt, tok_dir, corpus_path,
-               rows=60, min_agreement=0.98, labels_path=""):
+               rows=60, min_agreement=0.98, labels_path="", base_model=""):
     import numpy as np
     import onnxruntime as ort
     import torch
@@ -35,7 +35,7 @@ def run_parity(pruned_onnx, full_ckpt, tok_dir, corpus_path,
     labels = json.load(open(labels_path))
     id2label = {int(k): v for k, v in labels.items()}
     cfg = AutoConfig.from_pretrained(
-        "microsoft/mdeberta-v3-base", num_labels=len(id2label),
+        base_model or "microsoft/mdeberta-v3-base", num_labels=len(id2label),
         id2label=id2label, label2id={v: k for k, v in id2label.items()})
     from safetensors.torch import load_file
     state = load_file(full_ckpt)
@@ -98,13 +98,15 @@ def main():
     ap.add_argument("--min-agreement", type=float, default=0.98)
     ap.add_argument("--labels", required=True)
     ap.add_argument("--tok-dir", default="", help="pruned tokenizer dir (preferred)")
+    ap.add_argument("--base-model", default="microsoft/mdeberta-v3-base",
+                    help="architecture source for the torch reference model")
     ap.add_argument("--json", default="")
     a = ap.parse_args()
     tok_src = a.tok_dir or a.tokenizer
     r = run_parity(pruned_onnx=a.pruned_onnx, full_ckpt=a.full_ckpt,
                    tok_dir=(a.tok_dir or a.tokenizer), corpus_path=a.corpus,
                    rows=a.rows, min_agreement=a.min_agreement,
-                   labels_path=a.labels)
+                   labels_path=a.labels, base_model=a.base_model)
     print(json.dumps(r))
     if a.json:
         open(a.json, "w").write(json.dumps(r, indent=1))

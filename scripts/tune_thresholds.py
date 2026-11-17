@@ -48,7 +48,8 @@ def main(dump_path, pairs_path, out_path):
         for dline, pline in zip(df, pf):
             d = json.loads(dline)
             p = json.loads(pline)
-            gold = extract(d["words"], p["tgt"].split())
+            tgt = p.get("tgt") or p.get("clean")
+            gold = extract(d["words"], tgt.split())
             preds_by_sent.append(d["preds"])
             gold_by_sent.append(gold)
 

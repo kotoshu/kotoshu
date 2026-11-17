@@ -7,3 +7,4 @@ base:
   source: wikipedia
   config: 20231101.fr
 rate: 0.8
+ckpt_repo: kotoshu/gec-ckpt-fr-v8

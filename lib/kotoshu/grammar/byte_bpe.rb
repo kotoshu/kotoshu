@@ -28,7 +28,13 @@ module Kotoshu
 
       # @param vocab_path [String] vocab.json
       # @param merges_path [String] merges.txt
-      def initialize(vocab_path, merges_path)
+      # @param prefix_space [Boolean] encode each word with a leading
+      #   space (HF add_prefix_space=True semantics) — required for
+      #   v8-era en models trained under transformers>=4.x, where
+      #   RobertaTokenizerFast hard-asserts the instance attribute and
+      #   bare-word training is no longer reachable. v1 models trained
+      #   bare: their dirs carry no marker and default stays false.
+      def initialize(vocab_path, merges_path, prefix_space: false)
         require "json"
         @vocab = JSON.parse(File.read(vocab_path))
         @merges = {}
@@ -39,6 +45,7 @@ module Kotoshu
           @merges[[pair[0], pair[1]]] = i - 1 if pair.length == 2
         end
         @cache = {}
+        @prefix_space = prefix_space
       end
 
       # Token ids for a word list (HF is_split_into_words semantics:
@@ -49,7 +56,10 @@ module Kotoshu
       # @return [Array<Integer>] with BOS/EOS framing
       def encode_words(words)
         ids = [BOS]
-        words.each { |w| ids.concat(word_ids(w.to_s)) }
+        words.each do |w|
+          w = " #{w}" if @prefix_space
+          ids.concat(word_ids(w.to_s))
+        end
         ids << EOS
         ids
       end

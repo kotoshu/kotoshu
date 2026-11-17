@@ -39,26 +39,49 @@ module Kotoshu
 
       # @param model_path [String] int8 ONNX tagger
       # @param labels_path [String] labels.json shipped with the model
-      # @param vocab_path [String] distilroberta vocab.json
-      # @param merges_path [String] distilroberta merges.txt
-      def initialize(model_path:, labels_path:, vocab_path:, merges_path:)
+      # @param vocab_path [String] distilroberta vocab.json (roberta layout)
+      # @param merges_path [String] distilroberta merges.txt (roberta layout)
+      # @param pieces_path [String] pieces.json (deberta spm layout)
+      # @param charsmap_path [String] charsmap.json (deberta spm layout)
+      def initialize(model_path:, labels_path:, vocab_path: nil, merges_path: nil,
+                     pieces_path: nil, charsmap_path: nil, prefix_space: false)
         require "onnxruntime"
         @model = OnnxRuntime::Model.new(model_path)
         @labels = JSON.parse(File.read(labels_path))
-        @tokenizer = ByteBpe.new(vocab_path, merges_path)
+        @tokenizer =
+          if pieces_path
+            SpmBpe.new(pieces_path, charsmap_path)
+          else
+            ByteBpe.new(vocab_path, merges_path, prefix_space: prefix_space)
+          end
       end
 
       # Load from a model directory laid out as from_dir expects.
+      # A `prefix_space` marker file selects space-prefixed word
+      # encoding (v8-era en models); its absence keeps the bare-word
+      # v1 encoding.
       #
       # @param dir [String]
       # @return [Tagger]
       def self.from_dir(dir)
-        new(
-          model_path: File.join(dir, "gec-tagger.int8.onnx"),
-          labels_path: File.join(dir, "labels.json"),
-          vocab_path: File.join(dir, "vocab.json"),
-          merges_path: File.join(dir, "merges.txt")
-        )
+        prefix_space = File.exist?(File.join(dir, "prefix_space"))
+        pieces = File.join(dir, "pieces.json")
+        if File.exist?(pieces)
+          new(
+            model_path: File.join(dir, "gec-tagger.int8.onnx"),
+            labels_path: File.join(dir, "labels.json"),
+            pieces_path: pieces,
+            charsmap_path: File.join(dir, "charsmap.json")
+          )
+        else
+          new(
+            model_path: File.join(dir, "gec-tagger.int8.onnx"),
+            labels_path: File.join(dir, "labels.json"),
+            vocab_path: File.join(dir, "vocab.json"),
+            merges_path: File.join(dir, "merges.txt"),
+            prefix_space: prefix_space
+          )
+        end
       end
 
       # Detect error classes per word.

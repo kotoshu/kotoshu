@@ -637,11 +637,13 @@ module Kotoshu
         # @param suggestion [String] The suggested word
         # @return [Float] Transposition bonus (0 or 200)
         def transposition_bonus(original, suggestion)
-          # Transposition only makes sense for same-length words
-          return 0 unless original.length == suggestion.length
-
           o = original.downcase
           s = suggestion.downcase
+
+          # Downcasing can change the codepoint count (Turkish İ →
+          # "i" + combining dot), so the loop below must iterate and
+          # cross-index only over the downcased pair, never the originals.
+          return 0 unless o.length == s.length
 
           # Count transpositions needed
           transpositions = 0

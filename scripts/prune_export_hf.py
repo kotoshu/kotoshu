@@ -25,34 +25,41 @@ import sys
 
 def prune_and_export(ckpt_dir, corpus_path, charsmap_path, out_dir,
                      tokenizer_name="microsoft/mdeberta-v3-base",
-                     labels_src=None):
+                     labels_src=None, prune=True):
     import torch
     from onnxruntime.quantization import QuantType, quantize_dynamic
     from transformers import AutoModelForTokenClassification, AutoTokenizer
 
     tok = AutoTokenizer.from_pretrained(tokenizer_name)
-    vocab_size = tok.vocab_size
-    keep = set(range(tok.num_special_tokens_to_add()))
-    keep |= set(tok.all_special_ids)
-    with open(corpus_path) as fh:
-        for line in fh:
-            if line.strip():
-                keep |= set(tok(line, add_special_tokens=True)["input_ids"])
-    for i, t in {i: t for t, i in tok.get_vocab().items()}.items():
-        if t.startswith("<0x") or t in ("[UNK]", "<unk>", "<pad>"):
-            keep.add(i)
-    keep_ids = sorted(keep & set(range(vocab_size)))
-    added = sorted(i for i in tok.all_special_ids if i >= vocab_size)
-    print(f"corpus keep: {len(keep_ids)} base + {len(added)} added", flush=True)
+    if prune:
+        vocab_size = tok.vocab_size
+        keep = set(range(tok.num_special_tokens_to_add()))
+        keep |= set(tok.all_special_ids)
+        with open(corpus_path) as fh:
+            for line in fh:
+                if line.strip():
+                    keep |= set(tok(line, add_special_tokens=True)["input_ids"])
+        for i, t in {i: t for t, i in tok.get_vocab().items()}.items():
+            if t.startswith("<0x") or t in ("[UNK]", "<unk>", "<pad>"):
+                keep.add(i)
+        keep_ids = sorted(keep & set(range(vocab_size)))
+        added = sorted(i for i in tok.all_special_ids if i >= vocab_size)
+        print(f"corpus keep: {len(keep_ids)} base + {len(added)} added", flush=True)
 
-    model = AutoModelForTokenClassification.from_pretrained(ckpt_dir)
-    emb = model.get_input_embeddings().weight.data
-    new_emb = emb[torch.tensor(keep_ids + added)].clone()
-    model.resize_token_embeddings(len(keep_ids) + len(added))
-    with torch.no_grad():
-        model.get_input_embeddings().weight.copy_(new_emb)
+        model = AutoModelForTokenClassification.from_pretrained(ckpt_dir)
+        emb = model.get_input_embeddings().weight.data
+        new_emb = emb[torch.tensor(keep_ids + added)].clone()
+        model.resize_token_embeddings(len(keep_ids) + len(added))
+        with torch.no_grad():
+            model.get_input_embeddings().weight.copy_(new_emb)
+    else:
+        # roberta-family: ByteBpe serves the FULL vocab — embedding pruning
+        # would desync ids from the tokenizer (and there is no spm.model to
+        # rebuild pieces from). roberta-base int8 ~130MB, under budget.
+        keep_ids = added = []
+        model = AutoModelForTokenClassification.from_pretrained(ckpt_dir)
     model.eval()
-    print(f"pruned: {sum(p.numel() for p in model.parameters()) / 1e6:.1f}M params",
+    print(f"export: {sum(p.numel() for p in model.parameters()) / 1e6:.1f}M params",
           flush=True)
 
     os.makedirs("exp", exist_ok=True)
@@ -69,8 +76,9 @@ def prune_and_export(ckpt_dir, corpus_path, charsmap_path, out_dir,
 
     os.makedirs(out_dir, exist_ok=True)
     tok.save_pretrained(out_dir)   # full tokenizer: encode then remap ids
-    with open(os.path.join(out_dir, "keep_ids.json"), "w") as fh:
-        json.dump(keep_ids + added, fh)
+    if prune:
+        with open(os.path.join(out_dir, "keep_ids.json"), "w") as fh:
+            json.dump(keep_ids + added, fh)
     int8 = os.path.join(out_dir, "gec-tagger.int8.onnx")
     quantize_dynamic(onnx_path, int8, weight_type=QuantType.QInt8)
     print(f"int8: {os.path.getsize(int8) / (1024 * 1024):.1f}MB", flush=True)
@@ -87,12 +95,20 @@ def prune_and_export(ckpt_dir, corpus_path, charsmap_path, out_dir,
     print(f"fp32-fied: {os.path.getsize(int8) / (1024 * 1024):.1f}MB", flush=True)
     shutil.copy(onnx_path, os.path.join(out_dir, "gec-gector.onnx"))
 
-    subprocess.run([sys.executable,
-                    os.path.join(scripts, "rebuild_pruned_pieces.py"),
-                    "--onnx", onnx_path,
-                    "--full-ckpt", os.path.join(ckpt_dir, "model.safetensors"),
-                    "--tokenizer", tokenizer_name,
-                    "--out-dir", out_dir], check=True)
+    if prune:
+        subprocess.run([sys.executable,
+                        os.path.join(scripts, "rebuild_pruned_pieces.py"),
+                        "--onnx", onnx_path,
+                        "--full-ckpt", os.path.join(ckpt_dir, "model.safetensors"),
+                        "--tokenizer", tokenizer_name,
+                        "--out-dir", out_dir], check=True)
+    else:
+        # ByteBpe layout: full tokenizer files serve directly
+        vfn = getattr(tok, "vocab_files_names", {}) or {}
+        for canon, key in (("vocab.json", "vocab_file"), ("merges.txt", "merges_file")):
+            src = vfn.get(key)
+            if src and os.path.exists(src):
+                shutil.copy(src, os.path.join(out_dir, canon))
     if labels_src:
         shutil.copy(labels_src, os.path.join(out_dir, "labels.json"))
     if charsmap_path and os.path.exists(charsmap_path):
@@ -108,10 +124,12 @@ def main() -> None:
     ap.add_argument("--charsmap", required=True)
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--tokenizer", default="microsoft/mdeberta-v3-base")
+    ap.add_argument("--no-prune", action="store_true")
     args = ap.parse_args()
     prune_and_export(ckpt_dir=args.ckpt_dir, corpus_path=args.corpus,
                      charsmap_path=args.charsmap, out_dir=args.out_dir,
-                     tokenizer_name=args.tokenizer, labels_src=args.labels)
+                     tokenizer_name=args.tokenizer, labels_src=args.labels,
+                     prune=not args.no_prune)
 
 
 if __name__ == "__main__":

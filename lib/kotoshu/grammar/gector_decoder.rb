@@ -12,11 +12,18 @@ module Kotoshu
       # @param label_thresholds [Hash{String=>Float}] per-label minimum
       #   confidence (GECToR's dev-tuned thresholds); labels absent
       #   fall back to min_confidence
-      def initialize(tagger:, rounds: 2, min_confidence: 0.0, label_thresholds: {})
+      # @param margin [Float, nil] when set, fire an edit only if
+      #   p(edit) >= margin * p($KEEP). Keeps mid-confidence models
+      #   honest where the KEEP prior crushes absolute softmax mass
+      #   (the 2026-10-31 ru v8 finding: absolute thresholds were
+      #   anti-correlated with correctness).
+      def initialize(tagger:, rounds: 2, min_confidence: 0.0, label_thresholds: {},
+                     margin: nil)
         @tagger = tagger
         @rounds = rounds
         @min_confidence = min_confidence
         @label_thresholds = label_thresholds
+        @margin = margin
       end
 
       # The effective confidence floor for a label.
@@ -38,7 +45,11 @@ module Kotoshu
           # One round's edits land against that round's original positions:
           # apply right-to-left so DELETE/APPEND/MERGE shifts never stale the
           # indices of edits still to their left (GECToR reference semantics).
-          findings.select { |f| f[:confidence] >= threshold_for(f[:label]) && f[:index] < tokens.length }
+          findings.select do |f|
+            gate = f[:confidence] >= threshold_for(f[:label])
+            gate &&= f[:confidence] >= @margin * f[:keep_confidence] if @margin
+            gate && f[:index] < tokens.length
+          end
             .sort_by { |f| -f[:index] }
             .each do |f|
             result = apply(f[:label], tokens, f[:index])
@@ -59,26 +70,38 @@ module Kotoshu
       def detect_with_confidence(words)
         ids = tokenizer.encode_words(words)
         align = tokenizer.alignment(words)
+        if tokenizer.is_a?(ByteBpe) && ids.length > 512
+          # roberta learned positions cap at 514 incl BOS/EOS; beyond the
+          # window ORT returns short logits and logits[pos] goes nil
+          # (CoNLL-14 long sentences). Training ran at max_len 96 anyway.
+          ids = ids.take(512)
+          align = align.take(512)
+        end
         logits = model.predict({
                                  "input_ids" => [ids],
                                  "attention_mask" => [tokenizer.mask_for(ids)]
                                })["logits"][0]
         per_word = {}
+        keep_id = labels.key("$KEEP").to_i
         align.each_with_index do |word_index, pos|
           next if word_index.nil?
           next if per_word.key?(word_index)
 
           row = logits[pos]
+          next if row.nil? # beyond the returned window: no prediction exists
+
           exps = row.map { |v| Math.exp(v - row.max) }
           sum = exps.sum
           best = row.each_with_index.max_by { |v, _| v }[1]
-          per_word[word_index] = { label_id: best, confidence: exps[best] / sum }
+          per_word[word_index] = { label_id: best, confidence: exps[best] / sum,
+                                   keep_confidence: exps[keep_id] / sum }
         end
         per_word.filter_map do |index, pred|
           label = labels[pred[:label_id].to_s]
           next if label.nil? || label == "$KEEP"
 
-          { index: index, label: label, confidence: pred[:confidence].round(4) }
+          { index: index, label: label, confidence: pred[:confidence].round(4),
+            keep_confidence: pred[:keep_confidence].round(4) }
         end
       end
 

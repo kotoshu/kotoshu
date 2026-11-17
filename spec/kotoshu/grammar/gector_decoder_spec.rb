@@ -81,4 +81,24 @@ RSpec.describe Kotoshu::Grammar::GectorDecoder do
       expect(d.correct(%w[a])[:corrected]).to eq(%w[a])
     end
   end
+
+  describe "margin gate" do
+    it "fires an edit whose confidence clears margin * p(KEEP)" do
+      d = scripted_decoder.new(tagger: Struct.new(:labels).new({}), rounds: 1, margin: 0.5)
+      d.script = [[{ index: 0, label: "$REPLACE_z", confidence: 0.3, keep_confidence: 0.5 }]]
+      expect(d.correct(%w[a])[:corrected]).to eq(%w[z])
+    end
+
+    it "skips an edit below margin * p(KEEP) even at min_confidence 0" do
+      d = scripted_decoder.new(tagger: Struct.new(:labels).new({}), rounds: 1, margin: 0.5)
+      d.script = [[{ index: 0, label: "$REPLACE_z", confidence: 0.24, keep_confidence: 0.5 }]]
+      expect(d.correct(%w[a])[:corrected]).to eq(%w[a])
+    end
+
+    it "ignores the gate entirely when margin is nil" do
+      d = scripted_decoder.new(tagger: Struct.new(:labels).new({}), rounds: 1, margin: nil)
+      d.script = [[{ index: 0, label: "$REPLACE_z", confidence: 0.01, keep_confidence: 0.99 }]]
+      expect(d.correct(%w[a])[:corrected]).to eq(%w[z])
+    end
+  end
 end

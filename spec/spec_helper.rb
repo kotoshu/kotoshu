@@ -68,7 +68,12 @@ RSpec.configure do |config|
   # Run with: SLOW_TESTS=1 bundle exec rspec
   config.filter_run_excluding :slow unless ENV.fetch('SLOW_TESTS', nil)
 
+  # Skip DeBERTa spm-asset tests by default (need offline-converted assets).
+  config.filter_run_excluding :spm_assets unless ENV.fetch('SPM_ASSETS', nil)
+
   # Skip ONNX-dependent tests by default (need onnxruntime + cached model).
   # Run with: ONNX_TESTS=1 bundle exec rspec
   config.filter_run_excluding :onnx unless ENV.fetch('ONNX_TESTS', nil)
+  # Skip CJK tests by default (need the jieba-derived zh dict built locally).
+  config.filter_run_excluding :cjk unless ENV.fetch('CJK_TESTS', nil)
 end

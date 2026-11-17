@@ -4,7 +4,7 @@ segmentation: pre_segmented
 prompt_lang: zh
 encoder: microsoft/mdeberta-v3-base
 bf16: true
-keep: 0.6
+keep: 0.3
 base:
   prune_corpus: base_cjk_union.txt
 note: 'ONE model over zh-Hans + zh-Hant + ko (region-law: scripts are self-separating
@@ -13,12 +13,16 @@ note: 'ONE model over zh-Hans + zh-Hant + ko (region-law: scripts are self-separ
 
   '
 rate: 0.8
-ckpt_repo: kotoshu/gec-ckpt-cjk-v5
+top_labels: 8000
+ckpt_repo: kotoshu/gec-ckpt-cjk-v10
 eval:
   slices:
     - zh_hans_heldout_eval_sources.txt
     - zh_hant_heldout_eval_sources.txt
     - ko_heldout_eval_sources.txt
     - zh_nlpcc_heldout_eval_sources.txt
+    - zh_cscd_heldout_eval_sources.txt
     - ja_jwtd_heldout_eval_sources.txt
-    - ko_union_heldout_eval_sources.txt
+# ko_union runs as 4 parallel part jobs (23,333 sentences = 22h in one
+# job); parts staged at data/ko_union_p{1..4}_sources.txt
+#    - ko_union_heldout_eval_sources.txt

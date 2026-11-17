@@ -24,11 +24,14 @@ module Kotoshu
       # @param include_disabled [Boolean] load rules marked default: off
       # @param tagger [Tagger, nil] the neural closed-class detector —
       #   the residual pass behind the rules (the hybrid architecture)
-      def initialize(language: "en", rules: nil, include_disabled: false, tagger: nil)
+      def initialize(language: "en", rules: nil, include_disabled: false, tagger: nil,
+                    mask_unknown: true)
         @language = language
         @include_disabled = include_disabled
         @rules = rules || load_rules
         @tagger = tagger
+        @mask_unknown = mask_unknown
+        @dictionary = nil
       end
 
       # Check text and return grammar errors with character offsets.
@@ -61,6 +64,9 @@ module Kotoshu
 
             token = tokens[finding[:index]]
             next if token.nil?
+            # spelling-aware masking: a token the dictionary does not
+            # know is likely a name or a typo — L1's job, not grammar's
+            next if @mask_unknown && !known_word?(token[:word])
 
             errors << {
               rule_id: finding[:label],
@@ -82,6 +88,27 @@ module Kotoshu
       #
       # @return [Array<PatternRule, Rule>]
       attr_reader :rules
+
+      # True when the language dictionary knows the word. Gracefully
+      # permissive: without a set-up dictionary nothing is masked.
+      #
+      # @param word [String]
+      # @return [Boolean]
+      def known_word?(word)
+        return true unless @mask_unknown
+
+        @dictionary ||= begin
+          require "kotoshu"
+          Kotoshu::Dictionary::Repository.resolve(
+            language: @language, want: %i[spelling]
+          ).dictionary
+        rescue StandardError
+          nil
+        end
+        return true if @dictionary.nil?
+
+        @dictionary.include?(word)
+      end
 
       # The gem-bundled rules directory for a language.
       #

@@ -27,7 +27,8 @@ min_confidence = ENV.fetch("MIN_CONFIDENCE", "0.5").to_f
 tagger = Kotoshu::Grammar::Tagger.from_dir(model_dir)
 decoder = Kotoshu::Grammar::GectorDecoder.new(tagger: tagger, rounds: rounds,
                                               min_confidence: min_confidence,
-                                              label_thresholds: label_thresholds)
+                                              label_thresholds: label_thresholds,
+                                              margin: ENV["MARGIN"]&.to_f)
 
 File.open(output, "w") do |out|
   File.foreach(input) do |line|
