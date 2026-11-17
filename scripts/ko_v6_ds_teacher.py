@@ -16,10 +16,10 @@ from glm_teacher import PROMPTS
 from huggingface_hub import HfApi, hf_hub_download
 
 REPO = os.environ.get("HUB_SYNC_REPO", "kotoshu/gec-training-private")
-CK_PATH = "teacher/ko_v6/ds_out.jsonl"
+CK_PATH = os.environ.get("KO_STATE", "teacher/ko_v6/ds_out.jsonl")
 api = HfApi()
 
-LOCAL = "/root/.cache/kotoshu-gec/ko_v6_ds_out.jsonl"
+LOCAL = os.environ.get("KO_LOCAL", "/root/.cache/kotoshu-gec/ko_v6_ds_out.jsonl")
 os.makedirs(os.path.dirname(LOCAL), exist_ok=True)
 
 
@@ -44,12 +44,14 @@ for l in open(LOCAL, encoding="utf-8"):
     done[r["corrupted"]] = r
 print("resuming:", len(done), "done", flush=True)
 
+OFFSET = int(os.environ.get("KO_OFFSET", "0"))
 recs = []
 for part in ("pairs_part0.jsonl", "pairs_part1.jsonl"):
     fp = hf_hub_download(REPO, f"teacher/ko_v6/{part}", repo_type="dataset")
     for l in open(fp, encoding="utf-8"):
         recs.append(json.loads(l))
-print("pack pairs:", len(recs), flush=True)
+recs = recs[OFFSET:]
+print("pack pairs:", len(recs), "from offset", OFFSET, flush=True)
 
 prompt = PROMPTS["ko"]
 out = open(LOCAL, "a", encoding="utf-8")

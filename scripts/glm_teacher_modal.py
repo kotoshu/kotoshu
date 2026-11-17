@@ -43,7 +43,7 @@ VOL = modal.Volume.from_name("kotoshu-gec-data", create_if_missing=True)
               retries=modal.Retries(max_retries=2))
 def correct(sentences: list[str], api_key: str, model_id: str = "glm-5.3-flash",
             checkpoint: str = "", concurrency: int = 12) -> dict:
-    from openai import OpenAI
+    from openai import BadRequestError, OpenAI
 
     # probe endpoints once
     base = None
@@ -75,12 +75,23 @@ def correct(sentences: list[str], api_key: str, model_id: str = "glm-5.3-flash",
     todo = [i for i in range(len(sentences)) if i not in results]
 
     def one(i: int) -> None:
-        r = client.chat.completions.create(
+        # GLM-5.3: reasoning always on; low effort trims cost for
+        # sentence-level correction. Fall back to defaults if the
+        # parameter shape is rejected by this endpoint.
+        kwargs = dict(
             model=model_id,
             messages=[{"role": "user", "content": PROMPT.format(text=sentences[i])}],
-            max_tokens=512, temperature=0.0,
+            max_tokens=2048, temperature=0.0,
         )
-        text = (r.choices[0].message.content or "").strip()
+        try:
+            r = client.chat.completions.create(
+                **kwargs, extra_body={"thinking": {"type": "enabled", "effort": "low"}}
+            )
+        except BadRequestError:
+            r = client.chat.completions.create(**kwargs)
+        msg = r.choices[0].message
+        # answer is message.content; reasoning arrives in reasoning_content
+        text = (getattr(msg, "content", None) or "").strip()
         if "</think>" in text:
             text = text.split("</think>")[-1]
         results[i] = text.strip().strip('"')

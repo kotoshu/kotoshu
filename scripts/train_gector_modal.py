@@ -5,7 +5,7 @@ from __future__ import annotations
 import json, os
 import modal
 
-SIZE_BUDGET_MB = 200
+SIZE_BUDGET_MB = 250  # owner ceiling, raised from 200 on 2026-10-04
 BASE_MODEL = "distilroberta-base"
 EPOCHS = 8
 LR = 5e-5
@@ -15,14 +15,16 @@ TOP_LABELS = 5000
 
 image = (
     modal.Image.debian_slim(python_version="3.11")
-    .pip_install("torch", "transformers", "datasets", "onnx", "onnxruntime", "onnxscript", "accelerate")
+    .pip_install("torch", "transformers", "datasets", "onnx", "onnxruntime", "onnxscript", "accelerate",
+                 "sentencepiece", "protobuf")
 )
-app = modal.App("kotoshu-gec-gector")
+app = modal.App("kotoshu-gec-gector-v3")
 
 
 @app.function(image=image, gpu="H100", timeout=60 * 60 * 12,
               volumes={"/data": modal.Volume.from_name("kotoshu-gec-data", create_if_missing=True)})
-def train(data_path: str = "/data/fce_gector.jsonl", out_path: str = "/data/gec-gector"):
+def train(data_path: str = "/data/fce_gector.jsonl", out_path: str = "/data/gec-gector",
+          base_model: str = BASE_MODEL):
     from collections import Counter
     import torch
     from transformers import AutoModelForTokenClassification, AutoTokenizer, TrainingArguments, Trainer
@@ -40,9 +42,10 @@ def train(data_path: str = "/data/fce_gector.jsonl", out_path: str = "/data/gec-
     print(f"label vocab: {len(labels)} (top {TOP_LABELS}); coverage: "
           f"{sum(c for l, c in counts.items() if l in labels)/sum(counts.values()):.4f}")
 
-    tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
+    print(f"encoder: {base_model}")
+    tokenizer = AutoTokenizer.from_pretrained(base_model)
     model = AutoModelForTokenClassification.from_pretrained(
-        BASE_MODEL, num_labels=len(labels), id2label={i: l for l, i in labels.items()}, label2id=labels)
+        base_model, num_labels=len(labels), id2label={i: l for l, i in labels.items()}, label2id=labels)
 
     examples = []
     skipped = 0
@@ -121,7 +124,8 @@ def train(data_path: str = "/data/fce_gector.jsonl", out_path: str = "/data/gec-
 
 
 @app.local_entrypoint()
-def main(data: str = "", remote: str = "fce_gector.jsonl", out: str = "/data/gec-gector"):
+def main(data: str = "", remote: str = "fce_gector.jsonl", out: str = "/data/gec-gector",
+         base_model: str = BASE_MODEL):
     import os
 
     if data and os.path.exists(data):
@@ -132,7 +136,7 @@ def main(data: str = "", remote: str = "fce_gector.jsonl", out: str = "/data/gec
             print(f"upload skipped: {remote} already on the volume")
     else:
         print(f"no local data for {remote}; using the volume copy")
-    print(train.remote(data_path=f"/data/{remote}", out_path=out))
+    print(train.remote(data_path=f"/data/{remote}", out_path=out, base_model=base_model))
 
 
 if __name__ == "__main__":

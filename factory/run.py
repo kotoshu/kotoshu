@@ -235,15 +235,18 @@ def train(lang):
     sh(["cp", data, hold + "/"])
     enc, head = reg.get("enc_lr", "1e-5"), reg.get("head_lr", "1e-4")
     s1w = f"--keep-weight-s1 {reg['keep_s1']}" if reg.get("keep_s1") else ""
+    tl = f"--top-labels {reg['top_labels']}" if reg.get("top_labels") else ""
+    ep = f"--epochs-s1 {reg['epochs_s1']} --epochs-s2 {reg['epochs_s2']}" \
+        if reg.get("epochs_s1") else ""
     base = reg.get("encoder", "roberta-base")
     bf16 = "--bf16" if reg.get("bf16", base.startswith(("mdeberta", "xlm"))) else ""
     mounts = [f"{hold}:/{'d2'}:ro", f"{REPO}/scripts:/app:ro"]
     bash = (f"pip install -q torch --index-url https://download.pytorch.org/whl/cu124 && "
-            f"pip install -q transformers accelerate onnx onnxruntime onnxscript "
+            f"pip install -q 'transformers==4.50.3' accelerate onnx onnxruntime onnxscript "
             f"sentencepiece protobuf && python /app/train_gector_hf.py "
             f"--data /d2/{os.path.basename(data)} --base-model {base} --rounds 1 "
             f"--keep {reg.get('keep', 0.8)} --enc-lr {enc} --head-lr {head} "
-            f"--grad-clip 1.0 {bf16} {s1w} "
+            f"--grad-clip 1.0 {bf16} {s1w} {tl} {ep} "
             f"--ckpt-repo {reg.get('ckpt_repo', f'kotoshu/gec-ckpt-{lang}')} "
             f"--out-repo {reg.get('ckpt_repo', f'kotoshu/gec-ckpt-{lang}')}")
     _hf_job(f"train-{lang}", bash, flavor=reg.get("flavor", "h200"), mounts=mounts)

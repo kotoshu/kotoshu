@@ -61,6 +61,32 @@ RSpec.describe Kotoshu::Suggestions::Strategies::EditDistanceStrategy do
       end
     end
 
+    describe 'Turkish İ casing round-trip (issue #103)' do
+      # "İ".downcase expands to "i" + combining dot above (2 codepoints),
+      # so downcased operands can be longer than their originals. Scoring
+      # must never cross-index the downcased pair against skewed lengths.
+      it 'scores double-cased İ words without raising' do
+        expect do
+          strategy.calculate_enhanced_score('İMPLYİMPLY', 'IMPLYIMPLY', 1)
+          strategy.calculate_enhanced_score('İAİBİC', 'AIBIC', 3)
+          strategy.calculate_enhanced_score('imply', 'İMPLY', 1)
+        end.not_to raise_error
+      end
+
+      it 'awards no transposition bonus when downcasing changes the length' do
+        # 'İMPYL'.downcase (6 cp) vs 'imply' (5 cp): the skew pair must
+        # score exactly the transposition bonus (200) worse than the
+        # clean transposition pair 'IMPYL' -> 'imply', after accounting
+        # for any keyboard-proximity difference between İ and I.
+        skewed = strategy.calculate_enhanced_score('İMPYL', 'imply', 1)
+        clean = strategy.calculate_enhanced_score('IMPYL', 'imply', 1)
+        kb_delta = strategy.keyboard_penalty('İMPYL', 'imply') -
+                   strategy.keyboard_penalty('IMPYL', 'imply')
+
+        expect(skewed - clean).to eq(kb_delta + 200)
+      end
+    end
+
     describe '#calculate_ngram_similarity' do
       # NOTE: This is now the typo correction similarity metric, not traditional n-grams
       # It combines character overlap, prefix/suffix matching, and length similarity

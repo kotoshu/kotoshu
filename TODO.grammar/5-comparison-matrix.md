@@ -128,7 +128,18 @@ that order. 81.9 MB int8, fully local.
 | **kotoshu quad (+CoEdIT, 173,568 sents)** | **0.506** | **0.176** | **0.369** | **81.9 MB** |
 | kotoshu quad + dev-tuned per-label thresholds | 0.523 | 0.168 | 0.367 | 81.9 MB |
 | **kotoshu penta (quad + c4_200m web-domain, 266,761 sents)** | **0.545** | **0.217** | **0.419** | **81.9 MB** |
+| **kotoshu mega (+cLang-8, 2,518,656 sents)** | **0.607** | **0.271** | **0.487** | **81.9 MB** |
+| kotoshu mega, 3-round decode | 0.614 | 0.277 | 0.494 | 81.9 MB |
+| **kotoshu mega, 4-round decode** | **0.615** | **0.280** | **0.496** | 81.9 MB |
+| kotoshu mega, 4-round + thresholds | 0.633 | 0.269 | 0.498 | 81.9 MB |
+| kotoshu mega+c4 @ roberta-base-12L (Run B) | 0.639 | 0.213 | 0.456 | 122.8 MB |
+| Run B + dev-tuned thresholds | 0.656 | 0.205 | 0.455 | — |
+| Run C: B + GLM distill corpus | 0.661 | 0.232 | 0.483 | 122.8 MB |
+| **Run E: two-stage + $KEEP 0.5 (12L, + distill)** | 0.540 | **0.372** | **0.495** | 122.8 MB |
+| DEEP 6L: 3-round regime, KEEP 0.5 | 0.526 | 0.342 | 0.475 | 81.9 MB |
+| DEEP 12L: 3-round regime, KEEP 0.5 | 0.526 | 0.367 | 0.484 | 122.8 MB |
 | **Qwen3.5-27B zero-shot (measured, 2026-10-03)** | 0.321 | 0.553 | 0.351 | no — 54 GB, H100 |
+| **GLM-5.3-Flash zero-shot (measured, 2026-10-03)** | 0.328 | 0.543 | 0.356 | no — API |
 | LanguageTool 6.6 free | 0.305 | 0.060 | 0.168 | Java |
 | kotoshu hybrid (closed-class, synthetic) | 0.143 | 0.029 | 0.080 | 78.2 MB |
 
@@ -140,9 +151,41 @@ threshold machinery retained for future models. **The c4_200m
 web-domain epoch CONFIRMED: penta 0.419 = 2.49x LT** — web-domain
 data lifts BOTH precision (0.506->0.545) and recall (0.176->0.217)
 on the exam-domain benchmark; the "web won't transfer" hypothesis is
-falsified. Mega (cLang-8 2,345,088 pairs + quad = 2,518,656 sents,
-built from the raw Lang-8 dump in kotoshu/lang-8 private) is
-training; the mega+c4 final combination follows. **Qwen3.5-27B
+falsified. **Mega (+cLang-8 2,345,088 pairs, 2,518,656 sents total,
+8 epochs, final loss 0.2192): F0.5 0.487 = 2.90x LT, 87% of GECToR
+(~0.56)** — precision 0.607 (most disciplined model yet), recall
+0.271; cLang-8 scale buys precision but trades recall, and the
+recall gap is exactly what the GLM-5.3-Flash distillation corpus
+(35,706 typed corruptions, in flight) targets. The mega+c4+distill
+final combination follows. **Iterative decode converges at 4 rounds:
+0.487 -> 0.494 (r3) -> 0.496 (r4)** — +0.0070 then +0.0022, further
+rounds noise-level; 4-round is the decode protocol for B/C/D.
+**Per-label thresholds are DEAD (third strike)**: neutral on quad,
+neutral on penta, and on the 12L (tuned on W&I dev gold, 30 labels)
+they moved P/R the WRONG way (0.639/0.213 -> 0.656/0.205, F0.5
+0.4558 -> 0.4553) — greedy FP-cutting cannot trade precision into
+recall; the rebalance must come from training ($KEEP weight 0.5,
+Run E). **The distill corpus WORKS**: B -> C = +0.027 F0.5 with
+BOTH P and R up (0.639/0.213 -> 0.661/0.232) — scaling it
+(distill-xl, 300-400k corruptions) is the campaign's big lever.
+**Run D (deberta-v3) DIVERGED to NaN** at the roberta-tuned LR 5e-5
+(grad_norm NaN, loss 0 mid-run, all-NaN fp16 export; "scale issue"
+quant assert was the symptom, not the cause). DeBERTa retry recipe
+if the roberta line stalls: LR 1e-5, 10% warmup, grad clipping.
+**Rule-engine union pass is NEGATIVE on CoNLL**: applying the 150
+original rules as a post-pass over the champion decode (236 fixes)
+dropped F0.5 0.496 -> 0.448 (P 0.615 -> 0.525, R +0.002) — the
+rules over-fire on corrected text and their fix granularity
+diverges from gold; the hybrid's value is in-distribution, not
+benchmark recall. **THE MECHANISM VERDICT (Run E, 2026-10-05)**:
+$KEEP weight 0.5 traded P 0.661 -> 0.540 for R 0.232 -> 0.372
+(+0.14 recall, the single largest recall move of the campaign) at
+equal F0.5 to the champion (0.495 vs 0.496). The champion's
+precision-heavy profile has no compounding path; E's profile does —
+at R 0.372, F0.5 0.56 needs P 0.64, inside the measured C-E
+trade-off curve (an intermediate weight ~0.7 lands ~P 0.61/R 0.33).
+The DEEP runs (KEEP 0.5 x 3 rounds) + distill-xl on this profile
+are the GECToR-crossing candidates. **Qwen3.5-27B
 zero-shot (vLLM-incompatible-Modal -> transformers batched greedy,
 generic GEC prompt, thinking off): F0.5 0.351 — recall 0.553 but
 precision 0.321 (over-edits)**. Our 81.9 MB penta BEATS the 27B LLM
@@ -195,3 +238,27 @@ corpus class that took T5-11B to SOTA.
    training, our own weights) — the hybrid that takes F0.5 past LT
 8. de/es/fr original rule sets (~30 each), then ja/ko/zh research
 9. Publish the matrix with frozen reports per cell
+
+## SOTA claims (canonical, owner-directed 2026-10-06)
+
+**The claim we make**: kotoshu grammar models are state-of-the-art in
+their product class — fully local (no network), CPU real-time
+(~6 ms/sentence), small (<=250 MB int8 ONNX), embeddable (Ruby/Rust/
+TS), and license-clean for the -cc lines. In that class, no competing
+grammar checker exists for any language we ship; LanguageTool (free)
+measures 0.168 F0.5 on official CoNLL-14 vs our 0.496+ (2.9x), and
+public GEC checkpoints are license-contaminated and PyTorch-bound.
+
+**What we do NOT claim**: absolute leaderboard SOTA. T5-11B (~0.72)
+and LLM-API systems are above us at 45 GB+/cloud-only. Our metric is
+accuracy-per-MB: GECToR-class (published ~0.56) at ~1/30th the size.
+
+**Claim discipline (law)**:
+1. English numbers cite the official CoNLL-14 M2 scorer (noalt gold,
+   --max_unchanged_words 2, 4-round decode) only.
+2. Per-language cards cite the INDEPENDENT slice-2 eval (real text /
+   LLM-judge + spot-check), never corruption-gold alone.
+3. Every claim carries its measurement date and refresh path (teacher
+   and encoder loops re-derive models within a day).
+4. "Research-only" models never carry commercial-use claims; -cc
+   (Apache-2.0) lines state their permissive corpus lineage.

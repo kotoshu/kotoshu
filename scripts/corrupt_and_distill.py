@@ -16,7 +16,8 @@ import random
 import re
 import sys
 
-random.seed(20261003)
+SEED = 20261003
+random.seed(SEED)
 
 PREP_SETS = [
     {"in", "on", "at"},
@@ -42,7 +43,8 @@ CONFUSION = {
     "beside": "besides", "besides": "beside",
 }
 
-BE_VERB = {"is": "are", "are": "is", "was": "were", "were": "was", "has": "have", "have": "has"}
+BE_VERB = {"is": "are", "are": "is", "was": "were", "were": "was", "has": "have",
+           "have": "has", "does": "do", "do": "does"}
 
 # frequent unambiguous nouns for number corruption
 NOUNS = set("""dog cat car book house day man woman child people year time work
@@ -111,6 +113,29 @@ def apply_one(corrupted: list[str], i: int, cls: str) -> bool:
             corrupted[i] = lw + "s"
             return True
         return False
+    if cls == "Mec":
+        words = [w for w, t in ((corrupted[j], corrupted[j].strip(".,")) for j in range(len(corrupted)))
+                 if len(t) >= 4 and t.isalpha()]
+        if words and random.random() < 0.8:
+            w = random.choice(words)
+            j = corrupted.index(w)
+            op = random.choice(["swap", "drop", "double"])
+            k = random.randrange(1, len(w) - 1)
+            if op == "swap" and k + 1 < len(w):
+                corrupted[j] = w[:k] + w[k + 1] + w[k] + w[k + 2:]
+            elif op == "drop":
+                corrupted[j] = w[:k] + w[k + 1:]
+            else:
+                corrupted[j] = w[:k] + w[k] + w[k:]
+            return True
+        punct = [idx for idx, t in enumerate(corrupted) if t in {".", ","}]
+        if punct:
+            del corrupted[random.choice(punct)]
+            return True
+        if corrupted and corrupted[0][0].islower() is False and corrupted[0][1:].islower():
+            corrupted[0] = corrupted[0].lower()
+            return True
+        return False
     if cls == "Wci":
         if lw in CONFUSION:
             nw = CONFUSION[lw]
@@ -139,6 +164,7 @@ def corrupt_sentence(sentence: str, classes: list[str]) -> dict | None:
 
 
 def cmd_corrupt(args: argparse.Namespace) -> None:
+    random.seed(args.seed)
     classes = args.classes.split(",")
     n = 0
     with open(args.out, "w") as out:
@@ -188,7 +214,8 @@ def main() -> None:
     c.add_argument("clean")
     c.add_argument("out")
     c.add_argument("--rate", type=float, default=0.8)
-    c.add_argument("--classes", default="ArtOrDet,Prep,Nn,SVA,Wci")
+    c.add_argument("--classes", default="ArtOrDet,Prep,Nn,SVA,Wci,Mec")
+    c.add_argument("--seed", type=int, default=SEED)
     v = sub.add_parser("verify")
     v.add_argument("corrupted")
     v.add_argument("teacher")
