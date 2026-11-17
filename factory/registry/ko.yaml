@@ -7,6 +7,5 @@ base:
   source: wikipedia
   config: 20231101.zh
   purity: null
-base:
   prune_corpus: base_ko.txt
 rate: 0.8

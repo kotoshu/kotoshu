@@ -17,7 +17,7 @@ Runs inside HF Jobs (HF_TOKEN provided by the environment):
       --ckpt-repo kotoshu/gec-ckpt-deep12l
 """
 from __future__ import annotations
-import argparse, glob, json, os, shutil
+import argparse, glob, json, os, shutil, time
 
 REPO_TYPE_CKPT = "model"
 
@@ -59,6 +59,20 @@ def fetch_latest_checkpoint(ckpt_repo: str, local: str, run_prefix: str,
                     if f.startswith(f"{run_prefix}/checkpoint-")},
                    key=lambda p: int(p.rsplit("-", 1)[1]))
     if not ckpts:
+        # intermediate saves are staged under latest/ (HubCallback) — the
+        # ko-v11 refires lost a banked 120k anchor because the fetcher
+        # only knew checkpoint-N layouts
+        if any(f.startswith(f"{run_prefix}/latest/") for f in files):
+            snapshot_download(ckpt_repo, repo_type=REPO_TYPE_CKPT,
+                              allow_patterns=f"{run_prefix}/latest/*",
+                              local_dir=local)
+            return os.path.join(local, run_prefix, "latest")
+        # true-final weights banked by the post-stage final-save
+        if any(f == f"{run_prefix}/final/model.safetensors" for f in files):
+            snapshot_download(ckpt_repo, repo_type=REPO_TYPE_CKPT,
+                              allow_patterns=f"{run_prefix}/final/*",
+                              local_dir=local)
+            return os.path.join(local, run_prefix, "final")
         return None
     snapshot_download(ckpt_repo, repo_type=REPO_TYPE_CKPT,
                       allow_patterns=f"{run_prefix}/{ckpts[-1]}/*", local_dir=local)
@@ -76,9 +90,19 @@ def push_checkpoint(ckpt_repo: str, local_dir: str, sub: str,
         shutil.copytree(src, dst)
         return
     hub().create_repo(ckpt_repo, repo_type=REPO_TYPE_CKPT, private=True, exist_ok=True)
-    hub().upload_folder(folder_path=src,
-                        path_in_repo=sub, repo_id=ckpt_repo, repo_type=REPO_TYPE_CKPT,
-                        commit_message=f"ckpt {sub}")
+    # transient HF 5xx must not kill a multi-hour train (500 at ko-v11 s1
+    # 120k/145.5k, 2026-11-16, lost the run)
+    for attempt in range(6):
+        try:
+            hub().upload_folder(folder_path=src,
+                                path_in_repo=sub, repo_id=ckpt_repo, repo_type=REPO_TYPE_CKPT,
+                                commit_message=f"ckpt {sub}")
+            return
+        except Exception as e:
+            if attempt == 5:
+                raise
+            print(f"push {sub} failed ({str(e)[:120]}), retry {attempt + 1}/6", flush=True)
+            time.sleep(30 * (attempt + 1))
 
 
 def main() -> None:
@@ -113,7 +137,10 @@ def main() -> None:
     from transformers import (AutoModelForTokenClassification, AutoTokenizer,
                               Trainer, TrainerCallback, TrainingArguments)
 
-    local_ckpt = "ckpt"
+    # per-run local ckpt dir: the rw /app bucket persists across fires
+    # from the same directory — a shared "ckpt" let KO-era checkpoints
+    # leak into ja-v12 stage-end pushes (2026-11-18)
+    local_ckpt = os.environ.get("GEC_CKPT_DIR", "ckpt")
     data_file = fetch_data(args.data)
     rows = [json.loads(l) for l in open(data_file) if l.strip()]
     print(f"sentences: {len(rows)}", flush=True)
@@ -224,7 +251,9 @@ def main() -> None:
                                       warmup_steps=int(total_steps * 0.10),
                                       lr_scheduler_type="cosine", logging_steps=100,
                                       max_grad_norm=args.grad_clip,
-                                      save_strategy="steps", save_steps=20000,
+                                      save_strategy="steps",
+                                      save_steps=int(os.environ.get("RESUME_SAVE_EVERY", "0"))
+                                      or max(20000, total_steps),
                                       save_total_limit=1, report_to=[],
                                       save_only_model=True,  # private-storage law: 1/3 size
                                       bf16=args.bf16)
@@ -242,6 +271,13 @@ def main() -> None:
             print(f"round {rnd} stage {stage}: {epochs}ep enc {enc_lr} head {head_lr} "
                   f"resume {resume}", flush=True)
             trainer.train(resume_from_checkpoint=resume)
+            # periodic saves stop at the last RESUME_SAVE_EVERY boundary;
+            # bank the TRUE-final weights so packaging never sees a stale
+            # latest/ (ko-v11: latest@20000 while s2 finished at 72746)
+            final_dir = os.path.join(local_ckpt, run_name, "final")
+            model.save_pretrained(final_dir)
+            push_checkpoint(args.ckpt_repo, local_ckpt, f"{run_name}/final",
+                            ckpt_vol=args.ckpt_vol)
             push_checkpoint(args.ckpt_repo, local_ckpt, run_name, ckpt_vol=args.ckpt_vol)
 
     model.eval()
