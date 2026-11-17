@@ -36,6 +36,7 @@ module Kotoshu
       # models repo eval harness (plan 83 batch-2 grids).
       autoload :Arabic101, "kotoshu/keyboard/layouts/arabic"
       autoload :PersianStandard, "kotoshu/keyboard/layouts/persian"
+      autoload :UrduPhonetic, "kotoshu/keyboard/layouts/urdu_phonetic"
       autoload :HebrewSI1452, "kotoshu/keyboard/layouts/hebrew"
       autoload :BulgarianBds, "kotoshu/keyboard/layouts/bulgarian"
       autoload :SerbianCyrillic, "kotoshu/keyboard/layouts/serbian"

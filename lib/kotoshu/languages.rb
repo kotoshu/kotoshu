@@ -17,6 +17,7 @@ module Kotoshu
     autoload :Portuguese, "kotoshu/languages/pt/language"
     autoload :Russian, "kotoshu/languages/ru/language"
     autoload :Spanish, "kotoshu/languages/es/language"
+    autoload :Urdu, "kotoshu/languages/ur/language"
 
     # Shared base for the thin wave-1 modules (plan 84).
     autoload :LatinBase, "kotoshu/languages/latin_base"

@@ -49,6 +49,7 @@ module Kotoshu
       autoload :Arabic, "kotoshu/language/normalizer/arabic"
       autoload :Hebrew, "kotoshu/language/normalizer/hebrew"
       autoload :Persian, "kotoshu/language/normalizer/persian"
+      autoload :Urdu, "kotoshu/language/normalizer/urdu"
       autoload :Greek, "kotoshu/language/normalizer/greek"
       autoload :Turkish, "kotoshu/language/normalizer/turkish"
     end

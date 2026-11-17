@@ -1,0 +1,14 @@
+lang: ur
+script: arabic
+segmentation: whitespace
+prompt_lang: ur
+route: legacy_multi
+encoder: microsoft/mdeberta-v3-base
+bf16: true
+keep: 0.3
+base:
+  source: wikipedia
+  config: 20231101.zh
+  prune_corpus: corpora/base_ur.txt
+rate: 0.8
+ckpt_repo: kotoshu/gec-ckpt-ur-v1
