@@ -158,7 +158,7 @@ def main():
         toks = s.split()
         for _ in range(a.draws):
             fn = rng.choice(corruptors)
-            res = fn(toks, rng)
+            res = fn(toks)
             if not res: continue
             new_toks, cls = res
             corrupted = " ".join(new_toks)
