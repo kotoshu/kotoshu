@@ -108,6 +108,33 @@ def push_checkpoint(ckpt_repo: str, local_dir: str, sub: str,
             time.sleep(30 * (attempt + 1))
 
 
+def housekeep_stage(ckpt_repo: str, run_prefix: str) -> None:
+    """Storage law (2026-11-18, round 7): each banked stage must not retain
+    its checkpoint-N + latest/ copies (~2x1.1GB per mdeberta stage) — the
+    triple-store refills the org wall mid-wave. final/ is the resume
+    anchor; the transient copies go."""
+    if not ckpt_repo:
+        return
+    try:
+        files = hub().list_repo_files(ckpt_repo, repo_type=REPO_TYPE_CKPT)
+    except Exception:
+        return
+    doomed = set()
+    for f in files:
+        parts = f.split("/")
+        if len(parts) >= 3 and parts[0] == run_prefix and (
+                parts[1].startswith("checkpoint-") or parts[1] == "latest"):
+            doomed.add(f"{run_prefix}/{parts[1]}")
+    for path in sorted(doomed):
+        try:
+            hub().delete_folder(path_in_repo=path, repo_id=ckpt_repo,
+                                repo_type=REPO_TYPE_CKPT,
+                                commit_message=f"housekeep {path} (final banked)")
+            print(f"housekept {path}", flush=True)
+        except Exception as e:
+            print(f"housekeep {path} skipped ({str(e)[:80]})", flush=True)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", default="data/mega_c4_distill_2646k.jsonl")
@@ -288,6 +315,7 @@ def main() -> None:
             push_checkpoint(args.ckpt_repo, local_ckpt, f"{run_name}/final",
                             ckpt_vol=args.ckpt_vol)
             push_checkpoint(args.ckpt_repo, local_ckpt, run_name, ckpt_vol=args.ckpt_vol)
+            housekeep_stage(args.ckpt_repo, run_name)
 
     model.eval()
     os.makedirs("export", exist_ok=True)
