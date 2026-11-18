@@ -9,10 +9,13 @@ without the Python runtime — a Ruby sentencepiece unigram/BPE port that
 matches the prune_export pipeline's tokenizer bit-for-bit.
 
 ## Plan
-1. [ ] Survey: what deberta-v3-base actually needs (sentencepiece
-   unigram model, byte-fallback, pre-tokenizer = none) — check
-   spm.model of the existing de-v3 recipe artifacts (task #225/#233
-   trained deberta models already — their tokenizers exist!)
+1. [x] Survey (2026-11-19): the FULL deberta unigram table SURVIVES —
+   ~/.cache/kotoshu-gec/models/de-v1/pieces.json.bak-79649 holds all
+   79,649 pieces {piece, score, type} (the pre-prune vocab). The Ruby
+   port needs: protobuf-free unigram Viterbi encode over that table +
+   byte-fallback (type-6 <0xNN> pieces) + the deberta pre-tokenizer
+   (none) + [CLS]/[SEP]/[UNK] specials (types 3/2). No .proto decode
+   needed — the table is already extracted.
 2. [ ] Ruby port: load SPM proto (protobuf decode), implement
    unigram Viterbi encode + byte-fallback — the gem's byte_bpe.rb is
    the pattern precedent (plan: same spec/conformance-vector approach)
