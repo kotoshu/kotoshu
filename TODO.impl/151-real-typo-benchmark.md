@@ -32,5 +32,22 @@ and real distributions differ — the field needs both.
       THE SYNTHETIC NUMBER WAS HIDING A ~37PT REAL-WORLD GAP; substitution
       and dist-2 are the two weak fronts (the confusion-matrix lever now
       has a concrete target).
-- [ ] channel iteration (substitution-pair weights first)
-- [ ] dist-2 handling (the 17.5% class)
+- [x] channel iteration (substitution-pair weights first) — VERDICT
+      2026-11-18: CLOSED as a naive additive lever. The GTC-derived
+      confusion table (en.typo-confusions.json, 20,170 sub ops, eval
+      excluded) re-ranks the frozen top-5 slates: substitution class
+      +6.8pt at λ2 (37.2→44.0) but deletion −2.4 / insertion −3.0
+      demotion (non-substitution candidates carry no boost → relative
+      demotion) = net top-1 FLAT (50.30→50.25); λ5 = net LOSS (48.2).
+      Synthetic +0.75 at λ3. Prototype: eval/realword/rerank_proto.py.
+      Remaining variant: full op-aware channel (per-op priors for
+      ins/del/trans + pair confusions + frequency prior, same form as
+      the kotoshu-rs noisy-channel port) — but that branch already
+      scored 86.2 < 87.5 main on synthetic (two strikes); parked unless
+      a real-split-first design shows ≥3pt.
+- [ ] dist-2 handling — ROOT CONSTRAINT FOUND 2026-11-18: it is a
+      CANDIDATE-GENERATION ceiling, not ranking: gold is in the top-5
+      for only 28.0% of the dist-2 class (17.5 top-1). Re-ranking
+      cannot recover what retrieval never surfaced. Next lever: enable
+      the typo-biencoder layer (native ext, opt-in — the bench measured
+      the traditional path only) and re-baseline the real split.
