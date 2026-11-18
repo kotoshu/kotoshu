@@ -90,10 +90,14 @@ def push_checkpoint(ckpt_repo: str, local_dir: str, sub: str,
     src = os.path.join(local_dir, sub)
     if ckpt_vol:
         # storage-quota law (2026-10-12): hub commits ~400MB trip the org
-        # wall — checkpoints live on the rw bucket mount instead
+        # wall — checkpoints live on the rw bucket mount instead.
+        # rmtree→copytree races the bucket mount's async deletion
+        # (FileExistsError killed mega s2 saves, 2026-11-19) — overwrite
+        # in place instead.
         dst = os.path.join(ckpt_vol, sub)
         shutil.rmtree(dst, ignore_errors=True)
-        shutil.copytree(src, dst)
+        time.sleep(5)
+        shutil.copytree(src, dst, dirs_exist_ok=True)
         return
     hub().create_repo(ckpt_repo, repo_type=REPO_TYPE_CKPT, private=True, exist_ok=True)
     # transient HF 5xx must not kill a multi-hour train (500 at ko-v11 s1
