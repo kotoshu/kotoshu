@@ -51,6 +51,9 @@ def fetch_latest_checkpoint(ckpt_repo: str, local: str, run_prefix: str,
                            key=lambda p: int(p.rsplit("-", 1)[1]))
             if ckpts:
                 return os.path.join(base, ckpts[-1])
+            for sub in ("latest", "final"):
+                if os.path.isfile(os.path.join(base, sub, "model.safetensors")):
+                    return os.path.join(base, sub)
         # hub READS are quota-free — pre-quota-wall anchors stay resumable
         return fetch_latest_checkpoint(ckpt_repo, local, run_prefix, ckpt_vol="")
     from huggingface_hub import snapshot_download
