@@ -334,6 +334,9 @@ def main() -> None:
             housekeep_stage(args.ckpt_repo, run_name)
 
     model.eval()
+    # ro-mount law (2026-11-19): fires with scripts:/app:ro have a ro cwd —
+    # relative export/ writes must land in the rw per-run ckpt dir
+    os.chdir(local_ckpt)
     os.makedirs("export", exist_ok=True)
     onnx_path = "export/gec-gector.onnx"
     torch.onnx.export(
