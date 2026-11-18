@@ -280,6 +280,19 @@ def main() -> None:
             ckpt_dir = os.path.join(local_ckpt, run_name)
             resume = fetch_latest_checkpoint(args.ckpt_repo, local_ckpt,
                                              f"r{rnd}s{stage}", ckpt_vol=args.ckpt_vol)
+            if resume is not None and \
+                    not os.path.isfile(os.path.join(resume, "trainer_state.json")):
+                # final/-only anchor (transient latest/checkpoint-N housekept):
+                # the stage is COMPLETE. HF resume would crash on the missing
+                # trainer_state.json (2026-11-19 refire loop, 8-cap burned) —
+                # load the banked weights instead so the NEXT stage continues
+                # from them, and skip.
+                from safetensors.torch import load_file
+                sd = load_file(os.path.join(resume, "model.safetensors"))
+                model.load_state_dict(sd, strict=True)
+                print(f"{run_name}: final banked (transients housekept) — "
+                      f"weights loaded, stage skipped", flush=True)
+                continue
             total_steps = (len(examples) // args.batch) * epochs
             targs = TrainingArguments(output_dir=ckpt_dir, num_train_epochs=epochs,
                                       learning_rate=head_lr,
