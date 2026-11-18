@@ -22,6 +22,15 @@ and real distributions differ — the field needs both.
 - [ ] Target: beat quill's 95.2-equivalent on its real-typo set
 
 ## Status
-- [ ] benchmark built
-- [ ] baselines recorded
-- [ ] channel iteration
+- [x] benchmark built (eval/realword/en.github-typo.json, 2,000 pairs,
+      stratified 400/op: transpose substitution deletion insertion other;
+      MIT attribution in-file)
+- [x] baselines recorded (2026-11-19, shipped main via
+      eval/nonword_bench.rb): **top-1 50.30 / top-3 57.20 / top-5 59.05**
+      — vs 87.5 on the synthetic split. Per-class top-1: transpose 76.2,
+      deletion 67.2, insertion 53.2, substitution 37.2, dist-2 other 17.5.
+      THE SYNTHETIC NUMBER WAS HIDING A ~37PT REAL-WORLD GAP; substitution
+      and dist-2 are the two weak fronts (the confusion-matrix lever now
+      has a concrete target).
+- [ ] channel iteration (substitution-pair weights first)
+- [ ] dist-2 handling (the 17.5% class)
