@@ -15,7 +15,8 @@ matches the prune_export pipeline's tokenizer bit-for-bit.
    port needs: protobuf-free unigram Viterbi encode over that table +
    byte-fallback (type-6 <0xNN> pieces) + the deberta pre-tokenizer
    (none) + [CLS]/[SEP]/[UNK] specials (types 3/2). No .proto decode
-   needed — the table is already extracted.
+   needed — the table is already extracted, and ALL 79,289 type-1
+   pieces carry their log-scores (Viterbi-ready, verified 2026-11-19).
 2. [ ] Ruby port: load SPM proto (protobuf decode), implement
    unigram Viterbi encode + byte-fallback — the gem's byte_bpe.rb is
    the pattern precedent (plan: same spec/conformance-vector approach)
