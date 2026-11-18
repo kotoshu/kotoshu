@@ -17,9 +17,11 @@ matches the prune_export pipeline's tokenizer bit-for-bit.
    (none) + [CLS]/[SEP]/[UNK] specials (types 3/2). No .proto decode
    needed — the table is already extracted, and ALL 79,289 type-1
    pieces carry their log-scores (Viterbi-ready, verified 2026-11-19).
-2. [ ] Ruby port: load SPM proto (protobuf decode), implement
-   unigram Viterbi encode + byte-fallback — the gem's byte_bpe.rb is
-   the pattern precedent (plan: same spec/conformance-vector approach)
+2. [x] Ruby port DONE (2026-11-19): SpmUnigramEncoder — global Viterbi
+   over the ▁-transformed string + byte-fallback; **8/8 conformance**
+   vs the rebuilt-proto oracle (scripts/rebuild_spm_proto.py — proto
+   reconstructed from the table, byte_fallback=true). Fix en route:
+   scores are log-probs verbatim, Math.log of them = NaN = garbage paths.
 3. [ ] Conformance: export encode vectors from the Python tokenizer,
    replay gate in Ruby (the #259/plan-131 pattern)
 4. [ ] Re-train OR re-package an existing deberta checkpoint through
