@@ -1,0 +1,19 @@
+lang: nl
+script: latin
+segmentation: whitespace
+prompt_lang: nl
+encoder: microsoft/mdeberta-v3-base
+bf16: true
+keep: 0.3
+flavor: l4x4
+base:
+  source: wikisource
+  config: latest-dump
+  prune_corpus: base_nl.txt
+rate: 0.8
+ckpt_repo: kotoshu/gec-ckpt-nl-v1
+tokenizer: microsoft/mdeberta-v3-base
+
+eval:
+  slices:
+    - nl_heldout_eval_sources.txt
