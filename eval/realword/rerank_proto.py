@@ -39,11 +39,13 @@ def score(slates, conf, lam):
         c = s.get("class", "other") or "other"
         gold = s["correction"].lower()
         t5 = list(s["top5"])
+        tot[c] += 1
+        if not t5:
+            continue
         reranked = sorted(t5,
                           key=lambda w: -((5 - t5.index(w)) +
                                           lam * boost(conf, s["typo"], w)))
         reranked = [w.lower() for w in reranked]
-        tot[c] += 1
         if reranked[0] == gold:
             h1[c] += 1
         if gold in reranked[:3]:
