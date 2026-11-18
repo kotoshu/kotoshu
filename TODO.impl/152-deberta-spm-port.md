@@ -24,8 +24,12 @@ matches the prune_export pipeline's tokenizer bit-for-bit.
    scores are log-probs verbatim, Math.log of them = NaN = garbage paths.
 3. [ ] Conformance: export encode vectors from the Python tokenizer,
    replay gate in Ruby (the #259/plan-131 pattern)
-4. [ ] Re-train OR re-package an existing deberta checkpoint through
-   the Ruby tokenizer → parity gate → cross-arch confidence check
+4. [ ] Re-train required — NO deberta checkpoint survives (checked
+   2026-11-19: de-v1 dir = packaged ONNX + labels only; hub gec-ckpt
+   repos have no deberta lineage; no local safetensors). First run =
+   SMALL validation (ur-scale pack, deberta-v3-base, 3-round recipe,
+   the proven chain) → parity through the Ruby tokenizer → then
+   ru/cjk-scale retrains for the ≤250MB publishes.
 5. [ ] Publish per language (ru/cjk candidates first — published
    models shrink ~50%)
 
