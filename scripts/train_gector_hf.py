@@ -228,10 +228,14 @@ def main() -> None:
 
         def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
             outputs = model(**inputs)
-            weight = torch.ones(model.config.num_labels, device=outputs.logits.device)
+            # multi-GPU jobs wrap the model in DataParallel — the config
+            # lives on .module (l4x4 Latin wave, 2026-11-18)
+            core = model.module if hasattr(model, "module") else model
+            num_labels = core.config.num_labels
+            weight = torch.ones(num_labels, device=outputs.logits.device)
             weight[0] = self.keep_weight
             loss = nn.functional.cross_entropy(
-                outputs.logits.view(-1, model.config.num_labels),
+                outputs.logits.view(-1, num_labels),
                 inputs["labels"].view(-1), weight=weight,
                 label_smoothing=args.label_smoothing, ignore_index=-100)
             return (loss, outputs) if return_outputs else loss
