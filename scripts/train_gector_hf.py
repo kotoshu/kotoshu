@@ -335,7 +335,10 @@ def main() -> None:
 
     model.eval()
     # ro-mount law (2026-11-19): fires with scripts:/app:ro have a ro cwd —
-    # relative export/ writes must land in the rw per-run ckpt dir
+    # relative export/ writes must land in the rw per-run ckpt dir. A lane
+    # that skipped every stage never built a Trainer, so the dir may not
+    # exist yet — create it before chdir.
+    os.makedirs(local_ckpt, exist_ok=True)
     os.chdir(local_ckpt)
     os.makedirs("export", exist_ok=True)
     onnx_path = "export/gec-gector.onnx"
