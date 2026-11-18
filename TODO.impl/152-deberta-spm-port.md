@@ -22,8 +22,8 @@ matches the prune_export pipeline's tokenizer bit-for-bit.
    vs the rebuilt-proto oracle (scripts/rebuild_spm_proto.py — proto
    reconstructed from the table, byte_fallback=true). Fix en route:
    scores are log-probs verbatim, Math.log of them = NaN = garbage paths.
-3. [ ] Conformance: export encode vectors from the Python tokenizer,
-   replay gate in Ruby (the #259/plan-131 pattern)
+3. [x] Conformance: **148/148** at scale (8 curated: Italian/German/
+   emoji/Cyrillic/stress + 140 randomized word-salad sentences).
 4. [ ] Re-train required — NO deberta checkpoint survives (checked
    2026-11-19: de-v1 dir = packaged ONNX + labels only; hub gec-ckpt
    repos have no deberta lineage; no local safetensors). First run =
