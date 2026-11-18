@@ -34,9 +34,14 @@ def main():
 
     if VOL_CKPT:
         stage_dir = os.path.join(VOL_CKPT, "r1s2")
-        ckpt = os.path.join(stage_dir, "latest")
-        if not os.path.isdir(ckpt):
-            # vol runs push stage-end numbered checkpoints only
+        ckpt = None
+        for sub in ("final", "latest"):
+            cand = os.path.join(stage_dir, sub)
+            if os.path.isfile(os.path.join(cand, "model.safetensors")):
+                ckpt = cand
+                break
+        if ckpt is None:
+            # vol runs may push stage-end numbered checkpoints only
             numbered = sorted((d for d in os.listdir(stage_dir)
                                if d.startswith("checkpoint-")),
                               key=lambda p: int(p.rsplit("-", 1)[1]))
