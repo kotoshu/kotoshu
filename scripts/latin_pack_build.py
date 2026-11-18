@@ -140,9 +140,10 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--draws", type=int, default=3)
     ap.add_argument("--holdout", type=int, default=1500)
+    ap.add_argument("--seed", type=int, default=20261119)
     a = ap.parse_args()
 
-    rng = random.Random(20261119)
+    rng = random.Random(a.seed)
     dict_words = load_dict_words(a.dict)
     print(f"dict words: {len(dict_words)}")
     sentences = load_sentences(a.corpus)
