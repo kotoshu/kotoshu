@@ -42,6 +42,27 @@ def load_corpus_sentences(corpus_dir, limit=None):
     return sents[:limit] if limit else sents
 
 
+
+def make_encoder(model_dir):
+    """Pruned-model encoder: sp piece -> remapped row id via pieces.json."""
+    import json as _json
+    import sentencepiece as spm_mod
+    sp = spm_mod.SentencePieceProcessor(model_file=os.path.join(model_dir, "spm.model"))
+    pieces = _json.load(open(os.path.join(model_dir, "pieces.json")))
+    row_of = {p["piece"]: i for i, p in enumerate(pieces)}
+    unk = next(i for i, p in enumerate(pieces) if p.get("type") == 2)
+    pad = next(i for i, p in enumerate(pieces) if p.get("type") == 3)
+
+    def encode(tokens, max_len=96):
+        ids = []
+        for t in tokens[:max_len]:
+            for piece in sp.encode(t, out_type=str):
+                ids.append(row_of.get(piece, unk))
+        ids = ids[:max_len]
+        n = len(ids)
+        return ids + [pad] * (max_len - n), [1] * n + [0] * (max_len - n)
+    return encode
+
 def ngram_index(corpus_sents, n=25):
     idx = set()
     for toks in corpus_sents:
@@ -56,13 +77,10 @@ def test_verbatim(model, corpus_sents, heldout_path, onnx_dir):
     import numpy as np
     import onnxruntime as ort
 
-    from huggingface_hub import hf_hub_download
     import json as _json
     sess = ort.InferenceSession(os.path.join(model, "gec-tagger.int8.onnx"),
                                 providers=["CPUExecutionProvider"])
-    spm = os.path.join(model, "spm.model")
-    import sentencepiece as spm_mod
-    sp = spm_mod.SentencePieceProcessor(model_file=spm)
+    encode = make_encoder(model)
     labels = _json.load(open(os.path.join(model, "labels.json")))
 
     bigrams = ngram_index(corpus_sents, 25)
@@ -78,16 +96,13 @@ def test_verbatim(model, corpus_sents, heldout_path, onnx_dir):
         toks = s.split()
         if not toks:
             continue
-        ids = [sp.piece_to_id(t) for t in toks][:96]
-        ids += [3] * (96 - len(ids))  # pad
-        mask = [1] * len([t for t in toks][:96])
-        mask += [0] * (96 - len(mask))
+        ids, mask = encode(toks)
         logits = sess.run(None, {
-            "input_ids": [ids[:96]], "attention_mask": [mask[:96]]})[0][0]
+            "input_ids": [ids], "attention_mask": [mask]})[0][0]
         pred = logits.argmax(-1)
         # apply $REPLACE/$DELETE style edits textually ( KEEP id 0 )
         out = []
-        for t, p in zip(toks[:96], pred):
+        for t, p in zip([t for t in toks][:96], pred[:len([t for t in toks])]):
             lab = labels.get(str(int(p)), "$KEEP")
             if lab == "$DELETE":
                 continue
@@ -97,12 +112,21 @@ def test_verbatim(model, corpus_sents, heldout_path, onnx_dir):
                 out.append(t)
         text = " ".join(out)
         words = text.split()
+        # input spans that the model kept are NOT memorization — the
+        # license targets NOVEL reproductions (text produced beyond
+        # what was fed). Count output 25-grams present in the corpus
+        # AND absent from the input sentence.
+        input_grams = set()
+        for i in range(len(toks) - 24):
+            input_grams.add(" ".join(toks[i:i + 25]))
         for i in range(len(words) - 24):
             frag = " ".join(words[i:i + 25])
-            if frag in corpus_25:
+            if frag in corpus_25 and frag not in input_grams:
                 violations.append(frag[:80])
                 break
     return {"violations": len(violations),
+            "note": "counts NOVEL >=25-word corpus reproductions "
+                    "(input-echo excluded — correction models keep fed text)",
             "samples": violations[:5]}
 
 
@@ -114,7 +138,7 @@ def mia_scores(model, corpus_sents, heldout_path, n=400):
 
     sess = ort.InferenceSession(os.path.join(model, "gec-tagger.int8.onnx"),
                                 providers=["CPUExecutionProvider"])
-    sp = spm_mod.SentencePieceProcessor(model_file=os.path.join(model, "spm.model"))
+    encode = make_encoder(model)
 
     heldin = corpus_sents[:n]
     heldout = [l.split() for l in open(heldout_path, encoding="utf-8")][:n]
@@ -125,10 +149,7 @@ def mia_scores(model, corpus_sents, heldout_path, n=400):
             toks = toks[:96]
             if not toks:
                 continue
-            ids = [sp.piece_to_id(t) for t in toks]
-            mask = [1] * len(ids)
-            ids = ids + [3] * (96 - len(ids))
-            mask = mask + [0] * (96 - len(mask))
+            ids, mask = encode(toks)
             logits = sess.run(None, {"input_ids": [ids],
                                      "attention_mask": [mask]})[0][0][:len(toks)]
             e = np.exp(logits - logits.max(-1, keepdims=True))

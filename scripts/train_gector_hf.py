@@ -35,8 +35,11 @@ def fetch_data(data_path: str) -> str:
         if os.path.exists(mounted):
             return mounted
     from huggingface_hub import hf_hub_download
+    # per-run data cache: the rw /app bucket persists data_in/ across
+    # fires — a stale cache served ja data to the ur-v1 run (2026-11-18)
+    data_in = os.environ.get("GEC_DATA_IN", "data_in")
     return hf_hub_download("kotoshu/gec-training-private", data_path,
-                           repo_type="dataset", local_dir="data_in")
+                           repo_type="dataset", local_dir=data_in)
 
 
 def fetch_latest_checkpoint(ckpt_repo: str, local: str, run_prefix: str,
@@ -153,6 +156,8 @@ def main() -> None:
         if lab != "$KEEP":
             labels[lab] = len(labels)
     print(f"label vocab: {len(labels)}", flush=True)
+    print(f"label heads: {[l for l, i in sorted(labels.items(), key=lambda kv: kv[1])[:6]]}", flush=True)
+    print(f"first row head: {rows[0]['src_tokens'][:6]}", flush=True)
 
     # transformers>=4.x hard-asserts the INSTANCE attribute for
     # roberta-family + is_split_into_words; the flag only takes effect at
