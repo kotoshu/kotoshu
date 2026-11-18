@@ -27,10 +27,13 @@ def main():
     import yaml
     reg = yaml.safe_load(open(f"/app/factory/registry/{lang}.yaml"))
     repo = reg.get("ckpt_repo", f"kotoshu/gec-ckpt-{lang}")
-    snap = snapshot_download(repo, allow_patterns=["r1s2/*", "r1s1/*"])
-    # stage 2 is the final model; stage 1 anchors are only fallback
-    cks = sorted(glob(snap, stage="r1s2"), key=lambda p: int(p.rsplit("-", 1)[1])) or \
-          sorted(glob(snap, stage="r1s1"), key=lambda p: int(p.rsplit("-", 1)[1]))
+    snap = snapshot_download(repo, allow_patterns=[
+        "r1s2/final/*", "r1s2/latest/*", "r1s1/final/*", "labels.json"])
+    # stage 2 is the final model; stage 1 anchors are only fallback;
+    # stage dirs carry {final (banked true-final), latest (periodic),
+    # checkpoint-N (legacy numbered)} — final wins, then latest
+    cks = (sorted(glob(snap, stage="r1s2"), key=rank) or
+           sorted(glob(snap, stage="r1s1"), key=rank))
     assert cks, f"no checkpoints in {repo}"
     ckpt = cks[-1]
     print("CKPT:", ckpt, flush=True)
@@ -87,7 +90,19 @@ def main():
 
 def glob(snap, stage):
     import glob as g
-    return g.glob(f"{snap}/{stage}/checkpoint-*")
+    out = []
+    for sub in ("final", "latest"):
+        out += g.glob(f"{snap}/{stage}/{sub}")
+    return out + g.glob(f"{snap}/{stage}/checkpoint-*")
+
+
+def rank(p):
+    tail = p.rstrip("/").rsplit("/", 1)[-1]
+    if tail == "final":
+        return (2, 0)
+    if tail == "latest":
+        return (1, 0)
+    return (0, int(tail.rsplit("-", 1)[1]))
 
 
 if __name__ == "__main__":

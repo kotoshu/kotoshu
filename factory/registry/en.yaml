@@ -20,7 +20,7 @@ classes:
   wci:       {route: legacy_en}   # word choice/confusion
   mec:       {route: legacy_en}   # mechanics (caps, spacing)
 rate: 0.8
-ckpt_repo: kotoshu/gec-ckpt-en-v8c
+ckpt_repo: kotoshu/gec-ckpt-en-mega3r
 tokenizer: roberta-base
 prune: false
 
