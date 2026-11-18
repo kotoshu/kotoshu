@@ -27,23 +27,33 @@ def main():
     import yaml
     reg = yaml.safe_load(open(f"/app/factory/registry/{lang}.yaml"))
     repo = reg.get("ckpt_repo", f"kotoshu/gec-ckpt-{lang}")
-    snap = snapshot_download(repo, allow_patterns=[
-        "r1s2/final/*", "r1s2/latest/*", "r1s1/final/*", "labels.json"])
-    # stage 2 is the final model; stage 1 anchors are only fallback;
-    # stage dirs carry {final (banked true-final), latest (periodic),
-    # checkpoint-N (legacy numbered)} — final wins, then latest
-    cks = (sorted(glob(snap, stage="r1s2"), key=rank) or
-           sorted(glob(snap, stage="r1s1"), key=rank))
-    assert cks, f"no checkpoints in {repo}"
-    ckpt = cks[-1]
-    print("CKPT:", ckpt, flush=True)
-    labels = hf_hub_download(repo, "labels.json")
-    # v8-era roberta models: serve-side prefix-space marker (optional;
-    # pre-v8 models have none and keep bare-word encoding)
-    try:
-        marker = hf_hub_download(repo, "prefix_space", repo_type="model")
-    except Exception:
+    vol_dir = os.environ.get("CKPT_DIR", "")
+    if vol_dir:
+        # bucket-vol lanes (storage law round 7): weights live in the job
+        # bucket, not a hub ckpt repo — LABELS env carries labels.json
+        ckpt = vol_dir
+        assert os.path.isfile(os.path.join(ckpt, "model.safetensors")), \
+            f"no weights at CKPT_DIR {ckpt}"
+        labels = os.environ["LABELS"]
         marker = None
+    else:
+        snap = snapshot_download(repo, allow_patterns=[
+            "r1s2/final/*", "r1s2/latest/*", "r1s1/final/*", "labels.json"])
+        # stage 2 is the final model; stage 1 anchors are only fallback;
+        # stage dirs carry {final (banked true-final), latest (periodic),
+        # checkpoint-N (legacy numbered)} — final wins, then latest
+        cks = (sorted(glob(snap, stage="r1s2"), key=rank) or
+               sorted(glob(snap, stage="r1s1"), key=rank))
+        assert cks, f"no checkpoints in {repo}"
+        ckpt = cks[-1]
+        labels = hf_hub_download(repo, "labels.json")
+        # v8-era roberta models: serve-side prefix-space marker (optional;
+        # pre-v8 models have none and keep bare-word encoding)
+        try:
+            marker = hf_hub_download(repo, "prefix_space", repo_type="model")
+        except Exception:
+            marker = None
+    print("CKPT:", ckpt, flush=True)
     prune_corpus = reg.get("base", {}).get(
         "prune_corpus", f"base_{lang}.txt")
     print("prune corpus:", prune_corpus, flush=True)
