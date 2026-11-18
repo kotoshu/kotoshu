@@ -1,0 +1,19 @@
+lang: pl
+script: latin
+segmentation: whitespace
+prompt_lang: pl
+encoder: microsoft/mdeberta-v3-base
+bf16: true
+keep: 0.3
+flavor: l4x4
+base:
+  source: wikisource
+  config: latest-dump
+  prune_corpus: base_pl.txt
+rate: 0.8
+ckpt_repo: kotoshu/gec-ckpt-pl-v1
+tokenizer: microsoft/mdeberta-v3-base
+
+eval:
+  slices:
+    - pl_heldout_eval_sources.txt

@@ -2,16 +2,18 @@ lang: it
 script: latin
 segmentation: whitespace
 prompt_lang: it
-route: legacy_multi
-legacy_lang: it
 encoder: microsoft/mdeberta-v3-base
 bf16: true
-keep: 0.6
+keep: 0.3
+flavor: l4x4
 base:
-  source: wikipedia
-  config: 20231101.it
+  source: wikisource
+  config: latest-dump
+  prune_corpus: base_it.txt
 rate: 0.8
-ckpt_repo: kotoshu/gec-ckpt-it
+ckpt_repo: kotoshu/gec-ckpt-it-v1
+tokenizer: microsoft/mdeberta-v3-base
+
 eval:
   slices:
     - it_heldout_eval_sources.txt
