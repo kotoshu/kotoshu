@@ -29,7 +29,17 @@ A real ja learner-error corpus. Candidates to license-scan:
 4. [ ] Train → package → SEG.ja gate vs 0.309 union bar
 
 ## Status
-- [ ] license scan
-- [ ] owner decision
+- [x] license scan (2026-11-18, docs/README-20111007-2.0.txt LICENSE
+      section): the v2.0 corpus — including its ja entries — is
+      "distributed for research or educational purposes only",
+      corpus-wide (no per-language carve-out; the ja subset carries the
+      same terms the en cLang-8 pipeline already operates under).
+      Commercial use requires a separate license from
+      support@lang-8.com. The staging-repo fence holds: derived
+      packs/weights may train + gate internally; nothing ships in a
+      commercial release without license review.
+- [ ] owner decision: (a) train ja privately + gates-only (the en
+      cLang-8 pattern), (b) pursue a lang-8 commercial license, or
+      (c) skip the ja real-data lane
 - [ ] pack
 - [ ] train + gate
