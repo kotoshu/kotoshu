@@ -92,9 +92,13 @@ def main():
                         commit_message=f"{lang} {f}")
         print("uploaded", f, flush=True)
     fs = api.list_repo_files("kotoshu/gec-artifacts", repo_type="dataset")
-    for need in ("gec-tagger.int8.onnx", "labels.json", "pieces.json",
-                 "charsmap.json", "parity.json"):
-        assert f"{lang}/{need}" in fs, f"VERIFY FAIL: {need}"
+    need = ["gec-tagger.int8.onnx", "labels.json", "parity.json"]
+    if reg.get("prune", True):
+        # roberta-family (--no-prune) has no sentencepiece pieces table
+        need += ["pieces.json"]
+    need += ["charsmap.json"]
+    for f in need:
+        assert f"{lang}/{f}" in fs, f"VERIFY FAIL: {f}"
     print("SECOND-JOB VERIFY OK — PACKAGE COMPLETE", flush=True)
 
 
