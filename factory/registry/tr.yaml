@@ -1,0 +1,19 @@
+lang: tr
+script: latin
+segmentation: whitespace
+prompt_lang: uk
+encoder: microsoft/mdeberta-v3-base
+bf16: true
+keep: 0.3
+flavor: a10g-large
+base:
+  source: wikisource
+  config: latest-dump
+  prune_corpus: base_tr.txt
+rate: 0.8
+ckpt_repo: kotoshu/gec-ckpt-tr-v1
+tokenizer: microsoft/mdeberta-v3-base
+
+eval:
+  slices:
+    - tr_heldout_eval_sources.txt
