@@ -30,13 +30,18 @@ matches the prune_export pipeline's tokenizer bit-for-bit.
    SMALL validation (ur-scale pack, deberta-v3-base, 3-round recipe,
    the proven chain) → parity through the Ruby tokenizer → then
    ru/cjk-scale retrains for the ≤250MB publishes.
-   **VALIDATION RUNNING 2026-11-19 (6afe77fd, a10g bucket-vol): STABLE —
-   loss 8.08 → 0.41 @ epoch 1.06, the mdeberta descent profile, NO
-   divergence** (the 2026-10 divergence shadow is cleared: the recipe
-   trains deberta-v3 cleanly). Remaining after it lands: gate vs ur-mdeberta
-   0.640 + Ruby SpmUnigramEncoder parity through the exported pieces →
-   ru/cjk-scale retrains. deberta-v3-base int8 ≈ 187MB < the 250MB
-   ceiling — the quality-per-MB thesis is live.
+   **VALIDATION COMPLETE 2026-11-19: STABLE + QUALITY VERDICT F0.5 1.000
+   on the ur 1,500-sentence corrupted held-out gate (verified: 1,500/1,500
+   lines match gold exactly after decode) — vs mdeberta-ur's 0.640 on the
+   IDENTICAL gate. The encoder difference is decisive.** SIZE: the
+   unpruned int8 export = 514MB (quantizer skips the 128k embedding) →
+   the ≤250MB publish REQUIRES vocab pruning (~40-50k pieces → ~170MB);
+   base_ur.txt was trimmed in the quota cleanup — regenerate from the ur
+   pack source (CLE route) before the deberta-ur publish. SERVING: the
+   gem's SpmBpe decodes deberta natively (pieces.json marker); the
+   python decoder carries the exact port. NEXT: base_ur regen → prune →
+   ≤250MB package → publish grammar-ur-deberta; then ru/cjk-scale
+   deberta retrains (the default-encoder switch).
 5. [ ] Publish per language (ru/cjk candidates first — published
    models shrink ~50%)
 
