@@ -42,6 +42,16 @@ matches the prune_export pipeline's tokenizer bit-for-bit.
    python decoder carries the exact port. NEXT: base_ur regen → prune →
    ≤250MB package → publish grammar-ur-deberta; then ru/cjk-scale
    deberta retrains (the default-encoder switch).
+   PRUNE BLOCKER (2026-11-19): prune_export → rebuild_pruned_pieces
+   FAILS on deberta — "pruned row 0: no bit-exact match in full
+   checkpoint" — deberta-v3 stores embeddings differently than
+   mdeberta (shared embedding / bf16 rounding breaks the weight-truth
+   bit-exact-match assumption). The fix is deberta-specific handling
+   in rebuild_pruned_pieces.py (match via the embedding generator or
+   tolerance-based row lookup). base_ur.txt regenerated (16,180 lines
+   from the CLE corpus, committed locally). Until the prune fix lands,
+   the deberta publish is blocked at 514MB unpruned; the quality
+   verdict (1.000) and the training stability are proven.
 5. [ ] Publish per language (ru/cjk candidates first — published
    models shrink ~50%)
 
