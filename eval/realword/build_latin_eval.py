@@ -19,7 +19,8 @@ lpb = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(lpb)
 
 CORP = os.path.expanduser("~/.cache/kotoshu-gec/corpora")
-DICTS = {"nl": "nl", "pl": "pl", "pt": "pt-PT", "it": "it"}
+DICTS = {"nl": "nl", "pl": "pl", "pt": "pt-PT", "it": "it",
+         "uk": "uk", "tr": "tr", "el": "el", "sr": "sr"}
 
 
 def main(lang):
