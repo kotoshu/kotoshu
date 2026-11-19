@@ -14,67 +14,97 @@ import sys
 import onnxruntime as ort
 from tokenizers import Tokenizer
 
-MAX_PIECE_BYTES = 16
+MAX_PIECE_CHARS = 32
+CLS, SEP = 1, 2
+METASPACE = "▁"
 
 
-class SpmUnigram:
-    """Viterbi encode over the pruned pieces table — the port of
-    lib/kotoshu/experimental/spm_unigram_encoder.rb (148/148
-    conformance). Scores are log-probs VERBATIM."""
+class SpmBpePort:
+    """The exact port of lib/kotoshu/grammar/spm_bpe.rb (the mdeberta
+    serving encoder — fixture-frozen vs DebertaV2TokenizerFast):
+    charsmap normalization + NFC, per-word metaspace, CHAR-level
+    unigram Viterbi over piece scores, min-score unknowns fused into
+    single [UNK], CLS/SEP framing in encode_words."""
 
-    def __init__(self, pieces_path):
-        pieces = json.load(open(pieces_path))
-        self.rows = [p["piece"] for p in pieces]
-        self.scores = [float(p.get("score", 0.0)) for p in pieces]
-        self.piece_to_row = {}
-        for i, p in enumerate(pieces):
-            self.piece_to_row.setdefault(p["piece"], i)
-        self.unk_row = self.piece_to_row.get("[UNK]", 3)
-        self.byte_fallback = {}
-        for i, p in enumerate(pieces):
-            m = p["piece"].startswith("<0x") and p["piece"].endswith(">")
-            if m and len(p["piece"]) == 6:
-                try:
-                    self.byte_fallback[int(p["piece"][3:5], 16)] = i
-                except ValueError:
-                    pass
+    def __init__(self, pieces_path, charsmap_path):
+        self.piece_id = {}
+        self.piece_score = {}
+        scores = []
+        for i, p in enumerate(json.load(open(pieces_path))):
+            if p.get("type") == 6:
+                continue
+            self.piece_id[p["piece"]] = i
+            self.piece_score[p["piece"]] = p["score"]
+            scores.append(p["score"])
+        self.unk_score = min(scores)
+        self.unk = self.piece_id["[UNK]"]
+        self.chars = json.load(open(charsmap_path))
+        self.cache = {}
+
+    def normalize(self, text):
+        import unicodedata
+        text = unicodedata.normalize("NFC", text)
+        return "".join(self.chars.get(f"{ord(c):04X}", c) for c in text)
+
+    def word_ids(self, word):
+        if word not in self.cache:
+            piece = METASPACE + self.normalize(word).replace(" ", METASPACE)
+            self.cache[word] = self.segment_ids(piece)
+        return self.cache[word]
 
     def encode_words(self, words):
-        ids = []
-        for w in words:
-            ids.extend(self._viterbi("▁" + w))
-        return ids
+        ids = [CLS]
+        word_ids = [None]
+        for i, w in enumerate(words):
+            wids = self.word_ids(str(w))
+            ids.extend(wids)
+            word_ids.extend([i] * len(wids))
+        ids.append(SEP)
+        word_ids.append(None)
+        return ids, word_ids
 
-    def _viterbi(self, text):
-        data = text.encode("utf-8")
-        n = len(data)
+    def segment_ids(self, piece):
+        whole = self.piece_id.get(piece)
+        if whole is not None:
+            return [whole]
+        n = len(piece)
         best = [-math.inf] * (n + 1)
-        back = [None] * (n + 1)
         best[0] = 0.0
-        for end in range(1, n + 1):
-            for length in range(min(MAX_PIECE_BYTES, end), 0, -1):
-                cand = data[end - length:end]
-                row = self.piece_to_row.get(
-                    cand.decode("utf-8", errors="ignore"))
-                if row is None:
+        back = [None] * (n + 1)
+        for end_i in range(1, n + 1):
+            for start in range(max(end_i - MAX_PIECE_CHARS, 0), end_i):
+                prev = best[start]
+                if prev == -math.inf:
                     continue
-                score = best[end - length] + self.scores[row]
-                if score > best[end]:
-                    best[end] = score
-                    back[end] = (end - length, row)
-            if back[end] is None:
-                fb = self.byte_fallback.get(data[end - 1])
-                row = fb if fb is not None else self.unk_row
-                pen = self.scores[row] if fb is not None else -20.0
-                best[end] = best[end - 1] + pen
-                back[end] = (end - 1, row)
-        out = []
+                sub = piece[start:end_i]
+                pid = self.piece_id.get(sub)
+                if pid is not None:
+                    score = self.piece_score[sub]
+                elif end_i - start == 1:
+                    score = self.unk_score
+                else:
+                    continue
+                total = prev + score
+                if total > best[end_i]:
+                    best[end_i] = total
+                    back[end_i] = end_i - start
+        segs = []
         pos = n
         while pos > 0:
-            prev, row = back[pos]
-            out.append(row)
-            pos = prev
-        return out[::-1]
+            ln = back[pos]
+            segs.insert(0, piece[pos - ln:pos])
+            pos -= ln
+        out = []
+        unknown_run = False
+        for seg in segs:
+            if seg in self.piece_id:
+                out.append(self.piece_id[seg])
+                unknown_run = False
+            else:
+                if not unknown_run:
+                    out.append(self.unk)
+                    unknown_run = True
+        return out
 
 
 def main():
@@ -87,18 +117,13 @@ def main():
     keep_id = next(int(i) for i, l in labels.items() if l == "$KEEP")
     pieces_path = f"{model_dir}/pieces.json"
     if os.path.exists(pieces_path):
-        # PRUNED sentencepiece artifact (mdeberta family): encode via the
-        # pieces table (row ids match the pruned embedding). The full
-        # tokenizer.json overruns the embedding (Gather OOB).
-        enc_model = SpmUnigram(pieces_path)
+        # PRUNED sentencepiece artifact (mdeberta family): the exact
+        # SpmBpe serving encoder (charsmap + metaspace + char-viterbi).
+        enc_model = SpmBpePort(pieces_path,
+                               f"{model_dir}/charsmap.json")
 
         def encode_words(words):
-            ids, word_ids = [], []
-            for w_i, w in enumerate(words):
-                w_ids = enc_model.encode_words([w])
-                ids.extend(w_ids)
-                word_ids.extend([w_i] * len(w_ids))
-            return ids, word_ids
+            return enc_model.encode_words(words)
     else:
         tok = Tokenizer.from_file(f"{model_dir}/tokenizer.json")
 
