@@ -240,7 +240,8 @@ def main() -> None:
                 dst = os.path.join(args.ckpt_vol, self.run_name, "latest")
                 if os.path.isdir(src):
                     shutil.rmtree(dst, ignore_errors=True)
-                    shutil.copytree(src, dst)
+                    time.sleep(5)
+                    shutil.copytree(src, dst, dirs_exist_ok=True)
                 return
             dst = os.path.join(local_ckpt, self.run_name, "latest")
             if os.path.isdir(src):
