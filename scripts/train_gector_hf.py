@@ -245,7 +245,9 @@ def main() -> None:
             dst = os.path.join(local_ckpt, self.run_name, "latest")
             if os.path.isdir(src):
                 shutil.rmtree(dst, ignore_errors=True)
-                shutil.copytree(src, dst)
+                if args.ckpt_vol:
+                    time.sleep(5)
+                shutil.copytree(src, dst, dirs_exist_ok=True)
                 # Intermediate saves push MODEL-ONLY: optimizer.pt is ~2-3GB
                 # and hub commit history retains every stale version — the
                 # quota kills (#3/#4, 2026-10-29) came from exactly this.
