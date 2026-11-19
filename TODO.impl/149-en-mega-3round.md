@@ -25,7 +25,19 @@ from the packaged artifact (gec-artifacts en-mega3r-r1/). Compare against
 
 ## Status
 - [x] corpus staged
-- [ ] train
-- [ ] package + parity
-- [ ] CoNLL-14 gate
-- [ ] publish decision (replaces penta only if ≥ 0.522)
+- [x] train — COMPLETE 2026-11-19 (r1 = s1 4ep + s2 2ep on 2.52M rows,
+      ~20 h200 windows through the storage/preemption gauntlet; bucket-vol
+      anchors held every window)
+- [x] package + parity — both variants on gec-artifacts (en/ +
+      en-mega3r-fused/; note: the "fused" package is actually plain
+      r1s2/final — the VOL_CKPT fuse path packages as-is; true fusion
+      needs both stage finals hub-side, parked as a +~0.5pt upgrade
+      experiment)
+- [x] CoNLL-14 gate — **F0.5 0.5346 (P 0.581 R 0.406)** official M²,
+      full set, training-faithful HF-tokenizer decode (scripts/decode_ort_py.py —
+      the gem ByteBpe DIVERGES on multi-word encodes; python is the gate
+      instrument for roberta-family artifacts)
+- [x] publish decision — **PUBLISHED kotoshu/grammar-en v0.2.0-mega
+      (0.5346 ≥ 0.522 bar; +1.3pt over penta, 3.2× LanguageTool)**
+Rounds 2-3 continuation (+~0.5pt ru-law upside) = the next lever, fired
+from the bucket r1s2/final anchor when queued.
