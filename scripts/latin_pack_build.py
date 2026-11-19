@@ -33,7 +33,20 @@ DIACRITICS = {
     "pl": {"ą": "a", "ć": "c", "ę": "e", "ł": "l", "ń": "n", "ó": "o",
            "ś": "s", "ź": "z", "ż": "z"},
     "nl": {},
+    "tr": {"ç": "c", "ğ": "g", "ı": "i", "ö": "o", "ş": "s", "ü": "u"},
+    "uk": {"а": "я", "и": "и", "є": "е", "ї": "і", "ґ": "г"},
+    "el": {"ά": "α", "έ": "ε", "ή": "η", "ί": "ι", "ό": "ο", "ύ": "υ", "ώ": "ω",
+           "ς": "σ"},
+    "sr": {"ђ": "ђ", "ј": "j", "љ": "љ", "њ": "њ", "ћ": "ћ", "џ": "џ"},
 }
+
+# Wave-2 per-script keyboard adjacency (extracted from the gem's layout
+# coordinate grids — scripts/extract_layout_adjacency.py).
+try:
+    SCRIPT_ADJ = json.load(open(__file__.rsplit("/", 1)[0] + "/wave2_adjacency.json",
+                                encoding="utf-8"))
+except Exception:
+    SCRIPT_ADJ = {}
 
 
 def load_dict_words(dic_path, min_len=3):
@@ -62,15 +75,16 @@ def pick_word(tokens, rng):
 
 def make_corruptors(lang, dict_words, rng):
     diac = DIACRITICS.get(lang, {})
+    qwerty = SCRIPT_ADJ.get(lang, QWERTY_ADJ)
 
     def keyboard(tokens):
         i = pick_word(tokens, rng)
         if i is None: return None
         w = list(tokens[i])
-        spots = [j for j, ch in enumerate(w) if ch.lower() in QWERTY_ADJ]
+        spots = [j for j, ch in enumerate(w) if ch.lower() in qwerty]
         if not spots: return None
         j = rng.choice(spots)
-        w[j] = rng.choice(QWERTY_ADJ[w[j].lower()])
+        w[j] = rng.choice(qwerty[w[j].lower()])
         out = list(tokens); out[i] = "".join(w)
         return out, "keyboard"
 
