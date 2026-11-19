@@ -1,0 +1,15 @@
+lang: deberta-ur
+script: arabic
+segmentation: whitespace
+prompt_lang: ur
+encoder: microsoft/deberta-v3-base
+bf16: true
+keep: 0.3
+base:
+  source: wikipedia
+  config: 20231101.ur
+  prune_corpus: base_ur.txt
+rate: 0.8
+ckpt_repo: kotoshu/gec-ckpt-deberta-ur
+tokenizer: microsoft/deberta-v3-base
+prune: false
