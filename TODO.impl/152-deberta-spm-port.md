@@ -24,12 +24,19 @@ matches the prune_export pipeline's tokenizer bit-for-bit.
    scores are log-probs verbatim, Math.log of them = NaN = garbage paths.
 3. [x] Conformance: **148/148** at scale (8 curated: Italian/German/
    emoji/Cyrillic/stress + 140 randomized word-salad sentences).
-4. [ ] Re-train required — NO deberta checkpoint survives (checked
+4. [~] Re-train required — NO deberta checkpoint survives (checked
    2026-11-19: de-v1 dir = packaged ONNX + labels only; hub gec-ckpt
    repos have no deberta lineage; no local safetensors). First run =
    SMALL validation (ur-scale pack, deberta-v3-base, 3-round recipe,
    the proven chain) → parity through the Ruby tokenizer → then
    ru/cjk-scale retrains for the ≤250MB publishes.
+   **VALIDATION RUNNING 2026-11-19 (6afe77fd, a10g bucket-vol): STABLE —
+   loss 8.08 → 0.41 @ epoch 1.06, the mdeberta descent profile, NO
+   divergence** (the 2026-10 divergence shadow is cleared: the recipe
+   trains deberta-v3 cleanly). Remaining after it lands: gate vs ur-mdeberta
+   0.640 + Ruby SpmUnigramEncoder parity through the exported pieces →
+   ru/cjk-scale retrains. deberta-v3-base int8 ≈ 187MB < the 250MB
+   ceiling — the quality-per-MB thesis is live.
 5. [ ] Publish per language (ru/cjk candidates first — published
    models shrink ~50%)
 
