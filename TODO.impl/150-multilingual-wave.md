@@ -1,5 +1,19 @@
 # 150 — Multilingual full-feature wave (Urdu template × Latin languages)
 
+## Wave-1 GATE VERDICTS + PUBLISHED (2026-11-19 morning)
+- **grammar-pt PUBLISHED: F0.5 0.5705 (P 0.689 R 0.338), 1,467 pairs**
+- **grammar-nl PUBLISHED: F0.5 0.565 (P 0.954 R 0.215), 1,458 pairs —
+  the precision standout of the shelf**
+- **grammar-pl PUBLISHED: F0.5 0.4178 (P 0.427 R 0.385), 1,490 pairs —
+  balanced profile, in the ru band**
+All three: first-ever published models for these languages in the
+ecosystem; arm64-local decoded from the shipped artifacts (the x86 eval
+job died silently — the arm64 chain is the gate law), corruption-gold
+scorer, held-out splits never trained on. Cards carry recipe +
+provenance. it lane still training (a10g preempt churn).
+Reference band: fr 0.811 · es 0.620 · ur 0.640 · pt 0.571 · nl 0.565 ·
+ru 0.422 · pl 0.418.
+
 ## Thesis
 The Urdu campaign produced a complete, proven template: corruption
 pack builder (balanced language-specific classes) → resilient 3-round
