@@ -275,7 +275,9 @@ RSpec.describe "#load_cached_typo_matrix" do
 
   after { FileUtils.rm_rf(temp_dir) if File.exist?(temp_dir) }
 
-  def seed_matrix_cache(bytes: "KT" + "M1fake", paired_tier_sha: ("c" * 64))
+  def seed_matrix_cache(bytes: "KT" + "M1fake", paired_tier_sha: ("c" * 64),
+                        primary: nil,
+                        mirror: "https://media.example/main/models/en/typo.matrix.en.ktm1")
     dir = File.join(temp_dir, "en", "models", "typo-matrix")
     FileUtils.mkdir_p(dir)
     File.binwrite(File.join(dir, "typo.matrix.en.ktm1"), bytes)
@@ -289,8 +291,8 @@ RSpec.describe "#load_cached_typo_matrix" do
           "tier" => { "name" => "typo-matrix", "dims" => 256,
                       "vocab_size" => 10, "quantization" => "int8-per-row" },
           "version" => "1.7.0",
-          "urls" => { "primary" => nil,
-                      "mirror" => "https://media.example/main/models/en/typo.matrix.en.ktm1" },
+          "urls" => { "primary" => primary,
+                      "mirror" => mirror },
           "vocab_url" => nil, "sha256" => sha, "size_bytes" => bytes.bytesize,
           "license" => "CC-BY-SA-3.0", "min_engine_version" => "1.1",
           "eval_ref" => nil,
@@ -325,6 +327,24 @@ RSpec.describe "#load_cached_typo_matrix" do
     path = cache.load_cached_typo_matrix("en")
     expect(path).to end_with("typo.matrix.en.ktm1")
     expect(File.binread(path)).to start_with("KTM1")
+  end
+
+  it "resolves when only the primary URL carries the asset name (mirror null)" do
+    seed_matrix_cache(
+      primary: "https://github.com/kotoshu/models-fasttext-onnx/releases/download/v1.8.0/typo.matrix.en.ktm1",
+      mirror: nil
+    )
+    path = cache.load_cached_typo_matrix("en")
+    expect(path).to end_with("typo.matrix.en.ktm1")
+  end
+
+  it "answers nil when the resolved path is a directory, not the artifact" do
+    seed_matrix_cache
+    dir = File.join(temp_dir, "en", "models", "typo-matrix")
+    FileUtils.rm(File.join(dir, "typo.matrix.en.ktm1"))
+    FileUtils.mkdir_p(File.join(dir, "typo.matrix.en.ktm1"))
+    File.binwrite(File.join(dir, "typo.matrix.en.ktm1", "inner"), "x")
+    expect(cache.load_cached_typo_matrix("en")).to be_nil
   end
 
   it "answers nil when the cached bytes fail the sha" do
