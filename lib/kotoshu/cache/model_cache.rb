@@ -539,8 +539,15 @@ module Kotoshu
         return nil unless entry
 
         dir = File.join(@cache_path, language_code.to_s, "models", "typo-matrix")
-        file = File.join(dir, filename_from_url(entry.urls.mirror))
-        return nil unless File.exist?(file) && File.size(file).positive?
+        # mirror is null on current registry entries ("no mirror") — an
+        # empty basename silently disabled matrix-arming (EISDIR-class,
+        # plan 139's invisible degrade); fall back to the primary URL,
+        # which always carries the real asset filename
+        name = filename_from_url(entry.urls.mirror || entry.urls.primary)
+        return nil if name.empty?
+
+        file = File.join(dir, name)
+        return nil unless File.exist?(file) && !File.directory?(file) && File.size(file).positive?
         return nil unless Digest::SHA256.file(file).hexdigest == entry.sha256
 
         # Plan 142: the rows are index-parallel to exactly the tier
@@ -574,7 +581,7 @@ module Kotoshu
 
         dir = File.join(@cache_path, lang, "models", "typo-matrix")
         FileUtils.mkdir_p(dir)
-        file = File.join(dir, filename_from_url(entry.urls.mirror))
+        file = File.join(dir, filename_from_url(entry.urls.mirror || entry.urls.primary))
         used_url = download_primary_or_mirror!(entry, file)
         verify_registry_sha256!(entry, file, "kotoshu://models/#{lang}/typo-matrix", used_url,
                                 remediation: "Run kotoshu setup #{lang} --typo --force to re-download.")
