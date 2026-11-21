@@ -15,7 +15,7 @@ abort "usage: eval_decode_local.rb MODEL IN OUT [SEG.zh DICT]" unless model_dir 
 tagger = Kotoshu::Grammar::Tagger.from_dir(model_dir)
 margin = ENV["MARGIN"] && !ENV["MARGIN"].empty? ? ENV["MARGIN"].to_f : nil
 decoder = Kotoshu::Grammar::GectorDecoder.new(tagger: tagger, rounds: 4,
-                                              min_confidence: (ENV["MIN_CONFIDENCE"] || "0").to_f,
+                                              min_confidence: ENV["MIN_CONFIDENCE"] && !ENV["MIN_CONFIDENCE"].empty? ? ENV["MIN_CONFIDENCE"].to_f : nil,
                                               margin: margin)
 seg = if seg_flag == "SEG.zh"
         require "kotoshu/grammar/zh_segmenter"
@@ -29,8 +29,17 @@ seg = if seg_flag == "SEG.zh"
 File.open(output, "w") do |out|
   File.foreach(input) do |line|
     s = line.chomp
-    toks = s.empty? ? [] : (seg ? (seg.respond_to?(:segment) ? seg.segment(s) : seg.call(s)) : s.split)
+    toks = if s.empty?
+             []
+           else
+             (if seg
+                seg.respond_to?(:segment) ? seg.segment(s) : seg.call(s)
+              else
+                s.split
+              end)
+           end
     next out.puts if toks.empty?
+
     res = decoder.correct(toks)
     out.puts res[:corrected].join(" ")
     out.flush

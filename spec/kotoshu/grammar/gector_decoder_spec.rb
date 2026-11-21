@@ -5,7 +5,7 @@ require "kotoshu/grammar"
 
 RSpec.describe Kotoshu::Grammar::GectorDecoder do
   subject(:decoder) do
-    described_class.new(tagger: Struct.new(:labels).new({}), label_thresholds: label_thresholds)
+    described_class.new(tagger: Struct.new(:labels, :serving_config).new({}, {}), label_thresholds: label_thresholds)
   end
 
   let(:label_thresholds) { { "$REPLACE_into" => 0.5 } }
@@ -34,7 +34,7 @@ RSpec.describe Kotoshu::Grammar::GectorDecoder do
 
     it "honors a raised min_confidence" do
       decoder = described_class.new(
-        tagger: Struct.new(:labels).new({}),
+        tagger: Struct.new(:labels, :serving_config).new({}, {}),
         min_confidence: 0.2, label_thresholds: { "$REPLACE_into" => 0.5 }
       )
       expect(decoder.threshold_for("$APPEND_the")).to eq(0.2)
@@ -43,7 +43,7 @@ RSpec.describe Kotoshu::Grammar::GectorDecoder do
   end
 
   def decoder_for(rounds_script)
-    d = scripted_decoder.new(tagger: Struct.new(:labels).new({}), rounds: rounds_script.length)
+    d = scripted_decoder.new(tagger: Struct.new(:labels, :serving_config).new({}, {}), rounds: rounds_script.length)
     d.script = rounds_script
     d
   end
@@ -75,7 +75,7 @@ RSpec.describe Kotoshu::Grammar::GectorDecoder do
     end
 
     it "skips findings below the label threshold" do
-      d = scripted_decoder.new(tagger: Struct.new(:labels).new({}), rounds: 1,
+      d = scripted_decoder.new(tagger: Struct.new(:labels, :serving_config).new({}, {}), rounds: 1,
                                label_thresholds: { "$REPLACE_z" => 0.9 })
       d.script = [[{ index: 0, label: "$REPLACE_z", confidence: 0.5 }]]
       expect(d.correct(%w[a])[:corrected]).to eq(%w[a])
@@ -84,19 +84,19 @@ RSpec.describe Kotoshu::Grammar::GectorDecoder do
 
   describe "margin gate" do
     it "fires an edit whose confidence clears margin * p(KEEP)" do
-      d = scripted_decoder.new(tagger: Struct.new(:labels).new({}), rounds: 1, margin: 0.5)
+      d = scripted_decoder.new(tagger: Struct.new(:labels, :serving_config).new({}, {}), rounds: 1, margin: 0.5)
       d.script = [[{ index: 0, label: "$REPLACE_z", confidence: 0.3, keep_confidence: 0.5 }]]
       expect(d.correct(%w[a])[:corrected]).to eq(%w[z])
     end
 
     it "skips an edit below margin * p(KEEP) even at min_confidence 0" do
-      d = scripted_decoder.new(tagger: Struct.new(:labels).new({}), rounds: 1, margin: 0.5)
+      d = scripted_decoder.new(tagger: Struct.new(:labels, :serving_config).new({}, {}), rounds: 1, margin: 0.5)
       d.script = [[{ index: 0, label: "$REPLACE_z", confidence: 0.24, keep_confidence: 0.5 }]]
       expect(d.correct(%w[a])[:corrected]).to eq(%w[a])
     end
 
     it "ignores the gate entirely when margin is nil" do
-      d = scripted_decoder.new(tagger: Struct.new(:labels).new({}), rounds: 1, margin: nil)
+      d = scripted_decoder.new(tagger: Struct.new(:labels, :serving_config).new({}, {}), rounds: 1, margin: nil)
       d.script = [[{ index: 0, label: "$REPLACE_z", confidence: 0.01, keep_confidence: 0.99 }]]
       expect(d.correct(%w[a])[:corrected]).to eq(%w[z])
     end

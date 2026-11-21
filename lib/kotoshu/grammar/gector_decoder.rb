@@ -17,11 +17,17 @@ module Kotoshu
       #   honest where the KEEP prior crushes absolute softmax mass
       #   (the 2026-10-31 ru v8 finding: absolute thresholds were
       #   anti-correlated with correctness).
-      def initialize(tagger:, rounds: 2, min_confidence: 0.0, label_thresholds: {},
-                     margin: nil)
+      # min_confidence: nil defers to the artifact's serving.json
+      # calibration (issue #292) before falling back to 0.0.
+      def initialize(tagger:, rounds: 2, min_confidence: nil,
+                     label_thresholds: {}, margin: nil)
         @tagger = tagger
         @rounds = rounds
-        @min_confidence = min_confidence
+        @min_confidence = if min_confidence.nil?
+                            tagger.serving_config&.fetch("min_confidence", 0.0) || 0.0
+                          else
+                            min_confidence
+                          end
         @label_thresholds = label_thresholds
         @margin = margin
       end
