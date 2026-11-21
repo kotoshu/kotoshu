@@ -94,17 +94,17 @@ def prune_and_export(ckpt_dir, corpus_path, charsmap_path, out_dir,
         int8 = os.path.join(out_dir, "gec-tagger.int8.onnx")
         quantize_dynamic(onnx_path, int8, weight_type=QuantType.QInt8)
         print(f"int8: {os.path.getsize(int8) / (1024 * 1024):.1f}MB", flush=True)
-    # STORAGE/PLATFORM LAW (2026-10-29): the ruby-gem x86 runtime
-    # mis-executes DynamicQuantizeLinear/MatMulInteger kernels of these
-    # graphs (flat logits). quantize_dynamic stays as the NaN gate; the
-    # SHIPPED file is the float dequantization of it — sound ops in
-    # every ORT build, same loader filename.
-    scripts = os.path.dirname(os.path.abspath(__file__))
-    subprocess.run([sys.executable,
-                    os.path.join(scripts, "dequantize_int8_onnx.py"),
-                    int8, int8 + ".fq"], check=True)
-    os.replace(int8 + ".fq", int8)
-    print(f"fp32-fied: {os.path.getsize(int8) / (1024 * 1024):.1f}MB", flush=True)
+        # STORAGE/PLATFORM LAW (2026-10-29): the ruby-gem x86 runtime
+        # mis-executes DynamicQuantizeLinear/MatMulInteger kernels of these
+        # graphs (flat logits). quantize_dynamic stays as the NaN gate; the
+        # SHIPPED file is the float dequantization of it — sound ops in
+        # every ORT build, same loader filename.
+        scripts = os.path.dirname(os.path.abspath(__file__))
+        subprocess.run([sys.executable,
+                        os.path.join(scripts, "dequantize_int8_onnx.py"),
+                        int8, int8 + ".fq"], check=True)
+        os.replace(int8 + ".fq", int8)
+        print(f"fp32-fied: {os.path.getsize(int8) / (1024 * 1024):.1f}MB", flush=True)
     shutil.copy(onnx_path, os.path.join(out_dir, "gec-gector.onnx"))
 
     if prune:
