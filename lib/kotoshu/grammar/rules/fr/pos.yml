@@ -1,29 +1,13 @@
-# French POS-keyed starter rules (issue #289). Keyed on the UD universal
-# tagset. FP-budget law applies.
-
-- id: FR_NE_PAS_SPLIT
-  category: negation
-  severity: error
-  language: fr
-  matcher: pos_sequence
-  pattern:
-    - { word: ["ne"] }
-    - { pos: VERB }
-    - { word: ["jamais", "plus", "rien", "personne"] }
-  message: "ne ... pas is the default negation pair; 'ne V jamais/plus' is marked"
-  examples: []
-- id: FR_A_ARTICLE
-  category: agreement
-  severity: warning
-  language: fr
-  matcher: pos_sequence
-  pattern:
-    - { word: ["à", "a"] }
-    - { pos: DET }
-    - { pos: NOUN }
-    - { word: ["de"] }
-    - { pos: NUM }
-  message: "Confusion à/a — the verb 'a' (avoir) vs the preposition 'à' before determiners"
-  examples:
-    - bad: "Il a à la bibliothèque trois livres."
-      good: "Il y a à la bibliothèque trois livres."
+# French POS-keyed rules (issue #289). Keyed on the UD universal tagset
+# through an fr POS tagger — the wiring follows the ur precedent and is not
+# landed yet, so rules here carry `examples: []` until a tagger can fire
+# them in CI. FP-budget law: rules that fire on clean text are rejected.
+#
+# Deliberately empty for now. The obvious candidates are NOT POS-decidable
+# and were rejected during review:
+# - a/à confusion: "il a la clé" (avoir + article) and "à la clé" are both
+#   legal French, so a [a][DET] pattern is a false-positive machine.
+# - ne ... jamais / ne ... plus: correct French, only "ne ... pas" is the
+#   unmarked default; flagging the marked forms would fire on clean text.
+# First rules land together with the fr tagger wiring and spot-checked
+# examples.

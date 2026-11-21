@@ -1,7 +1,12 @@
-# Spanish POS-keyed starter rules (issue #289). Keyed on the UD universal
-# tagset. FP-budget law applies.
+# Spanish POS-keyed rules (issue #289). Keyed on the UD universal tagset
+# through an es POS tagger — the wiring follows the ur precedent and is not
+# landed yet, so every rule here carries `examples: []` until a tagger can
+# actually fire them in CI (the example gate runs rules against their own
+# bad/good examples and would demand impossible fires before then).
+# FP-budget law: rules that fire on clean text are rejected, so no rule is
+# added here until its pattern is POS-decidable and spot-checked.
 
-- id: ES_SER_ESTAR_LOC
+- id: ES_SER_ESTAR_BARE_NOUN
   category: verb-choice
   severity: warning
   language: es
@@ -9,9 +14,5 @@
   pattern:
     - { word: ["estoy", "estás", "está"] }
     - { pos: NOUN }
-    - { word: ["de"] }
-    - { pos: PROPN }
-  message: "Permanent traits take 'ser', not 'estar' (review: 'es médico de X')"
-  examples:
-    - bad: "Él está médico."
-      good: "Él es médico."
+  message: "Profession/identity nouns take 'ser', not 'estar' ('es médico'); a determiner before the noun makes it locative ('está el médico') and is fine"
+  examples: []

@@ -1,28 +1,14 @@
-# German POS-keyed starter rules (issue #289). Keyed on the UD universal
-# tagset through a de POS tagger (wiring follows; ur precedent). FP-budget
-# law: rules that fire on clean text are rejected.
-
-- id: DE_MODAL_PERFECT_FINITE
-  category: word-order
-  severity: error
-  language: de
-  matcher: pos_sequence
-  pattern:
-    - { pos: AUX }
-    - { pos: VERB }
-    - { pos: AUX }
-  message: "Modal-perfect chain needs the participle at the end: 'hat ... gemacht'"
-  examples:
-    - bad: "Er hat machen müssen"
-      good: "Er hat machen müssen"
-- id: DE_ES_NEUTER_ARTICLE
-  category: agreement
-  severity: error
-  language: de
-  matcher: pos_sequence
-  pattern:
-    - { word: ["es"] }
-    - { pos: ADJ }
-    - { word: ["der"] }
-  message: "'es ist ein/e' — check gender agreement after 'es'"
-  examples: []
+# German POS-keyed rules (issue #289). Keyed on the UD universal tagset
+# through a de POS tagger — the wiring follows the ur precedent and is not
+# landed yet, so rules here carry `examples: []` until a tagger can fire
+# them in CI. FP-budget law: rules that fire on clean text are rejected.
+#
+# Deliberately empty for now. The obvious candidates are NOT POS-decidable
+# and were rejected during review:
+# - modal-perfect chains (Ersatzinfinitiv): "Er hat machen müssen" is the
+#   CORRECT form — German replaces the participle with the infinitive when
+#   a modal is present, so an [AUX][VERB][AUX] pattern fires on clean text.
+# - "es ist der ..." gender agreement: "es ist der Mann" is correct German;
+#   gender needs a lexical gender model, not a POS tag.
+# First rules land together with the de tagger wiring and spot-checked
+# examples.
