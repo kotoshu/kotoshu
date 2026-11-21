@@ -170,7 +170,11 @@ When implementing features, study these alongside Kotoshu:
 
 ## Other Notes
 
-- License is **BSD-2-Clause** (not MIT — the README's "License" section is wrong).
+- License is **BSD-2-Clause** (README and gemspec agree).
 - RBS signatures live in `sig/kotoshu.rbs` (the `sig/kotoshu/` subdirectory is empty). Update signatures when changing public APIs.
+- **Native ext ABI law**: after any ruby version bump run `bundle install`
+  && `bundle exec rake compile` — a bundle built under a different ruby
+  loads with subtly broken semantics (duplicate-class TypeErrors) and,
+  with backend "auto", degrades the whole suggest path silently.
 - `scripts/` contains one-off utilities (FastText→ONNX conversion in Python, Kelly frequency parsing, diagnostics). `examples/` has numbered walkthrough scripts (`01_*.rb` … `07_*.rb`).
 - Design history and superseded planning docs live in `docs/` (`architecture.md`, `cache-architecture.md`, `performance.md`, `plugins.md`, `getting-started.md`, plus integrated planning docs like `KOTOSHU_SOLIDIFICATION_PLAN.md`, `ARCHITECTURE_IMPROVEMENTS.md`, `TDD_ITERATION_STRATEGY.md`). Treat them as historical context, verify against current code before relying on them. `TODO.impl/` is the current source of truth for execution plans.

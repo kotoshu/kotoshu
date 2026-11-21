@@ -126,8 +126,9 @@ RSpec.describe Kotoshu::Keyboard::Registry do
       # 5 original + 3 national (wave 1) + 11 Latin family (wave 1) +
       # 7 national (batch 3) + 5 Latin family (batch 3) +
       # 2 national (plan 108: ko ne) + 1 national (plan 110: sr-Latn) +
-      # 4 Chinese IME (plan C7: Pinyin Jyutping Cangjie Sucheng)
-      expect(layouts.size).to eq(38)
+      # 4 Chinese IME (plan C7: Pinyin Jyutping Cangjie Sucheng) +
+      # 1 national (ur CRULP phonetic)
+      expect(layouts.size).to eq(39)
     end
 
     it 'returns layout instances' do
@@ -147,7 +148,7 @@ RSpec.describe Kotoshu::Keyboard::Registry do
            Norwegian-QWERTY Persian-Standard Pinyin Polish-QWERTY QWERTY QWERTZ
            Romanian-QWERTY Serbian-Cyrillic Serbian-Latin-QWERTZ
            Slovak-QWERTY Slovenian-QWERTZ Sucheng Swedish-QWERTY Turkish-Q
-           Ukrainian-JCUKEN Vietnamese-QWERTY]
+           Ukrainian-JCUKEN Urdu-Phonetic Vietnamese-QWERTY]
       )
     end
   end
