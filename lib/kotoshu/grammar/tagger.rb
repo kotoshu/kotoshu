@@ -37,6 +37,11 @@ module Kotoshu
 
       attr_reader :labels, :model, :tokenizer
 
+      # Per-model serving calibration from the artifact's serving.json
+      # (issue #292): { "min_confidence" => 0.7 } and friends. Empty when
+      # the artifact carries no calibration.
+      attr_accessor :serving_config
+
       # @param model_path [String] int8 ONNX tagger
       # @param labels_path [String] labels.json shipped with the model
       # @param vocab_path [String] distilroberta vocab.json (roberta layout)
@@ -48,6 +53,7 @@ module Kotoshu
         require "onnxruntime"
         @model = OnnxRuntime::Model.new(model_path)
         @labels = JSON.parse(File.read(labels_path))
+        @serving_config = {}
         @tokenizer =
           if pieces_path
             SpmBpe.new(pieces_path, charsmap_path)
@@ -63,25 +69,35 @@ module Kotoshu
       #
       # @param dir [String]
       # @return [Tagger]
+      # The artifact's serving.json calibration (issue #292): per-model
+      # serving defaults such as min_confidence. Empty hash when absent.
+      def self.load_serving_config(dir)
+        path = File.join(dir, "serving.json")
+        File.exist?(path) ? JSON.parse(File.read(path)) : {}
+      end
+
       def self.from_dir(dir)
         prefix_space = File.exist?(File.join(dir, "prefix_space"))
         pieces = File.join(dir, "pieces.json")
-        if File.exist?(pieces)
-          new(
-            model_path: File.join(dir, "gec-tagger.int8.onnx"),
-            labels_path: File.join(dir, "labels.json"),
-            pieces_path: pieces,
-            charsmap_path: File.join(dir, "charsmap.json")
-          )
-        else
-          new(
-            model_path: File.join(dir, "gec-tagger.int8.onnx"),
-            labels_path: File.join(dir, "labels.json"),
-            vocab_path: File.join(dir, "vocab.json"),
-            merges_path: File.join(dir, "merges.txt"),
-            prefix_space: prefix_space
-          )
-        end
+        serving = load_serving_config(dir)
+        t = if File.exist?(pieces)
+              new(
+                model_path: File.join(dir, "gec-tagger.int8.onnx"),
+                labels_path: File.join(dir, "labels.json"),
+                pieces_path: pieces,
+                charsmap_path: File.join(dir, "charsmap.json")
+              )
+            else
+              new(
+                model_path: File.join(dir, "gec-tagger.int8.onnx"),
+                labels_path: File.join(dir, "labels.json"),
+                vocab_path: File.join(dir, "vocab.json"),
+                merges_path: File.join(dir, "merges.txt"),
+                prefix_space: prefix_space
+              )
+            end
+        t.serving_config = serving
+        t
       end
 
       # Detect error classes per word.
