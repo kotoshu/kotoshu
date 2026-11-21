@@ -25,7 +25,7 @@ import sys
 
 def prune_and_export(ckpt_dir, corpus_path, charsmap_path, out_dir,
                      tokenizer_name="microsoft/mdeberta-v3-base",
-                     labels_src=None, prune=True):
+                     labels_src=None, prune=True, no_quantize=False):
     import torch
     from onnxruntime.quantization import QuantType, quantize_dynamic
     from transformers import AutoModelForTokenClassification, AutoTokenizer
@@ -79,9 +79,21 @@ def prune_and_export(ckpt_dir, corpus_path, charsmap_path, out_dir,
     if prune:
         with open(os.path.join(out_dir, "keep_ids.json"), "w") as fh:
             json.dump(keep_ids + added, fh)
-    int8 = os.path.join(out_dir, "gec-tagger.int8.onnx")
-    quantize_dynamic(onnx_path, int8, weight_type=QuantType.QInt8)
-    print(f"int8: {os.path.getsize(int8) / (1024 * 1024):.1f}MB", flush=True)
+    if no_quantize:
+        # deberta law (2026-11-20): quantize_dynamic collapses deberta
+        # activations — ship the fp16-cast export instead (fp16 weight
+        # storage + Cast-to-fp32 nodes, sound ops on arm64 and x86)
+        fp16 = os.path.join(out_dir, "gec-tagger.fp16.onnx")
+        subprocess.run([sys.executable,
+                        os.path.join(scripts, "cast_fp16_onnx.py"),
+                        onnx_path, fp16], check=True)
+        shutil.copy(fp16, os.path.join(out_dir, "gec-tagger.int8.onnx"))
+        print(f"fp16 (shipped as gec-tagger.int8.onnx): "
+              f"{os.path.getsize(fp16) / (1024 * 1024):.1f}MB", flush=True)
+    else:
+        int8 = os.path.join(out_dir, "gec-tagger.int8.onnx")
+        quantize_dynamic(onnx_path, int8, weight_type=QuantType.QInt8)
+        print(f"int8: {os.path.getsize(int8) / (1024 * 1024):.1f}MB", flush=True)
     # STORAGE/PLATFORM LAW (2026-10-29): the ruby-gem x86 runtime
     # mis-executes DynamicQuantizeLinear/MatMulInteger kernels of these
     # graphs (flat logits). quantize_dynamic stays as the NaN gate; the
@@ -125,11 +137,15 @@ def main() -> None:
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--tokenizer", default="microsoft/mdeberta-v3-base")
     ap.add_argument("--no-prune", action="store_true")
+    ap.add_argument("--no-quantize", action="store_true",
+                    help="deberta: ship the fp16-cast export instead of "
+                         "quantized int8 (quantize_dynamic collapses "
+                         "deberta activations)")
     args = ap.parse_args()
     prune_and_export(ckpt_dir=args.ckpt_dir, corpus_path=args.corpus,
                      charsmap_path=args.charsmap, out_dir=args.out_dir,
                      tokenizer_name=args.tokenizer, labels_src=args.labels,
-                     prune=not args.no_prune)
+                     prune=not args.no_prune, no_quantize=args.no_quantize)
 
 
 if __name__ == "__main__":
