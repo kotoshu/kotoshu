@@ -65,10 +65,16 @@ def main():
     # tokenizer (250k) overruns the embedding matrix (2026-10-31 IndexError)
     tokenizer = reg.get("tokenizer", "microsoft/mdeberta-v3-base")
     np = [] if reg.get("prune", True) else ["--no-prune"]
+    if reg.get("quantize") is False:
+        # deberta law (2026-11-20): quantize_dynamic collapses deberta
+        # activations — registries shipping deberta set quantize: false
+        # and the fp16-cast export is shipped as gec-tagger.int8.onnx
+        np += ["--no-quantize"]
+    charsmap = f"/code/data/{reg.get('charsmap', 'charsmap_mdeberta.json')}"
     subprocess.run([sys.executable, os.path.join(scripts, "prune_export_hf.py"),
                     "--ckpt-dir", ckpt, "--labels", labels,
                     "--corpus", f"/corpora/{prune_corpus}",
-                    "--charsmap", "/code/data/charsmap_mdeberta.json",
+                    "--charsmap", charsmap,
                     "--tokenizer", tokenizer,
                     "--out-dir", out] + np, check=True)
     if marker:

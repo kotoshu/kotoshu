@@ -1,0 +1,14 @@
+lang: deberta-en
+segmentation: whitespace
+prompt_lang: en
+encoder: microsoft/deberta-v3-base
+bf16: true
+keep: 0.3
+base:
+  prune_corpus: base_en_xl.txt
+rate: 0.8
+ckpt_repo: kotoshu/gec-ckpt-en-deberta
+tokenizer: microsoft/deberta-v3-base
+prune: true
+quantize: false
+charsmap: charsmap_deberta.json
