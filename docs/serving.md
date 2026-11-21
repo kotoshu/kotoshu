@@ -37,7 +37,7 @@ model lands, these apply without re-litigating.
   activations (0 edits on the whole gate); mdeberta tolerates it. The
   deberta path is `scripts/cast_fp16_onnx.py`: fp16 weight storage +
   Cast-to-fp32 nodes, ~184MB, sound ops on arm64 and x86 (verified).
-- mdeberta ships the fp32-fied dequantization (~457-473MB class).
+- mdeberta ships the dequantized fp32 weights (~457-473MB class).
 - **Pruned artifacts serve via SpmBpe only** (`pieces.json` +
   `charsmap.json`). A present `tokenizer.json` forces HF dispatch,
   which emits original-id space and OOBs on pruned embeddings. The
