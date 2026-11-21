@@ -1,0 +1,22 @@
+# Urdu grammar rules: first POS-keyed rule set (issue #280).
+# Keyed on the CLE Urdu POS Tagset through the UrPosTagger reduced view.
+# Validated against the complimentary 2k-token human-verified sample;
+# scaled on the 100K purchase. FP-budget law: rules that fire on clean
+# text are rejected — start minimal, grow only with clean-text evidence.
+
+- id: UR_AUX_PLURAL_AGREEMENT
+  category: agreement
+  severity: error
+  language: ur
+  matcher: pos_sequence
+  pattern:
+    - { pos: NOUN }
+    - { word: [ہے] }
+  message: "Plural noun with singular auxiliary 'ہے' — use 'ہیں'"
+  suggestions:
+    - template: "ہیں"
+  examples:
+    - bad: "کتابیں ہے"
+      good: "کتابیں ہیں"
+    - bad: "بچے ہے"
+      good: "بچے ہیں"
