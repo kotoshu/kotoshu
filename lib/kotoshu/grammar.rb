@@ -11,6 +11,8 @@ module Kotoshu
     autoload :RuleEngine, "kotoshu/grammar/rule_engine"
     autoload :RuleLoader, "kotoshu/grammar/rule_loader"
     autoload :PosTagger, "kotoshu/grammar/pos_tagger"
+    autoload :PosTagset, "kotoshu/grammar/pos_tagset"
+    autoload :UrPosTagger, "kotoshu/grammar/pos_tagger_ur"
     autoload :Checker, "kotoshu/grammar/checker"
     autoload :ByteBpe, "kotoshu/grammar/byte_bpe"
     autoload :SpmBpe, "kotoshu/grammar/spm_bpe"

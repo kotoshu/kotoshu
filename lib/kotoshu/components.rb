@@ -9,5 +9,6 @@ module Kotoshu
     autoload :Synthesizer, "kotoshu/components/synthesizer"
     autoload :Tokenizer, "kotoshu/components/tokenizer"
     autoload :WhitespaceTokenizer, "kotoshu/components/whitespace_tokenizer"
+    autoload :CLEPosReader, "kotoshu/components/cle_pos_reader"
   end
 end
