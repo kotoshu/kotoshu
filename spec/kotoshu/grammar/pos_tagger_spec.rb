@@ -106,3 +106,18 @@ RSpec.describe Kotoshu::Grammar do
     end
   end
 end
+
+RSpec.describe "expanded irregular verb table (issue #291 quill-gap lever)" do
+  it "covers the common irregular verbs including the seeked→sought class" do
+    expect(Kotoshu::Grammar::PosTagger::IRREGULAR_VERBS.size).to be >= 70
+    expect(Kotoshu::Grammar::Morphology::PAST_OF["seek"]).to eq("sought")
+    expect(Kotoshu::Grammar::Morphology::PAST_OF["bind"]).to eq("bound")
+    expect(Kotoshu::Grammar::Morphology::PAST_OF["think"]).to eq("thought")
+  end
+
+  it "tags the irregular past forms as verbs" do
+    tagger = Kotoshu::Grammar::PosTagger.new(language: "en")
+    sought = tagger.tag("sought")[0]
+    expect(sought[:pos]).to match(/VERB/)
+  end
+end
