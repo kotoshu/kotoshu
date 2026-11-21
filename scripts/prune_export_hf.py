@@ -74,6 +74,7 @@ def prune_and_export(ckpt_dir, corpus_path, charsmap_path, out_dir,
                       "logits": {0: "batch", 1: "seq"}},
         opset_version=14, dynamo=False)
 
+    scripts = os.path.dirname(os.path.abspath(__file__))
     os.makedirs(out_dir, exist_ok=True)
     tok.save_pretrained(out_dir)   # full tokenizer: encode then remap ids
     if prune:
@@ -99,7 +100,6 @@ def prune_and_export(ckpt_dir, corpus_path, charsmap_path, out_dir,
         # graphs (flat logits). quantize_dynamic stays as the NaN gate; the
         # SHIPPED file is the float dequantization of it — sound ops in
         # every ORT build, same loader filename.
-        scripts = os.path.dirname(os.path.abspath(__file__))
         subprocess.run([sys.executable,
                         os.path.join(scripts, "dequantize_int8_onnx.py"),
                         int8, int8 + ".fq"], check=True)
