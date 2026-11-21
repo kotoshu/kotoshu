@@ -81,7 +81,7 @@ RSpec.describe Kotoshu::Suggestions::Strategies::EditDistanceStrategy do
         skewed = strategy.calculate_enhanced_score('İMPYL', 'imply', 1)
         clean = strategy.calculate_enhanced_score('IMPYL', 'imply', 1)
         kb_delta = strategy.keyboard_penalty('İMPYL', 'imply') -
-                   strategy.keyboard_penalty('IMPYL', 'imply')
+          strategy.keyboard_penalty('IMPYL', 'imply')
 
         expect(skewed - clean).to eq(kb_delta + 200)
       end

@@ -68,6 +68,7 @@ module Kotoshu
             candidate = bytes[start_pos, len]
             row = @piece_to_row[candidate.force_encoding("UTF-8")]
             next unless row
+
             score = best[start_pos] + @scores[row]
             if score > best[end_pos]
               best[end_pos] = score

@@ -52,6 +52,7 @@ n = 0
 File.open(pairs_out, "w") do |f|
   File.foreach(pairs_in) do |l|
     next if l.strip.empty?
+
     r = JSON.parse(l)
     # pack rows are space-joined token streams -> raw string -> suika
     raw = r["corrupted"].split.join
@@ -73,9 +74,11 @@ n = e = 0
 File.open(exact_out, "w") do |f|
   File.foreach(state_in) do |l|
     next if l.strip.empty?
+
     r = JSON.parse(l)
     e += 1
     next unless r["status"] == "exact"
+
     raw = r["corrupted"].split.join
     clean_raw = r["clean"].split.join
     f.write(JSON.generate({ "corrupted" => reseg.call(raw),
