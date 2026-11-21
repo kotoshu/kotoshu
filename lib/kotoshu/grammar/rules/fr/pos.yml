@@ -1,0 +1,29 @@
+# French POS-keyed starter rules (issue #289). Keyed on the UD universal
+# tagset. FP-budget law applies.
+
+- id: FR_NE_PAS_SPLIT
+  category: negation
+  severity: error
+  language: fr
+  matcher: pos_sequence
+  pattern:
+    - { word: ["ne"] }
+    - { pos: VERB }
+    - { word: ["jamais", "plus", "rien", "personne"] }
+  message: "ne ... pas is the default negation pair; 'ne V jamais/plus' is marked"
+  examples: []
+- id: FR_A_ARTICLE
+  category: agreement
+  severity: warning
+  language: fr
+  matcher: pos_sequence
+  pattern:
+    - { word: ["à", "a"] }
+    - { pos: DET }
+    - { pos: NOUN }
+    - { word: ["de"] }
+    - { pos: NUM }
+  message: "Confusion à/a — the verb 'a' (avoir) vs the preposition 'à' before determiners"
+  examples:
+    - bad: "Il a à la bibliothèque trois livres."
+      good: "Il y a à la bibliothèque trois livres."

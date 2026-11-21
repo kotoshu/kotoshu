@@ -6,6 +6,7 @@ module Kotoshu
     # tagset (CLE, LREC 2014 L14-1250) is the first member.
     module PosTagset
       autoload :Ur, "kotoshu/grammar/pos_tagset/ur"
+      autoload :Universal, "kotoshu/grammar/pos_tagset/universal"
     end
   end
 end
