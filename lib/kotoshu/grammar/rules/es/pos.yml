@@ -1,0 +1,17 @@
+# Spanish POS-keyed starter rules (issue #289). Keyed on the UD universal
+# tagset. FP-budget law applies.
+
+- id: ES_SER_ESTAR_LOC
+  category: verb-choice
+  severity: warning
+  language: es
+  matcher: pos_sequence
+  pattern:
+    - { word: ["estoy", "estás", "está"] }
+    - { pos: NOUN }
+    - { word: ["de"] }
+    - { pos: PROPN }
+  message: "Permanent traits take 'ser', not 'estar' (review: 'es médico de X')"
+  examples:
+    - bad: "Él está médico."
+      good: "Él es médico."

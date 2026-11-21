@@ -1,0 +1,28 @@
+# German POS-keyed starter rules (issue #289). Keyed on the UD universal
+# tagset through a de POS tagger (wiring follows; ur precedent). FP-budget
+# law: rules that fire on clean text are rejected.
+
+- id: DE_MODAL_PERFECT_FINITE
+  category: word-order
+  severity: error
+  language: de
+  matcher: pos_sequence
+  pattern:
+    - { pos: AUX }
+    - { pos: VERB }
+    - { pos: AUX }
+  message: "Modal-perfect chain needs the participle at the end: 'hat ... gemacht'"
+  examples:
+    - bad: "Er hat machen müssen"
+      good: "Er hat machen müssen"
+- id: DE_ES_NEUTER_ARTICLE
+  category: agreement
+  severity: error
+  language: de
+  matcher: pos_sequence
+  pattern:
+    - { word: ["es"] }
+    - { pos: ADJ }
+    - { word: ["der"] }
+  message: "'es ist ein/e' — check gender agreement after 'es'"
+  examples: []
