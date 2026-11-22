@@ -94,10 +94,13 @@ def main():
     assert gate == "PASS", f"PARITY GATE FAILED"
 
     for f in os.listdir(out):
+        # UPLOAD_DIR lets gate runs land in their own directory (e.g.
+        # en-mega3r-r3) without touching the published gec-artifacts/{lang}
+        target = os.environ.get("UPLOAD_DIR", lang)
         api.upload_file(path_or_fileobj=os.path.join(out, f),
-                        path_in_repo=f"{lang}/{f}", repo_type="dataset",
+                        path_in_repo=f"{target}/{f}", repo_type="dataset",
                         repo_id="kotoshu/gec-artifacts",
-                        commit_message=f"{lang} {f}")
+                        commit_message=f"{target} {f}")
         print("uploaded", f, flush=True)
     fs = api.list_repo_files("kotoshu/gec-artifacts", repo_type="dataset")
     need = ["gec-tagger.int8.onnx", "labels.json", "parity.json"]
