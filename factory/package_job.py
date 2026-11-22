@@ -106,7 +106,7 @@ def main():
         need += ["pieces.json"]
     need += ["charsmap.json"]
     for f in need:
-        assert f"{lang}/{f}" in fs, f"VERIFY FAIL: {f}"
+        assert f"{target}/{f}" in fs, f"VERIFY FAIL: {f}"
     print("SECOND-JOB VERIFY OK — PACKAGE COMPLETE", flush=True)
 
 
