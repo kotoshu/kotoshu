@@ -37,7 +37,7 @@ def prune_and_export(ckpt_dir, corpus_path, charsmap_path, out_dir,
         from collections import Counter
         keep = set(range(tok.num_special_tokens_to_add()))
         keep |= set(tok.all_special_ids)
-        byte_and_unk = {i for i, t in tok.get_vocab().items()
+        byte_and_unk = {i for t, i in tok.get_vocab().items()
                         if t.startswith("<0x") or t in ("[UNK]", "<unk>", "<pad>")}
         counts = Counter()
         with open(corpus_path) as fh:
