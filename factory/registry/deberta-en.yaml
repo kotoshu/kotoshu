@@ -12,3 +12,4 @@ tokenizer: microsoft/deberta-v3-base
 prune: true
 quantize: false
 charsmap: charsmap_deberta.json
+max_pieces: 45000
