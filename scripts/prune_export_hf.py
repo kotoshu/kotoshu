@@ -25,7 +25,8 @@ import sys
 
 def prune_and_export(ckpt_dir, corpus_path, charsmap_path, out_dir,
                      tokenizer_name="microsoft/mdeberta-v3-base",
-                     labels_src=None, prune=True, no_quantize=False):
+                     labels_src=None, prune=True, no_quantize=False,
+                     max_pieces=None):
     import torch
     from onnxruntime.quantization import QuantType, quantize_dynamic
     from transformers import AutoModelForTokenClassification, AutoTokenizer
@@ -33,15 +34,25 @@ def prune_and_export(ckpt_dir, corpus_path, charsmap_path, out_dir,
     tok = AutoTokenizer.from_pretrained(tokenizer_name)
     if prune:
         vocab_size = tok.vocab_size
+        from collections import Counter
         keep = set(range(tok.num_special_tokens_to_add()))
         keep |= set(tok.all_special_ids)
+        byte_and_unk = {i for i, t in tok.get_vocab().items()
+                        if t.startswith("<0x") or t in ("[UNK]", "<unk>", "<pad>")}
+        counts = Counter()
         with open(corpus_path) as fh:
             for line in fh:
                 if line.strip():
-                    keep |= set(tok(line, add_special_tokens=True)["input_ids"])
-        for i, t in {i: t for t, i in tok.get_vocab().items()}.items():
-            if t.startswith("<0x") or t in ("[UNK]", "<unk>", "<pad>"):
-                keep.add(i)
+                    counts.update(tok(line, add_special_tokens=True)["input_ids"])
+        keep |= set(counts)
+        keep |= byte_and_unk
+        if max_pieces is not None and len(keep) > max_pieces:
+            # frequency cap: keep specials/byte-tokens + the max_pieces most
+            # frequent corpus pieces (embedding size is the fp16 ship-size
+            # driver; en's corpus-keep left 110k pieces = 350MB, over the
+            # 250MB ceiling)
+            top = {i for i, _ in counts.most_common(max_pieces)}
+            keep = ((keep - set(counts)) | byte_and_unk) | top
         keep_ids = sorted(keep & set(range(vocab_size)))
         added = sorted(i for i in tok.all_special_ids if i >= vocab_size)
         print(f"corpus keep: {len(keep_ids)} base + {len(added)} added", flush=True)
@@ -141,11 +152,15 @@ def main() -> None:
                     help="deberta: ship the fp16-cast export instead of "
                          "quantized int8 (quantize_dynamic collapses "
                          "deberta activations)")
+    ap.add_argument("--max-pieces", type=int, default=None,
+                    help="frequency-cap the keep-set at this many pieces "
+                         "(size lever: embedding bytes dominate fp16 ships)")
     args = ap.parse_args()
     prune_and_export(ckpt_dir=args.ckpt_dir, corpus_path=args.corpus,
                      charsmap_path=args.charsmap, out_dir=args.out_dir,
                      tokenizer_name=args.tokenizer, labels_src=args.labels,
-                     prune=not args.no_prune, no_quantize=args.no_quantize)
+                     prune=not args.no_prune, no_quantize=args.no_quantize,
+                     max_pieces=args.max_pieces)
 
 
 if __name__ == "__main__":

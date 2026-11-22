@@ -70,6 +70,8 @@ def main():
         # activations — registries shipping deberta set quantize: false
         # and the fp16-cast export is shipped as gec-tagger.int8.onnx
         np += ["--no-quantize"]
+    if reg.get("max_pieces"):
+        np += ["--max-pieces", str(reg["max_pieces"])]
     charsmap = f"/code/data/{reg.get('charsmap', 'charsmap_mdeberta.json')}"
     subprocess.run([sys.executable, os.path.join(scripts, "prune_export_hf.py"),
                     "--ckpt-dir", ckpt, "--labels", labels,
