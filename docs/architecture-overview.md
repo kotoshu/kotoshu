@@ -2,12 +2,21 @@
 
 ## Overview
 
-Kotoshu is a high-performance spellchecker library for Ruby, designed with modular, object-oriented architecture. It supports multiple dictionary backends, suggestion algorithms, and provides both CLI and Ruby API interfaces.
+Kotoshu 「言修」 is a **semantic** spell checker and grammar-correction engine for Ruby. It has four checking surfaces over shared infrastructure: the traditional dictionary/affix path, the embedding-based semantic path, the grammar rule engine, and the neural GEC (grammatical error correction) serving stack. This document is current as of the deberta serving rung (2026-11); the contributor-facing map with the full layer table lives in `CLAUDE.md`.
+
+## The four checking surfaces
+
+| Surface | Entry point | Backends | Notes |
+|---|---|---|---|
+| Traditional spell-check | `Kotoshu.correct?` / `.suggest` / `.check` | `Dictionary::*` (hunspell, cspell, unix_words, plain_text, custom) + suggestion strategies | Always available; ONNX not required |
+| Semantic analysis | `Analyzers::SemanticAnalyzer` | `Models::OnnxModel` / `FastTextModel` embeddings | Opt-in; raises `OnnxUnavailable` when onnxruntime is missing |
+| Grammar rules | `Kotoshu.grammar_check` | `Grammar::Checker` → `RuleEngine` (pattern + POS-keyed YAML rules) + neural residual | The hybrid architecture: rules first, the GEC tagger catches what rules miss |
+| GEC serving | `Grammar::Tagger.from_dir` + `GectorDecoder` | fp16/int8 ONNX tagger per language (published on HF as `kotoshu/grammar-{lang}`) | Serving laws in `docs/serving.md`; `serving.json` in the model dir carries the calibrated `min_confidence` |
 
 ## Design Principles
 
 1. **Hexagonal Architecture**: Core business logic is independent of interfaces
-2. **Strategy Pattern**: Pluggable dictionaries and suggestion algorithms
+2. **Strategy Pattern**: Pluggable dictionaries, suggestion algorithms, and per-language grammar components
 3. **Value Objects**: Immutable result objects for type safety
 4. **Performance First**: SymSpell, three-tier caching, Bloom filters
 5. **Zero-Copy Operations**: Minimize data duplication
@@ -243,6 +252,46 @@ registry = Kotoshu::Plugins::Registry.new
 registry.register(:my_plugin, MyPlugin)
 registry.start_all
 ```
+
+## Grammar Engine and GEC Serving
+
+The grammar stack is layered; the rule engine runs first and the neural
+tagger is the residual behind it (the hybrid architecture):
+
+```
+Kotoshu.grammar_check(text)
+  └─ Grammar::Checker (language:)
+       ├─ RuleEngine — YAML rules from lib/kotoshu/grammar/rules/{lang}/
+       │     pattern_matchers: word_list · regex · pos_sequence
+       │     POS-keyed rules fire through Grammar::PosTagger + tagsets
+       │     (PosTagset::Ur 32-tag CLE, PosTagset::Universal 17-tag UD)
+       └─ GectorDecoder — the neural residual
+             Tagger.from_dir(model_dir)   (fp16/int8 ONNX + labels +
+                                           pieces/charsmap SpmBpe serving)
+             rounds: 4, min_confidence ← serving.json calibration
+```
+
+Module map (`lib/kotoshu/grammar/`):
+
+| Path | Responsibility |
+|---|---|
+| `checker.rb` | Facade: rules then the tagger residual, merged findings |
+| `rule_engine.rb`, `rule.rb` | YAML rule loading, enabled/disabled, example gates |
+| `pattern_matchers/*` | word_list / regex / pos_sequence matchers |
+| `tagger.rb` | Loads a published artifact dir; `load_serving_config` reads `serving.json` |
+| `gector_decoder.rb` | GECToR-style decode: rounds, min_confidence, margin; nil sentinels defer to the artifact calibration |
+| `pos_tagger*.rb`, `pos_tagset/*` | POS layer: per-language taggers + tagset modules as data |
+| `encoders/spm_bpe.rb`, `experimental/spm_unigram_encoder.rb` | The SpmBpe serving encoder (per-word metaspace + byte fallback) — the only valid path for pruned artifacts |
+| `rules/{lang}/*.yml` | Per-language rule bundles (grammar.yml word rules, pos.yml POS-keyed) |
+
+Published GEC models (one per language, public on HF under
+`kotoshu/grammar-{lang}`) are produced by the factory pipeline
+(`factory/run.py`: make-corpus → teach → verify → train → package →
+eval → publish) with the measured laws codified in
+[docs/serving.md](serving.md): ship-path gating in the shelf metric,
+fp16-cast artifacts for deberta (quantize_dynamic collapses its
+activations), per-model MIN_CONFIDENCE calibration, max_len 128 for
+byte-fallback tokenizers, and SpmBpe-only serving for pruned id spaces.
 
 ## Algorithm Details
 
