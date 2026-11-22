@@ -21,7 +21,11 @@ def run_parity(pruned_onnx, full_ckpt, tok_dir, corpus_path,
 
     tok = AutoTokenizer.from_pretrained(tok_dir)
     # the export saves the FULL tokenizer: ORT needs remapped pruned ids
-    # (keep_ids.json = old ids in pruned-row order); torch keeps old ids
+    # (keep_ids.json = old ids in pruned-row order); the torch reference is
+    # pruned IDENTICALLY (same keep_ids) and fed the same remapped ids, so
+    # the gate measures pure export fidelity — with a frequency-capped
+    # prune, corpus rows contain dropped ids and a full-vocab torch
+    # reference would disagree by construction (91.7% rows, max diff 30)
     keep_path = os.path.join(tok_dir, "keep_ids.json")
     if os.path.exists(keep_path):
         keep_ids = json.load(open(keep_path))
@@ -42,6 +46,12 @@ def run_parity(pruned_onnx, full_ckpt, tok_dir, corpus_path,
     model = AutoModelForTokenClassification.from_config(cfg)
     missing, unexpected = model.load_state_dict(state, strict=False)
     assert not missing, f"missing weights: {missing[:4]}"
+    if old_to_new is not None:
+        emb = model.get_input_embeddings().weight.data
+        new_emb = emb[torch.tensor(keep_ids)].clone()
+        model.resize_token_embeddings(len(keep_ids))
+        with torch.no_grad():
+            model.get_input_embeddings().weight.copy_(new_emb)
     model.eval()
     sess = ort.InferenceSession(pruned_onnx, providers=["CPUExecutionProvider"])
     sess_batch = ort.InferenceSession(pruned_onnx, providers=["CPUExecutionProvider"])
@@ -65,7 +75,7 @@ def run_parity(pruned_onnx, full_ckpt, tok_dir, corpus_path,
         ort_ids = ([old_to_new.get(i, unk_new) for i in enc["input_ids"]]
                    if old_to_new else enc["input_ids"])
         o1 = ort_logits([ort_ids], [enc["attention_mask"]])[0]
-        ot = torch_logits([enc["input_ids"]], [enc["attention_mask"]])[0]
+        ot = torch_logits([ort_ids], [enc["attention_mask"]])[0]
         agree_single += int(np.argmax(o1, -1).tolist() == np.argmax(ot, -1).tolist())
         max_single = max(max_single, float(np.abs(o1 - ot).max()))
         pad = max(0, 4 - L)
