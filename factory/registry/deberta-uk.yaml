@@ -1,0 +1,21 @@
+lang: deberta-uk
+script: latin
+segmentation: whitespace
+prompt_lang: uk
+encoder: microsoft/deberta-v3-base
+bf16: true
+keep: 0.3
+flavor: a10g-large
+base:
+  source: wikisource
+  config: latest-dump
+  prune_corpus: base_uk.txt
+rate: 0.8
+ckpt_repo: kotoshu/gec-ckpt-uk-deberta
+tokenizer: microsoft/deberta-v3-base
+quantize: false
+charsmap: charsmap_deberta.json
+
+eval:
+  slices:
+    - uk_heldout_eval_sources.txt
