@@ -1,0 +1,21 @@
+lang: deberta-nl
+script: latin
+segmentation: whitespace
+prompt_lang: nl
+encoder: microsoft/deberta-v3-base
+bf16: true
+keep: 0.3
+flavor: a10g-large
+base:
+  source: wikisource
+  config: latest-dump
+  prune_corpus: base_nl.txt
+rate: 0.8
+ckpt_repo: kotoshu/gec-ckpt-nl-deberta
+tokenizer: microsoft/deberta-v3-base
+quantize: false
+charsmap: charsmap_deberta.json
+
+eval:
+  slices:
+    - nl_heldout_eval_sources.txt
