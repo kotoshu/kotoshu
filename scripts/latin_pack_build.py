@@ -186,8 +186,23 @@ def main():
     with open(os.path.join(a.out, f"{a.lang}_v1_pairs.jsonl"), "w", encoding="utf-8") as f:
         for p in pairs:
             f.write(json.dumps(p, ensure_ascii=False) + "\n")
+    # held-out sources must be CORRUPTED draws (one per sentence) — the
+    # gate decodes sources and scores against clean gold; identical files
+    # would gate a model's false-positive profile on clean text (the
+    # wave-2 gates were measured on the separate build_latin_eval slice,
+    # which corrupts properly — these files were never its instrument)
+    heldout_sources = []
+    for s in heldout:
+        toks = s.split()
+        res = None
+        for _ in range(a.draws):
+            fn = rng.choice(corruptors)
+            res = fn(toks)
+            if res:
+                break
+        heldout_sources.append(" ".join(res[0]) if res else s)
     with open(os.path.join(a.out, f"{a.lang}_v1_heldout_sources.txt"), "w", encoding="utf-8") as f:
-        f.write("\n".join(heldout) + "\n")
+        f.write("\n".join(heldout_sources) + "\n")
     with open(os.path.join(a.out, f"{a.lang}_v1_heldout_gold.txt"), "w", encoding="utf-8") as f:
         f.write("\n".join(heldout) + "\n")
     with open(os.path.join(a.out, f"base_{a.lang}.txt"), "w", encoding="utf-8") as f:
