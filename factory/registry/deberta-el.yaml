@@ -1,0 +1,21 @@
+lang: deberta-el
+script: greek
+segmentation: whitespace
+prompt_lang: el
+encoder: microsoft/deberta-v3-base
+bf16: true
+keep: 0.3
+flavor: a10g-large
+base:
+  source: wikisource
+  config: latest-dump
+  prune_corpus: base_el.txt
+rate: 0.8
+ckpt_repo: kotoshu/gec-ckpt-el-deberta
+tokenizer: microsoft/deberta-v3-base
+quantize: false
+charsmap: charsmap_deberta.json
+
+eval:
+  slices:
+    - el_heldout_eval_sources.txt
