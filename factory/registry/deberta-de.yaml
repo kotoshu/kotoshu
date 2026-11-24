@@ -1,0 +1,18 @@
+lang: deberta-de
+segmentation: whitespace
+prompt_lang: de
+encoder: microsoft/deberta-v3-base
+bf16: true
+keep: 0.3
+flavor: a10g-large
+base:
+  prune_corpus: base_de.txt
+rate: 0.8
+ckpt_repo: kotoshu/gec-ckpt-de-deberta
+tokenizer: microsoft/deberta-v3-base
+quantize: false
+charsmap: charsmap_deberta.json
+
+eval:
+  slices:
+    - de_heldout_eval_sources.txt
