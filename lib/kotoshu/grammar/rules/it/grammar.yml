@@ -1,0 +1,145 @@
+# Italian starter rules — original orthography rules only (no third-
+# party rule data). Every bad form is unambiguously wrong in any era of
+# the language (apostrophe elision errors, che-word accent errors, the
+# sopratutto misspelling) and near-zero in clean Italian prose; the
+# pre-reform forms (po'/pò, nè, sè) are deliberately EXCLUDED — they
+# occur legitimately in historical text, so flagging them would fire on
+# clean text (FP-budget law).
+- id: IT_UN_ALTRO
+  category: grammar
+  language: it
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["un'altro"]
+  message: "'un altro' non richiede l'apostrofo (altro non inizia per vocale)"
+  suggestions:
+    - replace: { word: "un'altro", with: "un altro" }
+  examples:
+    - bad: "Voglio un'altro caffè."
+      good: "Voglio un altro caffè."
+
+- id: IT_QUAL_E
+  category: apostrophes
+  language: it
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["qual'è"]
+  message: "'qual è' non richiede l'apostrofo (qual è invariato davanti a vocale)"
+  suggestions:
+    - replace: { word: "qual'è", with: "qual è" }
+  examples:
+    - bad: "Qual'è il tuo nome?"
+      good: "Qual è il tuo nome?"
+
+- id: IT_QUAL_ERA
+  category: apostrophes
+  language: it
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["qual'era"]
+  message: "'qual era' — l'apostrofo con qual è sbagliato davanti a 'era'"
+  suggestions:
+    - replace: { word: "qual'era", with: "qual era" }
+  examples:
+    - bad: "Qual'era la domanda?"
+      good: "Qual era la domanda?"
+
+- id: IT_PERCHE_ACCENT
+  category: accents
+  language: it
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["perche"]
+  message: "'perché' prende l'accento acuto"
+  suggestions:
+    - replace: { word: perche, with: perché }
+  examples:
+    - bad: "Non so perche torni."
+      good: "Non so perché torni."
+
+- id: IT_AFFINCHE_ACCENT
+  category: accents
+  language: it
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["affinche", "affinchè"]
+  message: "'affinché' prende l'accento acuto"
+  suggestions:
+    - replace: { word: affinche, with: affinché }
+  examples:
+    - bad: "Parla affinche tutti sentano."
+      good: "Parla affinché tutti sentano."
+
+- id: IT_POICHE_ACCENT
+  category: accents
+  language: it
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["poiche", "poichè"]
+  message: "'poiché' prende l'accento acuto"
+  suggestions:
+    - replace: { word: poiche, with: poiché }
+  examples:
+    - bad: "Resto poiche piove."
+      good: "Resto poiché piove."
+
+- id: IT_FINCHE_ACCENT
+  category: accents
+  language: it
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["finche", "finchè"]
+  message: "'finché' prende l'accento acuto"
+  suggestions:
+    - replace: { word: finche, with: finché }
+  examples:
+    - bad: "Aspetta finche arrivo."
+      good: "Aspetta finché arrivo."
+
+- id: IT_PERCHE_GRAVE
+  category: accents
+  language: it
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["perchè"]
+  message: "'perché' prende l'accento acuto, non grave"
+  suggestions:
+    - replace: { word: perchè, with: perché }
+  examples:
+    - bad: "Dimmi perchè vuoi restare."
+      good: "Dimmi perché vuoi restare."
+
+- id: IT_SOPRATUTTO
+  category: spelling
+  language: it
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["sopratutto"]
+  message: "'soprattutto' si scrive con la doppia t"
+  suggestions:
+    - replace: { word: sopratutto, with: soprattutto }
+  examples:
+    - bad: "Sopratutto mi piace il tè."
+
+- id: IT_D_ACCORDO
+  category: apostrophes
+  language: it
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["daccordo"]
+  message: "'d'accordo' richiede l'apostrofo"
+  suggestions:
+    - replace: { word: daccordo, with: "d'accordo" }
+  examples:
+    - bad: "Siamo daccordo."
+      good: "Siamo d'accordo."
