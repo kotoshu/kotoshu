@@ -168,7 +168,7 @@ RSpec.describe "grammar rule example gates" do
 end
 
 RSpec.describe "multilingual starter rule sets (de/es/fr)" do
-  %w[de es fr].each do |lang|
+  %w[de es fr it].each do |lang|
     describe lang do
       let(:checker) { Kotoshu::Grammar::Checker.new(language: lang) }
 
