@@ -66,3 +66,23 @@ model lands, these apply without re-litigating.
   dictionary packages are permitted with the gates.
 - Measurement law for CLE gates: the corpus is processed locally only;
   nothing from pk-cle-urdu is uploaded anywhere.
+
+## Job-fire and mount laws (HF Jobs)
+
+- **Job mounts read the WORKING TREE, through a never-delete bucket
+  cache.** Two failure modes this caused: (1) a stale local main ref
+  silently packaged with missing files (registry FileNotFoundError) —
+  always `git fetch origin main` and sync the tree before firing;
+  (2) campaign-only scripts absent from main ran as STALE BUCKET copies
+  from earlier fires (the pre-fix rebuild failed the bit-exact remap) —
+  every script a job needs lands on main first (cast_fp16_onnx,
+  rebuild_pruned_pieces: same class, both fixed).
+- **SCHEDULING rows are invisible in `hf jobs ps` AND `ps -a`** (like
+  terminal-row dropping). A fire that "produced no id" may be a QUEUED
+  fire that starts hours later when a slot drains — refiring it creates
+  a duplicate lane that races the same ckpt-vol. Attribute duplicates
+  by SUBMIT ORDER (the fire task's output ids flush on completion),
+  never by runtime (a queued job's runtime measures start, not submit);
+  cancel the duplicate BY EXACT ID.
+- **Terminal set is exactly {COMPLETED, ERROR, CANCELED}** — SCHEDULING
+  is not terminal; watchers must filter on the explicit set.
