@@ -150,7 +150,8 @@ module Kotoshu
         { suffix: "s", pos: :PLUR_NOUN }
       ].freeze
 
-      # @param language [String] the language code (en for now)
+      # @param language [String] the language code; "ur" dispatches to
+      #   the CLE-tagset lexicon tagger (reduced-tag view)
       def initialize(language: "en")
         @language = language
       end
@@ -160,6 +161,14 @@ module Kotoshu
       # @param text [String] the sentence to tag
       # @return [Array<Hash>] [{word:, pos:, lemma:, index:}]
       def tag(text)
+        if @language == "ur"
+          ur = Grammar::UrPosTagger.new(lexicon: Grammar::UrPosTagger.sample_lexicon)
+          return ur.tag(text).map do |tok|
+            { word: tok[:word],
+              pos: Grammar::UrPosTagger::REDUCED[tok[:pos]] || :UNKNOWN,
+              index: tok[:index] }
+          end
+        end
         words = tokenize(text)
         tokens = words.each_with_index.map do |word, i|
           { word: word, pos: pos_for(word, i, words), index: i }

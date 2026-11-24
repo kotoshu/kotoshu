@@ -164,7 +164,7 @@ module Kotoshu
       def tagged_tokens(tokens)
         return tokens if tokens.empty?
 
-        tagged = PosTagger.new.tag(tokens.map { |t| t[:word] }.join(" "))
+        tagged = PosTagger.new(language: @language).tag(tokens.map { |t| t[:word] }.join(" "))
         return tokens if tagged.length != tokens.length
 
         tokens.each_with_index do |tok, i|
