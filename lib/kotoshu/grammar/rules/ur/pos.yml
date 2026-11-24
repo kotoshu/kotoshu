@@ -1,8 +1,10 @@
 # Urdu grammar rules: first POS-keyed rule set (issue #280).
 # Keyed on the CLE Urdu POS Tagset through the UrPosTagger reduced view.
-# Validated against the complimentary 2k-token human-verified sample;
-# scaled on the 100K purchase. FP-budget law: rules that fire on clean
-# text are rejected — start minimal, grow only with clean-text evidence.
+# Validated against the complimentary 2k-token human-verified sample
+# (1,955 tokens: every pattern below has ZERO occurrences in the clean
+# sample text); scaled on the 100K purchase. FP-budget law: rules that
+# fire on clean text are rejected — start minimal, grow only with
+# clean-text evidence.
 
 - id: UR_AUX_PLURAL_AGREEMENT
   category: agreement
@@ -16,7 +18,35 @@
   suggestions:
     - template: "ہیں"
   examples:
-    - bad: "کتابیں ہے"
-      good: "کتابیں ہیں"
     - bad: "بچے ہے"
       good: "بچے ہیں"
+    - bad: "خاندانوں ہے"
+      good: "خاندانوں ہیں"
+
+- id: UR_PSP_DOUBLE
+  category: grammar
+  severity: error
+  language: ur
+  matcher: pos_sequence
+  pattern:
+    - { pos: ADP }
+    - { pos: ADP }
+  message: "دو متعاقب بعدۂ جماعتی (postpositions) — Urdu does not stack postpositions"
+  examples:
+    - bad: "اس کو کو پیغام پہنچا"
+      good: "اس کو پیغام پہنچا"
+    - bad: "لک کی کی شکایت"
+      good: "لک کی شکایت"
+
+- id: UR_FINITE_VERB_PSP
+  category: word-order
+  severity: warning
+  language: ur
+  matcher: pos_sequence
+  pattern:
+    - { pos: VERB }
+    - { pos: ADP }
+  message: "Finite verb directly followed by a postposition — postpositions attach to nouns, not finite verbs"
+  examples:
+    - bad: "وہ آیا کو گاؤں"
+      good: "وہ گاؤں کو آیا"

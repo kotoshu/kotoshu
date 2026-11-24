@@ -37,6 +37,21 @@ module Kotoshu
         "INJ" => :INTJ, "VALA" => :PART
       }.freeze
 
+      # The sample-scale lexicon compiled from the human-verified CLE
+      # sample (pk-cle-urdu, 2026-11-20: 1,955 tokens / 64 sentences /
+      # 854 unique words). The 100K human-reviewed purchase replaces it.
+      SAMPLE_LEXICON_FILE = File.expand_path("data/ur_pos_sample_lexicon.json", __dir__)
+
+      class << self
+        # Word → CLE tag from the verified sample; memoized.
+        def sample_lexicon
+          @sample_lexicon ||= begin
+            require "json"
+            JSON.parse(File.read(SAMPLE_LEXICON_FILE)).fetch("words", {})
+          end
+        end
+      end
+
       attr_reader :lexicon
 
       # @param lexicon [Hash<String, String>] word => CLE tag; empty by
