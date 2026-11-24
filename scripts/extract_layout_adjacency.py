@@ -8,6 +8,7 @@ import re
 import sys
 
 LAYOUTS = {
+    "de": "/Users/mulgogi/src/kotoshu/kotoshu/lib/kotoshu/keyboard/layouts/qwertz.rb",
     "tr": "/Users/mulgogi/src/kotoshu/kotoshu/lib/kotoshu/keyboard/layouts/turkish_q.rb",
     "el": "/Users/mulgogi/src/kotoshu/kotoshu/lib/kotoshu/keyboard/layouts/greek.rb",
     "uk": "/Users/mulgogi/src/kotoshu/kotoshu/lib/kotoshu/keyboard/layouts/ukrainian.rb",
