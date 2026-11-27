@@ -1,0 +1,190 @@
+# Polish starter rules — original orthography rules only (no third-
+# party rule data). Every bad form is unambiguously wrong in modern
+# Polish: the listed missing-ogonek forms are never valid spellings,
+# napewno/narazie never occur as single words, and native words never
+# double the l. One rule per replacement pair (the matcher swaps the
+# listed word verbatim). FP-budget law: nothing here can fire on
+# clean text.
+- id: PL_NAPEWNO
+  category: spelling
+  language: pl
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["napewno"]
+  message: "Rozdzielnie: 'na pewno'"
+  suggestions:
+    - replace_span: { with: "na pewno" }
+  examples:
+    - bad: "Napewno przyjdzie."
+      good: "Na pewno przyjdzie."
+
+- id: PL_NARAZIE
+  category: spelling
+  language: pl
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["narazie"]
+  message: "Rozdzielnie: 'na razie'"
+  suggestions:
+    - replace_span: { with: "na razie" }
+  examples:
+    - bad: "Narazie wystarczy."
+      good: "Na razie wystarczy."
+
+- id: PL_SEDZIA
+  category: spelling
+  language: pl
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["sedzia"]
+  message: "Rzeczownik z ą: 'sędzia'"
+  suggestions:
+    - replace: { word: sedzia, with: sędzia }
+  examples:
+    - bad: "Sedzia otworzył rozprawę."
+      good: "Sędzia otworzył rozprawę."
+
+- id: PL_PORZADKU
+  category: spelling
+  language: pl
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["porzadku"]
+  message: "Wyraz z ą: 'porządku'"
+  suggestions:
+    - replace: { word: porzadku, with: porządku }
+  examples:
+    - bad: "Wszystko jest w porzadku."
+      good: "Wszystko jest w porządku."
+
+- id: PL_PORZADNY
+  category: spelling
+  language: pl
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["porzadny", "porzadne", "porzadnie"]
+  message: "Wyrazy z ą: 'porządny', 'porządnie'"
+  suggestions:
+    - replace: { word: porzadny, with: porządny }
+    - replace: { word: porzadnie, with: porządnie }
+    - replace: { word: porzadne, with: porządne }
+  examples:
+    - bad: "To bardzo porzadny plan."
+      good: "To bardzo porządny plan."
+
+- id: PL_MOGE
+  category: spelling
+  language: pl
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["moge"]
+  message: "Forma z ę: 'mogę'"
+  suggestions:
+    - replace: { word: moge, with: mogę }
+  examples:
+    - bad: "Nie moge przyjsc."
+      good: "Nie mogę przyjść."
+
+- id: PL_MOGA
+  category: spelling
+  language: pl
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["moga"]
+  message: "Forma z ą: 'mogą'"
+  suggestions:
+    - replace: { word: moga, with: mogą }
+  examples:
+    - bad: "Oni moga pomóc."
+      good: "Oni mogą pomóc."
+
+- id: PL_BYLLEM
+  category: spelling
+  language: pl
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["byllem"]
+  message: "Forma z '-łem': 'byłem'"
+  suggestions:
+    - replace: { word: byllem, with: byłem }
+  examples:
+    - bad: "Byllem w domu."
+      good: "Byłem w domu."
+
+- id: PL_ZROBILLEM
+  category: spelling
+  language: pl
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["zrobillem"]
+  message: "Forma z '-łem': 'zrobiłem'"
+  suggestions:
+    - replace: { word: zrobillem, with: zrobiłem }
+  examples:
+    - bad: "Zrobillem to wczoraj."
+      good: "Zrobiłem to wczoraj."
+
+- id: PL_BYLAM
+  category: spelling
+  language: pl
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["bylam"]
+  message: "Forma z ą: 'byłam'"
+  suggestions:
+    - replace: { word: bylam, with: byłam }
+  examples:
+    - bad: "Bylam w domu."
+      good: "Byłam w domu."
+
+- id: PL_CZYTALAM
+  category: spelling
+  language: pl
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["czytalam"]
+  message: "Forma z ą: 'czytałam'"
+  suggestions:
+    - replace: { word: czytalam, with: czytałam }
+  examples:
+    - bad: "Czytalam cala noc."
+      good: "Czytałam całą noc."
+
+- id: PL_BEDZIE
+  category: spelling
+  language: pl
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["bedzie"]
+  message: "Forma z ę: 'będzie'"
+  suggestions:
+    - replace: { word: bedzie, with: będzie }
+  examples:
+    - bad: "Bedzie dobrze."
+      good: "Będzie dobrze."
+
+- id: PL_BEDE
+  category: spelling
+  language: pl
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["bede"]
+  message: "Forma z ę: 'będę'"
+  suggestions:
+    - replace: { word: bede, with: będę }
+  examples:
+    - bad: "Bede pracowac."
+      good: "Będę pracować."
