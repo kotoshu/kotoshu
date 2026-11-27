@@ -140,3 +140,177 @@
   examples:
     - bad: "Ich lese die Site."
       good: "Ich lese die Seite."
+
+# Orthography extension — wieder/wider compounds and hypercorrections.
+# Every bad form is unambiguously wrong in modern German prose (the
+# split forms "wieder sprechen" etc. are the only legitimate readings,
+# and they never occur written as one word), so flagging cannot fire on
+# clean text (FP-budget law). Pre-reform ß forms are deliberately
+# excluded — Swiss orthography uses ss legitimately.
+- id: DE_WIEDERSPIEGELN
+  category: spelling
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["wiederspiegeln", "wiederspiegelt", "wiederspiegelte"]
+  message: "Richtig: 'widerspiegeln' (wider-, nicht wieder-)"
+  suggestions:
+    - replace: { word: wiederspiegeln, with: widerspiegeln }
+  examples:
+    - bad: "Die Zahlen wiederspiegeln den Trend."
+      good: "Die Zahlen widerspiegeln den Trend."
+
+- id: DE_WIEDERSPRUCH
+  category: spelling
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["wiederspruch", "wiedersprüche", "wiedersprüche"]
+  message: "Richtig: 'Widerspruch' (wider-, großgeschrieben)"
+  suggestions:
+    - replace: { word: wiederspruch, with: Widerspruch }
+  examples:
+    - bad: "Das ist ein Wiederspruch."
+      good: "Das ist ein Widerspruch."
+
+- id: DE_WIEDERRUFEN
+  category: spelling
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["wiederrufen", "wiederruft", "wiederrief"]
+  message: "Richtig: 'widerrufen' (wider-, nicht wieder-)"
+  suggestions:
+    - replace: { word: wiederrufen, with: widerrufen }
+  examples:
+    - bad: "Ich widerrufe — ich habe wiederrufen."
+      good: "Ich widerrufe — ich habe widerrufen."
+
+- id: DE_WIEDERSPRECHEN
+  category: spelling
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["wiedersprechen", "wiederspricht", "wiedersprach"]
+  message: "Richtig: 'widersprechen' (wider-, nicht wieder-)"
+  suggestions:
+    - replace: { word: wiedersprechen, with: widersprechen }
+  examples:
+    - bad: "Ich muss wiedersprechen."
+      good: "Ich muss widersprechen."
+
+- id: DE_WIEDERWILLIG
+  category: spelling
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["wiederwillig"]
+  message: "Richtig: 'widerwillig' (wider-)"
+  suggestions:
+    - replace: { word: wiederwillig, with: widerwillig }
+  examples:
+    - bad: "Die Antwort fiel wiederwillig aus."
+      good: "Die Antwort fiel widerwillig aus."
+
+- id: DE_WIEDERHALL
+  category: spelling
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["wiederhall"]
+  message: "Richtig: 'Widerhall' (wider-, großgeschrieben)"
+  suggestions:
+    - replace: { word: wiederhall, with: Widerhall }
+  examples:
+    - bad: "Seine Worte fanden Wiederhall."
+      good: "Seine Worte fanden Widerhall."
+
+- id: DE_NAEHMLICH
+  category: spelling
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["nähmlich"]
+  message: "Richtig: 'nämlich' (ohne h)"
+  suggestions:
+    - replace: { word: nähmlich, with: nämlich }
+  examples:
+    - bad: "Es war nähmlich so."
+      good: "Es war nämlich so."
+
+- id: DE_SEPERAT
+  category: spelling
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["seperat", "seperate", "seperaten", "seperieren"]
+  message: "Richtig: 'separat' / 'separieren' (mit a)"
+  suggestions:
+    - replace: { word: seperat, with: separat }
+  examples:
+    - bad: "Das gilt nur seperat."
+      good: "Das gilt nur separat."
+
+- id: DE_AGGRESIV
+  category: spelling
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["aggresiv", "aggresive", "aggresiven"]
+  message: "Richtig: 'aggressiv' (mit Doppel-g)"
+  suggestions:
+    - replace: { word: aggresiv, with: aggressiv }
+  examples:
+    - bad: "Sein Ton war aggresiv."
+      good: "Sein Ton war aggressiv."
+
+- id: DE_INTERRESANT
+  category: spelling
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["interresant", "interresante", "interresanten"]
+  message: "Richtig: 'interessant' (mit Doppel-s)"
+  suggestions:
+    - replace: { word: interresant, with: interessant }
+  examples:
+    - bad: "Ein interresanter Vortrag."
+      good: "Ein interessanter Vortrag."
+
+- id: DE_SYMPATISCH
+  category: spelling
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["sympatisch", "sympatische", "sympatischen"]
+  message: "Richtig: 'sympathisch' (mit th)"
+  suggestions:
+    - replace: { word: sympatisch, with: sympathisch }
+  examples:
+    - bad: "Sie ist sehr sympatisch."
+      good: "Sie ist sehr sympathisch."
+
+- id: DE_AUFJEDENFALL
+  category: spelling
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["aufjedenfall"]
+  message: "Getrennt: 'auf jeden Fall' (Fall großgeschrieben)"
+  suggestions:
+    - replace_span: { with: "auf jeden Fall" }
+  examples:
+    - bad: "Aufjedenfall bleiben wir."
+      good: "Auf jeden Fall bleiben wir."
