@@ -1,0 +1,91 @@
+# Dutch starter rules — original orthography rules only (no third-
+# party rule data). Every bad form is unambiguously wrong in modern
+# Dutch prose (misspellings that never occur as valid spellings, or
+# one-letter-and-double-letter confusions where only one spelling
+# exists). FP-budget law: nothing here can fire on clean text.
+- id: NL_MISCHIEN
+  category: spelling
+  language: nl
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["mischien"]
+  message: "Juiste spelling: 'misschien' (dubbele s)"
+  suggestions:
+    - replace: { word: mischien, with: misschien }
+  examples:
+    - bad: "Mischien komt hij morgen."
+      good: "Misschien komt hij morgen."
+
+- id: NL_ALEEN
+  category: spelling
+  language: nl
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["aleen"]
+  message: "Juiste spelling: 'alleen' (dubbele l)"
+  suggestions:
+    - replace: { word: aleen, with: alleen }
+  examples:
+    - bad: "Ik ben aleen thuis."
+      good: "Ik ben alleen thuis."
+
+- id: NL_EIGELIJK
+  category: spelling
+  language: nl
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["eigelijk"]
+  message: "Juiste spelling: 'eigenlijk'"
+  suggestions:
+    - replace: { word: eigelijk, with: eigenlijk }
+  examples:
+    - bad: "Het is eigelijk logisch."
+      good: "Het is eigenlijk logisch."
+
+- id: NL_OMIDDELIJK
+  category: spelling
+  language: nl
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["omiddelijk", "onmidelelijk"]
+  message: "Juiste spelling: 'onmiddellijk'"
+  suggestions:
+    - replace: { word: omiddelijk, with: onmiddellijk }
+    - replace: { word: onmidelelijk, with: onmiddellijk }
+  examples:
+    - bad: "Ik kom omiddelijk terug."
+      good: "Ik kom onmiddellijk terug."
+
+- id: NL_WISSENSCHAPPELIJK
+  category: spelling
+  language: nl
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["wissenschappelijk", "wissenschappelijke"]
+  message: "Juiste spelling: 'wetenschappelijk' (t, niet s)"
+  suggestions:
+    - replace: { word: wissenschappelijk, with: wetenschappelijk }
+    - replace: { word: wissenschappelijke, with: wetenschappelijke }
+  examples:
+    - bad: "Wissenschappelijk bewijs ontbreekt."
+      good: "Wetenschappelijk bewijs ontbreekt."
+
+- id: NL_VERBAAST
+  category: spelling
+  language: nl
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["verbaast", "verbaaste"]
+  message: "Juiste spelling: 'verbaasd' (d aan het eind)"
+  suggestions:
+    - replace: { word: verbaast, with: verbaasd }
+    - replace: { word: verbaaste, with: verbaasde }
+  examples:
+    - bad: "Ik was verbaast."
+      good: "Ik was verbaasd."

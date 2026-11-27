@@ -1,0 +1,209 @@
+# Portuguese starter rules — original orthography rules only (no
+# third-party rule data). Unaccented forms listed here are never valid
+# Portuguese words, and the misspellings (excessão, previlégio,
+# mendingo, adevogado, beneficiente, agrassivo) never occur in clean
+# prose. The legally ambiguous pairs (esta/está, por que/porque) are
+# deliberately EXCLUDED — they need part-of-speech context (FP-budget
+# law). One rule per exact replacement pair.
+- id: PT_VOCE
+  category: accents
+  language: pt
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["voce", "voces"]
+  message: "Acentuação: 'você', 'vocês'"
+  suggestions:
+    - replace: { word: voce, with: você }
+    - replace: { word: voces, with: vocês }
+  examples:
+    - bad: "Voce vai comparecer?"
+      good: "Você vai comparecer?"
+
+- id: PT_NAO
+  category: accents
+  language: pt
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["nao"]
+  message: "Acentuação: 'não'"
+  suggestions:
+    - replace: { word: nao, with: não }
+  examples:
+    - bad: "Nao sei."
+      good: "Não sei."
+
+- id: PT_TAMBEM
+  category: accents
+  language: pt
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["tambem"]
+  message: "Acentuação: 'também'"
+  suggestions:
+    - replace: { word: tambem, with: também }
+  examples:
+    - bad: "Eu tambem vou."
+      good: "Eu também vou."
+
+- id: PT_JA
+  category: accents
+  language: pt
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["ja"]
+  message: "Acentuação: 'já'"
+  suggestions:
+    - replace: { word: ja, with: já }
+  examples:
+    - bad: "Ja terminei o relatorio."
+      good: "Já terminei o relatório."
+
+- id: PT_SO
+  category: accents
+  language: pt
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["so"]
+  message: "Acentuação: 'só'"
+  suggestions:
+    - replace: { word: so, with: só }
+  examples:
+    - bad: "So faltou o cafe."
+      good: "Só faltou o café."
+
+- id: PT_ATE
+  category: accents
+  language: pt
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["ate"]
+  message: "Acentuação: 'até'"
+  suggestions:
+    - replace: { word: ate, with: até }
+  examples:
+    - bad: "Fico ate amanha."
+      good: "Fico até amanhã."
+
+- id: PT_EXCESSAO
+  category: spelling
+  language: pt
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["excessao", "excessões"]
+  message: "Ortografia: 'exceção', 'exceções' (sem s duplo)"
+  suggestions:
+    - replace: { word: excessao, with: exceção }
+    - replace: { word: excessões, with: exceções }
+  examples:
+    - bad: "Sem excessao."
+      good: "Sem exceção."
+
+- id: PT_PREVILEGIO
+  category: spelling
+  language: pt
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["previlegio", "previlegios"]
+  message: "Ortografia: 'privilégio'"
+  suggestions:
+    - replace: { word: previlegio, with: privilégio }
+    - replace: { word: previlegios, with: privilégios }
+  examples:
+    - bad: "E um previlegio."
+      good: "É um privilégio."
+
+- id: PT_MENDINGO
+  category: spelling
+  language: pt
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["mendingo", "mendingos"]
+  message: "Ortografia: 'mendigo'"
+  suggestions:
+    - replace: { word: mendingo, with: mendigo }
+    - replace: { word: mendingos, with: mendigos }
+  examples:
+    - bad: "O mendingo pediu ajuda."
+      good: "O mendigo pediu ajuda."
+
+- id: PT_ADEVOGADO
+  category: spelling
+  language: pt
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["adevogado", "adevogada"]
+  message: "Ortografia: 'advogado', 'advogada'"
+  suggestions:
+    - replace: { word: adevogado, with: advogado }
+    - replace: { word: adevogada, with: advogada }
+  examples:
+    - bad: "Falei com o adevogado."
+      good: "Falei com o advogado."
+
+- id: PT_BENEFICIENTE
+  category: spelling
+  language: pt
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["beneficiente"]
+  message: "Ortografia: 'beneficente'"
+  suggestions:
+    - replace: { word: beneficiente, with: beneficente }
+  examples:
+    - bad: "A entidade beneficiente ajudou."
+      good: "A entidade beneficente ajudou."
+
+- id: PT_AGRASSIVO
+  category: spelling
+  language: pt
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["agrassivo", "agrassiva"]
+  message: "Ortografia: 'agressivo', 'agressiva'"
+  suggestions:
+    - replace: { word: agrassivo, with: agressivo }
+    - replace: { word: agrassiva, with: agressiva }
+  examples:
+    - bad: "Tom carregado de tom agrassivo."
+      good: "Tom carregado de tom agressivo."
+
+- id: PT_ASSISTENCIA
+  category: accents
+  language: pt
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["assistencia", "exigencia"]
+  message: "Acentuação: 'assistência', 'exigência'"
+  suggestions:
+    - replace: { word: assistencia, with: assistência }
+    - replace: { word: exigencia, with: exigência }
+  examples:
+    - bad: "Precisa de assistencia tecnica."
+      good: "Precisa de assistência técnica."
+
+- id: PT_MUITISSIMO
+  category: spelling
+  language: pt
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["muitissimo"]
+  message: "Ortografia: 'muchíssimo'"
+  suggestions:
+    - replace: { word: muitissimo, with: muchíssimo }
+  examples:
+    - bad: "Era muitissimo importante."
+      good: "Era muchíssimo importante."
