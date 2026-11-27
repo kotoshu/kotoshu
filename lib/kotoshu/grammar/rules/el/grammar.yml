@@ -1,0 +1,116 @@
+# Greek starter rules — original orthography rules only. Unaccented
+# function words are never valid Greek orthography; the forms listed
+# here always carry an accent in clean text. Legally ambiguous pairs
+# (οτι/ό,τι, ποιοι, τα) are excluded — they need context. FP-budget
+# law: nothing here can fire on clean Greek text.
+- id: EL_EINAI
+  category: accents
+  language: el
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["ειναι"]
+  message: "Τόνωση: 'είναι'"
+  suggestions:
+    - replace: { word: ειναι, with: είναι }
+  examples:
+    - bad: "Αυτο ειναι σωστο."
+      good: "Αυτό είναι σωστό."
+
+- id: EL_AUTO
+  category: accents
+  language: el
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["αυτο"]
+  message: "Τόνωση: 'αυτό'"
+  suggestions:
+    - replace: { word: αυτο, with: αυτό }
+  examples:
+    - bad: "Αυτο το βιβλιο."
+      good: "Αυτό το βιβλίο."
+
+- id: EL_GIATI
+  category: accents
+  language: el
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["γιατι"]
+  message: "Τόνωση: 'γιατί'"
+  suggestions:
+    - replace: { word: γιατι, with: γιατί }
+  examples:
+    - bad: "Γιατι το λες;"
+      good: "Γιατί το λες;"
+
+- id: EL_PREPEI
+  category: accents
+  language: el
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["πρεπει"]
+  message: "Τόνωση: 'πρέπει'"
+  suggestions:
+    - replace: { word: πρεπει, with: πρέπει }
+  examples:
+    - bad: "Πρεπει να φυγεις."
+      good: "Πρέπει να φύγεις."
+
+- id: EL_THELO
+  category: accents
+  language: el
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["θελω"]
+  message: "Τόνωση: 'θέλω'"
+  suggestions:
+    - replace: { word: θελω, with: θέλω }
+  examples:
+    - bad: "Θελω νερο."
+      good: "Θέλω νερό."
+
+- id: EL_MAZI
+  category: accents
+  language: el
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["μαζι"]
+  message: "Τόνωση: 'μαζί'"
+  suggestions:
+    - replace: { word: μαζι, with: μαζί }
+  examples:
+    - bad: "Ελα μαζι μου."
+      good: "Έλα μαζί μου."
+
+- id: EL_YPARCHOUN
+  category: accents
+  language: el
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["υπαρχουν"]
+  message: "Τόνωση: 'υπάρχουν'"
+  suggestions:
+    - replace: { word: υπαρχουν, with: υπάρχουν }
+  examples:
+    - bad: "Υπαρχουν λυσεις."
+      good: "Υπάρχουν λύσεις."
+
+- id: EL_OTI
+  category: accents
+  language: el
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["οτι"]
+  message: "Τόνωση: 'ότι'"
+  suggestions:
+    - replace: { word: οτι, with: ότι }
+  examples:
+    - bad: "Λεει οτι θα ερθει."
+      good: "Λέει ότι θα έρθει."
