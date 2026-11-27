@@ -1,0 +1,123 @@
+# Turkish starter rules — original orthography rules only. Every bad
+# form is unambiguously wrong in modern Turkish: the şey compounds are
+# always written separately, yanlış/yalnız need ı/a respectively, the
+# colloquial future forms (olucak, gelicek) never occur in standard
+# orthography, and Turkce lacks the umlaut. FP-budget law: nothing
+# here can fire on clean Turkish text.
+- id: TR_HERSEY
+  category: spelling
+  language: tr
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["herşey", "herşeyi", "herşeyin"]
+  message: "Ayrı yazılır: 'her şey'"
+  suggestions:
+    - replace: { word: herşey, with: "her şey" }
+    - replace: { word: herşeyi, with: "her şeyi" }
+    - replace: { word: herşeyin, with: "her şeyin" }
+  examples:
+    - bad: "Herşey yolunda."
+      good: "Her şey yolunda."
+
+- id: TR_BIRSEY
+  category: spelling
+  language: tr
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["birşey", "birşeyler"]
+  message: "Ayrı yazılır: 'bir şey'"
+  suggestions:
+    - replace: { word: birşey, with: "bir şey" }
+    - replace: { word: birşeyler, with: "bir şeyler" }
+  examples:
+    - bad: "Birşey anlatmadı."
+      good: "Bir şey anlatmadı."
+
+- id: TR_HICBIRSEY
+  category: spelling
+  language: tr
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["hiçbirşey"]
+  message: "Ayrı yazılır: 'hiçbir şey'"
+  suggestions:
+    - replace: { word: hiçbirşey, with: "hiçbir şey" }
+  examples:
+    - bad: "Hiçbirşey olmadı."
+      good: "Hiçbir şey olmadı."
+
+- id: TR_YANLIS
+  category: spelling
+  language: tr
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["yanlis"]
+  message: "Doğru yazım: 'yanlış' (ı harfi)"
+  suggestions:
+    - replace: { word: yanlis, with: yanlış }
+  examples:
+    - bad: "Bu cevap yanlis."
+      good: "Bu cevap yanlış."
+
+- id: TR_YANLIZ
+  category: spelling
+  language: tr
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["yanlız"]
+  message: "Doğru yazım: 'yalnız'"
+  suggestions:
+    - replace: { word: yanlız, with: yalnız }
+  examples:
+    - bad: "Yanlız kaldım."
+      good: "Yalnız kaldım."
+
+- id: TR_OLUCAK
+  category: spelling
+  language: tr
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["olucak", "olucaklar"]
+  message: "Standart yazım: 'olacak'"
+  suggestions:
+    - replace: { word: olucak, with: olacak }
+    - replace: { word: olucaklar, with: olacaklar }
+  examples:
+    - bad: "Her şey olucak."
+      good: "Her şey olacak."
+
+- id: TR_GELICEK
+  category: spelling
+  language: tr
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["gelicek", "gelicekler"]
+  message: "Standart yazım: 'gelecek'"
+  suggestions:
+    - replace: { word: gelicek, with: gelecek }
+    - replace: { word: gelicekler, with: gelecekler }
+  examples:
+    - bad: "Yarın gelicek."
+      good: "Yarın gelecek."
+
+- id: TR_TURKCE
+  category: spelling
+  language: tr
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["turkce", "turkcedir"]
+  message: "Doğru yazım: 'Türkçe' (ç ve ü ile)"
+  suggestions:
+    - replace: { word: turkce, with: Türkçe }
+    - replace: { word: turkcedir, with: "Türkçe'dir" }
+  examples:
+    - bad: "Turkce konusuyor."
+      good: "Türkçe konuşuyor."

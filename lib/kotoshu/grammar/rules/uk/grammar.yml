@@ -1,0 +1,104 @@
+- id: UK_IH
+  category: spelling
+  language: uk
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words:
+    - их
+  message: 'Українською: ''їх'' (не російське ''их'')'
+  suggestions:
+  - replace:
+      word: их
+      with: їх
+  examples:
+  - bad: их книга лежить тут.
+    good: їх книга лежить тут.
+- id: UK_PYAT_APOSTROPHE
+  category: apostrophes
+  language: uk
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words:
+    - пять
+  message: 'Апостроф: ''п''ять'''
+  suggestions:
+  - replace:
+      word: пять
+      with: п'ять
+  examples:
+  - bad: Дайте пять хвилин.
+    good: Дайте п'ять хвилин.
+- id: UK_OB_YEM
+  category: apostrophes
+  language: uk
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words:
+    - обєм
+  message: 'Апостроф: ''об''єм'''
+  suggestions:
+  - replace:
+      word: обєм
+      with: об'єм
+  examples:
+  - bad: Обєм роботи великий.
+    good: Об'єм роботи великий.
+- id: UK_SIM_YA
+  category: apostrophes
+  language: uk
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words:
+    - сімья
+  message: 'Апостроф: ''сім''я'''
+  suggestions:
+  - replace:
+      word: сімья
+      with: сім'я
+  examples:
+  - bad: Сімья зібралась вдома.
+    good: Сім'я зібралась вдома.
+- id: UK_PID_YIZD
+  category: apostrophes
+  language: uk
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words:
+    - підїзд
+  message: 'Апостроф: ''під''їзд'''
+  suggestions:
+  - replace:
+      word: підїзд
+      with: під'їзд
+  examples:
+  - bad: Підїзд зачинено.
+    good: Під'їзд зачинено.
+- id: UK_LATIN_I
+  category: spelling
+  language: uk
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words:
+    - мiсто
+    - мiж
+    - тiльки
+  message: Латинська 'i' всередині кириличного слова
+  suggestions:
+  - replace:
+      word: мiсто
+      with: місто
+  - replace:
+      word: мiж
+      with: між
+  - replace:
+      word: тiльки
+      with: тільки
+  examples:
+  - bad: Мiсто велике.
+    good: Місто велике.
