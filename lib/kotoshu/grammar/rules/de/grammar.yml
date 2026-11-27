@@ -1,316 +1,416 @@
-# German starter rules (TODO.grammar/10). Word constraints only —
-# the shared tagger is English; these rules are language-agnostic.
-
 - id: DE_SEIT_SEID_TIME
   category: confusion
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["seid dem", "seid Jahren", "seid gestern", "seid heute", "seid Anfang"]
-  message: "Zeitliches 'seit' ohne d (seit dem, seit Jahren)"
+    words:
+    - seid dem
+    - seid Jahren
+    - seid gestern
+    - seid heute
+    - seid Anfang
+  message: Zeitliches 'seit' ohne d (seit dem, seit Jahren)
   suggestions:
-    - replace: { word: seid, with: seit }
+  - replace:
+      word: seid
+      with: seit
   examples:
-    - bad: "Ich warte seid dem Morgen."
-      good: "Ich warte seit dem Morgen."
-
+  - bad: Ich warte seid dem Morgen.
+    good: Ich warte seit dem Morgen.
 - id: DE_SEID_SEIT_IHR
   category: confusion
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["seit ihr", "seit Sie"]
-  message: "Verbform 'seid' (ihr seid), nicht 'seit'"
+    words:
+    - seit ihr
+    - seit Sie
+  message: Verbform 'seid' (ihr seid), nicht 'seit'
   suggestions:
-    - replace: { word: seit, with: seid }
+  - replace:
+      word: seit
+      with: seid
   examples:
-    - bad: "Wo seit ihr gewesen?"
-      good: "Wo seid ihr gewesen?"
-
+  - bad: Wo seit ihr gewesen?
+    good: Wo seid ihr gewesen?
 - id: DE_BESSER_WIE
   category: comparison
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["besser wie", "größer wie", "kleiner wie", "mehr wie", "schlechter wie", "schneller wie", "höher wie", "tiefer wie"]
-  message: "Vergleich mit 'als', nicht 'wie'"
+    words:
+    - besser wie
+    - größer wie
+    - kleiner wie
+    - mehr wie
+    - schlechter wie
+    - schneller wie
+    - höher wie
+    - tiefer wie
+  message: Vergleich mit 'als', nicht 'wie'
   suggestions:
-    - replace: { word: wie, with: als }
+  - replace:
+      word: wie
+      with: als
   examples:
-    - bad: "Das ist besser wie vorher."
-      good: "Das ist besser als vorher."
-
+  - bad: Das ist besser wie vorher.
+    good: Das ist besser als vorher.
 - id: DE_STANDART
   category: spelling
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["Standart", "standart", "Standarts", "standartmäßig"]
-  message: "Richtig: 'Standard' (mit d)"
+    words:
+    - Standart
+    - standart
+    - Standarts
+    - standartmäßig
+  message: 'Richtig: ''Standard'' (mit d)'
   suggestions:
-    - replace: { word: Standart, with: Standard }
+  - replace:
+      word: Standart
+      with: Standard
   examples:
-    - bad: "Das ist der Standart."
-      good: "Das ist der Standard."
-
+  - bad: Das ist der Standart.
+    good: Das ist der Standard.
 - id: DE_GARNICHT
   category: spelling
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["garnicht", "garnichts"]
-  message: "Getrennt: 'gar nicht'"
+    words:
+    - garnicht
+    - garnichts
+  message: 'Getrennt: ''gar nicht'''
   suggestions:
-    - replace: { word: garnicht, with: "gar nicht" }
+  - replace:
+      word: garnicht
+      with: gar nicht
   examples:
-    - bad: "Das gefällt mir garnicht."
-      good: "Das gefällt mir gar nicht."
-
+  - bad: Das gefällt mir garnicht.
+    good: Das gefällt mir gar nicht.
 - id: DES_WEITEREN
   category: capitalization
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["des weiteren", "im übrigen", "im voraus", "zumteil"]
-  message: "Feste Wendungen werden großgeschrieben"
+    words:
+    - des weiteren
+  message: Feste Wendung wird großgeschrieben
   suggestions:
-    - replace_span: { with: "Des Weiteren" }
+  - replace_span:
+      with: Des Weiteren
   examples:
-    - bad: "Des weiteren brauchen wir Zeit."
-      good: "Des Weiteren brauchen wir Zeit."
-
+  - bad: Des weiteren brauchen wir Zeit.
+    good: Des Weiteren brauchen wir Zeit.
+- id: IM_UEBRIGEN
+  category: capitalization
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words:
+    - im übrigen
+  message: Feste Wendung wird großgeschrieben
+  suggestions:
+  - replace_span:
+      with: Im Übrigen
+  examples:
+  - bad: Im übrigen stimmt das.
+    good: Im Übrigen stimmt das.
+- id: IM_VORAUS
+  category: capitalization
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words:
+    - im voraus
+  message: Feste Wendung wird großgeschrieben
+  suggestions:
+  - replace_span:
+      with: im Voraus
+  examples:
+  - bad: Danke im voraus.
+    good: Danke im Voraus.
+- id: ZUMTEIL
+  category: spelling
+  language: de
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words:
+    - zumteil
+  message: 'Getrennt: ''zum Teil'''
+  suggestions:
+  - replace_span:
+      with: zum Teil
+  examples:
+  - bad: Zumteil stimmt das.
+    good: Zum Teil stimmt das.
 - id: DE_ICH_IST
   category: agreement
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["ich ist", "ich sind", "wir ist", "ihr sind"]
-  message: "Falsche Verbform: ich bin, wir sind, ihr seid"
+    words:
+    - ich ist
+    - ich sind
+    - wir ist
+    - ihr sind
+  message: 'Falsche Verbform: ich bin, wir sind, ihr seid'
   suggestions:
-    - replace: { word: ist, with: bin }
+  - replace:
+      word: ist
+      with: bin
   examples:
-    - bad: "Ich ist müde."
-      good: "Ich bin müde."
-
+  - bad: Ich ist müde.
+    good: Ich bin müde.
 - id: DE_WIR_SEID
   category: agreement
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["wir seid", "ihr sind"]
-  message: "Falsche Form von 'sein': wir sind, ihr seid"
+    words:
+    - wir seid
+    - ihr sind
+  message: 'Falsche Form von ''sein'': wir sind, ihr seid'
   suggestions:
-    - replace: { word: seid, with: sind }
+  - replace:
+      word: seid
+      with: sind
   examples:
-    - bad: "Wir seid bereit."
-      good: "Wir sind bereit."
-
+  - bad: Wir seid bereit.
+    good: Wir sind bereit.
 - id: DE_NICHTSDESTOTROTZ
   category: spelling
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["nichts desto trotz"]
-  message: "Zusammengeschrieben: 'nichtsdestotrotz'"
+    words:
+    - nichts desto trotz
+  message: 'Zusammengeschrieben: ''nichtsdestotrotz'''
   suggestions:
-    - replace_span: { with: "nichtsdestotrotz" }
+  - replace_span:
+      with: nichtsdestotrotz
   examples:
-    - bad: "Nichts desto trotz gehen wir."
-      good: "Nichtsdestotrotz gehen wir."
-
+  - bad: Nichts desto trotz gehen wir.
+    good: Nichtsdestotrotz gehen wir.
 - id: DE_SITE
   category: confusion
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["die Site", "eine Site lesen", "auf der Site stehen"]
-  message: "Eine Webseite ist die 'Seite'"
+    words:
+    - die Site
+    - eine Site lesen
+    - auf der Site stehen
+  message: Eine Webseite ist die 'Seite'
   suggestions:
-    - replace: { word: Site, with: Seite }
+  - replace:
+      word: Site
+      with: Seite
   examples:
-    - bad: "Ich lese die Site."
-      good: "Ich lese die Seite."
-
-# Orthography extension — wieder/wider compounds and hypercorrections.
-# Every bad form is unambiguously wrong in modern German prose (the
-# split forms "wieder sprechen" etc. are the only legitimate readings,
-# and they never occur written as one word), so flagging cannot fire on
-# clean text (FP-budget law). Pre-reform ß forms are deliberately
-# excluded — Swiss orthography uses ss legitimately.
+  - bad: Ich lese die Site.
+    good: Ich lese die Seite.
 - id: DE_WIEDERSPIEGELN
   category: spelling
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["wiederspiegeln", "wiederspiegelt", "wiederspiegelte"]
-  message: "Richtig: 'widerspiegeln' (wider-, nicht wieder-)"
+    words:
+    - wiederspiegeln
+  message: 'Richtig: ''widerspiegeln'' (wider-, nicht wieder-)'
   suggestions:
-    - replace: { word: wiederspiegeln, with: widerspiegeln }
+  - replace:
+      word: wiederspiegeln
+      with: widerspiegeln
   examples:
-    - bad: "Die Zahlen wiederspiegeln den Trend."
-      good: "Die Zahlen widerspiegeln den Trend."
-
+  - bad: Die Zahlen wiederspiegeln den Trend.
+    good: Die Zahlen widerspiegeln den Trend.
 - id: DE_WIEDERSPRUCH
   category: spelling
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["wiederspruch", "wiedersprüche", "wiedersprüche"]
-  message: "Richtig: 'Widerspruch' (wider-, großgeschrieben)"
+    words:
+    - wiederspruch
+  message: 'Richtig: ''Widerspruch'' (wider-, großgeschrieben)'
   suggestions:
-    - replace: { word: wiederspruch, with: Widerspruch }
+  - replace:
+      word: wiederspruch
+      with: Widerspruch
   examples:
-    - bad: "Das ist ein Wiederspruch."
-      good: "Das ist ein Widerspruch."
-
+  - bad: Das ist ein Wiederspruch.
+    good: Das ist ein Widerspruch.
 - id: DE_WIEDERRUFEN
   category: spelling
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["wiederrufen", "wiederruft", "wiederrief"]
-  message: "Richtig: 'widerrufen' (wider-, nicht wieder-)"
+    words:
+    - wiederrufen
+  message: 'Richtig: ''widerrufen'' (wider-, nicht wieder-)'
   suggestions:
-    - replace: { word: wiederrufen, with: widerrufen }
+  - replace:
+      word: wiederrufen
+      with: widerrufen
   examples:
-    - bad: "Ich widerrufe — ich habe wiederrufen."
-      good: "Ich widerrufe — ich habe widerrufen."
-
+  - bad: Ich widerrufe — ich habe wiederrufen.
+    good: Ich widerrufe — ich habe widerrufen.
 - id: DE_WIEDERSPRECHEN
   category: spelling
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["wiedersprechen", "wiederspricht", "wiedersprach"]
-  message: "Richtig: 'widersprechen' (wider-, nicht wieder-)"
+    words:
+    - wiedersprechen
+  message: 'Richtig: ''widersprechen'' (wider-, nicht wieder-)'
   suggestions:
-    - replace: { word: wiedersprechen, with: widersprechen }
+  - replace:
+      word: wiedersprechen
+      with: widersprechen
   examples:
-    - bad: "Ich muss wiedersprechen."
-      good: "Ich muss widersprechen."
-
+  - bad: Ich muss wiedersprechen.
+    good: Ich muss widersprechen.
 - id: DE_WIEDERWILLIG
   category: spelling
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["wiederwillig"]
-  message: "Richtig: 'widerwillig' (wider-)"
+    words:
+    - wiederwillig
+  message: 'Richtig: ''widerwillig'' (wider-)'
   suggestions:
-    - replace: { word: wiederwillig, with: widerwillig }
+  - replace:
+      word: wiederwillig
+      with: widerwillig
   examples:
-    - bad: "Die Antwort fiel wiederwillig aus."
-      good: "Die Antwort fiel widerwillig aus."
-
+  - bad: Die Antwort fiel wiederwillig aus.
+    good: Die Antwort fiel widerwillig aus.
 - id: DE_WIEDERHALL
   category: spelling
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["wiederhall"]
-  message: "Richtig: 'Widerhall' (wider-, großgeschrieben)"
+    words:
+    - wiederhall
+  message: 'Richtig: ''Widerhall'' (wider-, großgeschrieben)'
   suggestions:
-    - replace: { word: wiederhall, with: Widerhall }
+  - replace:
+      word: wiederhall
+      with: Widerhall
   examples:
-    - bad: "Seine Worte fanden Wiederhall."
-      good: "Seine Worte fanden Widerhall."
-
+  - bad: Seine Worte fanden Wiederhall.
+    good: Seine Worte fanden Widerhall.
 - id: DE_NAEHMLICH
   category: spelling
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["nähmlich"]
-  message: "Richtig: 'nämlich' (ohne h)"
+    words:
+    - nähmlich
+  message: 'Richtig: ''nämlich'' (ohne h)'
   suggestions:
-    - replace: { word: nähmlich, with: nämlich }
+  - replace:
+      word: nähmlich
+      with: nämlich
   examples:
-    - bad: "Es war nähmlich so."
-      good: "Es war nämlich so."
-
+  - bad: Es war nähmlich so.
+    good: Es war nämlich so.
 - id: DE_SEPERAT
   category: spelling
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["seperat", "seperate", "seperaten", "seperieren"]
-  message: "Richtig: 'separat' / 'separieren' (mit a)"
+    words:
+    - seperat
+  message: 'Richtig: ''separat'' / ''separieren'' (mit a)'
   suggestions:
-    - replace: { word: seperat, with: separat }
+  - replace:
+      word: seperat
+      with: separat
   examples:
-    - bad: "Das gilt nur seperat."
-      good: "Das gilt nur separat."
-
+  - bad: Das gilt nur seperat.
+    good: Das gilt nur separat.
 - id: DE_AGGRESIV
   category: spelling
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["aggresiv", "aggresive", "aggresiven"]
-  message: "Richtig: 'aggressiv' (mit Doppel-g)"
+    words:
+    - aggresiv
+  message: 'Richtig: ''aggressiv'' (mit Doppel-g)'
   suggestions:
-    - replace: { word: aggresiv, with: aggressiv }
+  - replace:
+      word: aggresiv
+      with: aggressiv
   examples:
-    - bad: "Sein Ton war aggresiv."
-      good: "Sein Ton war aggressiv."
-
+  - bad: Sein Ton war aggresiv.
+    good: Sein Ton war aggressiv.
 - id: DE_INTERRESANT
   category: spelling
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["interresant", "interresante", "interresanten"]
-  message: "Richtig: 'interessant' (mit Doppel-s)"
+    words:
+    - interresant
+  message: 'Richtig: ''interessant'' (mit Doppel-s)'
   suggestions:
-    - replace: { word: interresant, with: interessant }
+  - replace:
+      word: interresant
+      with: interessant
   examples:
-    - bad: "Ein interresanter Vortrag."
-      good: "Ein interessanter Vortrag."
-
+  - bad: Ein interresanter Vortrag.
+    good: Ein interessanter Vortrag.
 - id: DE_SYMPATISCH
   category: spelling
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["sympatisch", "sympatische", "sympatischen"]
-  message: "Richtig: 'sympathisch' (mit th)"
+    words:
+    - sympatisch
+  message: 'Richtig: ''sympathisch'' (mit th)'
   suggestions:
-    - replace: { word: sympatisch, with: sympathisch }
+  - replace:
+      word: sympatisch
+      with: sympathisch
   examples:
-    - bad: "Sie ist sehr sympatisch."
-      good: "Sie ist sehr sympathisch."
-
+  - bad: Sie ist sehr sympatisch.
+    good: Sie ist sehr sympathisch.
 - id: DE_AUFJEDENFALL
   category: spelling
   language: de
   matcher: word_list
   pattern:
     case_sensitive: false
-    words: ["aufjedenfall"]
-  message: "Getrennt: 'auf jeden Fall' (Fall großgeschrieben)"
+    words:
+    - aufjedenfall
+  message: 'Getrennt: ''auf jeden Fall'' (Fall großgeschrieben)'
   suggestions:
-    - replace_span: { with: "auf jeden Fall" }
+  - replace_span:
+      with: auf jeden Fall
   examples:
-    - bad: "Aufjedenfall bleiben wir."
-      good: "Auf jeden Fall bleiben wir."
+  - bad: Aufjedenfall bleiben wir.
+    good: Auf jeden Fall bleiben wir.
