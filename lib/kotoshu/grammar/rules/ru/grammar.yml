@@ -1,0 +1,92 @@
+# Russian starter rules — original orthography rules only. Every bad
+# form is unambiguously wrong in standard Russian prose. The тся/ться
+# and так же/также pairs are deliberately EXCLUDED — they need
+# part-of-speech context (FP-budget law). One rule per exact
+# replacement pair.
+- id: RU_VOOBSHCHEM
+  category: spelling
+  language: ru
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["вообщем"]
+  message: "Раздельно: «в общем»"
+  suggestions:
+    - replace_span: { with: "в общем" }
+  examples:
+    - bad: "Вообщем всё ясно."
+      good: "В общем всё ясно."
+
+- id: RU_IHNIY
+  category: spelling
+  language: ru
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["ихний", "ихняя", "ихнее"]
+  message: "Правильно: «их»"
+  suggestions:
+    - replace: { word: ихний, with: их }
+    - replace: { word: ихняя, with: их }
+    - replace: { word: ихнее, with: их }
+  examples:
+    - bad: "Это ихний дом."
+      good: "Это их дом."
+
+- id: RU_KOLLICHESTVO
+  category: spelling
+  language: ru
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["колличество", "колличестов"]
+  message: "Правильно: «количество» (с одним л)"
+  suggestions:
+    - replace: { word: колличество, with: количество }
+    - replace: { word: колличестов, with: количество }
+  examples:
+    - bad: "Колличество ошибок растёт."
+      good: "Количество ошибок растёт."
+
+- id: RU_SDES
+  category: spelling
+  language: ru
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["сдесь", "щас"]
+  message: "Правильно: «здесь»"
+  suggestions:
+    - replace: { word: сдесь, with: здесь }
+  examples:
+    - bad: "Сдесь темно."
+      good: "Здесь темно."
+
+- id: RU_OPREDILIT
+  category: spelling
+  language: ru
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["опредилить", "опредиление"]
+  message: "Правильно: «определить», «определение»"
+  suggestions:
+    - replace: { word: опредилить, with: определить }
+    - replace: { word: опредиление, with: определение }
+  examples:
+    - bad: "Нужно опредилить срок."
+      good: "Нужно определить срок."
+
+- id: RU_ZHYZN
+  category: spelling
+  language: ru
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["жызнь"]
+  message: "Правильно: «жизнь» (жи-ши пишутся с и)"
+  suggestions:
+    - replace: { word: жызнь, with: жизнь }
+  examples:
+    - bad: "Жызнь продолжается."
+      good: "Жизнь продолжается."

@@ -1,0 +1,61 @@
+# Korean starter rules — original orthography rules only. The forms
+# listed here are never valid hangul spellings: 왠일/어떻해/되요/됬어
+# are the classic mis-forms of 웬일/어떡해/돼요/됐어. Spacing (띄어쓰기)
+# errors are deliberately EXCLUDED — they flood casual prose (FP-budget
+# law). One rule per exact replacement pair.
+- id: KO_WENIL
+  category: spelling
+  language: ko
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["왠일"]
+  message: "바른 표기: '웬일'"
+  suggestions:
+    - replace: { word: 왠일, with: 웬일 }
+  examples:
+    - bad: "왠일인지 기분이 좋다."
+      good: "웬일인지 기분이 좋다."
+
+- id: KO_EOTTEOKHAE
+  category: spelling
+  language: ko
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["어떻해"]
+  message: "바른 표기: '어떡해'"
+  suggestions:
+    - replace: { word: 어떻해, with: 어떡해 }
+  examples:
+    - bad: "이제 어떻해."
+      good: "이제 어떡해."
+
+- id: KO_DOEYO
+  category: spelling
+  language: ko
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["되요"]
+  message: "바른 표기: '돼요'"
+  suggestions:
+    - replace: { word: 되요, with: 돼요 }
+  examples:
+    - bad: "그렇게 되요."
+      good: "그렇게 돼요."
+
+- id: KO_DWESSEO
+  category: spelling
+  language: ko
+  matcher: word_list
+  pattern:
+    case_sensitive: false
+    words: ["됬어", "됬다"]
+  message: "바른 표기: '됐어', '됐다'"
+  suggestions:
+    - replace: { word: 됬어, with: 됐어 }
+    - replace: { word: 됬다, with: 됐다 }
+  examples:
+    - bad: "이미 됬어."
+      good: "이미 됐어."
