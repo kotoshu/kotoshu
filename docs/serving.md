@@ -86,3 +86,29 @@ model lands, these apply without re-litigating.
   cancel the duplicate BY EXACT ID.
 - **Terminal set is exactly {COMPLETED, ERROR, CANCELED}** — SCHEDULING
   is not terminal; watchers must filter on the explicit set.
+
+## Runner-era laws (shelf-completion campaign, 2026-11)
+
+- **Heavy loads run on HF Jobs — never on the workstation.** Gate
+  decodes, calibration sweeps, perf measurements, trains: all are
+  runner jobs (ruby:3.4 + `gem install kotoshu onnxruntime` Linux
+  prebuilts, tree ruby code via `-I/app/lib`). The workstation is for
+  file and spec work only.
+- **HF list_jobs() exposes NO usable name attribute.** Watch jobs by
+  ID PREFIX; capture the `id=` line of each fire into a watch file.
+- **Job containers are ephemeral.** Every artifact a gate produces
+  (decoded output, score JSON) uploads to kotoshu/gec-artifacts before
+  job end, or it is lost. The hub library uploads work from jobs; the
+  local python httpx2/brotli stack breaks large DOWNLOADS — download
+  via curl against the resolve endpoint.
+- **Segmenter laws for CJK decodes: ja decodes REQUIRE SEG.ja (suika)**
+  — the whitespace fallback turns every Japanese line into one token
+  and yields a vacuous zero; zh decodes REQUIRE the ZhSegmenter (and
+  zh_segmenter.rb present in the mounted tree). ko decodes direct.
+- **Rule-content law (PatternRule):** the matcher swaps the listed word
+  verbatim, so one rule must map one exact surface to its exact fix —
+  multi-form word lists with a single replace entry suggest unchanged
+  text for the unmapped forms. One rule per exact replacement pair.
+- **Batch gate jobs withhold ALL output until the slowest slice
+  finishes.** One job per slice beats multi-slice batches: logs stay
+  visible and a stuck slice cannot hold others' results hostage.
