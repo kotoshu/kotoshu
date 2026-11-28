@@ -756,7 +756,7 @@ Manages Hunspell dictionaries and grammar rules for spell checking.
 * **Source**: https://github.com/kotoshu/dictionaries[kotoshu/dictionaries]
 * **Resources per language**:
   ** `spelling/`**: Hunspell dictionary (`index.dic`, `index.aff`)
-  ** `grammar/`**: Grammar rules (`rules.yaml`) - *future*
+  ** `grammar/`**: Grammar rules (`grammar.yml`, original rule sets — tiers shipped for fourteen languages)
   ** `frequency/`**: Frequency data - *deprecated, use FrequencyCache*
 
 .Usage
