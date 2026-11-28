@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Kotoshu::Grammar::UrPosTagger
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Grammar::UrPosTagger";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (U)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Grammar.html" title="Kotoshu::Grammar (module)">Grammar</a></span></span>
+     &raquo; 
+    <span class="title">UrPosTagger</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Kotoshu::Grammar::UrPosTagger
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Kotoshu::Grammar::UrPosTagger</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/grammar/pos_tagger_ur.rb
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>Urdu POS tagger over the CLE tagset (issue #279) — the lexicon
+variant of <span class='object_link'><a href="PosTagger.html" title="Kotoshu::Grammar::PosTagger (class)">PosTagger</a></span>. The purchased 100k-word human-reviewed
+CLE corpus compiles into the lexicon (word → tag); until then the
+tagger covers the small closed classes that are stable Urdu
+grammar (postpositions, auxiliaries, negation, punctuation) and
+answers UNKNOWN for open-class words, so callers can route
+unknown tokens however they need.</p>
+<p>The serving contract matches <span class='object_link'><a href="PosTagger.html" title="Kotoshu::Grammar::PosTagger (class)">PosTagger</a></span>: <code>tag</code> returns
+[pos:, index:] per token.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="POSTPOSITIONS-constant" class="">POSTPOSITIONS =
+          <div class="docstring">
+  <div class="discussion">
+    <p>Stable Urdu closed classes — safe to embed pre-lexicon.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='qwords_beg'>%w[</span><span class='tstring_content'>کو</span><span class='words_sep'> </span><span class='tstring_content'>کی</span><span class='words_sep'> </span><span class='tstring_content'>کے</span><span class='words_sep'> </span><span class='tstring_content'>سے</span><span class='words_sep'> </span><span class='tstring_content'>میں</span><span class='words_sep'> </span><span class='tstring_content'>نے</span><span class='words_sep'> </span><span class='tstring_content'>پر</span><span class='words_sep'> </span><span class='tstring_content'>تک</span><span class='words_sep'> </span><span class='tstring_content'>بعد</span><span class='words_sep'> </span><span class='tstring_content'>بغیر</span><span class='words_sep'> </span><span class='tstring_content'>جیسا</span><span class='words_sep'> </span><span class='tstring_content'>جیسے</span><span class='words_sep'> </span><span class='tstring_content'>لیے</span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+        <dt id="AUXILIARIES-constant" class="">AUXILIARIES =
+          
+        </dt>
+        <dd><pre class="code"><span class='qwords_beg'>%w[</span><span class='tstring_content'>ہے</span><span class='words_sep'> </span><span class='tstring_content'>ہیں</span><span class='words_sep'> </span><span class='tstring_content'>ہوں</span><span class='words_sep'> </span><span class='tstring_content'>تھا</span><span class='words_sep'> </span><span class='tstring_content'>تھی</span><span class='words_sep'> </span><span class='tstring_content'>تھے</span><span class='words_sep'> </span><span class='tstring_content'>تھاں</span><span class='words_sep'> </span><span class='tstring_content'>ہوگا</span><span class='words_sep'> </span><span class='tstring_content'>ہوگی</span><span class='words_sep'> </span><span class='tstring_content'>رہا</span><span class='words_sep'> </span><span class='tstring_content'>رہی</span><span class='words_sep'> </span><span class='tstring_content'>رہے</span><span class='words_sep'> </span><span class='tstring_content'>سکتا</span><span class='words_sep'> </span><span class='tstring_content'>سکتی</span><span class='words_sep'> </span><span class='tstring_content'>سکتے</span><span class='words_sep'> </span><span class='tstring_content'>چاہئے</span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+        <dt id="NEGATIONS-constant" class="">NEGATIONS =
+          
+        </dt>
+        <dd><pre class="code"><span class='qwords_beg'>%w[</span><span class='tstring_content'>نہیں</span><span class='words_sep'> </span><span class='tstring_content'>نہ</span><span class='words_sep'> </span><span class='tstring_content'>مت</span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+        <dt id="PRONOUNS-constant" class="">PRONOUNS =
+          
+        </dt>
+        <dd><pre class="code"><span class='qwords_beg'>%w[</span><span class='tstring_content'>وہ</span><span class='words_sep'> </span><span class='tstring_content'>یہ</span><span class='words_sep'> </span><span class='tstring_content'>میں</span><span class='words_sep'> </span><span class='tstring_content'>ہم</span><span class='words_sep'> </span><span class='tstring_content'>تم</span><span class='words_sep'> </span><span class='tstring_content'>آپ</span><span class='words_sep'> </span><span class='tstring_content'>اس</span><span class='words_sep'> </span><span class='tstring_content'>اسے</span><span class='words_sep'> </span><span class='tstring_content'>اسکا</span><span class='words_sep'> </span><span class='tstring_content'>اُس</span><span class='words_sep'> </span><span class='tstring_content'>ہماری</span><span class='words_sep'> </span><span class='tstring_content'>تمہاری</span><span class='words_sep'> </span><span class='tstring_content'>انہوں</span><span class='words_sep'> </span><span class='tstring_content'>نے</span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+        <dt id="PUNCT_RE-constant" class="">PUNCT_RE =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\A\p{P}+\z</span><span class='regexp_end'>/</span></span></pre></dd>
+      
+        <dt id="REDUCED-constant" class="">REDUCED =
+          <div class="docstring">
+  <div class="discussion">
+    <p>CLE tag → reduced tag for the grammar-rule consumers (the
+reduced vocabulary the English PosTagger uses).</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>NN</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:NOUN</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>NNP</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:PROPER_NOUN</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>VB</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:VERB_BASE</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>VBF</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:VERB</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>VBI</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:VERB_BASE</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>AUXT</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:AUX</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>AUXA</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:AUX</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>AUXM</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:AUX</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>AUXP</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:AUX</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PRP</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:PRON</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PRR</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:PRON</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PRS</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:PRON</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PRD</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:PRON</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PRF</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:PRON</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>APNA</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:PRON</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PSP</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:ADP</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>JJ</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:ADJ</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>RB</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:ADV</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PRT</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:PART</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>NEG</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:NEG</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PDM</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:DET</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Q</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:DET</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CC</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:CONJ</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SC</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:CONJ</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SCK</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:CONJ</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SCP</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:CONJ</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CD</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:NUM</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>OD</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:NUM</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PU</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:PUNCT</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SYM</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:PUNCT</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>INJ</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:INTJ</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>VALA</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='symbol'>:PART</span>
+<span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+        <dt id="SAMPLE_LEXICON_FILE-constant" class="">SAMPLE_LEXICON_FILE =
+          <div class="docstring">
+  <div class="discussion">
+    <p>The sample-scale lexicon compiled from the human-verified CLE
+sample (pk-cle-urdu, 2026-11-20: 1,955 tokens / 64 sentences /
+854 unique words). The 100K human-reviewed purchase replaces it.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_expand_path'>expand_path</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>data/ur_pos_sample_lexicon.json</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid___dir__'>__dir__</span><span class='rparen'>)</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#lexicon-instance_method" title="#lexicon (instance method)">#<strong>lexicon</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute lexicon.</p></div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sample_lexicon-class_method" title="sample_lexicon (class method)">.<strong>sample_lexicon</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Word → CLE tag from the verified sample; memoized.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#compile_lexicon-instance_method" title="#compile_lexicon (instance method)">#<strong>compile_lexicon</strong>(pairs)  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Compile the lexicon from parsed CLE pairs (the 100K purchase drops in here).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(lexicon: {})  &#x21d2; UrPosTagger </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>A new instance of UrPosTagger.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#tag-instance_method" title="#tag (instance method)">#<strong>tag</strong>(text)  &#x21d2; Array&lt;Hash&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Tag a sentence: token hashes matching the English tagger contract.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#tag_reduced-instance_method" title="#tag_reduced (instance method)">#<strong>tag_reduced</strong>(text)  &#x21d2; Array&lt;Hash&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Reduced-tag view for the rule engine.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#tokenize-instance_method" title="#tokenize (instance method)">#<strong>tokenize</strong>(text)  &#x21d2; Array&lt;String&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Urdu tokenizes on whitespace; punctuation ۔ ، ؛ etc.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(lexicon: {})  &#x21d2; <tt><span class='object_link'><a href="" title="Kotoshu::Grammar::UrPosTagger (class)">UrPosTagger</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns a new instance of UrPosTagger.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>lexicon</span>
+      
+      
+        <span class='type'>(<tt>Hash&lt;String, String&gt;</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>word =&gt; CLE tag; empty by
+default until the purchased corpus compiles in</p></div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+59
+60
+61</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/grammar/pos_tagger_ur.rb', line 59</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>lexicon:</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='ivar'>@lexicon</span> <span class='op'>=</span> <span class='id identifier rubyid_lexicon'>lexicon</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="lexicon-instance_method">
+  
+    #<strong>lexicon</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the value of attribute lexicon.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+55
+56
+57</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/grammar/pos_tagger_ur.rb', line 55</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_lexicon'>lexicon</span>
+  <span class='ivar'>@lexicon</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="sample_lexicon-class_method">
+  
+    .<strong>sample_lexicon</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Word → CLE tag from the verified sample; memoized.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+47
+48
+49
+50
+51
+52</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/grammar/pos_tagger_ur.rb', line 47</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sample_lexicon'>sample_lexicon</span>
+  <span class='ivar'>@sample_lexicon</span> <span class='op'>||=</span> <span class='kw'>begin</span>
+    <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>json</span><span class='tstring_end'>&quot;</span></span>
+    <span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#SAMPLE_LEXICON_FILE-constant" title="Kotoshu::Grammar::UrPosTagger::SAMPLE_LEXICON_FILE (constant)">SAMPLE_LEXICON_FILE</a></span></span><span class='rparen'>)</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>words</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="compile_lexicon-instance_method">
+  
+    #<strong>compile_lexicon</strong>(pairs)  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Compile the lexicon from parsed CLE pairs (the 100K purchase
+drops in here).</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>pairs</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;Array&lt;String, String&gt;&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>[word, tag] pairs</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>lexicon size</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+68
+69
+70
+71
+72
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/grammar/pos_tagger_ur.rb', line 68</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_compile_lexicon'>compile_lexicon</span><span class='lparen'>(</span><span class='id identifier rubyid_pairs'>pairs</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_pairs'>pairs</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='id identifier rubyid_tag'>tag</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='const'><span class='object_link'><a href="../Grammar.html" title="Kotoshu::Grammar (module)">Grammar</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="PosTagset.html" title="Kotoshu::Grammar::PosTagset (module)">PosTagset</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="PosTagset/Ur.html" title="Kotoshu::Grammar::PosTagset::Ur (module)">Ur</a></span></span><span class='period'>.</span><span class='id identifier rubyid_tag?'><span class='object_link'><a href="PosTagset/Ur.html#tag%3F-class_method" title="Kotoshu::Grammar::PosTagset::Ur.tag? (method)">tag?</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_tag'>tag</span><span class='rparen'>)</span>
+
+    <span class='ivar'>@lexicon</span><span class='lbracket'>[</span><span class='id identifier rubyid_word'>word</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='id identifier rubyid_tag'>tag</span>
+  <span class='kw'>end</span>
+  <span class='ivar'>@lexicon</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="tag-instance_method">
+  
+    #<strong>tag</strong>(text)  &#x21d2; <tt>Array&lt;Hash&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Tag a sentence: token hashes matching the English tagger contract.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>text</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;Hash&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>[pos:, index:] where pos is the
+CLE tag string (or :UNKNOWN for open-class words pre-lexicon)</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+82
+83
+84
+85
+86</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/grammar/pos_tagger_ur.rb', line 82</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_tag'>tag</span><span class='lparen'>(</span><span class='id identifier rubyid_text'>text</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_tokenize'>tokenize</span><span class='lparen'>(</span><span class='id identifier rubyid_text'>text</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each_with_index'>each_with_index</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+    <span class='lbrace'>{</span> <span class='label'>word:</span> <span class='id identifier rubyid_word'>word</span><span class='comma'>,</span> <span class='label'>pos:</span> <span class='id identifier rubyid_pos_for'>pos_for</span><span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='label'>index:</span> <span class='id identifier rubyid_i'>i</span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="tag_reduced-instance_method">
+  
+    #<strong>tag_reduced</strong>(text)  &#x21d2; <tt>Array&lt;Hash&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Reduced-tag view for the rule engine.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>text</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;Hash&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>[pos:, reduced:, index:]</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+100
+101
+102
+103
+104
+105</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/grammar/pos_tagger_ur.rb', line 100</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_tag_reduced'>tag_reduced</span><span class='lparen'>(</span><span class='id identifier rubyid_text'>text</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_tag'>tag</span><span class='lparen'>(</span><span class='id identifier rubyid_text'>text</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_tok'>tok</span><span class='op'>|</span>
+    <span class='id identifier rubyid_tok'>tok</span><span class='lbracket'>[</span><span class='symbol'>:reduced</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#REDUCED-constant" title="Kotoshu::Grammar::UrPosTagger::REDUCED (constant)">REDUCED</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_tok'>tok</span><span class='lbracket'>[</span><span class='symbol'>:pos</span><span class='rbracket'>]</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='symbol'>:UNKNOWN</span>
+    <span class='id identifier rubyid_tok'>tok</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="tokenize-instance_method">
+  
+    #<strong>tokenize</strong>(text)  &#x21d2; <tt>Array&lt;String&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Urdu tokenizes on whitespace; punctuation ۔ ، ؛ etc. splits off.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>text</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+92
+93
+94</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/grammar/pos_tagger_ur.rb', line 92</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_tokenize'>tokenize</span><span class='lparen'>(</span><span class='id identifier rubyid_text'>text</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_text'>text</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='period'>.</span><span class='id identifier rubyid_flat_map'>flat_map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_tok'>tok</span><span class='op'>|</span> <span class='id identifier rubyid_tok'>tok</span><span class='period'>.</span><span class='id identifier rubyid_scan'>scan</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[[:word:]‌]+|[[:punct:]]+</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_reject'>reject</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:empty?</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Nov 28 13:52:00 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.46 (ruby-3.3.14).
+</div>
+
+    </div>
+  </body>
+</html>

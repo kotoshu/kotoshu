@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Kotoshu::Grammar::PosTagset::Ur
+  
+    &mdash; Kotoshu API Reference
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Kotoshu::Grammar::PosTagset::Ur";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (U)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Kotoshu.html" title="Kotoshu (module)">Kotoshu</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Grammar.html" title="Kotoshu::Grammar (module)">Grammar</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../PosTagset.html" title="Kotoshu::Grammar::PosTagset (module)">PosTagset</a></span></span>
+     &raquo; 
+    <span class="title">Ur</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Kotoshu::Grammar::PosTagset::Ur
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/kotoshu/grammar/pos_tagset/ur.rb
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>The CLE Urdu POS Tagset as canonical data (issue #277).</p>
+<p>Spec: &quot;The CLE Urdu POS Tagset&quot; (LREC 2014,
+<a href="https://aclanthology.org/L14-1250/">https://aclanthology.org/L14-1250/</a>) — 12 major categories with
+subdivisions, 32 tags, Penn Treebank + Common Tagset for Indian
+Languages lineage. CLE applied this tagset to the 100k words of
+the CLE Urdu Digest Corpus at 96.8% automatic accuracy; the
+human-reviewed purchase rides the same spec.</p>
+<p>31 of the 32 tags are attested in the complimentary human-verified
+sample (pk-cle-urdu delivery, 2026-11-20). VB (bare verb) is
+recorded from the paper's schema and flagged SPEC_DERIVED until
+the full delivery attests it.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="MAJOR_CATEGORIES-constant" class="">MAJOR_CATEGORIES =
+          <div class="docstring">
+  <div class="discussion">
+    <p>MAJOR: the 12 major categories of the CLE schema.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='label'>noun:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Nouns and proper nouns</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>verb:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Finite, infinitive and bare verb forms</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>auxiliary:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Auxiliary verbs by syntactic context</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>pronoun:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Personal, relative, reflexive, demonstrative, intensifier</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>postposition:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Urdu postpositions (case markers)</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>adjective:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Adjectives and adjective participles</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>adverb:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Adverbs</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>particle:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Particles, negation, demonstratives, quantifiers</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>conjunction:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Coordinating and subordinating conjunctions</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>number:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Cardinal and ordinal numbers</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>punctuation:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Punctuation and symbols</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>residual:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Interjections and residuals</span><span class='tstring_end'>&quot;</span></span>
+<span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+        <dt id="TAGS-constant" class="">TAGS =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>NN</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>noun</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:noun</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>NNP</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>proper noun</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:noun</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>VB</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>bare verb form (root/stem)</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:verb</span><span class='comma'>,</span>
+            <span class='label'>note:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SPEC_DERIVED — not attested in the 2k sample</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>VBF</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>finite verb</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:verb</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>VBI</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>infinitive verb</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:verb</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>AUXT</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>auxiliary, tense carrier</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:auxiliary</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>AUXA</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>auxiliary, aspectual</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:auxiliary</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>AUXM</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>auxiliary, modal</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:auxiliary</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>AUXP</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>auxiliary, passive/copular</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:auxiliary</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PRP</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>personal pronoun</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:pronoun</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PRR</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>relative pronoun</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:pronoun</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PRS</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>reflexive pronoun</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:pronoun</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PRD</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>demonstrative pronoun</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:pronoun</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PRF</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>intensive/reflexive-focus pronoun</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:pronoun</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>APNA</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>reflexive possessive اپنا</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:pronoun</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PSP</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>postposition (case marker)</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:postposition</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>JJ</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>adjective</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:adjective</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>RB</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>adverb</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:adverb</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PRT</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>particle</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:particle</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>NEG</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>negation particle نہیں/نہ</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:particle</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PDM</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>demonstrative</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:particle</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Q</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>quantifier/frequency word</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:particle</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CC</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>coordinating conjunction</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:conjunction</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SC</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>subordinating conjunction</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:conjunction</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SCK</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>subordinating conjunction, conditional</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:conjunction</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SCP</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>subordinating conjunction, purpose</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:conjunction</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CD</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cardinal number</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:number</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>OD</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ordinal number</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:number</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PU</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>punctuation</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:punctuation</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SYM</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>symbol</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:punctuation</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>VALA</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>والا agentive-morpheme tag</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:particle</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>INJ</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='label'>gloss:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>interjection</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>major:</span> <span class='symbol'>:residual</span> <span class='rbrace'>}</span>
+<span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+        <dt id="ALL-constant" class="">ALL =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TAGS-constant" title="Kotoshu::Grammar::PosTagset::Ur::TAGS (constant)">TAGS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_sort'>sort</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+        <dt id="SPEC_DERIVED-constant" class="">SPEC_DERIVED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TAGS-constant" title="Kotoshu::Grammar::PosTagset::Ur::TAGS (constant)">TAGS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid__'>_</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='op'>|</span> <span class='id identifier rubyid_v'>v</span><span class='lbracket'>[</span><span class='symbol'>:note</span><span class='rbracket'>]</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#gloss-class_method" title="gloss (class method)">.<strong>gloss</strong>(tag)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#major-class_method" title="major (class method)">.<strong>major</strong>(tag)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#major_count-class_method" title="major_count (class method)">.<strong>major_count</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#size-class_method" title="size (class method)">.<strong>size</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#tag%3F-class_method" title="tag? (class method)">.<strong>tag?</strong>(tag)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="gloss-class_method">
+  
+    .<strong>gloss</strong>(tag)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+83
+84
+85</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/grammar/pos_tagset/ur.rb', line 83</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_gloss'>gloss</span><span class='lparen'>(</span><span class='id identifier rubyid_tag'>tag</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="#TAGS-constant" title="Kotoshu::Grammar::PosTagset::Ur::TAGS (constant)">TAGS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dig'>dig</span><span class='lparen'>(</span><span class='id identifier rubyid_tag'>tag</span><span class='comma'>,</span> <span class='symbol'>:gloss</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="major-class_method">
+  
+    .<strong>major</strong>(tag)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+79
+80
+81</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/grammar/pos_tagset/ur.rb', line 79</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_major'>major</span><span class='lparen'>(</span><span class='id identifier rubyid_tag'>tag</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="#TAGS-constant" title="Kotoshu::Grammar::PosTagset::Ur::TAGS (constant)">TAGS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dig'>dig</span><span class='lparen'>(</span><span class='id identifier rubyid_tag'>tag</span><span class='comma'>,</span> <span class='symbol'>:major</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="major_count-class_method">
+  
+    .<strong>major_count</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+87
+88
+89</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/grammar/pos_tagset/ur.rb', line 87</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_major_count'>major_count</span>
+  <span class='const'><span class='object_link'><a href="#MAJOR_CATEGORIES-constant" title="Kotoshu::Grammar::PosTagset::Ur::MAJOR_CATEGORIES (constant)">MAJOR_CATEGORIES</a></span></span><span class='period'>.</span><span class='id identifier rubyid_size'><span class='object_link'><a href="#size-class_method" title="Kotoshu::Grammar::PosTagset::Ur.size (method)">size</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="size-class_method">
+  
+    .<strong>size</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+91
+92
+93</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/grammar/pos_tagset/ur.rb', line 91</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+  <span class='const'><span class='object_link'><a href="#TAGS-constant" title="Kotoshu::Grammar::PosTagset::Ur::TAGS (constant)">TAGS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="tag?-class_method">
+  
+    .<strong>tag?</strong>(tag)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/kotoshu/grammar/pos_tagset/ur.rb', line 75</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_tag?'>tag?</span><span class='lparen'>(</span><span class='id identifier rubyid_tag'>tag</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="#TAGS-constant" title="Kotoshu::Grammar::PosTagset::Ur::TAGS (constant)">TAGS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_tag'>tag</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Sat Nov 28 13:51:56 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.46 (ruby-3.3.14).
+</div>
+
+    </div>
+  </body>
+</html>
